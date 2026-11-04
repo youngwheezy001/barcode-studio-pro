@@ -7,3 +7,34 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
+
+# Proxy API and Auth requests directly to Render backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://barcode-studio-pro.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/login"
+  to = "https://barcode-studio-pro.onrender.com/login"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/register"
+  to = "https://barcode-studio-pro.onrender.com/register"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/users/*"
+  to = "https://barcode-studio-pro.onrender.com/users/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/create-checkout-session"
+  to = "https://barcode-studio-pro.onrender.com/create-checkout-session"
+  status = 200
+  force = true
