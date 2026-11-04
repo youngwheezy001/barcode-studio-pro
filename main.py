@@ -307,11 +307,37 @@ def compile_aamva_endpoint(req: AamvaCompileRequest):
         "xml": xml
     }
 
-@app.post("/create-checkout-session", summary="Create Stripe Checkout Session for 10 tokens")
-@limiter.limit("5/minute")
-def create_checkout_session(request: Request, current_user: User = Depends(get_current_user)):
+class MockPurchaseRequest(BaseModel):
+    package_id: str = "pro_50"
+    tokens: int = 50
+    amount_usd: float = 14.99
+
+@app.post("/api/tokens/purchase-mock", summary="Execute mock/sandbox token checkout for practice")
+def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    add_count = max(1, payload.tokens)
+    current_user.tokens += add_count
+    db.commit()
+    db.refresh(current_user)
+    return {
+        "status": "success",
+        "message": f"Payment approved (Sandbox Mode). Successfully credited {add_count} export tokens!",
+        "tokens_added": add_count,
+        "tokens_remaining": current_user.tokens
+    }
+
+class CheckoutSessionRequest(BaseModel):
+    package_id: Optional[str] = "starter_10"
+    tokens: Optional[int] = 10
+    amount_cents: Optional[int] = 499
+
+@app.post("/create-checkout-session", summary="Create Stripe Checkout Session")
+@limiter.limit("10/minute")
+def create_checkout_session(request: Request, payload: Optional[CheckoutSessionRequest] = None, current_user: User = Depends(get_current_user)):
     host = request.headers.get("origin") or request.headers.get("referer") or "http://localhost:8000"
     base_url = host.rstrip("/")
+
+    tokens = payload.tokens if payload and payload.tokens else 10
+    amount_cents = payload.amount_cents if payload and payload.amount_cents else 499
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -320,23 +346,24 @@ def create_checkout_session(request: Request, current_user: User = Depends(get_c
                 'price_data': {
                     'currency': 'usd',
                     'product_data': {
-                        'name': '10 Barcode Studio Export Tokens',
-                        'description': 'High-resolution PNG, SVG, PDF and AAMVA ID card exports.'
+                        'name': f'{tokens} Barcode Studio Export Tokens',
+                        'description': f'{tokens} high-resolution PNG, SVG, PDF and AAMVA ID card exports.'
                     },
-                    'unit_amount': 500,  # $5.00 USD
+                    'unit_amount': amount_cents,
                 },
                 'quantity': 1,
             }],
             mode='payment',
-            success_url=f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}",
+            success_url=f"{base_url}/success.html?session_id={{CHECKOUT_SESSION_ID}}&tokens={tokens}",
             cancel_url=f"{base_url}/cancel.html",
-            client_reference_id=str(current_user.id)
+            client_reference_id=str(current_user.id),
+            metadata={"tokens": str(tokens)}
         )
         return {"checkout_url": checkout_session.url}
     except Exception as e:
         # Fallback for dev environment without active live Stripe keys
         return {
-            "checkout_url": f"{base_url}/success.html?dev_simulated=true",
+            "checkout_url": f"{base_url}/success.html?dev_simulated=true&tokens={tokens}",
             "dev_notice": f"Dev simulated payment: {str(e)}"
         }
 

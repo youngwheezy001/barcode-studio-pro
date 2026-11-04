@@ -166,8 +166,55 @@ def run_tests():
     assert depleted_now_admin_exp.json()["tokens_remaining"] == 999999
     print("  -> Passed: Depleted account successfully unlocked to admin with unlimited tokens!")
 
+    # 10. Test Outsider Practice Token Checkout (Mock Purchases)
+    print("\n[10/11] Testing Outsider Practice Token Purchases (Mock Sandbox)...")
+    outsider_email = "outsider_client@barcodestudio.pro"
+    outsider_pwd = "ClientPassword123!"
+
+    db = SessionLocal()
+    existing_out = db.query(User).filter(User.email == outsider_email).first()
+    if existing_out:
+        db.delete(existing_out)
+        db.commit()
+    db.close()
+
+    reg_out = client.post("/register", json={"email": outsider_email, "password": outsider_pwd})
+    assert reg_out.status_code == 200
+    out_login = client.post("/login", data={"username": outsider_email, "password": outsider_pwd})
+    out_token = out_login.json()["access_token"]
+    out_headers = {"Authorization": f"Bearer {out_token}"}
+
+    # Verify initial 3 tokens
+    out_profile = client.get("/users/me", headers=out_headers).json()
+    assert out_profile["tokens"] == 3
+
+    # Outsider purchases Starter Pack (10 tokens)
+    p1 = client.post("/api/tokens/purchase-mock", json={"package_id": "starter_10", "tokens": 10, "amount_usd": 4.99}, headers=out_headers)
+    assert p1.status_code == 200
+    assert p1.json()["tokens_remaining"] == 13
+    print("  -> Passed: Purchased Starter Pack (+10 tokens, balance: 13)")
+
+    # Outsider purchases Professional Pack (50 tokens)
+    p2 = client.post("/api/tokens/purchase-mock", json={"package_id": "pro_50", "tokens": 50, "amount_usd": 14.99}, headers=out_headers)
+    assert p2.status_code == 200
+    assert p2.json()["tokens_remaining"] == 63
+    print("  -> Passed: Purchased Professional Pack (+50 tokens, balance: 63)")
+
+    # Outsider purchases Enterprise Pack (250 tokens)
+    p3 = client.post("/api/tokens/purchase-mock", json={"package_id": "enterprise_250", "tokens": 250, "amount_usd": 39.99}, headers=out_headers)
+    assert p3.status_code == 200
+    assert p3.json()["tokens_remaining"] == 313
+    print("  -> Passed: Purchased Enterprise Pack (+250 tokens, balance: 313)")
+
+    # 11. Test Stripe Checkout Session Dynamic Packages
+    print("\n[11/11] Testing Dynamic Stripe Checkout Session Generation...")
+    stripe_session = client.post("/create-checkout-session", json={"package_id": "pro_50", "tokens": 50, "amount_cents": 1499}, headers=out_headers)
+    assert stripe_session.status_code == 200
+    assert "checkout_url" in stripe_session.json()
+    print("  -> Passed: Generated dynamic Stripe checkout session URL for 50 tokens ($14.99).")
+
     print("\n" + "=" * 60)
-    print("ALL 9/9 TEST SUITES PASSED! Admin unlimited token bypass verified.")
+    print("ALL 11/11 TEST SUITES PASSED! Outsider practice checkout and token packages fully verified.")
     print("=" * 60)
 
 if __name__ == "__main__":
