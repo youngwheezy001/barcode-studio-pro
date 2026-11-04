@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from jose import JWTError, jwt
 
@@ -48,7 +48,82 @@ class User(Base):
     role = Column(String, default="free_user")
     tokens = Column(Integer, default=3)  # 3 free tokens on registration for test runs
 
+class CryptoPayment(Base):
+    __tablename__ = "crypto_payments"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    user_email = Column(String, nullable=False)
+    package_id = Column(String, nullable=False)
+    tokens = Column(Integer, nullable=False)
+    amount_usd = Column(Float, nullable=False)
+    crypto_currency = Column(String, nullable=False)
+    network = Column(String, nullable=False)
+    wallet_address = Column(String, nullable=False)
+    tx_hash = Column(String, nullable=True, index=True)
+    status = Column(String, default="pending")  # pending, submitted, confirmed, rejected
+    created_at = Column(DateTime, default=datetime.utcnow)
+    confirmed_at = Column(DateTime, nullable=True)
+
 Base.metadata.create_all(bind=engine)
+
+TOKEN_PACKAGES = {
+    "starter_10": {"tokens": 10, "amount_usd": 4.99, "name": "Starter Pack"},
+    "pro_50": {"tokens": 50, "amount_usd": 14.99, "name": "Professional Pack"},
+    "enterprise_250": {"tokens": 250, "amount_usd": 39.99, "name": "Enterprise Pack"}
+}
+
+CRYPTO_CONFIGS = {
+    "USDT_TRC20": {
+        "name": "USDT (TRC-20)",
+        "symbol": "USDT",
+        "network": "TRON (TRC-20)",
+        "badge": "Lowest Fee & Instant",
+        "recommended": True,
+        "wallet": os.getenv("CRYPTO_USDT_TRC20_WALLET", "TBarCodeStudioProPaymentWallet123TRC"),
+        "memo_required": False,
+        "note": "Send only USDT via TRON (TRC-20) network to this address. Minimal network fee (~$1)."
+    },
+    "USDT_POLYGON": {
+        "name": "USDT (Polygon)",
+        "symbol": "USDT",
+        "network": "Polygon (POS)",
+        "badge": "Sub-Penny Fees",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_USDT_POLYGON_WALLET", "0x71C0aB487A4F4F69B9c41E660d196429f52fB0B1"),
+        "memo_required": False,
+        "note": "Send only USDT on Polygon (MATIC) network. Gas fee is typically under $0.02."
+    },
+    "BTC": {
+        "name": "Bitcoin (BTC)",
+        "symbol": "BTC",
+        "network": "Bitcoin Core",
+        "badge": "Universal Standard",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_BTC_WALLET", "bc1qbarcodestudioproexportstokens999btc"),
+        "memo_required": False,
+        "note": "Send native BTC to this address. Requires 1 network confirmation."
+    },
+    "ETH": {
+        "name": "Ethereum (ETH)",
+        "symbol": "ETH",
+        "network": "Ethereum (ERC-20)",
+        "badge": "EVM Native",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_ETH_WALLET", "0x71C0aB487A4F4F69B9c41E660d196429f52fB0B1"),
+        "memo_required": False,
+        "note": "Send ETH on Ethereum mainnet or L2s."
+    },
+    "SOL": {
+        "name": "Solana (SOL)",
+        "symbol": "SOL",
+        "network": "Solana",
+        "badge": "Ultra Fast",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_SOL_WALLET", "BarCodeStudioProTokensPayment11111111111SOL"),
+        "memo_required": False,
+        "note": "Send SOL directly on Solana network. Instant ~1-second finality."
+    }
+}
 
 # Password hashing using native bcrypt with graceful fallback
 try:
@@ -394,6 +469,182 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 db.commit()
 
     return {"status": "success"}
+
+# --- CRYPTO PAYMENT ENDPOINTS ---
+
+class CreateCryptoOrderRequest(BaseModel):
+    package_id: str = "pro_50"
+    crypto_currency: str = "USDT_TRC20"
+
+class SubmitCryptoProofRequest(BaseModel):
+    order_id: int
+    tx_hash: str
+
+class VerifyMockCryptoRequest(BaseModel):
+    order_id: int
+
+@app.get("/api/crypto/config", summary="Get supported cryptocurrencies, wallet addresses and networks")
+def get_crypto_config():
+    return {
+        "packages": TOKEN_PACKAGES,
+        "currencies": CRYPTO_CONFIGS
+    }
+
+@app.post("/api/crypto/create-order", summary="Create pending crypto payment order")
+def create_crypto_order(req: CreateCryptoOrderRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if req.package_id not in TOKEN_PACKAGES:
+        raise HTTPException(status_code=400, detail="Invalid token package selected")
+    if req.crypto_currency not in CRYPTO_CONFIGS:
+        raise HTTPException(status_code=400, detail="Invalid cryptocurrency selected")
+
+    pkg = TOKEN_PACKAGES[req.package_id]
+    cfg = CRYPTO_CONFIGS[req.crypto_currency]
+
+    order = CryptoPayment(
+        user_id=current_user.id,
+        user_email=current_user.email,
+        package_id=req.package_id,
+        tokens=pkg["tokens"],
+        amount_usd=pkg["amount_usd"],
+        crypto_currency=req.crypto_currency,
+        network=cfg["network"],
+        wallet_address=cfg["wallet"],
+        status="pending"
+    )
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "status": "success",
+        "order_id": order.id,
+        "package_id": order.package_id,
+        "package_name": pkg["name"],
+        "tokens": order.tokens,
+        "amount_usd": order.amount_usd,
+        "crypto_currency": order.crypto_currency,
+        "crypto_name": cfg["name"],
+        "network": order.network,
+        "wallet_address": order.wallet_address,
+        "note": cfg["note"],
+        "order_status": order.status,
+        "created_at": order.created_at.isoformat()
+    }
+
+@app.post("/api/crypto/submit-proof", summary="Submit transaction hash proof for a crypto payment")
+def submit_crypto_proof(req: SubmitCryptoProofRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    order = db.query(CryptoPayment).filter(CryptoPayment.id == req.order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Not authorized to update this order")
+
+    tx_hash = req.tx_hash.strip()
+    if not tx_hash or len(tx_hash) < 6:
+        raise HTTPException(status_code=400, detail="Please provide a valid transaction hash (TxID)")
+
+    order.tx_hash = tx_hash
+    order.status = "submitted"
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "status": "success",
+        "message": "Transaction proof submitted successfully! Awaiting blockchain verification.",
+        "order_id": order.id,
+        "tx_hash": order.tx_hash,
+        "order_status": order.status
+    }
+
+@app.post("/api/crypto/verify-mock", summary="Simulate instant sandbox crypto confirmation for testing")
+def verify_crypto_mock(req: VerifyMockCryptoRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    order = db.query(CryptoPayment).filter(CryptoPayment.id == req.order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Not authorized to verify this order")
+
+    if order.status == "confirmed":
+        return {
+            "status": "success",
+            "message": "Order was already confirmed.",
+            "tokens_added": 0,
+            "tokens_remaining": current_user.tokens,
+            "order_id": order.id
+        }
+
+    order.status = "confirmed"
+    order.confirmed_at = datetime.utcnow()
+    current_user.tokens += order.tokens
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "status": "success",
+        "message": f"Payment confirmed! Successfully credited {order.tokens} tokens to your account.",
+        "tokens_added": order.tokens,
+        "tokens_remaining": current_user.tokens,
+        "order_id": order.id
+    }
+
+@app.get("/api/admin/crypto/orders", summary="Admin list all crypto payment orders")
+def list_crypto_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    orders = db.query(CryptoPayment).order_by(CryptoPayment.id.desc()).limit(100).all()
+    return {
+        "orders": [
+            {
+                "id": o.id,
+                "user_id": o.user_id,
+                "user_email": o.user_email,
+                "package_id": o.package_id,
+                "tokens": o.tokens,
+                "amount_usd": o.amount_usd,
+                "crypto_currency": o.crypto_currency,
+                "network": o.network,
+                "wallet_address": o.wallet_address,
+                "tx_hash": o.tx_hash,
+                "status": o.status,
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+                "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None
+            }
+            for o in orders
+        ]
+    }
+
+@app.post("/api/admin/crypto/approve/{order_id}", summary="Admin manually approve and credit a crypto order")
+def approve_crypto_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    order = db.query(CryptoPayment).filter(CryptoPayment.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status == "confirmed":
+        return {"status": "success", "message": f"Order #{order_id} is already confirmed."}
+
+    order.status = "confirmed"
+    order.confirmed_at = datetime.utcnow()
+
+    # Credit tokens to the purchasing user
+    purchaser = db.query(User).filter(User.id == order.user_id).first()
+    if purchaser:
+        purchaser.tokens += order.tokens
+
+    db.commit()
+    if purchaser:
+        db.refresh(purchaser)
+
+    return {
+        "status": "success",
+        "message": f"Order #{order_id} approved. Credited {order.tokens} tokens to {purchaser.email if purchaser else 'user'}.",
+        "order_id": order.id,
+        "purchaser_email": purchaser.email if purchaser else None,
+        "purchaser_tokens": purchaser.tokens if purchaser else None
+    }
 
 # Serve Frontend static files (Mounted after API routes so routes take priority)
 static_path = BASE_DIR / "static"

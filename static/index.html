@@ -169,47 +169,192 @@
                 </div>
             </div>
 
-            <!-- Payment Methods / Practice Checkout -->
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-3">
-                <div class="flex justify-between items-center text-xs">
+            <!-- Payment Methods / Checkout Views -->
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-center text-xs px-1">
                     <span class="font-bold text-slate-700">Selected Order:</span>
                     <span id="checkout-summary-text" class="font-extrabold text-slate-900 text-sm">50 Tokens for $14.99</span>
                 </div>
 
-                <!-- Practice Sandbox Credit Card Form -->
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between text-[11px] text-slate-500">
-                        <span class="font-semibold text-slate-700 flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5 text-slate-600" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path></svg>
-                            Payment Card (Sandbox / Practice Mode)
-                        </span>
-                        <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">Practice Simulation</span>
+                <!-- Payment Method Tab Switcher -->
+                <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button type="button" id="pay-tab-crypto" onclick="switchPayTab('crypto')" class="flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5">
+                        <span>🪙 Crypto Wallet</span>
+                        <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-extrabold">Direct</span>
+                    </button>
+                    <button type="button" id="pay-tab-practice" onclick="switchPayTab('practice')" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                        <span>🧪 Sandbox Card</span>
+                    </button>
+                    <button type="button" id="pay-tab-stripe" onclick="switchPayTab('stripe')" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                        <span>💳 Stripe Gateway</span>
+                    </button>
+                </div>
+
+                <!-- View 1: Crypto Wallet Payment (Direct) -->
+                <div id="pay-view-crypto" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-3">
+                    <!-- Coin Selector Buttons -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <span class="text-[10px] font-bold text-slate-600 uppercase">Select Cryptocurrency:</span>
+                            <span id="crypto-network-badge" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">TRON (TRC-20)</span>
+                        </div>
+                        <div class="grid grid-cols-5 gap-1.5">
+                            <button type="button" onclick="selectCrypto('USDT_TRC20')" id="coin-btn-USDT_TRC20" class="crypto-coin-btn border-2 border-accent bg-blue-50/50 text-slate-900 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition shadow-sm">
+                                <span>USDT</span>
+                                <span class="text-[8px] text-emerald-600 font-extrabold uppercase">TRC20</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('USDT_POLYGON')" id="coin-btn-USDT_POLYGON" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>USDT</span>
+                                <span class="text-[8px] text-purple-600 font-extrabold uppercase">POLYGON</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('BTC')" id="coin-btn-BTC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>BTC</span>
+                                <span class="text-[8px] text-amber-600 font-extrabold uppercase">BITCOIN</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('ETH')" id="coin-btn-ETH" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>ETH</span>
+                                <span class="text-[8px] text-blue-600 font-extrabold uppercase">ERC20</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('SOL')" id="coin-btn-SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>SOL</span>
+                                <span class="text-[8px] text-indigo-600 font-extrabold uppercase">SOLANA</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-4 gap-2">
-                        <div class="col-span-4 relative">
-                            <input type="text" id="mock-card-number" value="4242 •••• •••• 4242" readonly class="w-full bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-700 shadow-sm">
-                            <span class="absolute right-2.5 top-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">TEST VISA</span>
+                    <!-- Payment Details: Amount, QR, Address -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col gap-2.5">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Amount to Transfer</span>
+                                <span id="crypto-amount-display" class="text-base font-extrabold text-slate-900">$14.99 USDT</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Recipient Network</span>
+                                <span id="crypto-network-label" class="text-xs font-bold text-emerald-600">TRON Network</span>
+                            </div>
                         </div>
-                        <div class="col-span-2">
-                            <input type="text" id="mock-card-exp" value="12 / 28" readonly class="w-full bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-700 text-center shadow-sm">
+
+                        <!-- QR Code & Address Box -->
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white p-1 rounded-lg border border-slate-200 flex items-center justify-center shrink-0">
+                                <canvas id="crypto-qr-canvas" width="96" height="96" class="w-24 h-24"></canvas>
+                            </div>
+
+                            <div class="flex-1 flex flex-col justify-center gap-1 min-w-0">
+                                <span class="text-[10px] uppercase font-bold text-slate-500">Recipient Wallet Address:</span>
+                                <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg p-1.5">
+                                    <span id="crypto-wallet-address" class="font-mono text-[10px] text-slate-800 truncate select-all flex-1">TBarCodeStudioProPaymentWallet123TRC</span>
+                                    <button type="button" onclick="copyCryptoAddress()" id="btn-copy-address" class="shrink-0 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-[10px] font-bold px-2 py-1 rounded transition flex items-center gap-1 shadow-sm">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                                        <span id="copy-text">Copy</span>
+                                    </button>
+                                </div>
+                                <p id="crypto-note" class="text-[10px] text-slate-400 leading-tight">Send only USDT via TRON (TRC-20) network to this address. Minimal fee (~$1).</p>
+                            </div>
                         </div>
-                        <div class="col-span-2">
-                            <input type="text" id="mock-card-cvc" value="CVC 123" readonly class="w-full bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-700 text-center shadow-sm">
+                    </div>
+
+                    <!-- Step 2: Proof of Payment (TxID) -->
+                    <div class="flex flex-col gap-1.5">
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase">
+                            Step 2: Enter Transaction Hash (TxID) after sending:
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="crypto-tx-hash" placeholder="Paste TxID / Transaction Hash from your wallet" class="flex-1 bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-800 outline-none focus:ring-2 focus:ring-accent">
+                            <button type="button" onclick="submitCryptoProof()" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-3.5 py-2 rounded-lg transition shadow flex items-center gap-1 shrink-0">
+                                <span>Submit TxID</span>
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- Instant Practice Simulation for Crypto -->
+                    <div class="pt-1">
+                        <button type="button" onclick="executePracticeCryptoPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span id="crypto-practice-btn-text">⚡ Practice Instant Crypto Verify &amp; Add Tokens</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Instant Practice Checkout Button -->
-                <button id="btn-mock-pay" onclick="executeMockCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    <span id="mock-pay-btn-text">Pay $14.99 &amp; Add 50 Tokens (Test Checkout)</span>
-                </button>
+                <!-- View 2: Practice Sandbox Credit Card Form -->
+                <div id="pay-view-practice" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-3">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between text-[11px] text-slate-500">
+                            <span class="font-semibold text-slate-700 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-600" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path></svg>
+                                Payment Card (Sandbox Simulation)
+                            </span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">Practice Simulation</span>
+                        </div>
 
-                <!-- Real Stripe Option -->
-                <button type="button" onclick="checkoutStripeSelected()" class="w-full bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold py-2 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
-                    <span>Pay with Live Stripe Gateway</span>
-                </button>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div class="col-span-4 relative">
+                                <input type="text" id="mock-card-number" value="4242 •••• •••• 4242" readonly class="w-full bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-700 shadow-sm">
+                                <span class="absolute right-2.5 top-2 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">TEST VISA</span>
+                            </div>
+                            <div class="col-span-2">
+                                <input type="text" id="mock-card-exp" value="12 / 28" readonly class="w-full bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-700 text-center shadow-sm">
+                            </div>
+                            <div class="col-span-2">
+                                <input type="text" id="mock-card-cvc" value="CVC 123" readonly class="w-full bg-white border border-slate-300 p-2 text-xs rounded-lg font-mono text-slate-700 text-center shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="btn-mock-pay" onclick="executeMockCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span id="mock-pay-btn-text">Pay $14.99 &amp; Add 50 Tokens (Test Checkout)</span>
+                    </button>
+                </div>
+
+                <!-- View 3: Real Stripe Option -->
+                <div id="pay-view-stripe" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-3">
+                    <p class="text-xs text-slate-500">Pay securely using major Credit/Debit cards (Visa, MasterCard, Amex) through Stripe's hosted gateway.</p>
+                    <button type="button" onclick="checkoutStripeSelected()" class="w-full bg-accent hover:bg-accent-hover text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow">
+                        <span>Launch Live Stripe Gateway</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Crypto Orders Modal -->
+    <div id="admin-crypto-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col gap-3 max-h-[85vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🪙</span>
+                    <h3 class="text-sm font-bold text-slate-900">Admin Crypto Payment Ledger &amp; Approvals</h3>
+                </div>
+                <button onclick="closeAdminCryptoModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+            <p class="text-xs text-slate-500">Review incoming customer crypto payments, verify TxID hashes on blockchain explorers, and 1-click approve token credits.</p>
+            
+            <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Customer</th>
+                            <th class="p-2.5">Package</th>
+                            <th class="p-2.5">Amount</th>
+                            <th class="p-2.5">Coin / Network</th>
+                            <th class="p-2.5">Tx Hash</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-crypto-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="8" class="p-4 text-center text-slate-400">Loading crypto orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                <span class="text-slate-500">Live SQLite Database Ledger</span>
+                <button onclick="loadAdminCryptoOrders()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition">Refresh Ledger</button>
             </div>
         </div>
     </div>
@@ -272,6 +417,11 @@
             <button onclick="openTokenModal()" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Buy Tokens</span>
+            </button>
+
+            <!-- Admin Crypto Ledger Button (Visible to elevated Admin) -->
+            <button id="admin-crypto-btn" onclick="openAdminCryptoModal()" class="hidden text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1">
+                <span>🪙 Orders</span>
             </button>
 
             <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold transition" title="Click to view token packages">
@@ -2227,6 +2377,17 @@
             amount_cents: 1499
         };
 
+        let currentPayTab = 'crypto';
+        let currentCryptoCoin = 'USDT_TRC20';
+        let currentCryptoOrder = null;
+        let cryptoConfigs = {
+            "USDT_TRC20": { name: "USDT (TRC-20)", symbol: "USDT", network: "TRON (TRC-20)", badge: "Lowest Fee & Instant", wallet: "TBarCodeStudioProPaymentWallet123TRC", note: "Send only USDT via TRON (TRC-20) network to this address. Minimal fee (~$1)." },
+            "USDT_POLYGON": { name: "USDT (Polygon)", symbol: "USDT", network: "Polygon (POS)", badge: "Sub-Penny Fees", wallet: "0x71C0aB487A4F4F69B9c41E660d196429f52fB0B1", note: "Send only USDT on Polygon (MATIC) network. Gas fee under $0.02." },
+            "BTC": { name: "Bitcoin (BTC)", symbol: "BTC", network: "Bitcoin Core", badge: "Universal Standard", wallet: "bc1qbarcodestudioproexportstokens999btc", note: "Send native BTC to this address. Requires 1 network confirmation." },
+            "ETH": { name: "Ethereum (ETH)", symbol: "ETH", network: "Ethereum (ERC-20)", badge: "EVM Native", wallet: "0x71C0aB487A4F4F69B9c41E660d196429f52fB0B1", note: "Send ETH on Ethereum mainnet or L2s." },
+            "SOL": { name: "Solana (SOL)", symbol: "SOL", network: "Solana", badge: "Ultra Fast", wallet: "BarCodeStudioProTokensPayment11111111111SOL", note: "Send SOL directly on Solana network. Instant ~1-second finality." }
+        };
+
         function selectPackage(packageId, tokens, price) {
             selectedPackage = {
                 id: packageId,
@@ -2234,6 +2395,7 @@
                 price: price,
                 amount_cents: Math.round(price * 100)
             };
+            currentCryptoOrder = null;
 
             ['starter_10', 'pro_50', 'enterprise_250'].forEach(id => {
                 const el = document.getElementById(`pkg-${id}`);
@@ -2254,6 +2416,321 @@
 
             const mockBtnText = document.getElementById('mock-pay-btn-text');
             if (mockBtnText) mockBtnText.textContent = `Pay $${price.toFixed(2)} & Add ${tokens} Tokens (Test Checkout)`;
+
+            updateCryptoUI();
+        }
+
+        function switchPayTab(tab) {
+            currentPayTab = tab;
+            const tabCrypto = document.getElementById('pay-tab-crypto');
+            const tabPractice = document.getElementById('pay-tab-practice');
+            const tabStripe = document.getElementById('pay-tab-stripe');
+
+            const viewCrypto = document.getElementById('pay-view-crypto');
+            const viewPractice = document.getElementById('pay-view-practice');
+            const viewStripe = document.getElementById('pay-view-stripe');
+
+            const activeTabClass = 'flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5';
+            const inactiveTabClass = 'flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5';
+
+            if (tabCrypto) tabCrypto.className = tab === 'crypto' ? activeTabClass : inactiveTabClass;
+            if (tabPractice) tabPractice.className = tab === 'practice' ? activeTabClass : inactiveTabClass;
+            if (tabStripe) tabStripe.className = tab === 'stripe' ? activeTabClass : inactiveTabClass;
+
+            if (tab === 'crypto') {
+                if (viewCrypto) viewCrypto.classList.remove('hidden');
+                if (viewPractice) viewPractice.classList.add('hidden');
+                if (viewStripe) viewStripe.classList.add('hidden');
+                updateCryptoUI();
+            } else if (tab === 'practice') {
+                if (viewPractice) viewPractice.classList.remove('hidden');
+                if (viewCrypto) viewCrypto.classList.add('hidden');
+                if (viewStripe) viewStripe.classList.add('hidden');
+            } else {
+                if (viewStripe) viewStripe.classList.remove('hidden');
+                if (viewCrypto) viewCrypto.classList.add('hidden');
+                if (viewPractice) viewPractice.classList.add('hidden');
+            }
+        }
+
+        async function loadCryptoConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/api/crypto/config`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.currencies) {
+                        cryptoConfigs = data.currencies;
+                        updateCryptoUI();
+                    }
+                }
+            } catch (e) {
+                console.log("Using cached crypto configs:", e);
+            }
+        }
+
+        function selectCrypto(coinKey) {
+            currentCryptoCoin = coinKey;
+            currentCryptoOrder = null;
+
+            ['USDT_TRC20', 'USDT_POLYGON', 'BTC', 'ETH', 'SOL'].forEach(key => {
+                const btn = document.getElementById(`coin-btn-${key}`);
+                if (!btn) return;
+                if (key === coinKey) {
+                    btn.className = 'crypto-coin-btn border-2 border-accent bg-blue-50/50 text-slate-900 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition shadow-sm';
+                } else {
+                    btn.className = 'crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition';
+                }
+            });
+
+            updateCryptoUI();
+        }
+
+        function updateCryptoUI() {
+            const cfg = cryptoConfigs[currentCryptoCoin] || cryptoConfigs['USDT_TRC20'];
+            if (!cfg) return;
+
+            const badgeEl = document.getElementById('crypto-network-badge');
+            if (badgeEl) badgeEl.textContent = cfg.network;
+
+            const labelEl = document.getElementById('crypto-network-label');
+            if (labelEl) labelEl.textContent = cfg.network;
+
+            const amountEl = document.getElementById('crypto-amount-display');
+            if (amountEl) {
+                if (cfg.symbol === 'USDT') {
+                    amountEl.textContent = `$${selectedPackage.price.toFixed(2)} USDT`;
+                } else {
+                    amountEl.textContent = `$${selectedPackage.price.toFixed(2)} USD (${cfg.symbol})`;
+                }
+            }
+
+            const addrEl = document.getElementById('crypto-wallet-address');
+            if (addrEl) addrEl.textContent = cfg.wallet;
+
+            const noteEl = document.getElementById('crypto-note');
+            if (noteEl) noteEl.textContent = cfg.note;
+
+            const practiceBtn = document.getElementById('crypto-practice-btn-text');
+            if (practiceBtn) {
+                practiceBtn.textContent = `⚡ Practice Instant Crypto Verify & Add ${selectedPackage.tokens} Tokens`;
+            }
+
+            // Render crisp QR code using bwip-js
+            const canvas = document.getElementById('crypto-qr-canvas');
+            if (canvas && window.bwipjs && cfg.wallet) {
+                try {
+                    bwipjs.toCanvas('crypto-qr-canvas', {
+                        bcid: 'qrcode',
+                        text: cfg.wallet,
+                        scale: 3,
+                        padding: 2,
+                        backgroundcolor: 'ffffff'
+                    });
+                } catch (e) {
+                    console.error("QR Code render error:", e);
+                }
+            }
+        }
+
+        function copyCryptoAddress() {
+            const cfg = cryptoConfigs[currentCryptoCoin];
+            const addr = cfg ? cfg.wallet : document.getElementById('crypto-wallet-address').textContent;
+            navigator.clipboard.writeText(addr).then(() => {
+                showToast(`Copied ${cfg ? cfg.name : 'Crypto'} wallet address to clipboard!`, 'success');
+                const copyText = document.getElementById('copy-text');
+                if (copyText) {
+                    copyText.textContent = 'Copied!';
+                    setTimeout(() => { copyText.textContent = 'Copy'; }, 2000);
+                }
+            }).catch(() => {
+                showToast('Failed to copy address automatically. Please select and copy.', 'error');
+            });
+        }
+
+        async function ensureCryptoOrder() {
+            if (currentCryptoOrder && currentCryptoOrder.package_id === selectedPackage.id && currentCryptoOrder.crypto_currency === currentCryptoCoin) {
+                return currentCryptoOrder;
+            }
+
+            const res = await fetch(`${API_BASE}/api/crypto/create-order`, {
+                method: 'POST',
+                headers: {
+                    ...getAuthHeader(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    package_id: selectedPackage.id,
+                    crypto_currency: currentCryptoCoin
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Failed to initialize crypto order');
+            currentCryptoOrder = data;
+            return currentCryptoOrder;
+        }
+
+        async function submitCryptoProof() {
+            if (!currentUser) {
+                closeTokenModal();
+                openAuthModal();
+                showToast('Please sign in first to attach your crypto payment to your account.', 'warning');
+                return;
+            }
+
+            const txInput = document.getElementById('crypto-tx-hash');
+            const txHash = (txInput ? txInput.value : '').trim();
+            if (!txHash) {
+                showToast('Please enter the transaction hash / TxID from your wallet transfer.', 'warning');
+                return;
+            }
+
+            try {
+                const order = await ensureCryptoOrder();
+                const res = await fetch(`${API_BASE}/api/crypto/submit-proof`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeader(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        order_id: order.order_id,
+                        tx_hash: txHash
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Submission failed');
+
+                showToast('🎉 Transaction hash submitted! Tokens will be credited once confirmed on the blockchain.', 'success');
+                if (txInput) txInput.value = '';
+                closeTokenModal();
+            } catch (err) {
+                showToast('Failed to submit proof: ' + err.message, 'error');
+            }
+        }
+
+        async function executePracticeCryptoPayment() {
+            if (!currentUser) {
+                closeTokenModal();
+                openAuthModal();
+                showToast('Please sign in or create an account to store tokens.', 'warning');
+                return;
+            }
+
+            const btnText = document.getElementById('crypto-practice-btn-text');
+            const originalText = btnText ? btnText.textContent : '';
+            if (btnText) btnText.textContent = 'Verifying on Blockchain (Simulation)...';
+
+            try {
+                const order = await ensureCryptoOrder();
+                const res = await fetch(`${API_BASE}/api/crypto/verify-mock`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeader(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ order_id: order.order_id })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Simulation failed');
+
+                if (typeof data.tokens_remaining !== 'undefined') {
+                    currentUser.tokens = data.tokens_remaining;
+                } else {
+                    currentUser.tokens += selectedPackage.tokens;
+                }
+
+                updateAuthUI();
+                closeTokenModal();
+                showToast(`🎉 Crypto Payment Verified! Added ${selectedPackage.tokens} tokens (New Balance: ${currentUser.tokens})`, 'success');
+            } catch (err) {
+                showToast('Crypto simulation error: ' + err.message, 'error');
+            } finally {
+                if (btnText) btnText.textContent = originalText;
+            }
+        }
+
+        // --- ADMIN CRYPTO LEDGER & APPROVAL ENGINE ---
+        function openAdminCryptoModal() {
+            const modal = document.getElementById('admin-crypto-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                loadAdminCryptoOrders();
+            }
+        }
+
+        function closeAdminCryptoModal() {
+            const modal = document.getElementById('admin-crypto-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function loadAdminCryptoOrders() {
+            const tbody = document.getElementById('admin-crypto-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">Loading crypto orders...</td></tr>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/crypto/orders`, {
+                    headers: { ...getAuthHeader() }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Failed to fetch orders');
+
+                if (!data.orders || data.orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">No crypto orders recorded yet.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.orders.map(o => {
+                    const isConfirmed = o.status === 'confirmed';
+                    const statusBadge = isConfirmed
+                        ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">CONFIRMED</span>'
+                        : (o.status === 'submitted'
+                            ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">SUBMITTED (TXID)</span>'
+                            : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDING</span>');
+
+                    const txDisplay = o.tx_hash
+                        ? `<span class="font-mono text-[10px] text-blue-600 select-all" title="${o.tx_hash}">${o.tx_hash.substring(0, 10)}...</span>`
+                        : '<span class="text-slate-400 italic">None</span>';
+
+                    const actionBtn = isConfirmed
+                        ? '<span class="text-[10px] text-slate-400 font-bold">Credited</span>'
+                        : `<button onclick="approveAdminCryptoOrder(${o.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow transition">Approve & Credit</button>`;
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-2.5 font-bold text-slate-900">#${o.id}</td>
+                            <td class="p-2.5 text-slate-700">${o.user_email}</td>
+                            <td class="p-2.5 font-bold">${o.tokens} Tokens</td>
+                            <td class="p-2.5 font-mono text-emerald-600 font-bold">$${o.amount_usd.toFixed(2)}</td>
+                            <td class="p-2.5 text-slate-600">${o.crypto_currency} (${o.network})</td>
+                            <td class="p-2.5">${txDisplay}</td>
+                            <td class="p-2.5">${statusBadge}</td>
+                            <td class="p-2.5 text-right">${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-rose-500 font-bold">Error loading orders: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function approveAdminCryptoOrder(orderId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/crypto/approve/${orderId}`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Approval failed');
+
+                showToast(data.message, 'success');
+                await loadAdminCryptoOrders();
+            } catch (err) {
+                showToast('Failed to approve order: ' + err.message, 'error');
+            }
         }
 
         function openTokenModal() {
@@ -2263,7 +2740,11 @@
                 return;
             }
             const modal = document.getElementById('token-modal');
-            if (modal) modal.classList.remove('hidden');
+            if (modal) {
+                modal.classList.remove('hidden');
+                loadCryptoConfig();
+                switchPayTab('crypto');
+            }
         }
 
         function closeTokenModal() {
@@ -2403,6 +2884,7 @@
                 }
                 updateAuthUI();
                 showToast('Admin Mode Unlocked! Unlimited exports granted.', 'success');
+                openAdminCryptoModal();
             } catch (err) {
                 showToast('Admin Unlock Failed: ' + err.message, 'error');
             }
@@ -2500,6 +2982,7 @@
             const paywallOverlay = document.getElementById('paywall-overlay');
             const paywallGuest = document.getElementById('paywall-guest-content');
             const paywallDepleted = document.getElementById('paywall-depleted-content');
+            const adminCryptoBtn = document.getElementById('admin-crypto-btn');
 
             if (currentUser) {
                 authBtn.classList.add('hidden');
@@ -2508,6 +2991,16 @@
                 userTokenPill.classList.add('flex');
 
                 const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
+
+                if (adminCryptoBtn) {
+                    if (isAdmin) {
+                        adminCryptoBtn.classList.remove('hidden');
+                        adminCryptoBtn.classList.add('flex');
+                    } else {
+                        adminCryptoBtn.classList.add('hidden');
+                        adminCryptoBtn.classList.remove('flex');
+                    }
+                }
 
                 if (isAdmin) {
                     roleBadge.innerHTML = `<span class="inline-flex items-center gap-1 font-bold"><svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z"></path></svg>Admin &bull; ${currentUser.email}</span>`;
@@ -2534,6 +3027,10 @@
                     if (paywallDepleted) paywallDepleted.classList.remove('hidden');
                 }
             } else {
+                if (adminCryptoBtn) {
+                    adminCryptoBtn.classList.add('hidden');
+                    adminCryptoBtn.classList.remove('flex');
+                }
                 roleBadge.textContent = 'Guest';
                 roleBadge.className = 'bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full';
                 authBtn.classList.remove('hidden');

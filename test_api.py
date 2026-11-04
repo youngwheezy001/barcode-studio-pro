@@ -213,8 +213,82 @@ def run_tests():
     assert "checkout_url" in stripe_session.json()
     print("  -> Passed: Generated dynamic Stripe checkout session URL for 50 tokens ($14.99).")
 
+    # 12. Test Crypto Config & Order Creation
+    print("\n[12/14] Testing Crypto Payment Config & Order Initiation...")
+    cfg_res = client.get("/api/crypto/config")
+    assert cfg_res.status_code == 200
+    cfg_data = cfg_res.json()
+    assert "USDT_TRC20" in cfg_data["currencies"]
+    assert "BTC" in cfg_data["currencies"]
+    assert "ETH" in cfg_data["currencies"]
+    assert "SOL" in cfg_data["currencies"]
+    print("  -> Passed: Crypto configurations verified for USDT (TRC-20), Polygon, BTC, ETH, and SOL.")
+
+    # Create Crypto Order for 50 tokens ($14.99)
+    order_res = client.post("/api/crypto/create-order", json={
+        "package_id": "pro_50",
+        "crypto_currency": "USDT_TRC20"
+    }, headers=out_headers)
+    assert order_res.status_code == 200
+    order_data = order_res.json()
+    order_id = order_data["order_id"]
+    assert order_data["amount_usd"] == 14.99
+    assert order_data["tokens"] == 50
+    assert order_data["crypto_currency"] == "USDT_TRC20"
+    assert "wallet_address" in order_data
+    print(f"  -> Passed: Created Crypto Order #{order_id} for $14.99 USDT (TRC-20).")
+
+    # 13. Test TxID Proof Submission & Mock Verification
+    print("\n[13/14] Testing Transaction Hash (TxID) Submission & Mock Verification...")
+    test_txid = "0x98f4e2c1a3b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1"
+    proof_res = client.post("/api/crypto/submit-proof", json={
+        "order_id": order_id,
+        "tx_hash": test_txid
+    }, headers=out_headers)
+    assert proof_res.status_code == 200
+    assert proof_res.json()["order_status"] == "submitted"
+    print("  -> Passed: Successfully submitted TxID proof.")
+
+    # Simulate Instant Sandbox Crypto Verification
+    balance_before = client.get("/users/me", headers=out_headers).json()["tokens"]
+    verify_res = client.post("/api/crypto/verify-mock", json={"order_id": order_id}, headers=out_headers)
+    assert verify_res.status_code == 200
+    balance_after = client.get("/users/me", headers=out_headers).json()["tokens"]
+    assert balance_after == balance_before + 50
+    print(f"  -> Passed: Mock crypto verification credited 50 tokens (Balance: {balance_before} -> {balance_after}).")
+
+    # 14. Test Admin Crypto Orders Ledger & Manual Approval
+    print("\n[14/14] Testing Admin Crypto Ledger & Manual Approval...")
+    # Create another order to test admin manual approval
+    order2_res = client.post("/api/crypto/create-order", json={
+        "package_id": "starter_10",
+        "crypto_currency": "SOL"
+    }, headers=out_headers)
+    order2_id = order2_res.json()["order_id"]
+    client.post("/api/crypto/submit-proof", json={
+        "order_id": order2_id,
+        "tx_hash": "5KnmZ1L...solana_tx_test"
+    }, headers=out_headers)
+
+    # Admin lists orders
+    admin_orders_res = client.get("/api/admin/crypto/orders", headers=admin_headers)
+    assert admin_orders_res.status_code == 200
+    orders_list = admin_orders_res.json()["orders"]
+    assert any(o["id"] == order2_id for o in orders_list)
+    print(f"  -> Passed: Admin retrieved crypto ledger with order #{order2_id} present.")
+
+    # Admin approves order 2
+    approve_res = client.post(f"/api/admin/crypto/approve/{order2_id}", headers=admin_headers)
+    assert approve_res.status_code == 200
+    assert "approved" in approve_res.json()["message"].lower()
+
+    # Verify user received 10 tokens from order 2
+    user_final_balance = client.get("/users/me", headers=out_headers).json()["tokens"]
+    assert user_final_balance == balance_after + 10
+    print(f"  -> Passed: Admin manual approval credited 10 tokens to user (Final balance: {user_final_balance}).")
+
     print("\n" + "=" * 60)
-    print("ALL 11/11 TEST SUITES PASSED! Outsider practice checkout and token packages fully verified.")
+    print("ALL 14/14 TEST SUITES PASSED! Direct crypto payments, TxID proof submission, and admin approval verified.")
     print("=" * 60)
 
 if __name__ == "__main__":
