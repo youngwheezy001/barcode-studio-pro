@@ -116,56 +116,150 @@
             <button id="auth-submit-btn" onclick="submitAuthForm()" class="w-full bg-accent hover:bg-accent-hover text-white py-2.5 rounded-lg text-sm font-bold transition shadow mt-1">Sign In</button>
 
             <div id="auth-bonus-badge" class="bg-emerald-50 text-emerald-700 text-xs text-center py-2 px-3 rounded-lg border border-emerald-200 hidden">
-                🎁 New registrations receive <strong>3 free export tokens</strong>!
+                🎁 New registrations receive <strong>3 free Barcode Sets (PDF417 + Code 128)</strong>!
             </div>
         </div>
     </div>
 
     <!-- Token Store & Checkout Modal -->
     <div id="token-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col gap-4 animate-in fade-in zoom-in duration-150">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto flex flex-col gap-4 animate-in fade-in zoom-in duration-150">
             <!-- Modal Header -->
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2.5">
                     <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-base shadow-sm">
-                        ⚡
+                        📦
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900">Purchase Export Tokens</h3>
-                        <p class="text-xs text-slate-500">Select a token package for high-resolution barcode downloads.</p>
+                        <h3 class="text-base font-bold text-slate-900">Purchase Barcode Packages</h3>
+                        <p class="text-xs text-slate-500">Every package includes <strong>2-in-1 Companion Sets</strong> (1x AAMVA 2D PDF417 + 1x 1D Code 128).</p>
                     </div>
                 </div>
                 <button onclick="closeTokenModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
             </div>
 
-            <!-- Token Packages Selection -->
-            <div class="grid grid-cols-3 gap-3">
-                <!-- Package 1: Starter -->
-                <div onclick="selectPackage('starter_10', 10, 4.99)" id="pkg-starter_10" class="package-card cursor-pointer border-2 border-slate-200 hover:border-slate-300 p-3 rounded-xl flex flex-col items-center text-center transition opacity-70 hover:opacity-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Starter</span>
-                    <span class="text-2xl font-extrabold text-slate-900">10</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mb-2">Tokens</span>
-                    <div class="text-sm font-bold text-accent bg-blue-50 w-full py-1 rounded-md">$4.99</div>
-                    <span class="text-[9px] text-slate-400 mt-1">$0.50 / token</span>
+            <!-- Value Comparison Banner -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl p-3 flex items-center gap-3 text-xs text-blue-900">
+                <span class="text-2xl">⚡</span>
+                <div class="flex-1 leading-snug">
+                    <span class="font-extrabold text-blue-950 block">Better Value & Lower Prices Than Competitors:</span>
+                    <span class="text-blue-800 text-[11px]">Competitors charge $3 for 1 PDF417 alone. We provide <strong>BOTH the PDF417 + matching Code 128 barcode</strong> starting at just <strong>$2.50</strong> ($0.50 to $20.00 lower on every tier!).</span>
                 </div>
+            </div>
 
-                <!-- Package 2: Professional (Popular) -->
-                <div onclick="selectPackage('pro_50', 50, 14.99)" id="pkg-pro_50" class="package-card cursor-pointer border-2 border-accent bg-blue-50/40 p-3 rounded-xl flex flex-col items-center text-center transition shadow-md ring-2 ring-accent/20 relative">
-                    <span class="absolute -top-2.5 bg-accent text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Popular</span>
-                    <span class="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">Professional</span>
-                    <span class="text-2xl font-extrabold text-slate-900">50</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mb-2">Tokens</span>
-                    <div class="text-sm font-bold text-white bg-accent w-full py-1 rounded-md shadow-sm">$14.99</div>
-                    <span class="text-[9px] text-emerald-600 font-bold mt-1">Save 40%</span>
+            <!-- 8-Tier Complete Barcode Sets Selection Grid -->
+            <div>
+                <div class="flex justify-between items-center mb-1.5 px-0.5">
+                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Select Package Tier:</span>
+                    <span class="text-[10px] text-slate-400 font-medium">1 Set = 1x PDF417 + 1x Code 128</span>
                 </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <!-- Package 1: XXS (1 Set) -->
+                    <div onclick="selectPackage('xxs_1', 1, 2.50)" id="pkg-xxs_1" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">XXS</span>
+                        <span class="text-xl font-black text-slate-900">1</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Set</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">1x PDF417 + 1x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$3.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$2.50</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$0.50 OFF</span>
+                    </div>
 
-                <!-- Package 3: Enterprise -->
-                <div onclick="selectPackage('enterprise_250', 250, 39.99)" id="pkg-enterprise_250" class="package-card cursor-pointer border-2 border-slate-200 hover:border-slate-300 p-3 rounded-xl flex flex-col items-center text-center transition opacity-70 hover:opacity-100">
-                    <span class="text-[10px] font-bold text-purple-600 uppercase tracking-wider mb-1">Enterprise</span>
-                    <span class="text-2xl font-extrabold text-slate-900">250</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mb-2">Tokens</span>
-                    <div class="text-sm font-bold text-purple-700 bg-purple-50 w-full py-1 rounded-md">$39.99</div>
-                    <span class="text-[9px] text-emerald-600 font-bold mt-1">Save 68%</span>
+                    <!-- Package 2: XS (5 Sets) -->
+                    <div onclick="selectPackage('xs_5', 5, 11.00)" id="pkg-xs_5" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">XS</span>
+                        <span class="text-xl font-black text-slate-900">5</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">5x PDF417 + 5x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$12.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$11.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$1.00 OFF</span>
+                    </div>
+
+                    <!-- Package 3: S (10 Sets - Popular Default) -->
+                    <div onclick="selectPackage('s_10', 10, 18.00)" id="pkg-s_10" class="package-card cursor-pointer border-2 border-accent bg-blue-50/50 p-2.5 rounded-xl flex flex-col items-center text-center transition shadow-md ring-2 ring-accent/20 relative">
+                        <span class="absolute -top-2.5 bg-accent text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Popular</span>
+                        <span class="text-[10px] font-bold text-accent uppercase tracking-wider mb-0.5">S</span>
+                        <span class="text-xl font-black text-slate-900">10</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">10x PDF417 + 10x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$19.00</span>
+                            <div class="price-badge text-xs font-bold text-white bg-accent w-full py-1 rounded-md shadow-sm">$18.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$1.00 OFF ($1.80/set)</span>
+                    </div>
+
+                    <!-- Package 4: M (20 Sets) -->
+                    <div onclick="selectPackage('m_20', 20, 37.00)" id="pkg-m_20" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">M</span>
+                        <span class="text-xl font-black text-slate-900">20</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">20x PDF417 + 20x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$39.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$37.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$2.00 OFF ($1.85/set)</span>
+                    </div>
+
+                    <!-- Package 5: L (50 Sets) -->
+                    <div onclick="selectPackage('l_50', 50, 75.00)" id="pkg-l_50" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">L</span>
+                        <span class="text-xl font-black text-slate-900">50</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">50x PDF417 + 50x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$79.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$75.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$4.00 OFF ($1.50/set)</span>
+                    </div>
+
+                    <!-- Package 6: XL (100 Sets - Best Value) -->
+                    <div onclick="selectPackage('xl_100', 100, 95.00)" id="pkg-xl_100" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="absolute -top-2.5 bg-emerald-600 text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Best Value</span>
+                        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-0.5">XL</span>
+                        <span class="text-xl font-black text-slate-900">100</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">100x PDF417 + 100x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$99.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$95.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$4.00 OFF ($0.95/set)</span>
+                    </div>
+
+                    <!-- Package 7: XXL (200 Sets) -->
+                    <div onclick="selectPackage('xxl_200', 200, 159.00)" id="pkg-xxl_200" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">XXL</span>
+                        <span class="text-xl font-black text-slate-900">200</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">200x PDF417 + 200x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$169.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$159.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$10.00 OFF ($0.79/set)</span>
+                    </div>
+
+                    <!-- Package 8: XXXL (500 Sets) -->
+                    <div onclick="selectPackage('xxxl_500', 500, 279.00)" id="pkg-xxxl_500" class="package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative">
+                        <span class="absolute -top-2.5 bg-purple-600 text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Volume</span>
+                        <span class="text-[10px] font-bold text-purple-700 uppercase tracking-wider mb-0.5">XXXL</span>
+                        <span class="text-xl font-black text-slate-900">500</span>
+                        <span class="text-[10px] text-slate-500 font-semibold mb-1">Barcode Sets</span>
+                        <span class="text-[8px] text-blue-600 font-semibold mb-1.5">500x PDF417 + 500x C128</span>
+                        <div class="w-full flex flex-col items-center">
+                            <span class="line-through text-slate-400 text-[10px] leading-tight">$299.00</span>
+                            <div class="price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md">$279.00</div>
+                        </div>
+                        <span class="text-[9px] text-emerald-600 font-bold mt-1">$20.00 OFF ($0.55/set)</span>
+                    </div>
                 </div>
             </div>
 
@@ -173,7 +267,7 @@
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between items-center text-xs px-1">
                     <span class="font-bold text-slate-700">Selected Order:</span>
-                    <span id="checkout-summary-text" class="font-extrabold text-slate-900 text-sm">50 Tokens for $14.99</span>
+                    <span id="checkout-summary-text" class="font-extrabold text-slate-900 text-sm">10 Barcode Sets (PDF417 + Code 128) for $18.00</span>
                 </div>
 
                 <!-- Payment Method Tab Switcher -->
@@ -413,10 +507,10 @@
                 Import XML
             </button>
 
-            <!-- Buy Tokens Navigation Button -->
+            <!-- Buy Barcode Sets Navigation Button -->
             <button onclick="openTokenModal()" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span>Buy Tokens</span>
+                <span>Buy Sets</span>
             </button>
 
             <!-- Admin Crypto Ledger Button (Visible to elevated Admin) -->
@@ -424,8 +518,8 @@
                 <span>🪙 Orders</span>
             </button>
 
-            <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold transition" title="Click to view token packages">
-                <span class="text-slate-400">Tokens:</span>
+            <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold transition" title="Click to view barcode packages">
+                <span class="text-slate-400">Sets:</span>
                 <span id="header-token-count" class="text-emerald-400 font-bold">0</span>
             </div>
             <span id="role-badge" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full">Guest</span>
@@ -828,9 +922,18 @@
             <div id="form-code128" class="hidden flex-col gap-3">
                 <div class="bg-white p-4 rounded-xl border border-bordercol flex flex-col gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data Payload</label>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Data Payload (1D Companion Barcode)</label>
+                            <div class="flex items-center gap-1.5">
+                                <span id="code128-sync-badge" class="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span>Auto-synced with DL#</span>
+                                </span>
+                                <button type="button" onclick="syncCode128WithDL()" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold transition">Re-sync</button>
+                            </div>
+                        </div>
                         <input type="text" id="input-code128" placeholder="Enter payload (e.g. DEMO-123456789 or SHIP-987654321)" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm code-font text-slate-800 focus:ring-2 focus:ring-accent outline-none" oninput="renderCode128()">
-                        <span class="text-[11px] text-slate-500 mt-1 block">Supports full ASCII table, alphanumeric shipping barcodes, and GS1 application identifiers.</span>
+                        <span class="text-[11px] text-slate-500 mt-1 block">Standard 1D companion barcode, synchronized automatically with cardholder ID or custom tracking numbers.</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
@@ -1039,8 +1142,8 @@
             <!-- Full Export Hub (Multi-Format Downloads) -->
             <div class="mt-2 flex flex-col gap-2">
                 <div class="flex justify-between items-center text-xs font-semibold px-1">
-                    <span class="text-slate-600">Export Formats: <strong class="text-slate-900">PDF, PNG, JPEG, SVG</strong></span>
-                    <span id="token-counter" class="text-emerald-600 font-bold">Tokens: 0</span>
+                    <span class="text-slate-600">Export Hub: <strong class="text-slate-900">Dual Sets, PDF, PNG, JPEG, SVG</strong></span>
+                    <span id="token-counter" class="text-emerald-600 font-bold">Barcode Sets: 0</span>
                 </div>
                 
                 <div class="relative grid grid-cols-6 gap-1.5 w-full" id="export-actions">
@@ -1055,10 +1158,16 @@
                         <div id="paywall-depleted-content" class="hidden flex items-center gap-2">
                             <button onclick="openTokenModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow flex items-center gap-2 transition transform hover:scale-105">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span>Top Up Tokens to Continue</span>
+                                <span>Top Up Barcode Sets to Continue</span>
                             </button>
                         </div>
                     </div>
+
+                    <!-- Primary 2-in-1 Dual Barcode Set Button -->
+                    <button onclick="secureExport(downloadDualBarcodeBundle)" class="col-span-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-accent hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold py-2 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-2">
+                        <span class="flex items-center gap-1.5"><span>📦</span><span>Download Complete Barcode Set</span></span>
+                        <span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-medium">1x AAMVA PDF417 + 1x Code 128 (300 DPI)</span>
+                    </button>
 
                     <button onclick="secureExport(() => downloadPNG(300))" class="bg-accent hover:bg-accent-hover text-white font-bold py-2 px-1 rounded-xl transition shadow text-xs flex flex-col items-center justify-center">
                         <span>PNG 300</span>
@@ -1773,6 +1882,9 @@
             updateDiagnostics(fields);
             validateDlNumber();
 
+            // Auto-sync companion 1D Code 128 barcode with DL Number
+            syncCompanionCode128(fields.id);
+
             renderPDF417();
         }
 
@@ -2298,6 +2410,27 @@
             }
         }
 
+        function syncCompanionCode128(idVal) {
+            const el = document.getElementById('input-code128');
+            if (el) {
+                const targetVal = (idVal || '').trim() || 'DEMO-123456789';
+                if (el.value !== targetVal) {
+                    el.value = targetVal;
+                    renderCode128();
+                }
+                const badge = document.getElementById('code128-sync-badge');
+                if (badge) {
+                    badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span>Synced: ${targetVal}</span>`;
+                }
+            }
+        }
+
+        function syncCode128WithDL() {
+            const dlVal = (document.getElementById('aamva-id')?.value || '').trim();
+            syncCompanionCode128(dlVal);
+            showToast(`Companion Code 128 synced with DL #${dlVal || 'DEMO'}!`, 'success');
+        }
+
         function switchTab(tab) {
             currentTab = tab;
             const tab128 = document.getElementById('tab-code128');
@@ -2369,12 +2502,13 @@
             return token ? { 'Authorization': `Bearer ${token}` } : {};
         }
 
-        // --- TOKEN STORE & CHECKOUT ENGINE ---
+        // --- BARCODE PACKAGE STORE & CHECKOUT ENGINE ---
         let selectedPackage = {
-            id: 'pro_50',
-            tokens: 50,
-            price: 14.99,
-            amount_cents: 1499
+            id: 's_10',
+            tokens: 10,
+            sets: 10,
+            price: 18.00,
+            amount_cents: 1800
         };
 
         let currentPayTab = 'crypto';
@@ -2388,34 +2522,36 @@
             "SOL": { name: "Solana (SOL)", symbol: "SOL", network: "Solana", badge: "Ultra Fast", wallet: "BarCodeStudioProTokensPayment11111111111SOL", note: "Send SOL directly on Solana network. Instant ~1-second finality." }
         };
 
+        const ALL_PACKAGE_TIERS = ['xxs_1', 'xs_5', 's_10', 'm_20', 'l_50', 'xl_100', 'xxl_200', 'xxxl_500'];
+
         function selectPackage(packageId, tokens, price) {
             selectedPackage = {
                 id: packageId,
                 tokens: tokens,
+                sets: tokens,
                 price: price,
                 amount_cents: Math.round(price * 100)
             };
             currentCryptoOrder = null;
 
-            ['starter_10', 'pro_50', 'enterprise_250'].forEach(id => {
+            ALL_PACKAGE_TIERS.forEach(id => {
                 const el = document.getElementById(`pkg-${id}`);
                 if (!el) return;
+                const badge = el.querySelector('.price-badge');
                 if (id === packageId) {
-                    el.className = 'package-card cursor-pointer border-2 border-accent bg-blue-50/40 p-3 rounded-xl flex flex-col items-center text-center transition shadow-md ring-2 ring-accent/20 relative';
-                    const priceDiv = el.querySelector('div');
-                    if (priceDiv) priceDiv.className = 'text-sm font-bold text-white bg-accent w-full py-1 rounded-md shadow-sm';
+                    el.className = 'package-card cursor-pointer border-2 border-accent bg-blue-50/50 p-2.5 rounded-xl flex flex-col items-center text-center transition shadow-md ring-2 ring-accent/20 relative';
+                    if (badge) badge.className = 'price-badge text-xs font-bold text-white bg-accent w-full py-1 rounded-md shadow-sm';
                 } else {
-                    el.className = 'package-card cursor-pointer border-2 border-slate-200 hover:border-slate-300 p-3 rounded-xl flex flex-col items-center text-center transition opacity-70 hover:opacity-100';
-                    const priceDiv = el.querySelector('div');
-                    if (priceDiv) priceDiv.className = 'text-sm font-bold text-accent bg-blue-50 w-full py-1 rounded-md';
+                    el.className = 'package-card cursor-pointer border border-slate-200 hover:border-slate-300 bg-white p-2.5 rounded-xl flex flex-col items-center text-center transition opacity-80 hover:opacity-100 relative';
+                    if (badge) badge.className = 'price-badge text-xs font-bold text-slate-800 bg-slate-100 w-full py-1 rounded-md';
                 }
             });
 
             const summaryEl = document.getElementById('checkout-summary-text');
-            if (summaryEl) summaryEl.textContent = `${tokens} Tokens for $${price.toFixed(2)}`;
+            if (summaryEl) summaryEl.textContent = `${tokens} Barcode Set${tokens > 1 ? 's' : ''} (PDF417 + Code 128) for $${price.toFixed(2)}`;
 
             const mockBtnText = document.getElementById('mock-pay-btn-text');
-            if (mockBtnText) mockBtnText.textContent = `Pay $${price.toFixed(2)} & Add ${tokens} Tokens (Test Checkout)`;
+            if (mockBtnText) mockBtnText.textContent = `Pay $${price.toFixed(2)} & Add ${tokens} Barcode Set${tokens > 1 ? 's' : ''} (Test Checkout)`;
 
             updateCryptoUI();
         }
@@ -3007,19 +3143,19 @@
                     roleBadge.className = 'bg-amber-500/20 text-amber-300 font-bold px-3 py-1 rounded-full text-xs border border-amber-500/50 shadow-sm truncate max-w-[260px]';
                     headerTokenCount.innerHTML = '&infin;';
                     headerTokenCount.className = 'text-amber-400 font-extrabold text-sm';
-                    tokenCounter.innerHTML = '⚡ Tokens: <span class="text-amber-500 font-extrabold">&infin; Unlimited (Admin)</span>';
+                    tokenCounter.innerHTML = '⚡ Barcode Sets: <span class="text-amber-500 font-extrabold">&infin; Unlimited (Admin)</span>';
                     paywallOverlay.classList.add('hidden');
                 } else if (currentUser.tokens > 0) {
                     roleBadge.textContent = currentUser.email;
                     roleBadge.className = 'bg-accent/10 text-accent font-semibold px-2.5 py-1 rounded-full truncate max-w-[180px] border border-blue-200';
-                    tokenCounter.textContent = `Tokens: ${currentUser.tokens}`;
+                    tokenCounter.textContent = `Barcode Sets: ${currentUser.tokens}`;
                     headerTokenCount.textContent = currentUser.tokens;
                     headerTokenCount.className = 'text-emerald-400 font-bold';
                     paywallOverlay.classList.add('hidden');
                 } else {
                     roleBadge.textContent = currentUser.email;
                     roleBadge.className = 'bg-slate-700 text-slate-300 font-semibold px-2.5 py-1 rounded-full truncate max-w-[180px] border border-slate-600';
-                    tokenCounter.textContent = 'Tokens: 0';
+                    tokenCounter.textContent = 'Barcode Sets: 0';
                     headerTokenCount.textContent = '0';
                     headerTokenCount.className = 'text-rose-400 font-bold';
                     paywallOverlay.classList.remove('hidden');
@@ -3035,7 +3171,7 @@
                 roleBadge.className = 'bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full';
                 authBtn.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
-                tokenCounter.textContent = 'Tokens: 0';
+                tokenCounter.textContent = 'Barcode Sets: 0';
                 userTokenPill.classList.add('hidden');
                 userTokenPill.classList.remove('flex');
                 paywallOverlay.classList.remove('hidden');
@@ -3269,6 +3405,51 @@
             link.download = getExportFilename('CR80_CardBack_300dpi', 'png');
             link.href = cardCanvas.toDataURL('image/png');
             link.click();
+        }
+
+        // Download 2-in-1 Dual Barcode Set (AAMVA 2D PDF417 + 1D Code 128 Companion)
+        function downloadDualBarcodeBundle() {
+            // 1. Export 2D PDF417 Barcode (300 DPI)
+            const srcPdf = document.getElementById('output-pdf417');
+            const pdfExportCanvas = document.createElement('canvas');
+            pdfExportCanvas.width = srcPdf.width;
+            pdfExportCanvas.height = srcPdf.height;
+            const pctx = pdfExportCanvas.getContext('2d');
+            pctx.imageSmoothingEnabled = false;
+            pctx.fillStyle = '#FFFFFF';
+            pctx.fillRect(0, 0, pdfExportCanvas.width, pdfExportCanvas.height);
+            pctx.drawImage(srcPdf, 0, 0);
+
+            const linkPdf = document.createElement('a');
+            linkPdf.download = getExportFilename('2D_PDF417_300dpi', 'png');
+            linkPdf.href = pdfExportCanvas.toDataURL('image/png');
+            linkPdf.click();
+
+            // 2. Export Matching 1D Code 128 Companion Barcode (300 DPI)
+            setTimeout(() => {
+                const svg = document.getElementById('output-code128');
+                if (!svg) return;
+                const xml = new XMLSerializer().serializeToString(svg);
+                const svg64 = btoa(unescape(encodeURIComponent(xml)));
+                const img = new Image();
+                img.onload = function() {
+                    const canvas128 = document.createElement('canvas');
+                    canvas128.width = img.width * 2;
+                    canvas128.height = img.height * 2;
+                    const cctx = canvas128.getContext('2d');
+                    cctx.fillStyle = '#FFFFFF';
+                    cctx.fillRect(0, 0, canvas128.width, canvas128.height);
+                    cctx.drawImage(img, 0, 0, canvas128.width, canvas128.height);
+
+                    const link128 = document.createElement('a');
+                    const c128El = document.getElementById('input-code128');
+                    const rawVal = (c128El ? c128El.value : '').trim().replace(/[^a-zA-Z0-9_-]/g, '_') || 'Companion';
+                    link128.download = `Companion_1D_Code128_${rawVal}_300dpi.png`;
+                    link128.href = canvas128.toDataURL('image/png');
+                    link128.click();
+                };
+                img.src = 'data:image/svg+xml;base64,' + svg64;
+            }, 300);
         }
 
         function copyXmlOutput() {

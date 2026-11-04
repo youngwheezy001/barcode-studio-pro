@@ -67,9 +67,20 @@ class CryptoPayment(Base):
 Base.metadata.create_all(bind=engine)
 
 TOKEN_PACKAGES = {
-    "starter_10": {"tokens": 10, "amount_usd": 4.99, "name": "Starter Pack"},
-    "pro_50": {"tokens": 50, "amount_usd": 14.99, "name": "Professional Pack"},
-    "enterprise_250": {"tokens": 250, "amount_usd": 39.99, "name": "Enterprise Pack"}
+    # 8 Sizing Packages (Competitor pdf417.pro undercut by $0.50 - $20, with 2-in-1 Dual Symbology included)
+    "xxs_1": {"tokens": 1, "sets": 1, "price": 2.50, "amount_usd": 2.50, "competitor_price": 3.00, "name": "XXS - 1 Barcode Set", "badge": "Starter", "desc": "1x AAMVA PDF417 + 1x Code 128 Pair"},
+    "xs_5": {"tokens": 5, "sets": 5, "price": 11.00, "amount_usd": 11.00, "competitor_price": 12.00, "name": "XS - 5 Barcode Sets", "badge": "Save $1.00", "desc": "5x AAMVA PDF417 + 5x Code 128 Pairs"},
+    "s_10": {"tokens": 10, "sets": 10, "price": 18.00, "amount_usd": 18.00, "competitor_price": 19.00, "name": "S - 10 Barcode Sets", "badge": "Most Popular", "desc": "10x AAMVA PDF417 + 10x Code 128 Pairs"},
+    "m_20": {"tokens": 20, "sets": 20, "price": 37.00, "amount_usd": 37.00, "competitor_price": 39.00, "name": "M - 20 Barcode Sets", "badge": "Save $2.00", "desc": "20x AAMVA PDF417 + 20x Code 128 Pairs"},
+    "l_50": {"tokens": 50, "sets": 50, "price": 75.00, "amount_usd": 75.00, "competitor_price": 79.00, "name": "L - 50 Barcode Sets", "badge": "Business", "desc": "50x AAMVA PDF417 + 50x Code 128 Pairs"},
+    "xl_100": {"tokens": 100, "sets": 100, "price": 95.00, "amount_usd": 95.00, "competitor_price": 99.00, "name": "XL - 100 Barcode Sets", "badge": "Best Value", "desc": "100x AAMVA PDF417 + 100x Code 128 Pairs"},
+    "xxl_200": {"tokens": 200, "sets": 200, "price": 159.00, "amount_usd": 159.00, "competitor_price": 169.00, "name": "XXL - 200 Barcode Sets", "badge": "Save $10.00", "desc": "200x AAMVA PDF417 + 200x Code 128 Pairs"},
+    "xxxl_500": {"tokens": 500, "sets": 500, "price": 279.00, "amount_usd": 279.00, "competitor_price": 299.00, "name": "XXXL - 500 Barcode Sets", "badge": "Save $20.00", "desc": "500x AAMVA PDF417 + 500x Code 128 Pairs"},
+    
+    # Backward-compatible aliases
+    "starter_10": {"tokens": 10, "sets": 10, "price": 18.00, "amount_usd": 18.00, "competitor_price": 19.00, "name": "S - 10 Barcode Sets", "badge": "Most Popular", "desc": "10x AAMVA PDF417 + 10x Code 128 Pairs"},
+    "pro_50": {"tokens": 50, "sets": 50, "price": 75.00, "amount_usd": 75.00, "competitor_price": 79.00, "name": "L - 50 Barcode Sets", "badge": "Business", "desc": "50x AAMVA PDF417 + 50x Code 128 Pairs"},
+    "enterprise_250": {"tokens": 200, "sets": 200, "price": 159.00, "amount_usd": 159.00, "competitor_price": 169.00, "name": "XXL - 200 Barcode Sets", "badge": "Save $10.00", "desc": "200x AAMVA PDF417 + 200x Code 128 Pairs"}
 }
 
 CRYPTO_CONFIGS = {
@@ -383,11 +394,11 @@ def compile_aamva_endpoint(req: AamvaCompileRequest):
     }
 
 class MockPurchaseRequest(BaseModel):
-    package_id: str = "pro_50"
-    tokens: int = 50
-    amount_usd: float = 14.99
+    package_id: str = "s_10"
+    tokens: int = 10
+    amount_usd: float = 18.00
 
-@app.post("/api/tokens/purchase-mock", summary="Execute mock/sandbox token checkout for practice")
+@app.post("/api/tokens/purchase-mock", summary="Execute mock/sandbox barcode package checkout for practice")
 def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     add_count = max(1, payload.tokens)
     current_user.tokens += add_count
@@ -395,15 +406,15 @@ def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depe
     db.refresh(current_user)
     return {
         "status": "success",
-        "message": f"Payment approved (Sandbox Mode). Successfully credited {add_count} export tokens!",
+        "message": f"Payment approved (Sandbox Simulation). Successfully credited {add_count} Barcode Sets (Dual PDF417 + Code 128)!",
         "tokens_added": add_count,
         "tokens_remaining": current_user.tokens
     }
 
 class CheckoutSessionRequest(BaseModel):
-    package_id: Optional[str] = "starter_10"
+    package_id: Optional[str] = "s_10"
     tokens: Optional[int] = 10
-    amount_cents: Optional[int] = 499
+    amount_cents: Optional[int] = 1800
 
 @app.post("/create-checkout-session", summary="Create Stripe Checkout Session")
 @limiter.limit("10/minute")
@@ -412,7 +423,7 @@ def create_checkout_session(request: Request, payload: Optional[CheckoutSessionR
     base_url = host.rstrip("/")
 
     tokens = payload.tokens if payload and payload.tokens else 10
-    amount_cents = payload.amount_cents if payload and payload.amount_cents else 499
+    amount_cents = payload.amount_cents if payload and payload.amount_cents else 1800
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -421,8 +432,8 @@ def create_checkout_session(request: Request, payload: Optional[CheckoutSessionR
                 'price_data': {
                     'currency': 'usd',
                     'product_data': {
-                        'name': f'{tokens} Barcode Studio Export Tokens',
-                        'description': f'{tokens} high-resolution PNG, SVG, PDF and AAMVA ID card exports.'
+                        'name': f'{tokens} Barcode Studio Complete Sets (PDF417 + Code 128)',
+                        'description': f'{tokens} dual barcode bundles including 2D AAMVA PDF417 and matching 1D Code 128 companion barcodes.'
                     },
                     'unit_amount': amount_cents,
                 },

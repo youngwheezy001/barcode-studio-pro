@@ -188,30 +188,30 @@ def run_tests():
     out_profile = client.get("/users/me", headers=out_headers).json()
     assert out_profile["tokens"] == 3
 
-    # Outsider purchases Starter Pack (10 tokens)
-    p1 = client.post("/api/tokens/purchase-mock", json={"package_id": "starter_10", "tokens": 10, "amount_usd": 4.99}, headers=out_headers)
+    # Outsider purchases Starter Pack (10 sets)
+    p1 = client.post("/api/tokens/purchase-mock", json={"package_id": "starter_10", "tokens": 10, "amount_usd": 18.00}, headers=out_headers)
     assert p1.status_code == 200
     assert p1.json()["tokens_remaining"] == 13
-    print("  -> Passed: Purchased Starter Pack (+10 tokens, balance: 13)")
+    print("  -> Passed: Purchased Starter Pack (+10 sets, balance: 13)")
 
-    # Outsider purchases Professional Pack (50 tokens)
-    p2 = client.post("/api/tokens/purchase-mock", json={"package_id": "pro_50", "tokens": 50, "amount_usd": 14.99}, headers=out_headers)
+    # Outsider purchases Professional Pack (50 sets)
+    p2 = client.post("/api/tokens/purchase-mock", json={"package_id": "pro_50", "tokens": 50, "amount_usd": 75.00}, headers=out_headers)
     assert p2.status_code == 200
     assert p2.json()["tokens_remaining"] == 63
-    print("  -> Passed: Purchased Professional Pack (+50 tokens, balance: 63)")
+    print("  -> Passed: Purchased Professional Pack (+50 sets, balance: 63)")
 
-    # Outsider purchases Enterprise Pack (250 tokens)
-    p3 = client.post("/api/tokens/purchase-mock", json={"package_id": "enterprise_250", "tokens": 250, "amount_usd": 39.99}, headers=out_headers)
+    # Outsider purchases Enterprise Pack (250 sets)
+    p3 = client.post("/api/tokens/purchase-mock", json={"package_id": "enterprise_250", "tokens": 250, "amount_usd": 159.00}, headers=out_headers)
     assert p3.status_code == 200
     assert p3.json()["tokens_remaining"] == 313
-    print("  -> Passed: Purchased Enterprise Pack (+250 tokens, balance: 313)")
+    print("  -> Passed: Purchased Enterprise Pack (+250 sets, balance: 313)")
 
     # 11. Test Stripe Checkout Session Dynamic Packages
     print("\n[11/11] Testing Dynamic Stripe Checkout Session Generation...")
-    stripe_session = client.post("/create-checkout-session", json={"package_id": "pro_50", "tokens": 50, "amount_cents": 1499}, headers=out_headers)
+    stripe_session = client.post("/create-checkout-session", json={"package_id": "pro_50", "tokens": 50, "amount_cents": 7500}, headers=out_headers)
     assert stripe_session.status_code == 200
     assert "checkout_url" in stripe_session.json()
-    print("  -> Passed: Generated dynamic Stripe checkout session URL for 50 tokens ($14.99).")
+    print("  -> Passed: Generated dynamic Stripe checkout session URL for 50 sets ($75.00).")
 
     # 12. Test Crypto Config & Order Creation
     print("\n[12/14] Testing Crypto Payment Config & Order Initiation...")
@@ -224,7 +224,7 @@ def run_tests():
     assert "SOL" in cfg_data["currencies"]
     print("  -> Passed: Crypto configurations verified for USDT (TRC-20), Polygon, BTC, ETH, and SOL.")
 
-    # Create Crypto Order for 50 tokens ($14.99)
+    # Create Crypto Order for 50 sets ($75.00)
     order_res = client.post("/api/crypto/create-order", json={
         "package_id": "pro_50",
         "crypto_currency": "USDT_TRC20"
@@ -232,11 +232,11 @@ def run_tests():
     assert order_res.status_code == 200
     order_data = order_res.json()
     order_id = order_data["order_id"]
-    assert order_data["amount_usd"] == 14.99
+    assert order_data["amount_usd"] == 75.00
     assert order_data["tokens"] == 50
     assert order_data["crypto_currency"] == "USDT_TRC20"
     assert "wallet_address" in order_data
-    print(f"  -> Passed: Created Crypto Order #{order_id} for $14.99 USDT (TRC-20).")
+    print(f"  -> Passed: Created Crypto Order #{order_id} for $75.00 USDT (TRC-20).")
 
     # 13. Test TxID Proof Submission & Mock Verification
     print("\n[13/14] Testing Transaction Hash (TxID) Submission & Mock Verification...")
@@ -287,8 +287,59 @@ def run_tests():
     assert user_final_balance == balance_after + 10
     print(f"  -> Passed: Admin manual approval credited 10 tokens to user (Final balance: {user_final_balance}).")
 
+    # 15. Test 8-Tier Competitive Pricing Matrix (XXS - XXXL) & Dual Barcode Companion Sets
+    print("\n[15/15] Testing 8-Tier Pricing Matrix (XXS-XXXL) & Dual Barcode Companion Sets...")
+    from main import TOKEN_PACKAGES
+    
+    expected_matrix = {
+        "xxs_1": {"sets": 1, "price": 2.50, "competitor": 3.00, "undercut": 0.50},
+        "xs_5": {"sets": 5, "price": 11.00, "competitor": 12.00, "undercut": 1.00},
+        "s_10": {"sets": 10, "price": 18.00, "competitor": 19.00, "undercut": 1.00},
+        "m_20": {"sets": 20, "price": 37.00, "competitor": 39.00, "undercut": 2.00},
+        "l_50": {"sets": 50, "price": 75.00, "competitor": 79.00, "undercut": 4.00},
+        "xl_100": {"sets": 100, "price": 95.00, "competitor": 99.00, "undercut": 4.00},
+        "xxl_200": {"sets": 200, "price": 159.00, "competitor": 169.00, "undercut": 10.00},
+        "xxxl_500": {"sets": 500, "price": 279.00, "competitor": 299.00, "undercut": 20.00},
+    }
+
+    for tier_id, meta in expected_matrix.items():
+        assert tier_id in TOKEN_PACKAGES, f"Tier {tier_id} missing from TOKEN_PACKAGES"
+        pkg = TOKEN_PACKAGES[tier_id]
+        assert pkg["tokens"] == meta["sets"], f"{tier_id} sets mismatch: expected {meta['sets']}, got {pkg['tokens']}"
+        assert pkg["price"] == meta["price"], f"{tier_id} price mismatch: expected {meta['price']}, got {pkg['price']}"
+        assert pkg["competitor_price"] == meta["competitor"], f"{tier_id} competitor price mismatch: expected {meta['competitor']}, got {pkg['competitor_price']}"
+        assert round(meta["competitor"] - meta["price"], 2) == meta["undercut"], f"Undercut mismatch on {tier_id}"
+        print(f"  -> Verified Tier {tier_id.upper()}: {pkg['tokens']} sets @ ${pkg['price']:.2f} (Competitor: ${pkg['competitor_price']:.2f}, Saved: ${meta['undercut']:.2f})")
+
+    # Purchase XXS package ($2.50 for 1 Barcode Set)
+    bal_pre_xxs = client.get("/users/me", headers=out_headers).json()["tokens"]
+    res_xxs = client.post("/api/tokens/purchase-mock", json={"package_id": "xxs_1", "tokens": 1, "amount_usd": 2.50}, headers=out_headers)
+    assert res_xxs.status_code == 200
+    assert res_xxs.json()["tokens_remaining"] == bal_pre_xxs + 1
+    print("  -> Passed: Purchased XXS 1-Set Package for $2.50 (+1 set credited)")
+
+    # Purchase S package ($18.00 for 10 Barcode Sets)
+    res_s = client.post("/api/tokens/purchase-mock", json={"package_id": "s_10", "tokens": 10, "amount_usd": 18.00}, headers=out_headers)
+    assert res_s.status_code == 200
+    assert res_s.json()["tokens_remaining"] == bal_pre_xxs + 1 + 10
+    print("  -> Passed: Purchased Popular S 10-Set Package for $18.00 (+10 sets credited)")
+
+    # Purchase XXXL package ($279.00 for 500 Barcode Sets)
+    res_xxxl = client.post("/api/tokens/purchase-mock", json={"package_id": "xxxl_500", "tokens": 500, "amount_usd": 279.00}, headers=out_headers)
+    assert res_xxxl.status_code == 200
+    assert res_xxxl.json()["tokens_remaining"] == bal_pre_xxs + 1 + 10 + 500
+    print("  -> Passed: Purchased Volume XXXL 500-Set Package for $279.00 (+500 sets credited)")
+
+    # Create crypto order for Best Value XL package ($95.00, 100 sets)
+    xl_order = client.post("/api/crypto/create-order", json={"package_id": "xl_100", "crypto_currency": "USDT_TRC20"}, headers=out_headers)
+    assert xl_order.status_code == 200
+    xl_data = xl_order.json()
+    assert xl_data["amount_usd"] == 95.00
+    assert xl_data["tokens"] == 100
+    print(f"  -> Passed: Created Crypto Order for XL Best Value tier ($95.00 USDT, 100 sets).")
+
     print("\n" + "=" * 60)
-    print("ALL 14/14 TEST SUITES PASSED! Direct crypto payments, TxID proof submission, and admin approval verified.")
+    print("ALL 15/15 TEST SUITES PASSED! 8-Tier Pricing Matrix (XXS-XXXL) & Dual Barcode Companion Sets verified.")
     print("=" * 60)
 
 if __name__ == "__main__":
