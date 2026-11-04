@@ -12,7 +12,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
-from passlib.context import CryptContext
 from jose import JWTError, jwt
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
