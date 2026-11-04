@@ -90,7 +90,7 @@ CRYPTO_CONFIGS = {
         "network": "TRON (TRC-20)",
         "badge": "Lowest Fee & Instant",
         "recommended": True,
-        "wallet": os.getenv("CRYPTO_USDT_TRC20_WALLET", "TBarCodeStudioProPaymentWallet123TRC"),
+        "wallet": os.getenv("CRYPTO_USDT_TRC20_WALLET", "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H"),
         "memo_required": False,
         "note": "Send only USDT via TRON (TRC-20) network to this address. Minimal network fee (~$1)."
     },
@@ -100,7 +100,7 @@ CRYPTO_CONFIGS = {
         "network": "Polygon (POS)",
         "badge": "Sub-Penny Fees",
         "recommended": False,
-        "wallet": os.getenv("CRYPTO_USDT_POLYGON_WALLET", "0x71C0aB487A4F4F69B9c41E660d196429f52fB0B1"),
+        "wallet": os.getenv("CRYPTO_USDT_POLYGON_WALLET", "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84"),
         "memo_required": False,
         "note": "Send only USDT on Polygon (MATIC) network. Gas fee is typically under $0.02."
     },
@@ -110,7 +110,7 @@ CRYPTO_CONFIGS = {
         "network": "Bitcoin Core",
         "badge": "Universal Standard",
         "recommended": False,
-        "wallet": os.getenv("CRYPTO_BTC_WALLET", "bc1qbarcodestudioproexportstokens999btc"),
+        "wallet": os.getenv("CRYPTO_BTC_WALLET", "16ffrmuJFiaduVz7ZizDUXSK9GqXjjSwqD"),
         "memo_required": False,
         "note": "Send native BTC to this address. Requires 1 network confirmation."
     },
@@ -120,7 +120,7 @@ CRYPTO_CONFIGS = {
         "network": "Ethereum (ERC-20)",
         "badge": "EVM Native",
         "recommended": False,
-        "wallet": os.getenv("CRYPTO_ETH_WALLET", "0x71C0aB487A4F4F69B9c41E660d196429f52fB0B1"),
+        "wallet": os.getenv("CRYPTO_ETH_WALLET", "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84"),
         "memo_required": False,
         "note": "Send ETH on Ethereum mainnet or L2s."
     },
@@ -130,7 +130,7 @@ CRYPTO_CONFIGS = {
         "network": "Solana",
         "badge": "Ultra Fast",
         "recommended": False,
-        "wallet": os.getenv("CRYPTO_SOL_WALLET", "BarCodeStudioProTokensPayment11111111111SOL"),
+        "wallet": os.getenv("CRYPTO_SOL_WALLET", "MzDTwreVpgA4Ub9n54DVZaUcjkqDYCisYaZuoP6642B"),
         "memo_required": False,
         "note": "Send SOL directly on Solana network. Instant ~1-second finality."
     }
