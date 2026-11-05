@@ -403,13 +403,23 @@ class MockPurchaseRequest(BaseModel):
 
 @app.post("/api/tokens/purchase-mock", summary="Execute mock/sandbox barcode package checkout for practice")
 def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
+    is_test_runner = current_user.email.strip().lower().endswith("@barcodestudio.pro")
+    allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
+    
+    if not (is_admin or is_test_runner or allow_sandbox):
+        raise HTTPException(
+            status_code=403,
+            detail="Sandbox practice checkout is disabled in production. Please use live Crypto or Stripe payments."
+        )
+        
     add_count = max(1, payload.tokens)
     current_user.tokens += add_count
     db.commit()
     db.refresh(current_user)
     return {
         "status": "success",
-        "message": f"Payment approved (Sandbox Simulation). Successfully credited {add_count} Barcode Sets (Dual PDF417 + Code 128)!",
+        "message": f"Payment approved (Test Simulation). Successfully credited {add_count} Barcode Sets (Dual PDF417 + Code 128)!",
         "tokens_added": add_count,
         "tokens_remaining": current_user.tokens
     }
@@ -572,10 +582,20 @@ def submit_crypto_proof(req: SubmitCryptoProofRequest, current_user: User = Depe
 
 @app.post("/api/crypto/verify-mock", summary="Simulate instant sandbox crypto confirmation for testing")
 def verify_crypto_mock(req: VerifyMockCryptoRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
+    is_test_runner = current_user.email.strip().lower().endswith("@barcodestudio.pro")
+    allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
+    
+    if not (is_admin or is_test_runner or allow_sandbox):
+        raise HTTPException(
+            status_code=403,
+            detail="Sandbox mock crypto verification is disabled in production. Please verify on-chain using live blockchain transaction hash."
+        )
+
     order = db.query(CryptoPayment).filter(CryptoPayment.id == req.order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.user_id != current_user.id and current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+    if order.user_id != current_user.id and not is_admin:
         raise HTTPException(status_code=403, detail="Not authorized to verify this order")
 
     if order.status == "confirmed":
