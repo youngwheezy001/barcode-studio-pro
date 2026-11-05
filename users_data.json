@@ -37,19 +37,19 @@
   },
   {
     "email": "tester@barcodestudio.pro",
-    "hashed_password": "$2b$12$ooHcFprSusYhtJxQmqyhWer.gND/qnHHV4IRPrtdRMPM3WsgmGBHC",
+    "hashed_password": "$2b$12$dRAbhnv0dC5cgDOJQSI3H.DfP6vEGCoIHx9m4Dnl1CR5T7CHL5KWW",
     "role": "admin",
     "tokens": 999999
   },
   {
     "email": "passkey_admin@barcodestudio.pro",
-    "hashed_password": "$2b$12$J76nYSPS5Ve8yLr7PxLZLOnEs7k7cKjpI4TNSYW1xT0MvvsRUUQg6",
+    "hashed_password": "$2b$12$wu/z8zlZhu6IEtXliQit0O.K.x5oaOKKgrRu6OUM.T7Djt0DJNTGS",
     "role": "admin",
     "tokens": 999999
   },
   {
     "email": "outsider_client@barcodestudio.pro",
-    "hashed_password": "$2b$12$4Gz3qzezj.fUYV0bpqNW4eRxkCgrPvY6a8ci.LGFbuFNpxRUvjfyO",
+    "hashed_password": "$2b$12$3nhsaNrDP3FxqqwjqL8H9uqe4NcTfRAVtVSGpZkpp24seEv0mPIg.",
     "role": "free_user",
     "tokens": 979
   }

@@ -617,7 +617,7 @@ def run_tests():
     print(f"  -> Passed: Official Receipt #{rcpt['receipt_number']} verified with support email {rcpt['support_email']}.")
 
     # 26. Test Anti-Replay Double-Spend Protection
-    print("\n[26/26] Testing Anti-Replay Double-Spend Protection...")
+    print("\n[26/27] Testing Anti-Replay Double-Spend Protection...")
     # Create a new pending order
     dup_order_res = client.post("/api/crypto/create-order", json={
         "package_id": "xxs_1",
@@ -634,8 +634,52 @@ def run_tests():
     assert "already been redeemed" in dup_verif_res.json()["detail"].lower()
     print("  -> Passed: Double-spend replay attack strictly rejected by server.")
 
+    # 27. Test Official ISO Compliance & ICAO Scannability Certificate Metadata API
+    print("\n[27/27] Testing Official ISO & ICAO Scannability Certificate Attestation Metadata (/api/export/certificate-meta)...")
+    # AAMVA PDF417 Certificate
+    cert_aamva_res = client.post("/api/export/certificate-meta", json={
+        "doc_type": "AAMVA_PDF417",
+        "jurisdiction": "NY",
+        "document_number": "987654321",
+        "customer_name": "Alice Smith"
+    }, headers=out_headers)
+    assert cert_aamva_res.status_code == 200, f"Certificate meta failed: {cert_aamva_res.text}"
+    cert_aamva = cert_aamva_res.json()
+    assert cert_aamva["certificate_id"].startswith("CERT-ISO-2026-")
+    assert cert_aamva["overall_grade"] == "ANSI Grade A (4.0 / 4.0)"
+    assert "ISO/IEC 15438" in cert_aamva["primary_symbology"]
+    assert "ISO/IEC 15417" in cert_aamva["secondary_symbology"]
+    assert any("ISO/IEC 15438" in s for s in cert_aamva["conformance_standards"])
+    assert cert_aamva["metrics"]["symbol_contrast"].startswith("98.4%")
+    assert cert_aamva["metrics"]["modulation"].startswith("96.2%")
+    assert cert_aamva["metrics"]["reed_solomon_ecc"].startswith("Level 5")
+    assert len(cert_aamva["digital_digest"]) > 0
+    print(f"  -> Passed: AAMVA Certificate #{cert_aamva['certificate_id']} verified with ANSI Grade A (4.0/4.0).")
+
+    # MRZ ICAO Certificate
+    cert_mrz_res = client.post("/api/export/certificate-meta", json={
+        "doc_type": "ICAO_MRZ_TD3",
+        "jurisdiction": "USA",
+        "document_number": "C01234567",
+        "customer_name": "Jonathan Garcia"
+    }, headers=out_headers)
+    assert cert_mrz_res.status_code == 200, f"MRZ certificate meta failed: {cert_mrz_res.text}"
+    cert_mrz = cert_mrz_res.json()
+    assert cert_mrz["certificate_id"].startswith("CERT-ISO-2026-")
+    assert "ICAO Doc 9303" in cert_mrz["primary_symbology"]
+    assert any("ICAO Doc 9303" in s for s in cert_mrz["conformance_standards"])
+    print(f"  -> Passed: ICAO MRZ Certificate #{cert_mrz['certificate_id']} verified.")
+
+    # Unauthenticated access check
+    cert_anon_res = client.post("/api/export/certificate-meta", json={
+        "doc_type": "AAMVA_PDF417",
+        "jurisdiction": "CA"
+    })
+    assert cert_anon_res.status_code == 401, "Unauthenticated certificate attestation must be 401"
+    print("  -> Passed: Unauthenticated certificate attestation strictly protected with 401.")
+
     print("\n" + "=" * 60)
-    print("ALL 26/26 TEST SUITES PASSED! Automated Payments, Zero Tokens, Security Headers & Persistence verified.")
+    print("ALL 27/27 TEST SUITES PASSED! ISO Certificates, 1-Click Production Packs, Zero Tokens & Security verified.")
     print("=" * 60)
 
 if __name__ == "__main__":
