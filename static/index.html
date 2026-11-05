@@ -314,15 +314,12 @@
                     <span id="checkout-summary-text" class="font-extrabold text-slate-900 text-sm">10 Barcode Sets (PDF417 + Code 128) for $18.00</span>
                 </div>
 
-                <!-- Payment Method Tab Switcher -->
-                <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button type="button" id="pay-tab-crypto" onclick="switchPayTab('crypto')" class="flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5">
-                        <span>🪙 Instant Crypto Wallet</span>
-                        <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-extrabold">Live On-Chain</span>
-                    </button>
-                    <button type="button" id="pay-tab-stripe" onclick="switchPayTab('stripe')" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
-                        <span>💳 Credit / Debit Card (Stripe)</span>
-                    </button>
+                <!-- Payment Method Badge: Crypto Only -->
+                <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold">
+                    <span class="flex items-center gap-1.5">
+                        <span>🪙 Instant Crypto Checkout</span>
+                    </span>
+                    <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-extrabold">Live On-Chain Verification</span>
                 </div>
 
                 <!-- View 1: Crypto Wallet Payment (Direct) -->
@@ -410,13 +407,6 @@
                     </div>
                 </div>
 
-                <!-- View 2: Real Stripe Option -->
-                <div id="pay-view-stripe" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-3">
-                    <p class="text-xs text-slate-500">Pay securely using major Credit/Debit cards (Visa, MasterCard, Amex) through Stripe's hosted gateway.</p>
-                    <button type="button" onclick="checkoutStripeSelected()" class="w-full bg-accent hover:bg-accent-hover text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow">
-                        <span>Launch Live Stripe Gateway</span>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -618,6 +608,9 @@
                 </a>
                 <button onclick="closeSupportModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
             </div>
+        </div>
+    </div>
+
     <!-- Barcode Image Scanner & Camera Modal -->
     <div id="barcode-scanner-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col gap-4 animate-in fade-in zoom-in duration-150">
@@ -3373,27 +3366,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         }
 
         function switchPayTab(tab) {
-            currentPayTab = tab;
-            const tabCrypto = document.getElementById('pay-tab-crypto');
-            const tabStripe = document.getElementById('pay-tab-stripe');
-
+            currentPayTab = 'crypto';
             const viewCrypto = document.getElementById('pay-view-crypto');
-            const viewStripe = document.getElementById('pay-view-stripe');
-
-            const activeTabClass = 'flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5';
-            const inactiveTabClass = 'flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5';
-
-            if (tabCrypto) tabCrypto.className = tab === 'crypto' ? activeTabClass : inactiveTabClass;
-            if (tabStripe) tabStripe.className = tab === 'stripe' ? activeTabClass : inactiveTabClass;
-
-            if (tab === 'crypto') {
-                if (viewCrypto) viewCrypto.classList.remove('hidden');
-                if (viewStripe) viewStripe.classList.add('hidden');
-                updateCryptoUI();
-            } else {
-                if (viewStripe) viewStripe.classList.remove('hidden');
-                if (viewCrypto) viewCrypto.classList.add('hidden');
-            }
+            if (viewCrypto) viewCrypto.classList.remove('hidden');
+            updateCryptoUI();
         }
 
         async function loadCryptoConfig() {
@@ -3834,35 +3810,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         }
 
         async function checkoutStripeSelected() {
-            if (!currentUser) {
-                closeTokenModal();
-                openAuthModal();
-                showToast('Please sign in or create an account to store tokens.', 'warning');
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE}/create-checkout-session`, {
-                    method: 'POST',
-                    headers: {
-                        ...getAuthHeader(),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        package_id: selectedPackage.id,
-                        tokens: selectedPackage.tokens,
-                        amount_cents: selectedPackage.amount_cents
-                    })
-                });
-                const data = await res.json();
-                if (data.checkout_url) {
-                    window.location.href = data.checkout_url;
-                } else {
-                    showToast('Unable to launch checkout session.', 'error');
-                }
-            } catch (err) {
-                showToast('Payment gateway error: ' + err.message, 'error');
-            }
+            showToast('Card payments are disabled. Please checkout with instant Cryptocurrency.', 'info');
         }
 
         // --- DISCREET ADMIN ELEVATION (PROTECTED ACCESS) ---
