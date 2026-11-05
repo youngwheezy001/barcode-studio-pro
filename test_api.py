@@ -678,8 +678,74 @@ def run_tests():
     assert cert_anon_res.status_code == 401, "Unauthenticated certificate attestation must be 401"
     print("  -> Passed: Unauthenticated certificate attestation strictly protected with 401.")
 
+    # 28. Test Admin CRM Client Database & Token Management Engine
+    print("\n[28/28] Testing Admin CRM Client Database & Token Management Engine (/api/admin/clients)...")
+    # Anonymous blocked
+    anon_clients = client.get("/api/admin/clients")
+    assert anon_clients.status_code == 401, "Anonymous access to clients database must return 401"
+
+    # Regular client forbidden
+    user_clients = client.get("/api/admin/clients", headers=out_headers)
+    assert user_clients.status_code == 403, "Non-admin access to clients database must return 403"
+
+    # Admin access success
+    admin_clients = client.get("/api/admin/clients", headers=admin_headers)
+    assert admin_clients.status_code == 200, f"Admin clients fetch failed: {admin_clients.text}"
+    cdata = admin_clients.json()
+    assert cdata["status"] == "success"
+    assert cdata["total_clients"] >= 1
+    assert "clients" in cdata
+    assert len(cdata["clients"]) >= 1
+    print(f"  -> Passed: Admin retrieved clients registry ({cdata['total_clients']} clients, {cdata['active_clients']} active, {cdata['total_tokens_circulating']} circulating sets).")
+
+    # Get the target user
+    user_me = client.get("/users/me", headers=out_headers).json()
+    target_uid = user_me["id"]
+    prev_tokens = user_me["tokens"]
+
+    # Test token increment delta (+5)
+    adj_delta = client.post("/api/admin/clients/adjust-tokens", json={
+        "user_id": target_uid,
+        "delta_tokens": 5
+    }, headers=admin_headers)
+    assert adj_delta.status_code == 200, f"Adjust tokens failed: {adj_delta.text}"
+    assert adj_delta.json()["new_tokens"] == prev_tokens + 5
+    print(f"  -> Passed: Incremented client tokens by +5 (New balance: {adj_delta.json()['new_tokens']}).")
+
+    # Test setting exact token balance
+    adj_set = client.post("/api/admin/clients/adjust-tokens", json={
+        "user_id": target_uid,
+        "set_tokens": 42
+    }, headers=admin_headers)
+    assert adj_set.status_code == 200, f"Set exact tokens failed: {adj_set.text}"
+    assert adj_set.json()["new_tokens"] == 42
+    print("  -> Passed: Set client exact token balance to 42.")
+
+    # Test client role toggle
+    role_res = client.post("/api/admin/clients/set-role", json={
+        "user_id": target_uid,
+        "role": "admin"
+    }, headers=admin_headers)
+    assert role_res.status_code == 200
+    assert role_res.json()["role"] == "admin"
+    assert role_res.json()["tokens"] == 999999
+
+    # Revert back to free_user with preserved tokens
+    role_revert = client.post("/api/admin/clients/set-role", json={
+        "user_id": target_uid,
+        "role": "free_user"
+    }, headers=admin_headers)
+    assert role_revert.status_code == 200
+    assert role_revert.json()["role"] == "free_user"
+    # Restore token balance
+    client.post("/api/admin/clients/adjust-tokens", json={
+        "user_id": target_uid,
+        "set_tokens": prev_tokens
+    }, headers=admin_headers)
+    print("  -> Passed: Client role promotion and reversal verified with backup sync.")
+
     print("\n" + "=" * 60)
-    print("ALL 27/27 TEST SUITES PASSED! ISO Certificates, 1-Click Production Packs, Zero Tokens & Security verified.")
+    print("ALL 28/28 TEST SUITES PASSED! ISO Certificates, 1-Click Production Packs, Admin CRM & Security verified.")
     print("=" * 60)
 
 if __name__ == "__main__":

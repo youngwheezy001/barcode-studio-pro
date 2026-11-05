@@ -32,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", "barcode-studio-default-dev-secret-key-32bytes")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 24 * 365)))  # 1 Year Persistent Login Sessions
 stripe.api_key = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
@@ -82,19 +82,25 @@ def restore_users_from_backup(db: Session):
             email_clean = item.get("email", "").strip().lower()
             if not email_clean:
                 continue
+            is_adm = email_clean in ADMIN_EMAILS or item.get("role") == "admin"
             existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
             if not existing:
                 new_u = User(
                     email=email_clean,
                     hashed_password=item.get("hashed_password", ""),
-                    role=item.get("role", "free_user"),
-                    tokens=item.get("tokens", 3)
+                    role="admin" if is_adm else item.get("role", "free_user"),
+                    tokens=999999 if is_adm else item.get("tokens", 0)
                 )
                 db.add(new_u)
                 restored += 1
             else:
-                if item.get("tokens", 0) > existing.tokens:
-                    existing.tokens = item["tokens"]
+                if is_adm:
+                    existing.role = "admin"
+                    existing.tokens = 999999
+                else:
+                    bkp_tokens = item.get("tokens")
+                    if bkp_tokens is not None and (existing.tokens == 0 or bkp_tokens > existing.tokens):
+                        existing.tokens = bkp_tokens
         db.commit()
         return restored
     except Exception as e:
@@ -126,6 +132,72 @@ class CryptoPayment(Base):
     confirmed_at = Column(DateTime, nullable=True)
 
 Base.metadata.create_all(bind=engine)
+
+ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
+
+def sync_orders_to_backup(db: Session):
+    """Safely synchronizes all crypto payment orders to persistent JSON storage."""
+    try:
+        orders = db.query(CryptoPayment).all()
+        data = []
+        for o in orders:
+            data.append({
+                "id": o.id,
+                "user_id": o.user_id,
+                "user_email": o.user_email,
+                "package_id": o.package_id,
+                "tokens": o.tokens,
+                "amount_usd": o.amount_usd,
+                "crypto_currency": o.crypto_currency,
+                "network": o.network,
+                "wallet_address": o.wallet_address,
+                "tx_hash": o.tx_hash,
+                "status": o.status,
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+                "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None
+            })
+        with open(ORDERS_BACKUP_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return len(data)
+    except Exception as e:
+        print(f"Warning: Failed to sync orders backup: {e}")
+        return 0
+
+def restore_orders_from_backup(db: Session):
+    """Restores payment orders from backup if database is freshly initialized."""
+    if not ORDERS_BACKUP_FILE.exists():
+        return 0
+    try:
+        with open(ORDERS_BACKUP_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        restored = 0
+        for item in data:
+            existing = db.query(CryptoPayment).filter(CryptoPayment.id == item["id"]).first()
+            if not existing:
+                c_at = datetime.fromisoformat(item["created_at"]) if item.get("created_at") else datetime.utcnow()
+                cf_at = datetime.fromisoformat(item["confirmed_at"]) if item.get("confirmed_at") else None
+                o = CryptoPayment(
+                    id=item["id"],
+                    user_id=item["user_id"],
+                    user_email=item["user_email"],
+                    package_id=item["package_id"],
+                    tokens=item["tokens"],
+                    amount_usd=item["amount_usd"],
+                    crypto_currency=item["crypto_currency"],
+                    network=item["network"],
+                    wallet_address=item["wallet_address"],
+                    tx_hash=item.get("tx_hash"),
+                    status=item.get("status", "pending"),
+                    created_at=c_at,
+                    confirmed_at=cf_at
+                )
+                db.add(o)
+                restored += 1
+        db.commit()
+        return restored
+    except Exception as e:
+        print(f"Warning: Failed to restore orders backup: {e}")
+        return 0
 
 TOKEN_PACKAGES = {
     # 8 Sizing Packages (Competitor pdf417.pro undercut by $0.50 - $20, with 2-in-1 Dual Symbology included)
@@ -251,7 +323,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(minutes=15))
+    expire = datetime.utcnow() + (expires_delta if expires_delta else timedelta(days=365))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -288,6 +360,7 @@ class UserRegister(BaseModel):
     admin_key: Optional[str] = None
 
 class UserResponse(BaseModel):
+    id: Optional[int] = None
     email: str
     role: str
     tokens: int
@@ -325,7 +398,9 @@ def on_startup():
     db = SessionLocal()
     try:
         restore_users_from_backup(db)
+        restore_orders_from_backup(db)
         sync_users_to_backup(db)
+        sync_orders_to_backup(db)
     finally:
         db.close()
 
@@ -399,6 +474,7 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         db.refresh(current_user)
 
     return {
+        "id": current_user.id,
         "email": current_user.email,
         "role": current_user.role,
         "tokens": current_user.tokens
@@ -423,6 +499,7 @@ def deduct_token(request: Request, current_user: User = Depends(get_current_user
     
     current_user.tokens -= 1
     db.commit()
+    sync_users_to_backup(db)
     return {"status": "success", "tokens_remaining": current_user.tokens}
 
 class CertificateMetaRequest(BaseModel):
@@ -489,6 +566,7 @@ def unlock_admin_mode(payload: AdminUnlockRequest, current_user: User = Depends(
     current_user.role = "admin"
     current_user.tokens = 999999
     db.commit()
+    sync_users_to_backup(db)
     return {
         "status": "success",
         "message": f"Account {current_user.email} successfully upgraded to Admin with unlimited tokens!",
@@ -506,6 +584,7 @@ def grant_tokens(payload: TokenGrantRequest, current_user: User = Depends(get_cu
     
     current_user.tokens += max(1, payload.tokens)
     db.commit()
+    sync_users_to_backup(db)
     return {
         "status": "success",
         "message": f"Successfully added {payload.tokens} tokens!",
@@ -1305,6 +1384,7 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
 
     db.commit()
     sync_users_to_backup(db)
+    sync_orders_to_backup(db)
     if purchaser:
         db.refresh(purchaser)
 
@@ -1314,6 +1394,117 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
         "order_id": order.id,
         "purchaser_email": purchaser.email if purchaser else None,
         "purchaser_tokens": purchaser.tokens if purchaser else None
+    }
+
+# --- ADMIN CLIENTS DATABASE & TOKEN MANAGEMENT API ---
+
+class ClientTokenAdjustRequest(BaseModel):
+    user_id: int
+    delta_tokens: Optional[int] = None
+    set_tokens: Optional[int] = None
+
+class ClientRoleUpdateRequest(BaseModel):
+    user_id: int
+    role: str
+
+@app.get("/api/admin/clients", summary="Admin CRM: List all registered clients, balances and orders")
+def list_admin_clients(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    users = db.query(User).order_by(User.id.asc()).all()
+
+    # Pre-calculate user order counts and spent totals
+    orders = db.query(CryptoPayment).all()
+    order_counts = {}
+    spent_totals = {}
+    for o in orders:
+        uid = o.user_id
+        order_counts[uid] = order_counts.get(uid, 0) + 1
+        if o.status == "confirmed":
+            spent_totals[uid] = spent_totals.get(uid, 0.0) + o.amount_usd
+
+    client_list = []
+    total_tokens_circulating = 0
+    active_count = 0
+
+    for u in users:
+        is_admin = u.role == "admin" or u.email.lower() in ADMIN_EMAILS
+        display_tokens = 999999 if is_admin else u.tokens
+        if not is_admin:
+            total_tokens_circulating += u.tokens
+            if u.tokens > 0:
+                active_count += 1
+
+        client_list.append({
+            "id": u.id,
+            "email": u.email,
+            "role": "admin" if is_admin else u.role,
+            "tokens": display_tokens,
+            "is_admin": is_admin,
+            "order_count": order_counts.get(u.id, 0),
+            "total_spent_usd": round(spent_totals.get(u.id, 0.0), 2)
+        })
+
+    return {
+        "status": "success",
+        "total_clients": len(users),
+        "active_clients": active_count,
+        "total_tokens_circulating": total_tokens_circulating,
+        "clients": client_list
+    }
+
+@app.post("/api/admin/clients/adjust-tokens", summary="Admin CRM: Adjust client token balance")
+def adjust_client_tokens(payload: ClientTokenAdjustRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    target = db.query(User).filter(User.id == payload.user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Client account not found")
+
+    if payload.set_tokens is not None:
+        target.tokens = max(0, payload.set_tokens)
+    elif payload.delta_tokens is not None:
+        target.tokens = max(0, target.tokens + payload.delta_tokens)
+
+    db.commit()
+    sync_users_to_backup(db)
+
+    return {
+        "status": "success",
+        "message": f"Successfully updated balance for {target.email} to {target.tokens} Barcode Sets.",
+        "user_id": target.id,
+        "email": target.email,
+        "new_tokens": target.tokens
+    }
+
+@app.post("/api/admin/clients/set-role", summary="Admin CRM: Update client account role")
+def set_client_role(payload: ClientRoleUpdateRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    target = db.query(User).filter(User.id == payload.user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Client account not found")
+
+    valid_roles = ["admin", "pro_user", "free_user"]
+    if payload.role not in valid_roles:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of {valid_roles}")
+
+    target.role = payload.role
+    if payload.role == "admin":
+        target.tokens = 999999
+
+    db.commit()
+    sync_users_to_backup(db)
+
+    return {
+        "status": "success",
+        "message": f"Account role for {target.email} updated to {payload.role}.",
+        "user_id": target.id,
+        "role": target.role,
+        "tokens": target.tokens
     }
 
 # --- ICAO 9303 MRZ GENERATION & PARSING API ---

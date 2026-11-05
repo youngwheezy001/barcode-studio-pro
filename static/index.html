@@ -497,6 +497,99 @@
         </div>
     </div>
 
+    <!-- Admin Clients Database CRM Modal -->
+    <div id="admin-clients-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col gap-3 max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">👥</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Clients &amp; Account Balances Management Database</h3>
+                        <p class="text-[11px] text-slate-500">Live database registry of client accounts, persistent token balances, and order histories.</p>
+                    </div>
+                    <span class="flex items-center gap-1.5 ml-2 bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-xs">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        <span>Auto-Backup Synced</span>
+                    </span>
+                </div>
+                <button onclick="closeAdminClientsModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Registered Clients</span>
+                        <div id="clients-kpi-total" class="text-xl font-extrabold text-slate-800">0</div>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">👥</div>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Active Clients (&gt;0 Sets)</span>
+                        <div id="clients-kpi-active" class="text-xl font-extrabold text-emerald-600">0</div>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm">⚡</div>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Circulating Barcode Sets</span>
+                        <div id="clients-kpi-tokens" class="text-xl font-extrabold text-amber-600">0</div>
+                    </div>
+                    <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">🪙</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <div class="flex items-center gap-2 flex-1 min-w-[240px]">
+                    <svg class="w-4 h-4 text-slate-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="admin-clients-search" oninput="filterAdminClients()" placeholder="Search clients by email, account ID, or role..." class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center gap-2">
+                    <select id="admin-clients-role-filter" onchange="filterAdminClients()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-hidden">
+                        <option value="all">All Roles</option>
+                        <option value="free_user">Free / Regular Clients</option>
+                        <option value="admin">Administrators</option>
+                    </select>
+                    <button onclick="loadAdminClients()" class="bg-white hover:bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition text-xs flex items-center gap-1 shadow-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Clients Table -->
+            <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Email Address</th>
+                            <th class="p-2.5">Role</th>
+                            <th class="p-2.5">Barcode Sets</th>
+                            <th class="p-2.5">Orders</th>
+                            <th class="p-2.5">Total Spent</th>
+                            <th class="p-2.5 text-right">Quick Token Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-clients-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="7" class="p-4 text-center text-slate-400">Loading clients registry...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                <span class="text-slate-500 text-[11px]">
+                    All token changes are committed immediately to SQLite and backed up to <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono">users_data.json</code>.
+                </span>
+                <span id="admin-clients-table-count" class="font-bold text-slate-700 text-xs">0 clients</span>
+            </div>
+        </div>
+    </div>
+
     <!-- AAMVA XML Importer Modal -->
     <div id="xml-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col gap-3 max-h-[85vh]">
@@ -1075,8 +1168,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             </button>
 
             <!-- Admin Crypto Ledger Button (Visible to elevated Admin) -->
-            <button id="admin-crypto-btn" onclick="openAdminCryptoModal()" class="hidden text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1">
+            <button id="admin-crypto-btn" onclick="openAdminCryptoModal()" class="hidden text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1" title="View Crypto Payment Orders & Ledger">
                 <span>🪙 Orders</span>
+            </button>
+
+            <!-- Admin Clients Database CRM Button (Visible to elevated Admin) -->
+            <button id="admin-clients-btn" onclick="openAdminClientsModal()" class="hidden text-xs font-bold bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1" title="View Clients Database & Token Manager">
+                <span>👥 Clients</span>
             </button>
 
             <!-- Customer Order History Button (Visible when logged in) -->
@@ -1723,8 +1821,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <div id="card-magstripe" class="w-full h-7 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 rounded-sm shadow-inner transition-all"></div>
                             
                             <!-- 1D Companion Barcode under magstripe -->
-                            <div class="flex justify-center items-center py-0.5">
-                                <svg id="card-code128-svg" class="max-w-[280px] max-h-[30px]"></svg>
+                            <div class="flex justify-center items-center py-0.5 relative">
+                                <svg id="card-code128-svg" class="max-w-[280px] max-h-[30px] transition duration-200"></svg>
                             </div>
 
                             <div class="text-[7.5px] text-slate-500 text-center font-mono tracking-wider">
@@ -1732,8 +1830,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
                             
                             <!-- 2D PDF417 Barcode -->
-                            <div class="flex justify-center items-center py-0.5">
-                                <canvas id="card-preview-barcode" class="max-w-[320px] max-h-[68px] w-auto h-auto object-contain"></canvas>
+                            <div class="flex justify-center items-center py-0.5 relative">
+                                <canvas id="card-preview-barcode" class="max-w-[320px] max-h-[68px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                <!-- Anti-Scan Protected Security Watermark Overlay for Card Barcode (Only covers barcode; DL text remains crisp!) -->
+                                <div id="card-barcode-lock-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                                    <span class="text-[8px] font-black tracking-widest text-slate-800 uppercase bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
+                                        ★ PREVIEW ONLY • UNREGISTERED ★
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="flex justify-between items-center text-[8.5px] font-mono text-slate-600 border-t border-slate-200 pt-0.5">
@@ -2363,6 +2467,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
     <script>
         const API_BASE = window.location.origin;
         let currentUser = null;
+        try {
+            const _cached = localStorage.getItem('bsp_cached_user');
+            if (_cached && localStorage.getItem('token')) {
+                currentUser = JSON.parse(_cached);
+            }
+        } catch (e) {}
         let currentTab = 'pdf417';
         let barcode2DType = 'pdf417'; // 'pdf417' or 'qrcode'
         let previewMode = 'barcode';
@@ -3985,6 +4095,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             }
             renderCardBackCompanionBarcode();
             updateCardFrontDetails();
+            if (typeof applyBarcodeBlurState === 'function') applyBarcodeBlurState();
         }
 
         // --- UNBLURRED, 100% SCANNABLE RENDERING ENGINE (AUTHENTIC AAMVA STANDARDS) ---
@@ -4794,6 +4905,169 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             }
         }
 
+        // --- ADMIN CLIENTS DATABASE & TOKEN MANAGEMENT CRM ---
+        let adminClientsCache = [];
+
+        function openAdminClientsModal() {
+            const modal = document.getElementById('admin-clients-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                loadAdminClients();
+            }
+        }
+
+        function closeAdminClientsModal() {
+            const modal = document.getElementById('admin-clients-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function loadAdminClients() {
+            const tbody = document.getElementById('admin-clients-table-body');
+            if (!tbody) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/clients`, {
+                    headers: getAuthHeader()
+                });
+                if (!res.ok) throw new Error('Failed to fetch clients database');
+                const data = await res.json();
+
+                const totalEl = document.getElementById('clients-kpi-total');
+                const activeEl = document.getElementById('clients-kpi-active');
+                const tokensEl = document.getElementById('clients-kpi-tokens');
+                if (totalEl) totalEl.textContent = data.total_clients || 0;
+                if (activeEl) activeEl.textContent = data.active_clients || 0;
+                if (tokensEl) tokensEl.textContent = (data.total_tokens_circulating || 0).toLocaleString();
+
+                adminClientsCache = data.clients || [];
+                filterAdminClients();
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-rose-500 font-bold">Failed to load clients database: ${e.message}</td></tr>`;
+            }
+        }
+
+        function filterAdminClients() {
+            const query = (document.getElementById('admin-clients-search')?.value || '').toLowerCase().trim();
+            const roleFilter = document.getElementById('admin-clients-role-filter')?.value || 'all';
+
+            let filtered = adminClientsCache;
+            if (roleFilter !== 'all') {
+                filtered = filtered.filter(c => roleFilter === 'admin' ? c.is_admin : !c.is_admin);
+            }
+            if (query) {
+                filtered = filtered.filter(c => 
+                    String(c.id).includes(query) ||
+                    (c.email && c.email.toLowerCase().includes(query)) ||
+                    (c.role && c.role.toLowerCase().includes(query))
+                );
+            }
+            renderAdminClientsTable(filtered);
+        }
+
+        function renderAdminClientsTable(clients) {
+            const tbody = document.getElementById('admin-clients-table-body');
+            const countEl = document.getElementById('admin-clients-table-count');
+            if (!tbody) return;
+
+            if (countEl) countEl.textContent = `${clients.length} client${clients.length === 1 ? '' : 's'}`;
+
+            if (clients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No clients match the current filter.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = clients.map(c => {
+                const rolePill = c.is_admin 
+                    ? `<span class="bg-amber-100 text-amber-800 border border-amber-300 font-bold px-2 py-0.5 rounded-full text-[10px]">Admin</span>`
+                    : `<span class="bg-slate-100 text-slate-700 border border-slate-300 font-semibold px-2 py-0.5 rounded-full text-[10px]">Client</span>`;
+
+                const tokenDisplay = c.is_admin
+                    ? `<span class="text-amber-600 font-extrabold text-sm">&infin; (Unlimited)</span>`
+                    : `<span class="font-bold text-slate-900">${c.tokens} Sets</span>`;
+
+                const quickAdjustButtons = c.is_admin ? `
+                    <span class="text-[11px] text-slate-400 italic">Admin (Full Access)</span>
+                ` : `
+                    <div class="flex items-center justify-end gap-1">
+                        <button onclick="adjustClientTokens(${c.id}, 1, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 1 Set">+1</button>
+                        <button onclick="adjustClientTokens(${c.id}, 5, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 5 Sets">+5</button>
+                        <button onclick="adjustClientTokens(${c.id}, 10, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 10 Sets">+10</button>
+                        <button onclick="promptCustomTokenAdjust(${c.id}, '${c.email}', ${c.tokens})" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 rounded text-[11px] font-bold" title="Set exact balance">Custom</button>
+                        <button onclick="toggleClientRole(${c.id}, '${c.email}', '${c.role}')" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[11px] font-bold" title="Make Admin">Make Admin</button>
+                    </div>
+                `;
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-2.5 font-mono text-slate-500 font-bold">#${c.id}</td>
+                        <td class="p-2.5 font-medium text-slate-900">
+                            <div>${c.email}</div>
+                        </td>
+                        <td class="p-2.5">${rolePill}</td>
+                        <td class="p-2.5">${tokenDisplay}</td>
+                        <td class="p-2.5 font-medium text-slate-600">${c.order_count || 0}</td>
+                        <td class="p-2.5 font-mono text-slate-700 font-semibold">$${(c.total_spent_usd || 0).toFixed(2)}</td>
+                        <td class="p-2.5 text-right">${quickAdjustButtons}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function adjustClientTokens(userId, delta, setVal) {
+            try {
+                const payload = { user_id: userId };
+                if (setVal !== null && setVal !== undefined) payload.set_tokens = setVal;
+                else if (delta !== null && delta !== undefined) payload.delta_tokens = delta;
+
+                const res = await fetch(`${API_BASE}/api/admin/clients/adjust-tokens`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Token adjustment failed');
+                showToast(data.message || 'Tokens adjusted successfully!', 'success');
+                await loadAdminClients();
+                if (currentUser && currentUser.id === userId) {
+                    await checkAuth();
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
+        function promptCustomTokenAdjust(userId, email, currentTokens) {
+            const val = prompt(`Set exact token balance for ${email}:`, currentTokens);
+            if (val === null) return;
+            const parsed = parseInt(val, 10);
+            if (isNaN(parsed) || parsed < 0) {
+                showToast('Please enter a valid positive number.', 'warning');
+                return;
+            }
+            adjustClientTokens(userId, null, parsed);
+        }
+
+        async function toggleClientRole(userId, email, currentRole) {
+            const targetRole = currentRole === 'admin' ? 'free_user' : 'admin';
+            const conf = confirm(`Are you sure you want to change ${email} to ${targetRole.toUpperCase()}?`);
+            if (!conf) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/clients/set-role`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, role: targetRole })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Role change failed');
+                showToast(data.message || 'Role updated!', 'success');
+                await loadAdminClients();
+                if (currentUser && currentUser.id === userId) {
+                    await checkAuth();
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
         // --- CUSTOMER ORDER HISTORY ENGINE ---
         function openUserOrdersModal() {
             if (!currentUser) {
@@ -5025,6 +5299,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
         function apiLogout() {
             localStorage.removeItem('token');
+            localStorage.removeItem('bsp_cached_user');
             currentUser = null;
             updateAuthUI();
             showToast('Signed out.', 'info');
@@ -5037,18 +5312,37 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 updateAuthUI();
                 return;
             }
+
+            // Hydrate instantly from cache if not already loaded, avoiding flicker
+            if (!currentUser) {
+                try {
+                    const cached = localStorage.getItem('bsp_cached_user');
+                    if (cached) currentUser = JSON.parse(cached);
+                } catch (e) {}
+            }
+
             try {
                 const res = await fetch(`${API_BASE}/users/me`, { headers: getAuthHeader() });
                 if (res.ok) {
                     currentUser = await res.json();
-                } else {
+                    localStorage.setItem('bsp_cached_user', JSON.stringify(currentUser));
+                    updateAuthUI();
+                } else if (res.status === 401) {
+                    // Only log out on explicit unauthorized 401
                     localStorage.removeItem('token');
+                    localStorage.removeItem('bsp_cached_user');
                     currentUser = null;
+                    updateAuthUI();
+                } else {
+                    // Server is restarting (500, 502, 503) - NEVER LOG OUT! Keep session and retry quietly in background
+                    updateAuthUI();
+                    setTimeout(checkAuth, 3500);
                 }
             } catch (e) {
-                currentUser = null;
+                // Network glitch or server down temporarily during restart - NEVER LOG OUT!
+                updateAuthUI();
+                setTimeout(checkAuth, 3500);
             }
-            updateAuthUI();
         }
 
         function updateAuthUI() {
@@ -5062,6 +5356,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const paywallGuest = document.getElementById('paywall-guest-content');
             const paywallDepleted = document.getElementById('paywall-depleted-content');
             const adminCryptoBtn = document.getElementById('admin-crypto-btn');
+            const adminClientsBtn = document.getElementById('admin-clients-btn');
             const userOrdersBtn = document.getElementById('user-orders-btn');
 
             if (currentUser) {
@@ -5083,6 +5378,16 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     } else {
                         adminCryptoBtn.classList.add('hidden');
                         adminCryptoBtn.classList.remove('flex');
+                    }
+                }
+
+                if (adminClientsBtn) {
+                    if (isAdmin) {
+                        adminClientsBtn.classList.remove('hidden');
+                        adminClientsBtn.classList.add('flex');
+                    } else {
+                        adminClientsBtn.classList.add('hidden');
+                        adminClientsBtn.classList.remove('flex');
                     }
                 }
 
@@ -5114,6 +5419,10 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (adminCryptoBtn) {
                     adminCryptoBtn.classList.add('hidden');
                     adminCryptoBtn.classList.remove('flex');
+                }
+                if (adminClientsBtn) {
+                    adminClientsBtn.classList.add('hidden');
+                    adminClientsBtn.classList.remove('flex');
                 }
                 if (userOrdersBtn) {
                     userOrdersBtn.classList.add('hidden');
@@ -5152,9 +5461,14 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const overlay = document.getElementById('barcode-blur-overlay');
             const canvas417 = document.getElementById('output-pdf417');
             const svg128 = document.getElementById('output-code128');
+            const cardPreviewBarcode = document.getElementById('card-preview-barcode');
+            const cardCode128Svg = document.getElementById('card-code128-svg');
+            const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
                 if (overlay) overlay.classList.add('hidden');
+                if (cardBarcodeLockOverlay) cardBarcodeLockOverlay.classList.add('hidden');
+
                 if (canvas417) {
                     canvas417.style.filter = 'none';
                     canvas417.style.pointerEvents = 'auto';
@@ -5167,10 +5481,25 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     svg128.style.userSelect = 'auto';
                     svg128.oncontextmenu = null;
                 }
+                if (cardPreviewBarcode) {
+                    cardPreviewBarcode.style.filter = 'none';
+                    cardPreviewBarcode.style.pointerEvents = 'auto';
+                    cardPreviewBarcode.style.userSelect = 'auto';
+                    cardPreviewBarcode.oncontextmenu = null;
+                }
+                if (cardCode128Svg) {
+                    cardCode128Svg.style.filter = 'none';
+                    cardCode128Svg.style.pointerEvents = 'auto';
+                    cardCode128Svg.style.userSelect = 'auto';
+                    cardCode128Svg.oncontextmenu = null;
+                }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
-                // Micro-softening (1.8px): Barcode structure, columns, and rows remain clearly visible to prove authenticity,
+                if (cardBarcodeLockOverlay) cardBarcodeLockOverlay.classList.remove('hidden');
+
+                // Anti-scan micro-softening (1.8px): Barcode structure, columns, and rows remain clearly visible to prove authenticity,
                 // while optical decode edge-contrast (ECmin < 15%) is softened to prevent camera/laser scanning before purchase.
+                // Note: The DL demographic footer text (card-id-preview, card-name-preview, card-state-preview) remains 100% untouched and crystal clear!
                 if (canvas417) {
                     canvas417.style.filter = 'blur(1.8px) contrast(90%)';
                     canvas417.style.pointerEvents = 'none';
@@ -5182,6 +5511,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     svg128.style.pointerEvents = 'none';
                     svg128.style.userSelect = 'none';
                     svg128.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (cardPreviewBarcode) {
+                    cardPreviewBarcode.style.filter = 'blur(1.8px) contrast(90%)';
+                    cardPreviewBarcode.style.pointerEvents = 'none';
+                    cardPreviewBarcode.style.userSelect = 'none';
+                    cardPreviewBarcode.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (cardCode128Svg) {
+                    cardCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    cardCode128Svg.style.pointerEvents = 'none';
+                    cardCode128Svg.style.userSelect = 'none';
+                    cardCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
@@ -7194,17 +7535,34 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (stateEl) stateEl.value = 'CT';
                 const verEl = document.getElementById('aamva-version');
                 if (verEl) verEl.value = 'AUTO';
+                let hasDraft = false;
                 if (typeof restoreDraftFromStorage === 'function') {
-                    restoreDraftFromStorage();
+                    hasDraft = restoreDraftFromStorage();
+                }
+                if (!hasDraft && typeof loadJonathanGarciaPreset === 'function') {
+                    loadJonathanGarciaPreset();
                 }
                 if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
                 if (typeof updateTuningUI === 'function') updateTuningUI();
                 if (typeof updateHeightMetric === 'function') updateHeightMetric();
                 if (typeof updateWeightMetric === 'function') updateWeightMetric();
                 if (typeof validateDlNumber === 'function') validateDlNumber();
+                // Support deep-linking query parameters (e.g. ?mode=card, ?modal=clients)
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('mode') === 'card' && typeof switchPreviewMode === 'function') {
+                    switchPreviewMode('card');
+                }
+
                 if (typeof compileAAMVA === 'function') compileAAMVA();
                 if (typeof compileMrz === 'function') compileMrz();
                 if (typeof checkAuth === 'function') checkAuth();
+
+                if (urlParams.get('modal') === 'clients' && typeof openAdminClientsModal === 'function') {
+                    openAdminClientsModal();
+                }
+                if (urlParams.get('modal') === 'crypto' && typeof openAdminCryptoModal === 'function') {
+                    openAdminCryptoModal();
+                }
             } catch (err) {
                 console.error("Initialization error:", err);
             }
