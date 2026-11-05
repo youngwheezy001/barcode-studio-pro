@@ -328,6 +328,123 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
     }
 }
 
+# State-specific identifier terminology & AAMVA standard rules:
+# - DAQ (DLN): Mandatory in all jurisdictions.
+# - DCF (DD): Mandatory in modern AAMVA (Audit Number in TX, Audit String in CA, DD in FL/NY/etc.).
+# - DCK (ICN): Conditional/Optional. Standard in CT/WA/AZ/CO/NV/MO/TN; OMITTED in standard cards for TX/CA/FL/NY/etc.
+STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
+    "TX": {
+        "dd_label": "Audit Number",
+        "dd_desc": "16 to 20 digit numeric audit number printed vertically on card face or back",
+        "uses_icn": False,
+        "icn_label": "ICN (Not used in TX - Omitted per AAMVA Section D.2)"
+    },
+    "CA": {
+        "dd_label": "Audit String",
+        "dd_desc": "Formatted date & audit string (e.g. 08/25/202165508/AAFD/26) embedding stock data",
+        "uses_icn": False,
+        "icn_label": "ICN (Embedded inside DD - Omitted in standard CA barcode)"
+    },
+    "FL": {
+        "dd_label": "Document Discriminator",
+        "dd_desc": "16-character alphanumeric DD printed on card face",
+        "uses_icn": False,
+        "icn_label": "ICN (Not used in FL - Omitted per AAMVA Section D.2)"
+    },
+    "NY": {
+        "dd_label": "Document Discriminator / Doc #",
+        "dd_desc": "8 to 10 alphanumeric DD printed on front lower right",
+        "uses_icn": False,
+        "icn_label": "ICN (Not used in NY - Omitted per AAMVA Section D.2)"
+    },
+    "IL": {
+        "dd_label": "Item # / Control #",
+        "dd_desc": "Alphanumeric control number printed on card back",
+        "uses_icn": False,
+        "icn_label": "ICN (Not used in IL - Omitted)"
+    },
+    "OH": {
+        "dd_label": "Item # / Audit #",
+        "dd_desc": "Numeric audit identifier printed on card back",
+        "uses_icn": False,
+        "icn_label": "ICN (Not used in OH - Omitted)"
+    },
+    "PA": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "8-digit numeric DD printed on card face",
+        "uses_icn": False,
+        "icn_label": "ICN (Not used in PA - Omitted)"
+    },
+    "CT": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "Alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Inventory Control Number (ICN)"
+    },
+    "WA": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "19-character alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Inventory Number (ICN)"
+    },
+    "AZ": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "Alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Inventory Control Number (ICN)"
+    },
+    "CO": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "Alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Inventory Control Number (ICN)"
+    },
+    "NV": {
+        "dd_label": "Doc # / DD",
+        "dd_desc": "Alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Stock / Inventory # (ICN)"
+    },
+    "MO": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "Alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Inventory Control Number (ICN)"
+    },
+    "TN": {
+        "dd_label": "Doc # / DD",
+        "dd_desc": "Alphanumeric Document Discriminator",
+        "uses_icn": True,
+        "icn_label": "Inventory Control Number (ICN)"
+    },
+    "AL": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "AR": {"dd_label": "Doc #", "dd_desc": "Document number on lower back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "KS": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "LA": {"dd_label": "Audit #", "dd_desc": "Audit number on reverse", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "MA": {"dd_label": "Doc #", "dd_desc": "Doc number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "MN": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "MS": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "NC": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "NE": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "OR": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "SC": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "VA": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "VT": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "WI": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+}
+
+for _st_code, _st_prof in STATE_AAMVA_PROFILES.items():
+    _meta = STATE_IDENTIFIER_METADATA.get(_st_code, {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": f"{_st_prof.get('issuer_name', _st_code)} Document Discriminator",
+        "uses_icn": False,
+        "icn_label": "ICN (Optional / State Specific)"
+    })
+    _st_prof["dd_label"] = _meta["dd_label"]
+    _st_prof["dd_desc"] = _meta["dd_desc"]
+    _st_prof["uses_icn"] = _meta["uses_icn"]
+    _st_prof["icn_label"] = _meta["icn_label"]
+
 
 def parse_issue_year(date_str: Optional[str]) -> int:
     """
@@ -479,8 +596,37 @@ def generate_aamva_payload(
     issued = str(user_data.get("issued", "")).strip()
     exp = str(user_data.get("exp", "")).strip()
     dl_id = str(user_data.get("id", "")).strip().upper()
-    dcf = str(user_data.get("dcf", "24072614422001MVI6")).strip().upper()
-    dck = str(user_data.get("dck", f"{dl_id}CTBRRL01")).strip().upper()
+    
+    # State-aware Document Discriminator (DD / DCF) resolution
+    dcf_val = user_data.get("dcf")
+    if dcf_val is not None and str(dcf_val).strip():
+        dcf = str(dcf_val).strip().upper()
+    else:
+        st_upper = state_code.upper()
+        if st_upper == "TX":
+            dcf = "2407261442200188"
+        elif st_upper == "CA":
+            dcf = "08/25/202165508/AAFD/26"
+        elif st_upper == "FL":
+            dcf = "24072614422001M1"
+        else:
+            dcf = "24072614422001MVI6"
+
+    # State-aware Inventory Control Number (ICN / DCK) resolution
+    # Standard in CT, WA, AZ, CO, NV, MO, TN; OMITTED in standard TX, CA, FL, NY, etc.
+    dck_val = user_data.get("dck")
+    if dck_val is not None and str(dck_val).strip():
+        dck = str(dck_val).strip().upper()
+    else:
+        st_upper = state_code.upper()
+        if st_upper == "CT":
+            dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
+        elif st_upper == "WA":
+            dck = "210212003666014417006801"
+        elif profile.get("uses_icn", False):
+            dck = f"{dl_id}01" if dl_id else "1001"
+        else:
+            dck = ""  # Omitted completely per AAMVA Section D.2
     sex = str(user_data.get("sex", "1")).strip()
     height = str(user_data.get("height", "061 IN")).strip().upper()
     eyes = str(user_data.get("eyes", "BLK")).strip().upper()
@@ -593,8 +739,37 @@ def generate_scanner_xml(
     issued = str(user_data.get("issued", "")).strip()
     exp = str(user_data.get("exp", "")).strip()
     dl_id = str(user_data.get("id", "")).strip().upper()
-    dcf = str(user_data.get("dcf", "24072614422001MVI6")).strip().upper()
-    dck = str(user_data.get("dck", f"{dl_id}CTBRRL01")).strip().upper()
+    
+    # State-aware Document Discriminator (DD / DCF) resolution
+    dcf_val = user_data.get("dcf")
+    if dcf_val is not None and str(dcf_val).strip():
+        dcf = str(dcf_val).strip().upper()
+    else:
+        st_upper = state_code.upper()
+        if st_upper == "TX":
+            dcf = "2407261442200188"
+        elif st_upper == "CA":
+            dcf = "08/25/202165508/AAFD/26"
+        elif st_upper == "FL":
+            dcf = "24072614422001M1"
+        else:
+            dcf = "24072614422001MVI6"
+
+    # State-aware Inventory Control Number (ICN / DCK) resolution
+    # Standard in CT, WA, AZ, CO, NV, MO, TN; OMITTED in standard TX, CA, FL, NY, etc.
+    dck_val = user_data.get("dck")
+    if dck_val is not None and str(dck_val).strip():
+        dck = str(dck_val).strip().upper()
+    else:
+        st_upper = state_code.upper()
+        if st_upper == "CT":
+            dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
+        elif st_upper == "WA":
+            dck = "210212003666014417006801"
+        elif profile.get("uses_icn", False):
+            dck = f"{dl_id}01" if dl_id else "1001"
+        else:
+            dck = ""  # Omitted completely per AAMVA Section D.2
     sex = str(user_data.get("sex", "1")).strip()
     height = str(user_data.get("height", "061 IN")).strip().upper()
     eyes = str(user_data.get("eyes", "BLK")).strip().upper()
@@ -763,10 +938,9 @@ def generate_scanner_xml(
         f"    <element id=\"DAG\" name=\"Address - Street 1\">{street.upper()}</element>\n"
         f"    <element id=\"DAI\" name=\"Address - City\">{city.upper()}</element>\n"
         f"    <element id=\"DAJ\" name=\"Address - Jurisdiction Code\">{state.upper()}</element>\n"
-        f"    <element id=\"DAK\" name=\"Address - Postal Code\">{zip_code}</element>\n"
-        f"    <element id=\"DCF\" name=\"Document Discriminator\">{dcf}</element>\n"
+        f"    <element id=\"DCF\" name=\"{profile.get('dd_label', 'Document Discriminator')}\">{dcf}</element>\n"
         "    <element id=\"DCG\" name=\"Country Identification\">USA</element>\n"
-        f"    <element id=\"DCK\" name=\"Inventory control number\">{dck}</element>\n"
+        + (f"    <element id=\"DCK\" name=\"{profile.get('icn_label', 'Inventory control number')}\">{dck}</element>\n" if dck else "") +
         "    <element id=\"DDA\" name=\"Compliance Type\">F</element>\n"
         "    <element id=\"DDB\" name=\"Card Revision Date\">02102017</element>\n"
         f"    <element id=\"DDK\" name=\"Organ Donor\">{donor}</element>\n"

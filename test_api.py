@@ -93,8 +93,12 @@ def run_tests():
     assert res_prof.status_code == 200
     profiles = res_prof.json()["profiles"]
     assert len(profiles) >= 52
-    assert "CT" in profiles and "WA" in profiles
-    print("  -> Passed: 52 AAMVA state profiles retrieved successfully via API.")
+    assert "CT" in profiles and "WA" in profiles and "TX" in profiles
+    assert profiles["TX"]["dd_label"] == "Audit Number"
+    assert profiles["TX"]["uses_icn"] is False
+    assert profiles["CT"]["uses_icn"] is True
+    assert profiles["WA"]["uses_icn"] is True
+    print("  -> Passed: 52 AAMVA state profiles retrieved successfully with state-aware DD & ICN rules.")
 
     res_comp = client.post("/api/aamva/compile", json={
         "state": "CT",
@@ -112,7 +116,29 @@ def run_tests():
     assert comp_data["profile"]["aamva_version"] == "09"
     assert comp_data["profile"]["data_format"] == "11"
     assert '<subfile designator="DL" offset="41"' in comp_data["xml"]
-    print("  -> Passed: CT 2024 compiled to v09 Format 11 with offset 41 via API.")
+    assert "DCK" in comp_data["payload"]  # CT uses ICN
+    print("  -> Passed: CT 2024 compiled to v09 Format 11 with offset 41 & active ICN via API.")
+
+    # Test Texas (Audit Number used, ICN omitted per AAMVA Section D.2)
+    res_tx = client.post("/api/aamva/compile", json={
+        "state": "TX",
+        "user_data": {
+            "first": "Michael",
+            "last": "Austin",
+            "issued": "05122023",
+            "dob": "08141988",
+            "id": "38914028"
+        },
+        "version": "AUTO"
+    })
+    assert res_tx.status_code == 200
+    tx_data = res_tx.json()
+    assert tx_data["profile"]["dd_label"] == "Audit Number"
+    assert "DCF" in tx_data["payload"]  # Texas Audit Number present
+    assert "DCK" not in tx_data["payload"]  # Texas standard cards omit DCK!
+    assert '<element id="DCF" name="Audit Number"' in tx_data["xml"]
+    assert '<element id="DCK"' not in tx_data["xml"]
+    print("  -> Passed: TX 2023 compiled with Audit Number (DCF) and omitted ICN (DCK).")
 
     # 7. Test Admin User Unlimited Exports (No Token Depletion)
     print("\n[7/9] Testing Admin Auto-Promotion & Unlimited Exports...")
