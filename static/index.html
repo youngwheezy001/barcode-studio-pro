@@ -44,6 +44,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bwip-js@3.0.4/dist/bwip-js-min.js"></script>
     <!-- jsPDF for direct PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- ZXing for universal in-browser PDF417, Code 128, and QR camera/image barcode scanning -->
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+    <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
     <script>
         // Immediately unregister all Service Workers and clear caches
         if ('serviceWorker' in navigator) {
@@ -4330,6 +4333,40 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         // --- IN-BROWSER BARCODE SCANNER & WEBCAM READER CONTROLLER ---
         let scannerStream = null;
         let cameraScanInterval = null;
+        let zxingMultiReader = null;
+        let zxingPdf417Reader = null;
+
+        function getZXingMultiReader() {
+            if (!zxingMultiReader && window.ZXing) {
+                try {
+                    const hints = new Map();
+                    const formats = [
+                        window.ZXing.BarcodeFormat.PDF_417,
+                        window.ZXing.BarcodeFormat.CODE_128,
+                        window.ZXing.BarcodeFormat.QR_CODE,
+                        window.ZXing.BarcodeFormat.CODE_39,
+                        window.ZXing.BarcodeFormat.DATA_MATRIX
+                    ];
+                    hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+                    hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
+                    zxingMultiReader = new window.ZXing.BrowserMultiFormatReader(hints, 250);
+                } catch (e) {
+                    zxingMultiReader = new window.ZXing.BrowserMultiFormatReader();
+                }
+            }
+            return zxingMultiReader;
+        }
+
+        function getZXingPdf417Reader() {
+            if (!zxingPdf417Reader && window.ZXing) {
+                try {
+                    zxingPdf417Reader = new window.ZXing.BrowserPDF417Reader();
+                } catch (e) {
+                    console.warn('PDF417 reader init error:', e);
+                }
+            }
+            return zxingPdf417Reader;
+        }
 
         function openBarcodeScannerModal() {
             const m = document.getElementById('barcode-scanner-modal');
@@ -4381,8 +4418,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             const previewCont = document.getElementById('scan-preview-container');
             const previewImg = document.getElementById('scan-preview-img');
 
+            const objUrl = URL.createObjectURL(file);
             if (previewCont && previewImg) {
-                previewImg.src = URL.createObjectURL(file);
+                previewImg.src = objUrl;
                 previewCont.classList.remove('hidden');
             }
 
@@ -4393,27 +4431,62 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             }
 
             try {
-                const imgBitmap = await createImageBitmap(file);
+                let decodedText = null;
+                let detectedFormat = 'PDF417 / Barcode';
 
+                // Method 1: Try native BarcodeDetector if available
                 if ('BarcodeDetector' in window) {
-                    const formats = ['pdf417', 'code_128', 'qr_code'];
-                    const detector = new BarcodeDetector({ formats });
-                    const barcodes = await detector.detect(imgBitmap);
-                    if (barcodes && barcodes.length > 0) {
-                        const rawValue = barcodes[0].rawValue;
-                        if (statusEl) {
-                            statusEl.className = 'text-xs text-emerald-800 bg-emerald-50 p-2.5 rounded-lg border border-emerald-300 block';
-                            statusEl.textContent = `Barcode detected (${barcodes[0].format})! Populating form...`;
+                    try {
+                        const imgBitmap = await createImageBitmap(file);
+                        const detector = new BarcodeDetector({ formats: ['pdf417', 'code_128', 'qr_code'] });
+                        const barcodes = await detector.detect(imgBitmap);
+                        if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                            decodedText = barcodes[0].rawValue;
+                            detectedFormat = barcodes[0].format || detectedFormat;
                         }
-                        parseDecodedAAMVA(rawValue);
-                        setTimeout(() => { closeBarcodeScannerModal(); }, 1200);
-                        return;
+                    } catch (e) {
+                        console.warn('Native detector image error:', e);
                     }
+                }
+
+                // Method 2: Universal ZXing Multi-Format Image decode
+                if (!decodedText && window.ZXing) {
+                    try {
+                        const reader = getZXingMultiReader();
+                        const result = await reader.decodeFromImageUrl(objUrl);
+                        if (result && result.getText()) {
+                            decodedText = result.getText();
+                            detectedFormat = 'Barcode / PDF417';
+                        }
+                    } catch (zxErr) {
+                        // Method 3: Fallback to dedicated ZXing PDF417 reader
+                        try {
+                            const pdfReader = getZXingPdf417Reader();
+                            const result = await pdfReader.decodeFromImageUrl(objUrl);
+                            if (result && result.getText()) {
+                                decodedText = result.getText();
+                                detectedFormat = 'PDF417';
+                            }
+                        } catch (e2) {
+                            console.warn('ZXing PDF417 image decode:', e2);
+                        }
+                    }
+                }
+
+                if (decodedText) {
+                    if (statusEl) {
+                        statusEl.className = 'text-xs text-emerald-800 bg-emerald-50 p-2.5 rounded-lg border border-emerald-300 block';
+                        statusEl.textContent = `Barcode detected (${detectedFormat})! Populating form...`;
+                    }
+                    parseDecodedAAMVA(decodedText);
+                    showToast('Barcode scanned successfully! Form populated.', 'success');
+                    setTimeout(() => { closeBarcodeScannerModal(); }, 1200);
+                    return;
                 }
 
                 if (statusEl) {
                     statusEl.className = 'text-xs text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-300 block';
-                    statusEl.innerHTML = `Image loaded (${file.name}). If your browser lacks native PDF417 detection, paste the decoded string into Import XML.`;
+                    statusEl.textContent = `Image loaded (${file.name}), but no barcode was recognized. Please ensure the barcode is sharp, well-lit, or try scanning with the Live Camera.`;
                 }
             } catch (err) {
                 if (statusEl) {
@@ -4428,43 +4501,86 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             const statusEl = document.getElementById('camera-status');
             const video = document.getElementById('scanner-video');
 
-            if (scannerStream) {
+            if (scannerStream || cameraScanInterval) {
                 stopCameraScanning();
                 return;
             }
 
-            if (!('BarcodeDetector' in window)) {
-                alert("Your browser does not support the native BarcodeDetector API for live camera scanning. Please use the Upload Image tab.");
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast("Live camera access is not supported on this browser context. Please use the Upload Image tab.", "warning");
+                if (statusEl) statusEl.textContent = "Camera not supported";
                 return;
             }
 
             try {
-                scannerStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-                });
-                video.srcObject = scannerStream;
+                if (btn) btn.textContent = 'Starting...';
+                if (statusEl) statusEl.textContent = 'Requesting camera access...';
+
+                let stream = null;
+                try {
+                    // Try back camera first
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+                    });
+                } catch (e1) {
+                    // Fallback to any available camera (webcam, laptop front camera, etc.)
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
+
+                scannerStream = stream;
+                if (video) {
+                    video.srcObject = stream;
+                    await video.play();
+                }
+
                 if (btn) btn.textContent = 'Stop Camera';
                 if (statusEl) statusEl.textContent = 'Scanning live frames...';
 
-                const detector = new BarcodeDetector({ formats: ['pdf417', 'code_128', 'qr_code'] });
-                cameraScanInterval = setInterval(async () => {
-                    if (!video.videoWidth) return;
-                    try {
-                        const barcodes = await detector.detect(video);
-                        if (barcodes && barcodes.length > 0) {
-                            const found = barcodes[0].rawValue;
+                // Method A: ZXing continuous frame stream decoding
+                const reader = getZXingMultiReader();
+                if (reader && video) {
+                    reader.decodeFromStream(stream, video, (result, error) => {
+                        if (result && result.getText()) {
+                            const found = result.getText();
                             stopCameraScanning();
                             parseDecodedAAMVA(found);
                             closeBarcodeScannerModal();
-                            showToast(`Scanned ${barcodes[0].format} successfully!`, 'success');
+                            showToast('Barcode scanned successfully! Form populated.', 'success');
                         }
-                    } catch (e) {
-                        // Frame skip
-                    }
-                }, 250);
+                    });
+                }
+
+                // Method B: Parallel native BarcodeDetector if browser has hardware support
+                if ('BarcodeDetector' in window && video) {
+                    try {
+                        const nativeDetector = new BarcodeDetector({ formats: ['pdf417', 'code_128', 'qr_code'] });
+                        cameraScanInterval = setInterval(async () => {
+                            if (!scannerStream || !video.videoWidth) return;
+                            try {
+                                const barcodes = await nativeDetector.detect(video);
+                                if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                    const found = barcodes[0].rawValue;
+                                    stopCameraScanning();
+                                    parseDecodedAAMVA(found);
+                                    closeBarcodeScannerModal();
+                                    showToast(`Scanned ${barcodes[0].format} successfully! Form populated.`, 'success');
+                                }
+                            } catch (e) {
+                                // Frame skip
+                            }
+                        }, 250);
+                    } catch (e) {}
+                }
+
             } catch (err) {
-                alert("Unable to access camera: " + err.message);
-                if (statusEl) statusEl.textContent = 'Camera access denied';
+                console.error("Camera access error:", err);
+                if (btn) btn.textContent = 'Start Camera Scan';
+                if (statusEl) statusEl.textContent = 'Camera unavailable';
+                let msg = "Unable to access camera: " + (err.message || "Permission denied");
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    msg = "Camera permission was denied. Please allow camera access in your browser address bar or use the Upload Image tab.";
+                }
+                showToast(msg, 'warning');
             }
         }
 
@@ -4473,9 +4589,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 clearInterval(cameraScanInterval);
                 cameraScanInterval = null;
             }
+            if (zxingMultiReader) {
+                try { zxingMultiReader.reset(); } catch (e) {}
+            }
             if (scannerStream) {
-                scannerStream.getTracks().forEach(t => t.stop());
+                try {
+                    scannerStream.getTracks().forEach(t => t.stop());
+                } catch (e) {}
                 scannerStream = null;
+            }
+            const video = document.getElementById('scanner-video');
+            if (video) {
+                video.srcObject = null;
             }
             const btn = document.getElementById('btn-toggle-camera');
             const statusEl = document.getElementById('camera-status');
