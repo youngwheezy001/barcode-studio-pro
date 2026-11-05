@@ -4,6 +4,9 @@ Tests registration, JWT authentication, token deduction, paywall gating, and dat
 """
 import os
 import sys
+import io
+import zipfile
+import uuid
 from fastapi.testclient import TestClient
 
 # Ensure local directory is in path
@@ -384,8 +387,101 @@ def run_tests():
     assert res_unauth.status_code == 401, f"Expected 401 for unauthenticated request, got {res_unauth.status_code}"
     print("  -> Passed: Unauthenticated request to /api/user/orders correctly blocked (401 Unauthorized).")
 
+    # 17. Test Strict On-Chain Crypto Verification & Anti-Replay Guard (/api/crypto/verify-onchain)
+    print("\n[17/18] Testing Strict On-Chain Crypto Verification & Anti-Replay Protection...")
+    # A. Rejection of invalid short hash
+    res_short = client.post(
+        "/api/crypto/verify-onchain",
+        json={"order_id": xl_data["order_id"], "tx_hash": "short"},
+        headers=out_headers
+    )
+    assert res_short.status_code == 400, f"Expected 400 for short TxID, got {res_short.status_code}"
+    print("  -> Passed: Invalid short TxID correctly rejected (400 Bad Request).")
+
+    # B. Anonymous unauthenticated verification rejected
+    res_anon = client.post(
+        "/api/crypto/verify-onchain",
+        json={"order_id": xl_data["order_id"], "tx_hash": "TEST_BLOCKCHAIN_CONFIRMED_abc123456"}
+    )
+    assert res_anon.status_code == 401, f"Expected 401 for anonymous verification, got {res_anon.status_code}"
+    print("  -> Passed: Anonymous on-chain verification attempt blocked (401 Unauthorized).")
+
+    # C. Successful on-chain confirmation via test blockchain verifier
+    tx_test_id = f"TEST_BLOCKCHAIN_CONFIRMED_{uuid.uuid4().hex}"
+    pre_verif_tokens = client.get("/users/me", headers=out_headers).json()["tokens"]
+    res_verif = client.post(
+        "/api/crypto/verify-onchain",
+        json={"order_id": xl_data["order_id"], "tx_hash": tx_test_id},
+        headers=out_headers
+    )
+    assert res_verif.status_code == 200, f"Expected 200 for confirmed test tx, got {res_verif.status_code}: {res_verif.text}"
+    verif_data = res_verif.json()
+    assert verif_data["status"] == "success"
+    assert verif_data["tokens_added"] == 100
+    assert verif_data["tokens_remaining"] == pre_verif_tokens + 100
+    print(f"  -> Passed: On-chain transaction confirmed! Added {verif_data['tokens_added']} sets (Balance: {verif_data['tokens_remaining']}).")
+
+    # D. Anti-Replay double-spend attack rejection: another order cannot use the same TxID
+    replay_order = client.post("/api/crypto/create-order", json={"package_id": "xxs_1", "crypto_currency": "USDT_TRC20"}, headers=out_headers).json()
+    res_replay = client.post(
+        "/api/crypto/verify-onchain",
+        json={"order_id": replay_order["order_id"], "tx_hash": tx_test_id},
+        headers=out_headers
+    )
+    assert res_replay.status_code == 400, f"Expected 400 for duplicate TxID replay, got {res_replay.status_code}"
+    assert "already been redeemed" in res_replay.text or "replay" in res_replay.text.lower()
+    print("  -> Passed: Anti-replay double-spending blocked! Duplicate TxID reuse strictly rejected (400 Bad Request).")
+
+    # 18. Test CSV Batch / Bulk Barcode Generator (/api/batch/generate-zip)
+    print("\n[18/18] Testing Batch CSV Generator & Companion Set ZIP Bundle...")
+    # A. Rejection of empty records
+    res_empty_batch = client.post("/api/batch/generate-zip", json={"records": []}, headers=out_headers)
+    assert res_empty_batch.status_code == 400, f"Expected 400 for empty batch, got {res_empty_batch.status_code}"
+    print("  -> Passed: Empty batch records correctly rejected (400 Bad Request).")
+
+    # B. Successful generation of 2 companion sets packaged in ZIP
+    batch_payload = {
+        "records": [
+            {
+                "dl_number": "D88889999",
+                "first_name": "SARAH",
+                "last_name": "CONNER",
+                "state": "CT",
+                "dob": "19850315",
+                "exp_date": "20290315"
+            },
+            {
+                "dl_number": "Y99991111",
+                "first_name": "MICHAEL",
+                "last_name": "BIHN",
+                "state": "CA",
+                "dob": "19820710",
+                "exp_date": "20300710"
+            }
+        ]
+    }
+    tokens_before_batch = client.get("/users/me", headers=out_headers).json()["tokens"]
+    res_batch = client.post("/api/batch/generate-zip", json=batch_payload, headers=out_headers)
+    assert res_batch.status_code == 200, f"Expected 200 for batch zip, got {res_batch.status_code}"
+    assert res_batch.headers["content-type"] == "application/zip"
+
+    # Inspect ZIP archive contents
+    zip_bytes = io.BytesIO(res_batch.content)
+    with zipfile.ZipFile(zip_bytes, "r") as zf:
+        namelist = zf.namelist()
+        assert "batch_manifest.csv" in namelist, "Manifest CSV missing from batch ZIP"
+        assert any("D88889999" in name for name in namelist), "Record 1 missing from batch ZIP"
+        assert any("Y99991111" in name for name in namelist), "Record 2 missing from batch ZIP"
+        manifest_text = zf.read("batch_manifest.csv").decode("utf-8")
+        assert "SARAH CONNER" in manifest_text
+        assert "MICHAEL BIHN" in manifest_text
+
+    tokens_after_batch = client.get("/users/me", headers=out_headers).json()["tokens"]
+    assert tokens_after_batch == tokens_before_batch - 2
+    print(f"  -> Passed: Batch ZIP synthesized with {len(namelist)} items; deducted 2 sets (New balance: {tokens_after_batch}).")
+
     print("\n" + "=" * 60)
-    print("ALL 16/16 TEST SUITES PASSED! User Order History, 8-Tier Pricing, & Dual Barcode Companion Sets verified.")
+    print("ALL 18/18 TEST SUITES PASSED! Real-time on-chain verification, Anti-Replay protection, and CSV Batch generation verified.")
     print("=" * 60)
 
 if __name__ == "__main__":
