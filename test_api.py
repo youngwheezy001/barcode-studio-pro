@@ -40,10 +40,10 @@ def run_tests():
         db.commit()
     db.close()
 
-    print("\n[2/5] Testing User Registration...")
+    print("\n[2/5] Testing User Registration (Zero-Credit Pay-First Policy)...")
     res = client.post("/register", json={"email": test_email, "password": test_password})
     assert res.status_code == 200, f"Register failed: {res.text}"
-    print(f"  -> Passed: Registered user ({test_email}) with initial 3 tokens.")
+    print(f"  -> Passed: Registered user ({test_email}) with initial 0 tokens (pay-first policy).")
 
     # 3. Test Login and JWT Token Generation
     print("\n[3/5] Testing Authentication & JWT Token Issuance...")
@@ -62,11 +62,23 @@ def run_tests():
     assert res.status_code == 200, f"Users me failed: {res.text}"
     user_info = res.json()
     assert user_info["email"] == test_email
-    assert user_info["tokens"] == 3
-    print(f"  -> Passed: User verified with {user_info['tokens']} tokens.")
+    assert user_info["tokens"] == 0, f"Expected 0 tokens for new account, got {user_info['tokens']}"
+    print(f"  -> Passed: User verified with 0 tokens (strict pay-first policy).")
 
     # 5. Test Export Token Deduction & Paywall Enforcement
     print("\n[5/5] Testing Token Deductions & Paywall Gating...")
+    # Zero tokens must immediately trigger 402 Payment Required
+    res_zero = client.post("/api/export", headers=headers)
+    assert res_zero.status_code == 402, f"Expected 402 Payment Required for 0-token user, got {res_zero.status_code}"
+    print("  -> Passed: 402 Payment Required strictly enforced on 0-token accounts!")
+
+    # Grant 3 tokens to test sequential deduction
+    db = SessionLocal()
+    u = db.query(User).filter(User.email == test_email).first()
+    u.tokens = 3
+    db.commit()
+    db.close()
+
     # Deduct 1st token
     res1 = client.post("/api/export", headers=headers)
     assert res1.status_code == 200
@@ -88,7 +100,7 @@ def run_tests():
     # 4th deduction must trigger 402 Payment Required
     res4 = client.post("/api/export", headers=headers)
     assert res4.status_code == 402, f"Expected 402 Payment Required, got {res4.status_code}"
-    print("  -> Passed: 402 Payment Required correctly enforced when tokens depleted!")
+    print("  -> Passed: 402 Payment Required correctly re-enforced when tokens depleted!")
 
     # 6. Test AAMVA API Profiles & Compilation
     print("\n[6/6] Testing AAMVA API Endpoints (/api/aamva/profiles & /api/aamva/compile)...")
@@ -213,27 +225,27 @@ def run_tests():
     out_token = out_login.json()["access_token"]
     out_headers = {"Authorization": f"Bearer {out_token}"}
 
-    # Verify initial 3 tokens
+    # Verify initial 0 tokens (pay-first policy)
     out_profile = client.get("/users/me", headers=out_headers).json()
-    assert out_profile["tokens"] == 3
+    assert out_profile["tokens"] == 0
 
     # Outsider purchases Starter Pack (10 sets)
     p1 = client.post("/api/tokens/purchase-mock", json={"package_id": "starter_10", "tokens": 10, "amount_usd": 18.00}, headers=out_headers)
     assert p1.status_code == 200
-    assert p1.json()["tokens_remaining"] == 13
-    print("  -> Passed: Purchased Starter Pack (+10 sets, balance: 13)")
+    assert p1.json()["tokens_remaining"] == 10
+    print("  -> Passed: Purchased Starter Pack (+10 sets, balance: 10)")
 
     # Outsider purchases Professional Pack (50 sets)
     p2 = client.post("/api/tokens/purchase-mock", json={"package_id": "pro_50", "tokens": 50, "amount_usd": 75.00}, headers=out_headers)
     assert p2.status_code == 200
-    assert p2.json()["tokens_remaining"] == 63
-    print("  -> Passed: Purchased Professional Pack (+50 sets, balance: 63)")
+    assert p2.json()["tokens_remaining"] == 60
+    print("  -> Passed: Purchased Professional Pack (+50 sets, balance: 60)")
 
     # Outsider purchases Enterprise Pack (250 sets)
     p3 = client.post("/api/tokens/purchase-mock", json={"package_id": "enterprise_250", "tokens": 250, "amount_usd": 159.00}, headers=out_headers)
     assert p3.status_code == 200
-    assert p3.json()["tokens_remaining"] == 313
-    print("  -> Passed: Purchased Enterprise Pack (+250 sets, balance: 313)")
+    assert p3.json()["tokens_remaining"] == 310
+    print("  -> Passed: Purchased Enterprise Pack (+250 sets, balance: 310)")
 
     # 11. Test Stripe Checkout Session Dynamic Packages
     print("\n[11/11] Testing Dynamic Stripe Checkout Session Generation...")
@@ -261,11 +273,13 @@ def run_tests():
     assert order_res.status_code == 200
     order_data = order_res.json()
     order_id = order_data["order_id"]
-    assert order_data["amount_usd"] == 75.00
+    assert order_data["base_amount_usd"] == 75.00
+    assert order_data["amount_usd"] >= 75.00
+    assert "cent_offset" in order_data
     assert order_data["tokens"] == 50
     assert order_data["crypto_currency"] == "USDT_TRC20"
     assert "wallet_address" in order_data
-    print(f"  -> Passed: Created Crypto Order #{order_id} for $75.00 USDT (TRC-20).")
+    print(f"  -> Passed: Created Crypto Order #{order_id} for ${order_data['amount_usd']:.2f} USDT (TRC-20, base: $75.00 + {order_data['cent_offset']} cent tag).")
 
     # 13. Test TxID Proof Submission & Mock Verification
     print("\n[13/14] Testing Transaction Hash (TxID) Submission & Mock Verification...")
@@ -363,9 +377,10 @@ def run_tests():
     xl_order = client.post("/api/crypto/create-order", json={"package_id": "xl_100", "crypto_currency": "USDT_TRC20"}, headers=out_headers)
     assert xl_order.status_code == 200
     xl_data = xl_order.json()
-    assert xl_data["amount_usd"] == 95.00
+    assert xl_data["base_amount_usd"] == 95.00
+    assert xl_data["amount_usd"] >= 95.00
     assert xl_data["tokens"] == 100
-    print(f"  -> Passed: Created Crypto Order for XL Best Value tier ($95.00 USDT, 100 sets).")
+    print(f"  -> Passed: Created Crypto Order for XL Best Value tier (${xl_data['amount_usd']:.2f} USDT, 100 sets).")
 
     # 16. Test User Order History Endpoint (/api/user/orders)
     print("\n[16/16] Testing /api/user/orders Customer Order History...")
@@ -378,7 +393,7 @@ def run_tests():
     assert found_order is not None, f"Created order {xl_data['order_id']} not found in user orders"
     assert found_order["package_id"] == "xl_100"
     assert found_order["tokens"] == 100
-    assert found_order["amount_usd"] == 95.00
+    assert found_order["amount_usd"] >= 95.00
     assert found_order["crypto_currency"] == "USDT_TRC20"
     print(f"  -> Passed: Retrieved {len(orders_data['orders'])} order(s) for customer; verified Order #{found_order['id']} ({found_order['tokens']} sets).")
 
@@ -568,8 +583,59 @@ def run_tests():
     db.close()
     print(f"  -> Passed: Backup file active ({sync_count} users backed up). Re-sync and restore verified.")
 
+    # 23. Test OWASP Enterprise Security Headers
+    print("\n[23/26] Testing OWASP Enterprise Security Headers...")
+    sec_res = client.get("/")
+    assert sec_res.headers.get("X-Frame-Options") == "DENY", "X-Frame-Options must be DENY"
+    assert sec_res.headers.get("X-Content-Type-Options") == "nosniff", "X-Content-Type-Options must be nosniff"
+    assert "strict-origin" in sec_res.headers.get("Referrer-Policy", ""), "Referrer-Policy missing"
+    assert sec_res.headers.get("X-XSS-Protection") == "1; mode=block", "X-XSS-Protection must be 1; mode=block"
+    print("  -> Passed: OWASP Anti-Clickjacking, No-Sniff, and Strict Referrer Headers verified.")
+
+    # 24. Test Crypto Order Polling Endpoint
+    print("\n[24/26] Testing Automated Blockchain Payment Polling Endpoint...")
+    poll_res = client.get(f"/api/crypto/poll-order/{order_id}", headers=out_headers)
+    assert poll_res.status_code == 200, f"Poll order failed: {poll_res.text}"
+    poll_data = poll_res.json()
+    assert poll_data["order_id"] == order_id
+    assert poll_data["status"] in ["confirmed", "pending"]
+    assert "tokens_remaining" in poll_data or "time_remaining_seconds" in poll_data
+    print(f"  -> Passed: Auto-detection poll returned order status '{poll_data['status']}'.")
+
+    # 25. Test Official Payment Receipt / Invoice Metadata
+    print("\n[25/26] Testing Official Payment Receipt & Digital Invoice (/api/crypto/order/{id}/receipt)...")
+    rcpt_res = client.get(f"/api/crypto/order/{order_id}/receipt", headers=out_headers)
+    assert rcpt_res.status_code == 200, f"Receipt retrieval failed: {rcpt_res.text}"
+    rcpt = rcpt_res.json()
+    assert rcpt["receipt_number"].startswith("RCP-2026-")
+    assert rcpt["order_id"] == order_id
+    assert rcpt["barcode_sets"] == 50
+    assert rcpt["total_barcodes"] == 100
+    assert rcpt["support_email"] == "youngwheezy001@gmail.com"
+    assert rcpt["status"] == "CONFIRMED"
+    assert "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H" in rcpt["wallet_address"]
+    print(f"  -> Passed: Official Receipt #{rcpt['receipt_number']} verified with support email {rcpt['support_email']}.")
+
+    # 26. Test Anti-Replay Double-Spend Protection
+    print("\n[26/26] Testing Anti-Replay Double-Spend Protection...")
+    # Create a new pending order
+    dup_order_res = client.post("/api/crypto/create-order", json={
+        "package_id": "xxs_1",
+        "crypto_currency": "USDT_TRC20"
+    }, headers=out_headers)
+    dup_order_id = dup_order_res.json()["order_id"]
+
+    # Try verifying with the already-used txid from order 1
+    dup_verif_res = client.post("/api/crypto/verify-onchain", json={
+        "order_id": dup_order_id,
+        "tx_hash": test_txid
+    }, headers=out_headers)
+    assert dup_verif_res.status_code == 400, "Replaying a used TxID must be rejected with 400"
+    assert "already been redeemed" in dup_verif_res.json()["detail"].lower()
+    print("  -> Passed: Double-spend replay attack strictly rejected by server.")
+
     print("\n" + "=" * 60)
-    print("ALL 22/22 TEST SUITES PASSED! MRZ Generator, Scanner, and Account Persistence verified.")
+    print("ALL 26/26 TEST SUITES PASSED! Automated Payments, Zero Tokens, Security Headers & Persistence verified.")
     print("=" * 60)
 
 if __name__ == "__main__":

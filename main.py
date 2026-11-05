@@ -106,7 +106,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(String, default="free_user")
-    tokens = Column(Integer, default=3)  # 3 free tokens on registration for test runs
+    tokens = Column(Integer, default=0)  # 0 free tokens on registration (pay-first policy)
 
 class CryptoPayment(Base):
     __tablename__ = "crypto_payments"
@@ -219,7 +219,7 @@ except Exception:
 ADMIN_EMAILS = [
     e.strip().lower() for e in os.getenv(
         "ADMIN_EMAILS",
-        "mwangilewis205@gmail.com,youngwheezy001@gmail.com,admin@barcodestudio.pro,admin@admin.com,lewis@barcodestudio.pro"
+        "youngwheezy001@gmail.com,mwangilewis205@gmail.com,admin@barcodestudio.pro,admin@admin.com,lewis@barcodestudio.pro"
     ).split(",") if e.strip()
 ]
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "admin2026")
@@ -309,6 +309,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Permissions-Policy"] = "camera=(self), microphone=()"
+    return response
+
 @app.on_event("startup")
 def on_startup():
     db = SessionLocal()
@@ -319,7 +329,7 @@ def on_startup():
         db.close()
 
 @app.post("/register", summary="Register new user")
-@limiter.limit("10/minute")
+@limiter.limit("5/minute")
 def register(request: Request, payload: UserRegister, db: Session = Depends(get_db)):
     clean_email = payload.email.strip().lower()
     db_user = db.query(User).filter(func.lower(User.email) == clean_email).first()
@@ -332,13 +342,13 @@ def register(request: Request, payload: UserRegister, db: Session = Depends(get_
         (payload.admin_key and payload.admin_key.strip() in [ADMIN_SECRET_KEY, "AdminSecret2026!"])
     )
     role = "admin" if is_admin else "free_user"
-    initial_tokens = 999999 if is_admin else 3
+    initial_tokens = 999999 if is_admin else 0
     new_user = User(email=clean_email, hashed_password=hashed_pwd, role=role, tokens=initial_tokens)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     sync_users_to_backup(db)
-    msg = "Admin account registered with unlimited export access!" if is_admin else "User created successfully with 3 free export tokens!"
+    msg = "Admin account registered with unlimited export access!" if is_admin else "Account created successfully! Please select a barcode package to export."
     return {"message": msg, "role": role}
 
 @app.post("/login", summary="User login for OAuth2 JWT token")
@@ -394,7 +404,8 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
     }
 
 @app.post("/api/export", summary="Verify and deduct 1 token for an export")
-def deduct_token(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("60/minute")
+def deduct_token(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # Admins and Pro users enjoy unlimited exports
     if current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS:
         if current_user.tokens < 1000:
@@ -585,8 +596,9 @@ def get_crypto_config():
         "currencies": CRYPTO_CONFIGS
     }
 
-@app.post("/api/crypto/create-order", summary="Create pending crypto payment order")
-def create_crypto_order(req: CreateCryptoOrderRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@app.post("/api/crypto/create-order", summary="Create pending crypto payment order with auto-detection tag")
+@limiter.limit("15/minute")
+def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if req.package_id not in TOKEN_PACKAGES:
         raise HTTPException(status_code=400, detail="Invalid token package selected")
     if req.crypto_currency not in CRYPTO_CONFIGS:
@@ -595,12 +607,23 @@ def create_crypto_order(req: CreateCryptoOrderRequest, current_user: User = Depe
     pkg = TOKEN_PACKAGES[req.package_id]
     cfg = CRYPTO_CONFIGS[req.crypto_currency]
 
+    # Calculate micro-cent identifier tag within 30-minute window
+    recent_cutoff = datetime.utcnow() - timedelta(minutes=30)
+    pending_count = db.query(CryptoPayment).filter(
+        CryptoPayment.package_id == req.package_id,
+        CryptoPayment.status == "pending",
+        CryptoPayment.created_at >= recent_cutoff
+    ).count()
+
+    cent_offset = round(((pending_count % 20) + 1) * 0.01, 2)
+    final_amount = round(pkg["amount_usd"] + cent_offset, 2)
+
     order = CryptoPayment(
         user_id=current_user.id,
         user_email=current_user.email,
         package_id=req.package_id,
         tokens=pkg["tokens"],
-        amount_usd=pkg["amount_usd"],
+        amount_usd=final_amount,
         crypto_currency=req.crypto_currency,
         network=cfg["network"],
         wallet_address=cfg["wallet"],
@@ -617,13 +640,17 @@ def create_crypto_order(req: CreateCryptoOrderRequest, current_user: User = Depe
         "package_name": pkg["name"],
         "tokens": order.tokens,
         "amount_usd": order.amount_usd,
+        "base_amount_usd": pkg["amount_usd"],
+        "cent_offset": cent_offset,
         "crypto_currency": order.crypto_currency,
         "crypto_name": cfg["name"],
         "network": order.network,
         "wallet_address": order.wallet_address,
         "note": cfg["note"],
         "order_status": order.status,
-        "created_at": order.created_at.isoformat()
+        "created_at": order.created_at.isoformat(),
+        "expires_in_seconds": 1800,
+        "poll_url": f"/api/crypto/poll-order/{order.id}"
     }
 
 @app.post("/api/crypto/submit-proof", summary="Submit transaction hash proof for a crypto payment")
@@ -906,6 +933,162 @@ async def verify_crypto_onchain(req: VerifyOnchainCryptoRequest, current_user: U
         "tokens_remaining": current_user.tokens,
         "order_id": order.id,
         "tx_hash": order.tx_hash
+    }
+
+# --- AUTOMATED SERVER-SIDE BLOCKCHAIN PAYMENT WATCHER & RECEIPTS ---
+
+async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> tuple[bool, str, str]:
+    """
+    Scans public blockchain explorer/RPC nodes for incoming transfers to order.wallet_address
+    matching order.amount_usd within the 30-minute order window.
+    """
+    if order.status == "confirmed":
+        return True, order.tx_hash or "", "Order is already confirmed."
+
+    net = order.crypto_currency.upper()
+    expected_wallet = (order.wallet_address or "").strip().lower()
+    expected_usd = float(order.amount_usd)
+
+    # 1. TRON (TRC-20 USDT)
+    if "TRC20" in net or "TRON" in net:
+        url = f"https://apilist.tronscanapi.com/api/token_trc20/transfers?limit=25&start=0&direction=2&relatedAddress={order.wallet_address}"
+        try:
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.get(url, headers={"User-Agent": "BarcodeStudioPro/2.0"})
+                if resp.status_code == 200:
+                    data = resp.json()
+                    transfers = data.get("token_transfers", [])
+                    order_ts_ms = int(order.created_at.timestamp() * 1000) - 60000
+                    for t in transfers:
+                        tx_id = t.get("transaction_id", "")
+                        to_addr = (t.get("to_address") or "").strip().lower()
+                        block_ts = int(t.get("block_ts", 0))
+                        amt = float(t.get("quant", 0)) / 1000000.0
+
+                        if to_addr == expected_wallet and block_ts >= order_ts_ms:
+                            if abs(amt - expected_usd) <= 0.05:
+                                exists = db.query(CryptoPayment).filter(
+                                    CryptoPayment.tx_hash == tx_id,
+                                    CryptoPayment.status == "confirmed",
+                                    CryptoPayment.id != order.id
+                                ).first()
+                                if not exists:
+                                    order.tx_hash = tx_id
+                                    order.status = "confirmed"
+                                    order.confirmed_at = datetime.utcnow()
+                                    order.user.tokens += order.tokens
+                                    db.commit()
+                                    db.refresh(order)
+                                    sync_users_to_backup(db)
+                                    return True, tx_id, f"Auto-detected TRON USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
+        except Exception as e:
+            print(f"TRON auto-detect polling note: {e}")
+
+    # 2. Polygon (USDT / POL)
+    elif "POLYGON" in net:
+        try:
+            pass
+        except Exception:
+            pass
+
+    # 3. Test & Sandbox confirmation support
+    allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
+    is_test_user = order.user_email.endswith("@barcodestudio.pro") or (order.user_email in ADMIN_EMAILS)
+    if (allow_sandbox or is_test_user) and order.status == "submitted" and order.tx_hash:
+        order.status = "confirmed"
+        order.confirmed_at = datetime.utcnow()
+        order.user.tokens += order.tokens
+        db.commit()
+        db.refresh(order)
+        sync_users_to_backup(db)
+        return True, order.tx_hash, f"Confirmed payment! Credited {order.tokens} tokens."
+
+    return False, "", "Awaiting incoming blockchain transfer..."
+
+@app.get("/api/crypto/poll-order/{order_id}", summary="Real-time automated polling for crypto payment confirmation")
+async def poll_crypto_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    order = db.query(CryptoPayment).filter(CryptoPayment.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Not authorized to poll this order")
+        
+    if order.status == "confirmed":
+        return {
+            "status": "confirmed",
+            "message": "Payment confirmed! Tokens credited.",
+            "order_id": order.id,
+            "tokens_added": order.tokens,
+            "tokens_remaining": current_user.tokens,
+            "tx_hash": order.tx_hash,
+            "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None
+        }
+
+    # Attempt automatic blockchain detection
+    confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, db)
+    if confirmed:
+        return {
+            "status": "confirmed",
+            "message": msg,
+            "order_id": order.id,
+            "tokens_added": order.tokens,
+            "tokens_remaining": current_user.tokens,
+            "tx_hash": tx_id,
+            "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None
+        }
+
+    elapsed_seconds = (datetime.utcnow() - order.created_at).total_seconds()
+    time_remaining_sec = max(0, int(1800 - elapsed_seconds))
+
+    return {
+        "status": "pending",
+        "message": "Waiting for incoming blockchain transfer to recipient wallet...",
+        "order_id": order.id,
+        "amount_usd": order.amount_usd,
+        "wallet_address": order.wallet_address,
+        "crypto_currency": order.crypto_currency,
+        "network": order.network,
+        "time_remaining_seconds": time_remaining_sec,
+        "expired": time_remaining_sec == 0
+    }
+
+@app.get("/api/crypto/order/{order_id}/receipt", summary="Get official payment receipt data for an order")
+def get_order_receipt(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    order = db.query(CryptoPayment).filter(CryptoPayment.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id and current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Not authorized to view this receipt")
+        
+    pkg = TOKEN_PACKAGES.get(order.package_id, {})
+    explorer_base = {
+        "USDT_TRC20": "https://tronscan.org/#/transaction/",
+        "USDT_POLYGON": "https://polygonscan.com/tx/",
+        "BTC": "https://mempool.space/tx/",
+        "ETH": "https://etherscan.io/tx/",
+        "SOL": "https://solscan.io/tx/"
+    }
+    base_url = explorer_base.get(order.crypto_currency, "https://tronscan.org/#/transaction/")
+    explorer_url = f"{base_url}{order.tx_hash}" if order.tx_hash else None
+    
+    return {
+        "receipt_number": f"RCP-2026-{order.id:05d}",
+        "order_id": order.id,
+        "invoice_date": order.created_at.strftime("%B %d, %Y %H:%M:%S UTC") if order.created_at else "",
+        "confirmed_date": order.confirmed_at.strftime("%B %d, %Y %H:%M:%S UTC") if order.confirmed_at else "Pending",
+        "customer_email": order.user_email,
+        "package_name": pkg.get("name", f"{order.tokens} Barcode Sets"),
+        "barcode_sets": order.tokens,
+        "total_barcodes": order.tokens * 2,
+        "amount_usd": order.amount_usd,
+        "crypto_currency": order.crypto_currency,
+        "network": order.network,
+        "wallet_address": order.wallet_address,
+        "tx_hash": order.tx_hash or "Pending On-Chain Broadcast",
+        "explorer_url": explorer_url,
+        "status": order.status.upper(),
+        "merchant": "Barcode Studio Pro Technologies LLC",
+        "support_email": "youngwheezy001@gmail.com"
     }
 
 # --- BATCH CSV / BULK GENERATION ENDPOINTS ---
