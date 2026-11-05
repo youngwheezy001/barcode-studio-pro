@@ -45,6 +45,15 @@
     <!-- jsPDF for direct PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
+        // Self-healing: Update or unregister stale Service Worker cache
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (var r of registrations) {
+                    r.update().catch(function() {});
+                }
+            }).catch(function() {});
+        }
+        window.tailwind = window.tailwind || {};
         tailwind.config = {
             theme: {
                 extend: {
@@ -64,7 +73,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -4787,20 +4796,24 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         });
 
         window.onload = function() {
-            populateStateDropdown();
-            // Start with empty inputs so clean placeholders are active and immediately typeable
-            document.getElementById('aamva-jurisdiction').value = 'CT';
-            document.getElementById('aamva-state').value = 'CT';
-            if (document.getElementById('aamva-version')) {
-                document.getElementById('aamva-version').value = 'AUTO';
+            try {
+                populateStateDropdown();
+                const jurEl = document.getElementById('aamva-jurisdiction');
+                if (jurEl) jurEl.value = 'CT';
+                const stateEl = document.getElementById('aamva-state');
+                if (stateEl) stateEl.value = 'CT';
+                const verEl = document.getElementById('aamva-version');
+                if (verEl) verEl.value = 'AUTO';
+                if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
+                if (typeof updateTuningUI === 'function') updateTuningUI();
+                if (typeof updateHeightMetric === 'function') updateHeightMetric();
+                if (typeof updateWeightMetric === 'function') updateWeightMetric();
+                if (typeof validateDlNumber === 'function') validateDlNumber();
+                if (typeof compileAAMVA === 'function') compileAAMVA();
+                if (typeof checkAuth === 'function') checkAuth();
+            } catch (err) {
+                console.error("Initialization error:", err);
             }
-            updateStateDynamicLabels();
-            updateTuningUI();
-            updateHeightMetric();
-            updateWeightMetric();
-            validateDlNumber();
-            compileAAMVA();
-            checkAuth();
 
             // Progressive Web App (PWA) Service Worker Registration
             if ('serviceWorker' in navigator) {
