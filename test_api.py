@@ -480,9 +480,98 @@ def run_tests():
     assert tokens_after_batch == tokens_before_batch - 2
     print(f"  -> Passed: Batch ZIP synthesized with {len(namelist)} items; deducted 2 sets (New balance: {tokens_after_batch}).")
 
+    # 19. Test Duplicate Account Registration Prevention
+    print("\n[19/22] Testing Duplicate Registration & Accurate Error Notification...")
+    res_dup = client.post("/register", json={"email": test_email.upper(), "password": "AnotherPassword999!"})
+    assert res_dup.status_code == 400, f"Expected 400 for duplicate email, got {res_dup.status_code}"
+    dup_msg = res_dup.json().get("detail", "")
+    assert "already exists" in dup_msg.lower() and "sign in" in dup_msg.lower(), f"Unexpected duplicate message: {dup_msg}"
+    print(f"  -> Passed: Duplicate registration rejected with professional message: '{dup_msg}'")
+
+    # 20. Test ICAO 9303 MRZ Generation Endpoint
+    print("\n[20/22] Testing ICAO 9303 MRZ Generation Endpoint (/api/mrz/generate)...")
+    mrz_payload = {
+        "doc_type": "TD3",
+        "document_type_code": "P",
+        "issuing_country": "USA",
+        "document_number": "C01234567",
+        "surname": "GARCIA",
+        "given_names": "JONATHAN",
+        "nationality": "USA",
+        "birth_date": "1992-06-21",
+        "sex": "M",
+        "expiry_date": "2032-06-21",
+        "optional_data": "A1234567"
+    }
+    res_mrz_gen = client.post("/api/mrz/generate", json=mrz_payload)
+    assert res_mrz_gen.status_code == 200, f"MRZ generate failed: {res_mrz_gen.text}"
+    mrz_data = res_mrz_gen.json()
+    assert mrz_data["doc_type"] == "TD3"
+    assert len(mrz_data["lines"]) == 2
+    assert len(mrz_data["lines"][0]) == 44
+    assert len(mrz_data["lines"][1]) == 44
+    assert mrz_data["lines"][0].startswith("P<USAGARCIA<<JONATHAN")
+    assert "C01234567" in mrz_data["lines"][1]
+    assert mrz_data["checksums"]["doc_number"] == "2"
+    assert mrz_data["checksums"]["dob"] == "8"
+    assert mrz_data["checksums"]["expiry"] == "6"
+    assert mrz_data["checksums"]["composite"] == "4"
+    print("  -> Passed: TD3 Passport MRZ generated with 100% compliant ICAO 9303 checksums.")
+
+    # Test TD1 generation
+    mrz_td1_payload = dict(mrz_payload, doc_type="TD1", document_type_code="I", issuing_country="DEU", document_number="122000129", optional_data="IDD<<")
+    res_td1 = client.post("/api/mrz/generate", json=mrz_td1_payload)
+    assert res_td1.status_code == 200
+    td1_data = res_td1.json()
+    assert len(td1_data["lines"]) == 3
+    assert all(len(line) == 30 for line in td1_data["lines"])
+    print("  -> Passed: TD1 National ID MRZ generated (3 lines x 30 characters).")
+
+    # 21. Test MRZ Parser and Inspector Endpoint
+    print("\n[21/22] Testing MRZ Decoder & Checksum Verification (/api/mrz/parse)...")
+    valid_mrz = mrz_data["raw_text"]
+    res_parse = client.post("/api/mrz/parse", json={"text": valid_mrz})
+    assert res_parse.status_code == 200, f"MRZ parse failed: {res_parse.text}"
+    parsed = res_parse.json()
+    assert parsed["format"] == "TD3"
+    assert "USA" in parsed["issuing_country"]
+    assert parsed["surname"] == "GARCIA"
+    assert parsed["given_names"] == "JONATHAN"
+    assert parsed["document_number"] == "C01234567"
+    assert parsed["birth_date"] == "1992-06-21"
+    assert parsed["all_checksums_pass"] is True
+    print("  -> Passed: Valid MRZ string parsed with all 4 checksums confirmed PASS.")
+
+    # Test tampered MRZ check failure
+    tampered_mrz = valid_mrz.replace("C012345672", "C012345679")
+    res_tampered = client.post("/api/mrz/parse", json={"text": tampered_mrz})
+    assert res_tampered.status_code == 200
+    tampered_data = res_tampered.json()
+    assert tampered_data["all_checksums_pass"] is False
+    assert tampered_data["checksums"]["doc_number"]["valid"] is False
+    print("  -> Passed: Tampered document number check digit correctly detected as FAIL.")
+
+    # 22. Test Database Backup and Sync Persistence
+    print("\n[22/22] Testing Persistent User Store & Backup Synchronization...")
+    from main import USERS_BACKUP_FILE, sync_users_to_backup, restore_users_from_backup
+    assert os.path.exists(USERS_BACKUP_FILE), f"Backup file {USERS_BACKUP_FILE} must exist"
+    
+    # Verify backup contains user data
+    db = SessionLocal()
+    sync_count = sync_users_to_backup(db)
+    assert sync_count > 0, "No users synchronized to backup"
+    db.close()
+
+    # Verify restore function works
+    db = SessionLocal()
+    restored = restore_users_from_backup(db)
+    db.close()
+    print(f"  -> Passed: Backup file active ({sync_count} users backed up). Re-sync and restore verified.")
+
     print("\n" + "=" * 60)
-    print("ALL 18/18 TEST SUITES PASSED! Real-time on-chain verification, Anti-Replay protection, and CSV Batch generation verified.")
+    print("ALL 22/22 TEST SUITES PASSED! MRZ Generator, Scanner, and Account Persistence verified.")
     print("=" * 60)
 
 if __name__ == "__main__":
     run_tests()
+

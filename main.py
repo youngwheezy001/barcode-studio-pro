@@ -13,7 +13,8 @@ from pydantic import BaseModel, EmailStr
 import io
 import zipfile
 import httpx
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text
+import json
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from jose import JWTError, jwt
 
@@ -24,6 +25,7 @@ from slowapi.errors import RateLimitExceeded
 load_dotenv()
 
 from aamva import STATE_AAMVA_PROFILES, resolve_state_profile, generate_aamva_payload, generate_scanner_xml
+import mrz
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -33,15 +35,70 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
 stripe.api_key = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
-# Database setup with automatic SQLite fallback for zero-config local testing
+# Database setup with automatic SQLite fallback & Render PostgreSQL support
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'barcodestudio.db'}")
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True, pool_size=10, max_overflow=20)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
+
+def sync_users_to_backup(db: Session):
+    """Safely synchronizes all registered users and balances to persistent JSON storage."""
+    try:
+        users = db.query(User).all()
+        data = []
+        for u in users:
+            data.append({
+                "email": u.email,
+                "hashed_password": u.hashed_password,
+                "role": u.role,
+                "tokens": u.tokens
+            })
+        with open(USERS_BACKUP_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return len(data)
+    except Exception as e:
+        print(f"Warning: Failed to sync users backup: {e}")
+        return 0
+
+def restore_users_from_backup(db: Session):
+    """Restores user accounts from backup if database is freshly initialized on container start."""
+    if not USERS_BACKUP_FILE.exists():
+        return 0
+    try:
+        with open(USERS_BACKUP_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        restored = 0
+        for item in data:
+            email_clean = item.get("email", "").strip().lower()
+            if not email_clean:
+                continue
+            existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
+            if not existing:
+                new_u = User(
+                    email=email_clean,
+                    hashed_password=item.get("hashed_password", ""),
+                    role=item.get("role", "free_user"),
+                    tokens=item.get("tokens", 3)
+                )
+                db.add(new_u)
+                restored += 1
+            else:
+                if item.get("tokens", 0) > existing.tokens:
+                    existing.tokens = item["tokens"]
+        db.commit()
+        return restored
+    except Exception as e:
+        print(f"Warning: Failed to restore users from backup: {e}")
+        return 0
 
 class User(Base):
     __tablename__ = "users"
@@ -252,50 +309,64 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def on_startup():
+    db = SessionLocal()
+    try:
+        restore_users_from_backup(db)
+        sync_users_to_backup(db)
+    finally:
+        db.close()
+
 @app.post("/register", summary="Register new user")
 @limiter.limit("10/minute")
 def register(request: Request, payload: UserRegister, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == payload.email).first()
+    clean_email = payload.email.strip().lower()
+    db_user = db.query(User).filter(func.lower(User.email) == clean_email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email is already registered")
+        raise HTTPException(status_code=400, detail="An account with this email already exists. Please sign in.")
     
     hashed_pwd = get_password_hash(payload.password)
     is_admin = (
-        payload.email.strip().lower() in ADMIN_EMAILS or
+        clean_email in ADMIN_EMAILS or
         (payload.admin_key and payload.admin_key.strip() in [ADMIN_SECRET_KEY, "AdminSecret2026!"])
     )
     role = "admin" if is_admin else "free_user"
     initial_tokens = 999999 if is_admin else 3
-    new_user = User(email=payload.email, hashed_password=hashed_pwd, role=role, tokens=initial_tokens)
+    new_user = User(email=clean_email, hashed_password=hashed_pwd, role=role, tokens=initial_tokens)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    sync_users_to_backup(db)
     msg = "Admin account registered with unlimited export access!" if is_admin else "User created successfully with 3 free export tokens!"
     return {"message": msg, "role": role}
 
 @app.post("/login", summary="User login for OAuth2 JWT token")
 @limiter.limit("10/minute")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
+    clean_email = form_data.username.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == clean_email).first()
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     
-    is_admin_email = user.email.strip().lower() in ADMIN_EMAILS
+    is_admin_email = clean_email in ADMIN_EMAILS
     valid_pwd = verify_password(form_data.password, user.hashed_password)
     if not valid_pwd and is_admin_email and form_data.password in ["AdminPassword123!", ADMIN_SECRET_KEY, "AdminSecret2026!"]:
         valid_pwd = True
         user.hashed_password = get_password_hash(form_data.password)
         db.commit()
+        sync_users_to_backup(db)
 
     if not valid_pwd:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     
     # Auto-upgrade admin emails if they login
-    if user.email.strip().lower() in ADMIN_EMAILS and (user.role != "admin" or user.tokens < 1000):
+    if clean_email in ADMIN_EMAILS and (user.role != "admin" or user.tokens < 1000):
         user.role = "admin"
         user.tokens = 999999
         db.commit()
         db.refresh(user)
+        sync_users_to_backup(db)
 
     access_token = create_access_token(
         data={"sub": user.email},
@@ -996,6 +1067,7 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
         purchaser.tokens += order.tokens
 
     db.commit()
+    sync_users_to_backup(db)
     if purchaser:
         db.refresh(purchaser)
 
@@ -1006,6 +1078,140 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
         "purchaser_email": purchaser.email if purchaser else None,
         "purchaser_tokens": purchaser.tokens if purchaser else None
     }
+
+# --- ICAO 9303 MRZ GENERATION & PARSING API ---
+class MRZGenerateRequest(BaseModel):
+    document_type: Optional[str] = "TD3"
+    doc_type: Optional[str] = None
+    document_type_code: Optional[str] = None
+    document_subtype: Optional[str] = "P"
+    country: Optional[str] = "USA"
+    issuing_country: Optional[str] = None
+    surname: str = ""
+    given_names: str = ""
+    document_number: str = ""
+    nationality: Optional[str] = "USA"
+    birth_date: str = ""
+    sex: str = "M"
+    expiry_date: str = ""
+    optional_data: Optional[str] = ""
+    optional1: Optional[str] = ""
+    optional2: Optional[str] = ""
+
+class MRZParseRequest(BaseModel):
+    raw_mrz: Optional[str] = None
+    text: Optional[str] = None
+
+@app.post("/api/mrz/generate", summary="Generate ICAO 9303 MRZ payload")
+def api_generate_mrz(payload: MRZGenerateRequest):
+    try:
+        data = payload.dict()
+        doc_type = payload.doc_type or payload.document_type or "TD3"
+        if payload.issuing_country:
+            data["country"] = payload.issuing_country
+        if payload.document_type_code:
+            data["document_subtype"] = payload.document_type_code
+            
+        result = mrz.generate_mrz(doc_type, data)
+        result["doc_type"] = result.get("format", doc_type)
+        result["raw_text"] = result.get("mrz_text", "")
+        meta = result.get("metadata", {})
+        result["checksums"] = {
+            "doc_number": meta.get("doc_num_check", ""),
+            "dob": meta.get("dob_check", ""),
+            "expiry": meta.get("expiry_check", ""),
+            "composite": meta.get("composite_check", "")
+        }
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/mrz/parse", summary="Parse and validate ICAO 9303 MRZ text")
+def api_parse_mrz(payload: MRZParseRequest):
+    try:
+        raw_text = payload.raw_mrz or payload.text or ""
+        if not raw_text.strip():
+            raise HTTPException(status_code=400, detail="Missing MRZ text to parse")
+        result = mrz.parse_mrz(raw_text)
+        result["all_checksums_pass"] = result.get("scorecard", {}).get("all_valid", False)
+        result["birth_date"] = result.get("date_of_birth", "")
+        result["is_expired"] = result.get("status") == "EXPIRED"
+        scorecard = result.get("scorecard", {})
+        result["checksums"] = {
+            "doc_number": {"valid": scorecard.get("doc_number_valid", False)},
+            "dob": {"valid": scorecard.get("dob_valid", False)},
+            "expiry": {"valid": scorecard.get("expiry_valid", False)},
+            "composite": {"valid": scorecard.get("composite_valid", False)},
+        }
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"MRZ Parsing Error: {str(e)}")
+
+@app.get("/api/mrz/sample", summary="Get sample MRZ data")
+def api_mrz_sample(doc_type: str = "TD3"):
+    samples = {
+        "TD3": {
+            "document_type": "TD3",
+            "country": "USA",
+            "surname": "GARCIA",
+            "given_names": "JONATHAN",
+            "document_number": "C01234567",
+            "nationality": "USA",
+            "birth_date": "1992-06-21",
+            "sex": "M",
+            "expiry_date": "2032-06-21",
+            "optional_data": "A1234567"
+        },
+        "TD1": {
+            "document_type": "TD1",
+            "country": "USA",
+            "surname": "SMITH",
+            "given_names": "SARAH JANE",
+            "document_number": "ID9876543",
+            "nationality": "USA",
+            "birth_date": "1990-12-15",
+            "sex": "F",
+            "expiry_date": "2030-12-15",
+            "optional_data": "DL2024"
+        },
+        "TD2": {
+            "document_type": "TD2",
+            "country": "CAN",
+            "surname": "DUPONT",
+            "given_names": "JEAN",
+            "document_number": "T12345678",
+            "nationality": "CAN",
+            "birth_date": "1985-04-10",
+            "sex": "M",
+            "expiry_date": "2028-04-10",
+            "optional_data": ""
+        },
+        "MRVA": {
+            "document_type": "MRVA",
+            "country": "USA",
+            "surname": "MUELLER",
+            "given_names": "HANS",
+            "document_number": "V12345678",
+            "nationality": "DEU",
+            "birth_date": "1980-08-20",
+            "sex": "M",
+            "expiry_date": "2026-08-20",
+            "optional_data": "B1B2"
+        },
+        "MRVB": {
+            "document_type": "MRVB",
+            "country": "GBR",
+            "surname": "ROSSI",
+            "given_names": "MARCO",
+            "document_number": "V98765432",
+            "nationality": "ITA",
+            "birth_date": "1995-11-03",
+            "sex": "M",
+            "expiry_date": "2027-11-03",
+            "optional_data": "TOURIST"
+        }
+    }
+    return samples.get(doc_type.upper(), samples["TD3"])
 
 # Serve Frontend static files (Mounted after API routes so routes take priority)
 static_path = BASE_DIR / "static"

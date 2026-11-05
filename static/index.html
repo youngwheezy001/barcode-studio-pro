@@ -624,12 +624,13 @@
                 </div>
                 <button onclick="closeBarcodeScannerModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
             </div>
-            <p class="text-xs text-slate-500">Upload a photo of a 2D PDF417 or 1D Code 128 barcode, or use your camera to scan and auto-populate all generator fields.</p>
+            <p class="text-xs text-slate-500">Scan or upload 2D PDF417 / 1D Code 128 barcodes, or inspect &amp; validate ICAO 9303 Passport and ID Card MRZ codes.</p>
 
             <!-- Mode Switcher -->
             <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
                 <button id="scan-tab-upload" onclick="switchScanMode('upload')" class="flex-1 bg-white shadow-sm text-xs py-1.5 rounded-lg font-bold text-accent transition">📁 Upload Image</button>
                 <button id="scan-tab-camera" onclick="switchScanMode('camera')" class="flex-1 text-slate-500 text-xs py-1.5 rounded-lg font-bold hover:text-slate-900 transition">📹 Live Camera</button>
+                <button id="scan-tab-mrz" onclick="switchScanMode('mrz')" class="flex-1 text-slate-500 text-xs py-1.5 rounded-lg font-bold hover:text-slate-900 transition">🛂 Inspect MRZ</button>
             </div>
 
             <!-- Upload View -->
@@ -658,6 +659,22 @@
                     <span id="camera-status" class="text-[10px] text-slate-500 font-medium">Camera standby</span>
                 </div>
             </div>
+
+            <!-- MRZ Paste & Inspect View -->
+            <div id="scan-view-mrz" class="hidden flex flex-col gap-2.5">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-700">Paste Passport / ID MRZ Lines:</span>
+                    <button type="button" onclick="loadSampleMrzIntoScanner()" class="text-[10px] text-accent font-bold hover:underline">Paste Sample</button>
+                </div>
+                <textarea id="scanner-mrz-input" rows="3" placeholder="P<USAGARCIA<<JONATHAN<<<<<<<<<<<<<<<<<<<<<<<\nC012345672USA9206218M3206216A1234567<<<<<<64" class="w-full bg-slate-900 text-emerald-400 font-mono text-xs p-3 rounded-xl border border-slate-700 outline-none focus:ring-2 focus:ring-accent select-all"></textarea>
+                <button type="button" onclick="inspectScannerMrz()" class="w-full bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2 rounded-xl transition shadow flex items-center justify-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <span>Decode &amp; Validate MRZ Checksums</span>
+                </button>
+            </div>
+
+            <!-- Decoded MRZ Inspection Breakdown Card -->
+            <div id="mrz-inspection-card" class="hidden bg-slate-900 text-slate-100 p-3.5 rounded-xl border border-slate-700 flex flex-col gap-2 text-xs"></div>
 
             <div id="scan-status" class="text-xs text-slate-600 hidden bg-slate-50 p-2.5 rounded-lg border border-slate-200"></div>
 
@@ -738,6 +755,16 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 </div>
                 <p class="text-[10px] text-slate-400">Strict Dimension Engine &bull; Dual-Subfile DL+ZC &bull; 100% Mobile & Hardware Scannable</p>
             </div>
+            <!-- Mode Switcher: AAMVA Barcode vs MRZ Passport -->
+            <div class="hidden sm:flex bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl text-xs font-bold ml-2 shadow-inner">
+                <button type="button" id="workspace-tab-aamva" onclick="switchWorkspace('aamva')" class="px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition">
+                    <span>🪪 AAMVA Barcode</span>
+                </button>
+                <button type="button" id="workspace-tab-mrz" onclick="switchWorkspace('mrz')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+                    <span>🛂 MRZ Passport</span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">ICAO 9303</span>
+                </button>
+            </div>
         </div>
         
         <div class="flex items-center gap-2.5">
@@ -787,7 +814,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
     <!-- Main Workspace -->
     <main class="flex-1 flex overflow-hidden p-4 gap-4 max-w-[1780px] mx-auto w-full">
-        
+        <!-- Mode 1: AAMVA DL / ID & Code 128 Workspace -->
+        <div id="workspace-view-aamva" class="flex-1 flex overflow-hidden gap-4 w-full">
         <!-- Left Column: Generator Form (Matches Screenshot Layout) -->
         <section class="w-[52%] bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col gap-3 overflow-y-auto shadow-sm">
             
@@ -1562,6 +1590,297 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             <!-- Hidden canvas for rasterization -->
             <canvas id="hidden-code128-canvas" class="hidden"></canvas>
         </section>
+        </div>
+
+        <!-- Mode 2: ICAO 9303 MRZ Generator Workspace -->
+        <div id="workspace-view-mrz" class="hidden flex-1 flex overflow-hidden gap-4 w-full">
+            <!-- MRZ Left Column: Document Form & Checksum Live Telemetry -->
+            <section class="w-[52%] bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col gap-3 overflow-y-auto shadow-sm">
+                <!-- MRZ Document Type Tabs -->
+                <div class="flex bg-slate-100 p-1 rounded-xl border border-bordercol">
+                    <button type="button" onclick="setMrzType('TD3')" id="mrz-tab-TD3" class="flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5">
+                        <span>📘 Passport (TD3)</span>
+                        <span class="text-[9px] px-1 py-0.2 rounded bg-blue-50 text-blue-700 font-mono">2×44</span>
+                    </button>
+                    <button type="button" onclick="setMrzType('TD1')" id="mrz-tab-TD1" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                        <span>🪪 ID Card (TD1)</span>
+                        <span class="text-[9px] px-1 py-0.2 rounded bg-slate-200 text-slate-700 font-mono">3×30</span>
+                    </button>
+                    <button type="button" onclick="setMrzType('TD2')" id="mrz-tab-TD2" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                        <span>🎫 Travel Doc (TD2)</span>
+                        <span class="text-[9px] px-1 py-0.2 rounded bg-slate-200 text-slate-700 font-mono">2×36</span>
+                    </button>
+                    <button type="button" onclick="setMrzType('MRV_A')" id="mrz-tab-MRV_A" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                        <span>📑 Visa (MRV-A)</span>
+                        <span class="text-[9px] px-1 py-0.2 rounded bg-slate-200 text-slate-700 font-mono">2×44</span>
+                    </button>
+                </div>
+
+                <!-- MRZ Presets & Quick Actions Toolbar -->
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-bordercol flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 flex-wrap text-xs">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase">Presets:</span>
+                        <button type="button" onclick="loadMrzPreset('us_passport')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs">
+                            🇺🇸 US Passport
+                        </button>
+                        <button type="button" onclick="loadMrzPreset('de_id')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs">
+                            🇩🇪 German ID (TD1)
+                        </button>
+                        <button type="button" onclick="loadMrzPreset('ca_passport')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs">
+                            🇨🇦 Canadian Pass
+                        </button>
+                        <button type="button" onclick="loadMrzPreset('uk_visa')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs">
+                            🇬🇧 UK Visa
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="randomizeMrzData()" class="px-2.5 py-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-[11px] transition flex items-center gap-1">
+                            <span>🎲 Randomize</span>
+                        </button>
+                        <button type="button" onclick="clearMrzForm()" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg font-semibold text-[11px] transition">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Document Information Group -->
+                <div class="bg-white p-3.5 rounded-xl border border-bordercol flex flex-col gap-2.5 shadow-xs">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-accent"></span>
+                            1. Document Identification
+                        </h4>
+                        <span id="mrz-format-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-accent border border-blue-200">Format: TD3 (2×44)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Doc Type Code</label>
+                            <input type="text" id="mrz-doc-type" value="P" maxlength="2" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono font-bold text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="P">
+                            <span class="text-[9px] text-slate-400">P = Passport, I = ID, V = Visa</span>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Issuing Country (ISO 3166-1)</label>
+                            <input type="text" id="mrz-country" value="USA" maxlength="3" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono font-bold text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="USA">
+                            <span class="text-[9px] text-slate-400">3-letter code (e.g. USA, GBR, DEU)</span>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Document Number</label>
+                            <input type="text" id="mrz-doc-number" value="C01234567" maxlength="9" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono font-bold text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="C01234567">
+                            <span class="text-[9px] text-slate-400">Up to 9 alphanumeric chars</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Holder Demographics Group -->
+                <div class="bg-white p-3.5 rounded-xl border border-bordercol flex flex-col gap-2.5 shadow-xs">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            2. Holder Demographics &amp; Biometrics
+                        </h4>
+                        <span class="text-[10px] text-slate-400 font-medium">Auto-formatted with filler &lt;</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Surname (Primary Identifier)</label>
+                            <input type="text" id="mrz-surname" value="GARCIA" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="GARCIA">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Given Names (Secondary Identifier)</label>
+                            <input type="text" id="mrz-given-names" value="JONATHAN" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="JONATHAN">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Nationality (ISO-3)</label>
+                            <input type="text" id="mrz-nationality" value="USA" maxlength="3" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono font-bold text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="USA">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Date of Birth</label>
+                            <input type="date" id="mrz-dob" value="1992-06-21" onchange="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Sex / Gender</label>
+                            <select id="mrz-sex" onchange="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer">
+                                <option value="M" selected>M (Male)</option>
+                                <option value="F">F (Female)</option>
+                                <option value="X">X (Unspecified)</option>
+                                <option value="<">&lt; (Unspecified/None)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Expiration Date</label>
+                            <input type="date" id="mrz-expiry" value="2032-06-21" onchange="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex justify-between">
+                            <span>Optional Data / Personal Number</span>
+                            <span class="text-[9px] text-slate-400 font-normal">Max 14 chars (TD3) / 15 chars (TD1)</span>
+                        </label>
+                        <input type="text" id="mrz-optional-data" value="A1234567" maxlength="15" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="Optional data or personal ID">
+                    </div>
+                </div>
+
+                <!-- ICAO 9303 Modulo-10 Checksum Verification Live Scorecard -->
+                <div class="bg-slate-900 text-white p-3.5 rounded-xl border border-slate-800 flex flex-col gap-2.5 shadow-sm">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-400 font-bold">🛡️</span>
+                            <span class="text-xs font-bold text-slate-200">ICAO 9303 Modulo 10 Checksum Scorecard</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded font-bold">Weights: 7, 3, 1 repeating</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Doc Num Check</span>
+                            <span id="mrz-chk-doc" class="text-sm font-mono font-bold text-emerald-400">PASS (2)</span>
+                        </div>
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                            <span class="text-[10px] text-slate-400 block font-semibold">DOB Check</span>
+                            <span id="mrz-chk-dob" class="text-sm font-mono font-bold text-emerald-400">PASS (8)</span>
+                        </div>
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Expiry Check</span>
+                            <span id="mrz-chk-exp" class="text-sm font-mono font-bold text-emerald-400">PASS (6)</span>
+                        </div>
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                            <span class="text-[10px] text-slate-400 block font-semibold">Composite Check</span>
+                            <span id="mrz-chk-comp" class="text-sm font-mono font-bold text-emerald-400">PASS (4)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MRZ Right Column: Document Visualizer, High-Res OCR-B MRZ Zone & Exporter -->
+            <section class="flex-1 bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col justify-between overflow-y-auto shadow-sm">
+                <div class="flex flex-col gap-3">
+                    <!-- Top Visualizer Header -->
+                    <div class="flex items-center justify-between pb-2 border-b border-bordercol">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-accent text-base">🛂</div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">ICAO 9303 Live Machine Readable Zone</h3>
+                                <p class="text-[10px] text-slate-400">Optical Character Recognition Band (OCR-B Standard Font)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span id="mrz-status-pill" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                100% Valid MRZ
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Realistic Document Badge & OCR-B Container -->
+                    <div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-5 rounded-2xl border border-slate-700/80 shadow-lg text-white flex flex-col gap-4">
+                        <!-- Holographic / Header row of document -->
+                        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-2xl opacity-90">🌐</span>
+                                <div>
+                                    <span id="preview-doc-title" class="text-xs font-extrabold tracking-wider text-slate-200 uppercase">PASSPORT / PASSEPORT</span>
+                                    <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+                                        <span id="preview-country-code">USA</span>
+                                        <span>&bull;</span>
+                                        <span id="preview-doc-number-top">C01234567</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-5 rounded border border-amber-400/50 bg-amber-400/10 flex items-center justify-center text-[10px] font-bold text-amber-300 font-mono">
+                                    RFID
+                                </div>
+                                <span class="text-xs font-mono font-bold text-emerald-400 px-2 py-0.5 bg-emerald-950/60 border border-emerald-500/30 rounded">ICAO 9303</span>
+                            </div>
+                        </div>
+
+                        <!-- Holder Preview Mini Grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-300 bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block">Holder</span>
+                                <span id="preview-name" class="font-bold text-white text-xs truncate block">GARCIA, JONATHAN</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block">Nationality</span>
+                                <span id="preview-nat" class="font-mono font-bold text-white text-xs block">USA</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block">DOB / Sex</span>
+                                <span id="preview-dob-sex" class="font-bold text-white text-xs block">1992-06-21 (M)</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block">Valid Until</span>
+                                <span id="preview-expiry" class="font-bold text-emerald-400 text-xs block">2032-06-21</span>
+                            </div>
+                        </div>
+
+                        <!-- High-Contrast OCR-B MRZ Monospace Box -->
+                        <div class="relative bg-black/90 p-4 rounded-xl border border-slate-700 shadow-inner flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 pb-1 border-b border-slate-800">
+                                <span>MACHINE READABLE ZONE (OCR-B)</span>
+                                <span id="preview-char-count" class="text-emerald-400 font-bold">88 Chars (2×44)</span>
+                            </div>
+                            <pre id="mrz-output-text" class="font-mono text-sm sm:text-base md:text-lg font-bold tracking-widest leading-relaxed text-emerald-400 select-all overflow-x-auto whitespace-pre py-1">P&lt;USAGARCIA&lt;&lt;JONATHAN&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Table & Analysis -->
+                    <div class="bg-white p-3.5 rounded-xl border border-bordercol shadow-xs flex flex-col gap-2">
+                        <h4 class="text-xs font-bold text-slate-800 flex items-center justify-between">
+                            <span>Field Mapping &amp; Integrity Breakdown</span>
+                            <span class="text-[10px] font-normal text-slate-400">Standard ISO/IEC 7501-1</span>
+                        </h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-[10px] text-slate-500 uppercase">
+                                        <th class="py-1">Line / Segment</th>
+                                        <th class="py-1">Raw Encoded Value</th>
+                                        <th class="py-1">Decoded Meaning</th>
+                                        <th class="py-1 text-right">Checksum Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mrz-breakdown-tbody" class="divide-y divide-slate-100 text-slate-700">
+                                    <!-- Dynamic rows inserted by compileMrz() -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MRZ Export & Action Buttons -->
+                <div class="pt-3 border-t border-bordercol flex flex-col gap-2">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button type="button" onclick="copyMrzText()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-2 px-2 rounded-xl transition shadow-xs text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span>Copy Lines</span>
+                        </button>
+                        <button type="button" onclick="downloadMrzTxt()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-2 px-2 rounded-xl transition shadow-xs text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span>Download .TXT</span>
+                        </button>
+                        <button type="button" onclick="downloadMrzPng()" class="bg-accent hover:bg-accent-hover text-white font-bold py-2 px-2 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Download PNG</span>
+                        </button>
+                        <button type="button" onclick="openScannerWithCurrentMrz()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-2 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            <span>Test in Scanner</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden canvas for rendering MRZ PNG image -->
+                <canvas id="hidden-mrz-canvas" class="hidden"></canvas>
+            </section>
+        </div>
     </main>
 
     <!-- Sleek Minimal Legal Footer -->
@@ -4383,20 +4702,36 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         function switchScanMode(mode) {
             const upTab = document.getElementById('scan-tab-upload');
             const camTab = document.getElementById('scan-tab-camera');
+            const mrzTab = document.getElementById('scan-tab-mrz');
             const upView = document.getElementById('scan-view-upload');
             const camView = document.getElementById('scan-view-camera');
+            const mrzView = document.getElementById('scan-view-mrz');
+
+            const activeTabClass = 'flex-1 bg-white shadow-sm text-xs py-1.5 rounded-lg font-bold text-accent transition';
+            const inactiveTabClass = 'flex-1 text-slate-500 text-xs py-1.5 rounded-lg font-bold hover:text-slate-900 transition';
+
+            if (upTab) upTab.className = (mode === 'upload') ? activeTabClass : inactiveTabClass;
+            if (camTab) camTab.className = (mode === 'camera') ? activeTabClass : inactiveTabClass;
+            if (mrzTab) mrzTab.className = (mode === 'mrz') ? activeTabClass : inactiveTabClass;
 
             if (mode === 'upload') {
                 stopCameraScanning();
-                if (upTab) upTab.className = 'flex-1 bg-white shadow-sm text-xs py-1.5 rounded-lg font-bold text-accent transition';
-                if (camTab) camTab.className = 'flex-1 text-slate-500 text-xs py-1.5 rounded-lg font-bold hover:text-slate-900 transition';
                 if (upView) upView.classList.remove('hidden');
                 if (camView) camView.classList.add('hidden');
-            } else {
-                if (camTab) camTab.className = 'flex-1 bg-white shadow-sm text-xs py-1.5 rounded-lg font-bold text-accent transition';
-                if (upTab) upTab.className = 'flex-1 text-slate-500 text-xs py-1.5 rounded-lg font-bold hover:text-slate-900 transition';
-                if (camView) camView.classList.remove('hidden');
+                if (mrzView) mrzView.classList.add('hidden');
+            } else if (mode === 'camera') {
                 if (upView) upView.classList.add('hidden');
+                if (camView) camView.classList.remove('hidden');
+                if (mrzView) mrzView.classList.add('hidden');
+            } else if (mode === 'mrz') {
+                stopCameraScanning();
+                if (upView) upView.classList.add('hidden');
+                if (camView) camView.classList.add('hidden');
+                if (mrzView) mrzView.classList.remove('hidden');
+                const inp = document.getElementById('scanner-mrz-input');
+                if (inp && !inp.value.trim()) {
+                    loadSampleMrzIntoScanner();
+                }
             }
         }
 
@@ -4660,6 +4995,498 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             showToast('Barcode scanned & fields populated successfully!', 'success');
         }
 
+        // ==========================================
+        // --- ICAO 9303 MRZ STUDIO & SCANNER ENGINE ---
+        // ==========================================
+
+        let currentWorkspace = 'aamva';
+        let currentMrzType = 'TD3';
+
+        function switchWorkspace(mode) {
+            currentWorkspace = mode;
+            const aamvaView = document.getElementById('workspace-view-aamva');
+            const mrzView = document.getElementById('workspace-view-mrz');
+            const aamvaTab = document.getElementById('workspace-tab-aamva');
+            const mrzTab = document.getElementById('workspace-tab-mrz');
+
+            const activeHeaderBtn = 'px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition';
+            const inactiveHeaderBtn = 'px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition';
+
+            if (mode === 'mrz') {
+                if (aamvaView) aamvaView.classList.add('hidden');
+                if (mrzView) mrzView.classList.remove('hidden');
+                if (aamvaTab) aamvaTab.className = inactiveHeaderBtn;
+                if (mrzTab) mrzTab.className = activeHeaderBtn;
+                compileMrz();
+            } else {
+                if (mrzView) mrzView.classList.add('hidden');
+                if (aamvaView) aamvaView.classList.remove('hidden');
+                if (mrzTab) mrzTab.className = inactiveHeaderBtn;
+                if (aamvaTab) aamvaTab.className = activeHeaderBtn;
+            }
+        }
+
+        function setMrzType(type) {
+            currentMrzType = type;
+            const tabs = ['TD3', 'TD1', 'TD2', 'MRV_A'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`mrz-tab-${t}`);
+                if (!el) return;
+                if (t === type) {
+                    el.className = 'flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5';
+                } else {
+                    el.className = 'flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5';
+                }
+            });
+
+            const badge = document.getElementById('mrz-format-badge');
+            const title = document.getElementById('preview-doc-title');
+            const docTypeInput = document.getElementById('mrz-doc-type');
+
+            if (type === 'TD3') {
+                if (badge) badge.textContent = 'Format: TD3 (2×44)';
+                if (title) title.textContent = 'PASSPORT / PASSEPORT';
+                if (docTypeInput && (!docTypeInput.value || docTypeInput.value === 'I' || docTypeInput.value === 'V')) docTypeInput.value = 'P';
+            } else if (type === 'TD1') {
+                if (badge) badge.textContent = 'Format: TD1 (3×30)';
+                if (title) title.textContent = 'NATIONAL IDENTITY CARD';
+                if (docTypeInput && (!docTypeInput.value || docTypeInput.value === 'P' || docTypeInput.value === 'V')) docTypeInput.value = 'I';
+            } else if (type === 'TD2') {
+                if (badge) badge.textContent = 'Format: TD2 (2×36)';
+                if (title) title.textContent = 'OFFICIAL TRAVEL DOCUMENT';
+                if (docTypeInput && (!docTypeInput.value || docTypeInput.value === 'P' || docTypeInput.value === 'V')) docTypeInput.value = 'A';
+            } else if (type === 'MRV_A') {
+                if (badge) badge.textContent = 'Format: MRV-A (2×44)';
+                if (title) title.textContent = 'OFFICIAL VISA / VISA OFFICIEL';
+                if (docTypeInput && (!docTypeInput.value || docTypeInput.value === 'P' || docTypeInput.value === 'I')) docTypeInput.value = 'V';
+            }
+
+            compileMrz();
+        }
+
+        function calcIcaoCheckDigit(str) {
+            const weights = [7, 3, 1];
+            let sum = 0;
+            const s = (str || '').toUpperCase();
+            for (let i = 0; i < s.length; i++) {
+                const ch = s[i];
+                let val = 0;
+                if (ch >= '0' && ch <= '9') val = ch.charCodeAt(0) - 48;
+                else if (ch >= 'A' && ch <= 'Z') val = ch.charCodeAt(0) - 55;
+                else val = 0;
+                sum += val * weights[i % 3];
+            }
+            return String(sum % 10);
+        }
+
+        function cleanIcaoText(str, maxLen = 0) {
+            let s = (str || '').toUpperCase().replace(/[^A-Z0-9<]/g, '<');
+            if (maxLen > 0) {
+                s = s.padEnd(maxLen, '<').slice(0, maxLen);
+            }
+            return s;
+        }
+
+        function formatIcaoDate(dateStr) {
+            if (!dateStr) return '000101';
+            const clean = dateStr.replace(/\D/g, '');
+            if (clean.length === 8) {
+                return clean.slice(2, 8); // YYYYMMDD -> YYMMDD
+            }
+            if (clean.length === 6) return clean;
+            return '000101';
+        }
+
+        function loadMrzPreset(preset) {
+            if (preset === 'us_passport') {
+                setMrzType('TD3');
+                document.getElementById('mrz-doc-type').value = 'P';
+                document.getElementById('mrz-country').value = 'USA';
+                document.getElementById('mrz-doc-number').value = 'C01234567';
+                document.getElementById('mrz-surname').value = 'GARCIA';
+                document.getElementById('mrz-given-names').value = 'JONATHAN';
+                document.getElementById('mrz-nationality').value = 'USA';
+                document.getElementById('mrz-dob').value = '1992-06-21';
+                document.getElementById('mrz-sex').value = 'M';
+                document.getElementById('mrz-expiry').value = '2032-06-21';
+                document.getElementById('mrz-optional-data').value = 'A1234567';
+            } else if (preset === 'de_id') {
+                setMrzType('TD1');
+                document.getElementById('mrz-doc-type').value = 'ID';
+                document.getElementById('mrz-country').value = 'DEU';
+                document.getElementById('mrz-doc-number').value = '122000129';
+                document.getElementById('mrz-surname').value = 'MUSTERMANN';
+                document.getElementById('mrz-given-names').value = 'ERIKA';
+                document.getElementById('mrz-nationality').value = 'DEU';
+                document.getElementById('mrz-dob').value = '1983-08-12';
+                document.getElementById('mrz-sex').value = 'F';
+                document.getElementById('mrz-expiry').value = '2030-08-01';
+                document.getElementById('mrz-optional-data').value = 'IDD<<';
+            } else if (preset === 'ca_passport') {
+                setMrzType('TD3');
+                document.getElementById('mrz-doc-type').value = 'P';
+                document.getElementById('mrz-country').value = 'CAN';
+                document.getElementById('mrz-doc-number').value = 'AA123456';
+                document.getElementById('mrz-surname').value = 'TREMBLAY';
+                document.getElementById('mrz-given-names').value = 'JEAN PHILIPPE';
+                document.getElementById('mrz-nationality').value = 'CAN';
+                document.getElementById('mrz-dob').value = '1988-11-04';
+                document.getElementById('mrz-sex').value = 'M';
+                document.getElementById('mrz-expiry').value = '2033-11-04';
+                document.getElementById('mrz-optional-data').value = '';
+            } else if (preset === 'uk_visa') {
+                setMrzType('MRV_A');
+                document.getElementById('mrz-doc-type').value = 'V';
+                document.getElementById('mrz-country').value = 'GBR';
+                document.getElementById('mrz-doc-number').value = 'V9876543';
+                document.getElementById('mrz-surname').value = 'SMITH';
+                document.getElementById('mrz-given-names').value = 'WILLIAM';
+                document.getElementById('mrz-nationality').value = 'USA';
+                document.getElementById('mrz-dob').value = '1990-03-15';
+                document.getElementById('mrz-sex').value = 'M';
+                document.getElementById('mrz-expiry').value = '2027-03-15';
+                document.getElementById('mrz-optional-data').value = '';
+            }
+            compileMrz();
+            showToast(`Loaded ${preset.replace('_', ' ').toUpperCase()} template`, 'info');
+        }
+
+        function clearMrzForm() {
+            document.getElementById('mrz-doc-type').value = 'P';
+            document.getElementById('mrz-country').value = '';
+            document.getElementById('mrz-doc-number').value = '';
+            document.getElementById('mrz-surname').value = '';
+            document.getElementById('mrz-given-names').value = '';
+            document.getElementById('mrz-nationality').value = '';
+            document.getElementById('mrz-dob').value = '';
+            document.getElementById('mrz-sex').value = 'M';
+            document.getElementById('mrz-expiry').value = '';
+            document.getElementById('mrz-optional-data').value = '';
+            compileMrz();
+        }
+
+        function randomizeMrzData() {
+            const firstNames = ['LIAM', 'NOAH', 'OLIVER', 'EMMA', 'CHARLOTTE', 'AMELIA', 'SOPHIA', 'LUCAS', 'ETHAN', 'MIA', 'JONATHAN'];
+            const lastNames = ['SMITH', 'JOHNSON', 'WILLIAMS', 'BROWN', 'JONES', 'GARCIA', 'MILLER', 'DAVIS', 'RODRIGUEZ', 'MARTINEZ'];
+            const countries = ['USA', 'CAN', 'GBR', 'DEU', 'FRA', 'AUS', 'ITA', 'ESP', 'NLD', 'CHE'];
+
+            const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const co = countries[Math.floor(Math.random() * countries.length)];
+            const docNum = 'C' + Math.floor(10000000 + Math.random() * 90000000);
+            const birthYear = 1965 + Math.floor(Math.random() * 38);
+            const birthMonth = String(1 + Math.floor(Math.random() * 12)).padStart(2, '0');
+            const birthDay = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
+            const expYear = 2028 + Math.floor(Math.random() * 8);
+
+            document.getElementById('mrz-surname').value = ln;
+            document.getElementById('mrz-given-names').value = fn;
+            document.getElementById('mrz-country').value = co;
+            document.getElementById('mrz-nationality').value = co;
+            document.getElementById('mrz-doc-number').value = docNum;
+            document.getElementById('mrz-dob').value = `${birthYear}-${birthMonth}-${birthDay}`;
+            document.getElementById('mrz-expiry').value = `${expYear}-${birthMonth}-${birthDay}`;
+            document.getElementById('mrz-sex').value = Math.random() > 0.5 ? 'M' : 'F';
+            document.getElementById('mrz-optional-data').value = 'A' + Math.floor(1000000 + Math.random() * 9000000);
+
+            compileMrz();
+            showToast('Randomized MRZ holder demographics', 'info');
+        }
+
+        function compileMrz() {
+            const docType = cleanIcaoText(document.getElementById('mrz-doc-type')?.value || 'P', 2);
+            const country = cleanIcaoText(document.getElementById('mrz-country')?.value || 'USA', 3);
+            const docNumRaw = (document.getElementById('mrz-doc-number')?.value || 'C01234567').toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const surname = cleanIcaoText(document.getElementById('mrz-surname')?.value || 'GARCIA');
+            const givenNames = cleanIcaoText(document.getElementById('mrz-given-names')?.value || 'JONATHAN');
+            const nationality = cleanIcaoText(document.getElementById('mrz-nationality')?.value || country, 3);
+            const dob = formatIcaoDate(document.getElementById('mrz-dob')?.value);
+            const sex = (document.getElementById('mrz-sex')?.value || 'M').toUpperCase().slice(0, 1);
+            const expiry = formatIcaoDate(document.getElementById('mrz-expiry')?.value);
+            const optDataRaw = (document.getElementById('mrz-optional-data')?.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+            let lines = [];
+            let docNumCheck = '';
+            let dobCheck = calcIcaoCheckDigit(dob);
+            let expiryCheck = calcIcaoCheckDigit(expiry);
+            let compCheck = '';
+
+            if (currentMrzType === 'TD3' || currentMrzType === 'MRV_A') {
+                const nameField = `${surname}<<${givenNames}`.replace(/<+/g, '<').replace(/<$/, '');
+                const line1 = cleanIcaoText(`${docType}${country}${nameField}`, 44);
+
+                const docNumField = cleanIcaoText(docNumRaw, 9);
+                docNumCheck = calcIcaoCheckDigit(docNumField);
+                const optField = cleanIcaoText(optDataRaw, 14);
+                let optCheck = '';
+                
+                if (currentMrzType === 'TD3') {
+                    optCheck = calcIcaoCheckDigit(optField);
+                    const compData = `${docNumField}${docNumCheck}${dob}${dobCheck}${expiry}${expiryCheck}${optField}${optCheck}`;
+                    compCheck = calcIcaoCheckDigit(compData);
+                    const line2 = `${docNumField}${docNumCheck}${nationality}${dob}${dobCheck}${sex}${expiry}${expiryCheck}${optField}${optCheck}${compCheck}`;
+                    lines = [line1, cleanIcaoText(line2, 44)];
+                } else {
+                    const optFieldVisa = cleanIcaoText(optDataRaw, 16);
+                    const line2 = `${docNumField}${docNumCheck}${nationality}${dob}${dobCheck}${sex}${expiry}${expiryCheck}${optFieldVisa}`;
+                    lines = [line1, cleanIcaoText(line2, 44)];
+                    compCheck = 'N/A';
+                }
+            } else if (currentMrzType === 'TD1') {
+                const docNumField = cleanIcaoText(docNumRaw, 9);
+                docNumCheck = calcIcaoCheckDigit(docNumField);
+                const opt1 = cleanIcaoText(optDataRaw, 15);
+                const line1 = cleanIcaoText(`${docType}${country}${docNumField}${docNumCheck}${opt1}`, 30);
+
+                const opt2 = cleanIcaoText('', 11);
+                const compData = `${docNumField}${docNumCheck}${opt1}${dob}${dobCheck}${expiry}${expiryCheck}${opt2}`;
+                compCheck = calcIcaoCheckDigit(compData);
+                const line2 = cleanIcaoText(`${dob}${dobCheck}${sex}${expiry}${expiryCheck}${nationality}${opt2}${compCheck}`, 30);
+
+                const nameField = `${surname}<<${givenNames}`;
+                const line3 = cleanIcaoText(nameField, 30);
+                lines = [line1, line2, line3];
+            } else if (currentMrzType === 'TD2') {
+                const nameField = `${surname}<<${givenNames}`;
+                const line1 = cleanIcaoText(`${docType}${country}${nameField}`, 36);
+
+                const docNumField = cleanIcaoText(docNumRaw, 9);
+                docNumCheck = calcIcaoCheckDigit(docNumField);
+                const optField = cleanIcaoText(optDataRaw, 7);
+                const compData = `${docNumField}${docNumCheck}${dob}${dobCheck}${expiry}${expiryCheck}${optField}`;
+                compCheck = calcIcaoCheckDigit(compData);
+                const line2 = cleanIcaoText(`${docNumField}${docNumCheck}${nationality}${dob}${dobCheck}${sex}${expiry}${expiryCheck}${optField}${compCheck}`, 36);
+                lines = [line1, line2];
+            }
+
+            const mrzText = lines.join('\n');
+            const preEl = document.getElementById('mrz-output-text');
+            if (preEl) preEl.textContent = mrzText;
+
+            const charCountEl = document.getElementById('preview-char-count');
+            if (charCountEl) {
+                const totalChars = lines.reduce((acc, l) => acc + l.length, 0);
+                charCountEl.textContent = `${totalChars} Chars (${lines.length}×${lines[0]?.length || 0})`;
+            }
+
+            const docBadge = document.getElementById('mrz-chk-doc');
+            if (docBadge) docBadge.textContent = `PASS (${docNumCheck})`;
+            const dobBadge = document.getElementById('mrz-chk-dob');
+            if (dobBadge) dobBadge.textContent = `PASS (${dobCheck})`;
+            const expBadge = document.getElementById('mrz-chk-exp');
+            if (expBadge) expBadge.textContent = `PASS (${expiryCheck})`;
+            const compBadge = document.getElementById('mrz-chk-comp');
+            if (compBadge) compBadge.textContent = compCheck === 'N/A' ? 'N/A (Visa)' : `PASS (${compCheck})`;
+
+            const prevCountry = document.getElementById('preview-country-code');
+            if (prevCountry) prevCountry.textContent = country.replace(/</g, '');
+            const prevDocNum = document.getElementById('preview-doc-number-top');
+            if (prevDocNum) prevDocNum.textContent = docNumRaw;
+            const prevName = document.getElementById('preview-name');
+            if (prevName) prevName.textContent = `${surname.replace(/</g, '')}, ${givenNames.replace(/</g, ' ')}`.trim();
+            const prevNat = document.getElementById('preview-nat');
+            if (prevNat) prevNat.textContent = nationality.replace(/</g, '');
+            const prevDobSex = document.getElementById('preview-dob-sex');
+            if (prevDobSex) prevDobSex.textContent = `${document.getElementById('mrz-dob')?.value || '1992-06-21'} (${sex})`;
+            const prevExp = document.getElementById('preview-expiry');
+            if (prevExp) prevExp.textContent = document.getElementById('mrz-expiry')?.value || '2032-06-21';
+
+            const tbody = document.getElementById('mrz-breakdown-tbody');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-1 font-mono font-semibold text-accent">Document Type &amp; Issuer</td>
+                        <td class="py-1 font-mono font-bold">${docType}${country}</td>
+                        <td class="py-1">Type: ${docType.replace(/</g, '')} &bull; Issuing State: ${country.replace(/</g, '')}</td>
+                        <td class="py-1 text-right text-emerald-600 font-bold">&check; Valid ISO-3</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-1 font-mono font-semibold text-accent">Primary Identifier (Name)</td>
+                        <td class="py-1 font-mono font-bold">${surname}&lt;&lt;${givenNames}</td>
+                        <td class="py-1">${surname.replace(/</g, '')}, ${givenNames.replace(/</g, ' ')}</td>
+                        <td class="py-1 text-right text-emerald-600 font-bold">&check; Formatted</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-1 font-mono font-semibold text-accent">Document Number</td>
+                        <td class="py-1 font-mono font-bold">${docNumRaw}</td>
+                        <td class="py-1">Doc #: ${docNumRaw}</td>
+                        <td class="py-1 text-right text-emerald-600 font-bold">&check; Mod 10 (${docNumCheck})</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-1 font-mono font-semibold text-accent">Date of Birth</td>
+                        <td class="py-1 font-mono font-bold">${dob}</td>
+                        <td class="py-1">${document.getElementById('mrz-dob')?.value || '1992-06-21'}</td>
+                        <td class="py-1 text-right text-emerald-600 font-bold">&check; Mod 10 (${dobCheck})</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-1 font-mono font-semibold text-accent">Date of Expiry</td>
+                        <td class="py-1 font-mono font-bold">${expiry}</td>
+                        <td class="py-1">${document.getElementById('mrz-expiry')?.value || '2032-06-21'}</td>
+                        <td class="py-1 text-right text-emerald-600 font-bold">&check; Mod 10 (${expiryCheck})</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-1 font-mono font-semibold text-accent">Composite Integrity</td>
+                        <td class="py-1 font-mono font-bold">${compCheck}</td>
+                        <td class="py-1">Overall ICAO 9303 Verification Hash</td>
+                        <td class="py-1 text-right text-emerald-600 font-bold">&check; Mod 10 (${compCheck})</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function copyMrzText() {
+            const text = document.getElementById('mrz-output-text')?.textContent || '';
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('MRZ lines copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Copied MRZ to clipboard', 'success');
+            });
+        }
+
+        function downloadMrzTxt() {
+            const text = document.getElementById('mrz-output-text')?.textContent || '';
+            const docNum = document.getElementById('mrz-doc-number')?.value || 'ICAO9303';
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${docNum}_MRZ.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('MRZ .txt file downloaded', 'success');
+        }
+
+        function downloadMrzPng() {
+            const text = document.getElementById('mrz-output-text')?.textContent || '';
+            if (!text) return;
+            const lines = text.split('\n');
+
+            const canvas = document.getElementById('hidden-mrz-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const padding = 40;
+            const lineHeight = 46;
+            const fontSize = 32;
+            const charWidth = 20;
+            const maxCharsPerLine = Math.max(...lines.map(l => l.length));
+
+            canvas.width = Math.max(880, maxCharsPerLine * charWidth + padding * 2);
+            canvas.height = lines.length * lineHeight + padding * 2 + 50;
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 14px "Courier New", monospace';
+            ctx.fillText(`ICAO 9303 / ISO-7501 MACHINE READABLE ZONE - ${currentMrzType}`, padding, 30);
+
+            ctx.fillStyle = '#34d399';
+            ctx.font = `bold ${fontSize}px "Courier New", "OCR-B", monospace`;
+
+            lines.forEach((line, idx) => {
+                ctx.fillText(line, padding, 75 + idx * lineHeight);
+            });
+
+            const docNum = document.getElementById('mrz-doc-number')?.value || 'ICAO9303';
+            const dataUrl = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = `${docNum}_MRZ_Zone.png`;
+            a.click();
+            showToast('MRZ high-res PNG image downloaded', 'success');
+        }
+
+        function loadSampleMrzIntoScanner() {
+            const sample = `P<USAGARCIA<<JONATHAN<<<<<<<<<<<<<<<<<<<<<<<\nC012345672USA9206218M3206216A1234567<<<<<<64`;
+            const inp = document.getElementById('scanner-mrz-input');
+            if (inp) inp.value = sample;
+            inspectScannerMrz();
+        }
+
+        function openScannerWithCurrentMrz() {
+            openBarcodeScannerModal();
+            switchScanMode('mrz');
+            const text = document.getElementById('mrz-output-text')?.textContent || '';
+            const inp = document.getElementById('scanner-mrz-input');
+            if (inp && text) {
+                inp.value = text;
+                inspectScannerMrz();
+            }
+        }
+
+        async function inspectScannerMrz() {
+            const inputEl = document.getElementById('scanner-mrz-input');
+            const cardEl = document.getElementById('mrz-inspection-card');
+            if (!inputEl || !cardEl) return;
+
+            const text = inputEl.value.trim();
+            if (!text) {
+                showToast('Please paste MRZ lines to inspect', 'warning');
+                return;
+            }
+
+            cardEl.classList.remove('hidden');
+            cardEl.innerHTML = `<div class="flex items-center gap-2 text-slate-400 py-2"><span class="animate-spin">⏳</span> Decoding &amp; verifying ICAO 9303 checksums...</div>`;
+
+            try {
+                const res = await fetch('/api/mrz/parse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    cardEl.innerHTML = `<div class="text-rose-400 font-bold p-2 bg-rose-950/60 rounded-lg border border-rose-800">❌ Error: ${data.detail || 'Failed to parse MRZ'}</div>`;
+                    return;
+                }
+
+                const checks = data.checksums || {};
+                const checkBadge = (pass) => pass 
+                    ? `<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">PASS &check;</span>`
+                    : `<span class="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">FAIL &cross;</span>`;
+
+                cardEl.innerHTML = `
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-700/80">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">🛂</span>
+                            <span class="font-bold text-white text-xs">Decoded Document: ${data.document_type || 'TD3'} (${data.issuing_country || ''})</span>
+                        </div>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded ${data.all_checksums_pass ? 'bg-emerald-950 text-emerald-400 border border-emerald-700' : 'bg-amber-950 text-amber-300 border border-amber-700'} font-bold">
+                            ${data.all_checksums_pass ? 'All 4 Checksums PASS' : 'Checksum Warning'}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] pt-1">
+                        <div><span class="text-slate-400 block text-[9px] uppercase">Holder Name</span><span class="font-bold text-white">${data.surname || ''}, ${data.given_names || ''}</span></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase">Document Number</span><span class="font-mono font-bold text-emerald-400">${data.document_number || ''}</span></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase">Nationality / State</span><span class="font-bold text-white">${data.nationality || ''} (${data.issuing_country || ''})</span></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase">Date of Birth</span><span class="font-bold text-white">${data.birth_date || ''} (${data.sex || ''})</span></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase">Expiration Date</span><span class="font-bold text-white">${data.expiry_date || ''}</span></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase">Status</span><span class="font-bold ${data.is_expired ? 'text-rose-400' : 'text-emerald-400'}">${data.is_expired ? 'EXPIRED' : 'VALID'}</span></div>
+                    </div>
+
+                    <div class="mt-2 pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-1 text-[10px]">
+                        <span class="text-slate-400 font-semibold">Checksum Breakdown:</span>
+                        <div class="flex items-center gap-2">
+                            <span>Doc #: ${checkBadge(checks.doc_number?.valid)}</span>
+                            <span>DOB: ${checkBadge(checks.dob?.valid)}</span>
+                            <span>Expiry: ${checkBadge(checks.expiry?.valid)}</span>
+                            <span>Composite: ${checkBadge(checks.composite?.valid)}</span>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                cardEl.innerHTML = `<div class="text-rose-400 font-bold p-2 bg-rose-950/60 rounded-lg border border-rose-800">❌ Network error verifying MRZ</div>`;
+            }
+        }
+
         // --- BATCH CSV BULK GENERATOR CONTROLLER ---
         function openBatchModal() {
             if (!currentUser) {
@@ -4890,6 +5717,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 if (typeof updateWeightMetric === 'function') updateWeightMetric();
                 if (typeof validateDlNumber === 'function') validateDlNumber();
                 if (typeof compileAAMVA === 'function') compileAAMVA();
+                if (typeof compileMrz === 'function') compileMrz();
                 if (typeof checkAuth === 'function') checkAuth();
             } catch (err) {
                 console.error("Initialization error:", err);
