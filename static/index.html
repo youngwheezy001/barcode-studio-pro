@@ -45,11 +45,18 @@
     <!-- jsPDF for direct PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // Self-healing: Update or unregister stale Service Worker cache
+        // Immediately unregister all Service Workers and clear caches
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for (var r of registrations) {
-                    r.update().catch(function() {});
+                    r.unregister();
+                }
+            }).catch(function() {});
+        }
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (var name of names) {
+                    caches.delete(name);
                 }
             }).catch(function() {});
         }
@@ -4813,15 +4820,6 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 if (typeof checkAuth === 'function') checkAuth();
             } catch (err) {
                 console.error("Initialization error:", err);
-            }
-
-            // Progressive Web App (PWA) Service Worker Registration
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('PWA Service Worker registered:', reg.scope);
-                }).catch(err => {
-                    console.log('PWA Service Worker registration skipped:', err);
-                });
             }
         };
     </script>
