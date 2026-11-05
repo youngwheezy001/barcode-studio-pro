@@ -3,7 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary SEO Meta Tags -->
     <title>Barcode Studio Pro | 1D & 2D AAMVA Standard Barcode Generator</title>
+    <meta name="title" content="Barcode Studio Pro | 1D & 2D AAMVA Standard Barcode Generator">
+    <meta name="description" content="Generate high-density, 100% camera-scannable 2D PDF417 AAMVA DL/ID barcodes and 1D Code 128 barcodes compliant with ISO/IEC 15438 standards. Complete with 50-state profiles and vector export.">
+    <meta name="keywords" content="AAMVA barcode generator, PDF417 generator, Code 128 barcode, driver license barcode, ISO 15438, high density PDF417, barcode studio pro">
+    <meta name="author" content="Barcode Studio Pro">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://barcode-studio-pro.netlify.app/">
+    <meta property="og:title" content="Barcode Studio Pro | 1D & 2D AAMVA Standard Barcode Generator">
+    <meta property="og:description" content="Generate high-density, 100% camera-scannable 2D PDF417 AAMVA DL/ID barcodes and 1D Code 128 barcodes compliant with ISO/IEC 15438 standards.">
+    <meta property="og:image" content="https://barcode-studio-pro.netlify.app/favicon.svg">
+
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:url" content="https://barcode-studio-pro.netlify.app/">
+    <meta property="twitter:title" content="Barcode Studio Pro | 1D & 2D AAMVA Standard Barcode Generator">
+    <meta property="twitter:description" content="Generate high-density, 100% camera-scannable 2D PDF417 AAMVA DL/ID barcodes and 1D Code 128 barcodes compliant with ISO/IEC 15438 standards.">
+    <meta property="twitter:image" content="https://barcode-studio-pro.netlify.app/favicon.svg">
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -486,6 +507,133 @@
         </div>
     </div>
 
+    <!-- User Order History Modal -->
+    <div id="user-orders-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col gap-3 max-h-[85vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🧾</span>
+                    <h3 class="text-sm font-bold text-slate-900">My Orders &amp; Barcode Sets Receipts</h3>
+                </div>
+                <button onclick="closeUserOrdersModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+            <p class="text-xs text-slate-500">View your order history, purchased barcode packages, payment status, and confirmed blockchain transaction receipts.</p>
+            
+            <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5">Order ID</th>
+                            <th class="p-2.5">Package</th>
+                            <th class="p-2.5">Sets / Barcodes</th>
+                            <th class="p-2.5">Amount (USD)</th>
+                            <th class="p-2.5">Payment Method</th>
+                            <th class="p-2.5">Tx Hash</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-orders-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="8" class="p-4 text-center text-slate-400">Loading your orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                <span class="text-slate-500">Need help with an order? Contact <a href="mailto:mwangilewis205@gmail.com" class="text-accent hover:underline font-semibold">mwangilewis205@gmail.com</a></span>
+                <button onclick="loadUserOrders()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition">Refresh Orders</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <h3 class="text-base font-bold text-slate-900">Privacy Policy</h3>
+                <button onclick="closePrivacyModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
+            </div>
+            <div class="overflow-y-auto pr-2 text-xs text-slate-600 flex flex-col gap-2.5 leading-relaxed">
+                <p><strong>Effective Date:</strong> January 1, 2026</p>
+                <p>At Barcode Studio Pro, we prioritize your data privacy, security, and anonymity. This Privacy Policy outlines our transparent data handling principles.</p>
+                <h4 class="font-bold text-slate-800 text-xs">1. Data Minimization &amp; Zero Storage of Barcode Payloads</h4>
+                <p>Barcode generation occurs entirely client-side within your browser using JavaScript engines (JsBarcode &amp; bwip-js). Form inputs, synthesized fields, and generated vector/raster barcodes are never logged, tracked, or stored on our servers.</p>
+                <h4 class="font-bold text-slate-800 text-xs">2. Account Information</h4>
+                <p>When you register an account, we store only your email address, securely hashed password (bcrypt), and account token balance. We do not sell, rent, or share personal information with third parties.</p>
+                <h4 class="font-bold text-slate-800 text-xs">3. Cryptocurrency &amp; Payment Privacy</h4>
+                <p>Crypto payments are submitted directly via blockchain transaction hashes. We do not collect credit cards, banking details, or billing addresses for cryptocurrency orders.</p>
+                <h4 class="font-bold text-slate-800 text-xs">4. Inquiries</h4>
+                <p>For questions regarding data privacy or to request account deletion, contact our support desk at <a href="mailto:mwangilewis205@gmail.com" class="text-accent underline font-medium">mwangilewis205@gmail.com</a>.</p>
+            </div>
+            <div class="flex justify-end pt-2 border-t border-slate-200">
+                <button onclick="closePrivacyModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="terms-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <h3 class="text-base font-bold text-slate-900">Terms of Service</h3>
+                <button onclick="closeTermsModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
+            </div>
+            <div class="overflow-y-auto pr-2 text-xs text-slate-600 flex flex-col gap-2.5 leading-relaxed">
+                <p><strong>Effective Date:</strong> January 1, 2026</p>
+                <p>By accessing or using Barcode Studio Pro, you agree to these Terms of Service.</p>
+                <h4 class="font-bold text-slate-800 text-xs">1. Services Description</h4>
+                <p>Barcode Studio Pro provides professional barcode synthesis, high-density 2D PDF417 formatting according to AAMVA DL/ID and ISO/IEC 15438 standards, and 1D Code 128 symbology generation tools.</p>
+                <h4 class="font-bold text-slate-800 text-xs">2. User Responsibilities &amp; Lawful Use</h4>
+                <p>Users must comply with all applicable local, national, and international laws. Users agree not to utilize generated barcodes for unauthorized, unlawful, or deceptive purposes.</p>
+                <h4 class="font-bold text-slate-800 text-xs">3. Barcode Package Credits</h4>
+                <p>Purchased barcode packages credit sets directly to your account. Each set includes companion exports (1x 2D PDF417 + 1x 1D Code 128). Credits remain active indefinitely.</p>
+                <h4 class="font-bold text-slate-800 text-xs">4. Limitation of Liability</h4>
+                <p>Barcode Studio Pro provides tools on an "as-is" basis and disclaims all liability for hardware reader variations, print quality variances, or third-party scanner configurations.</p>
+            </div>
+            <div class="flex justify-end pt-2 border-t border-slate-200">
+                <button onclick="closeTermsModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Contact Modal -->
+    <div id="support-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">💬</span>
+                    <h3 class="text-base font-bold text-slate-900">Customer Support</h3>
+                </div>
+                <button onclick="closeSupportModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
+            </div>
+            <div class="text-xs text-slate-600 flex flex-col gap-3">
+                <p>Have questions about your order, custom barcode dimensions, AAMVA compliance, or cryptocurrency payments? Our dedicated support team is here to assist.</p>
+                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-semibold">Support Desk Email:</span>
+                        <a href="mailto:mwangilewis205@gmail.com" class="text-accent font-bold hover:underline">mwangilewis205@gmail.com</a>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-semibold">Response Time:</span>
+                        <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px]">Under 2 hours</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-semibold">Service Hours:</span>
+                        <span class="text-slate-700 font-medium text-[11px]">24/7 Global Desk</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                <a href="mailto:mwangilewis205@gmail.com?subject=Barcode%20Studio%20Pro%20Support%20Inquiry" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition inline-flex items-center gap-1.5 shadow">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Send Email
+                </a>
+                <button onclick="closeSupportModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Top Navigation Header -->
     <header class="bg-brand text-white px-6 py-2.5 flex justify-between items-center shadow-md">
         <div class="flex items-center gap-3">
@@ -516,6 +664,12 @@
             <!-- Admin Crypto Ledger Button (Visible to elevated Admin) -->
             <button id="admin-crypto-btn" onclick="openAdminCryptoModal()" class="hidden text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1">
                 <span>🪙 Orders</span>
+            </button>
+
+            <!-- Customer Order History Button (Visible when logged in) -->
+            <button id="user-orders-btn" onclick="openUserOrdersModal()" class="hidden text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg transition items-center gap-1.5" title="View your order history & payment receipts">
+                <svg class="w-3.5 h-3.5 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span>My Orders</span>
             </button>
 
             <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold transition" title="Click to view barcode packages">
@@ -572,22 +726,13 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5 pt-2 flex-wrap">
-                        <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2 rounded-lg transition" title="Load Jonathan Garcia (CT v09 / Format 11) profile">
+                        <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Load Jonathan Garcia (CT v09 / Format 11) profile">
                             ⚡ Jonathan Garcia (CT v09)
                         </button>
-                        <button type="button" onclick="loadJacobGlassPreset()" class="text-[11px] bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 font-semibold py-1.5 px-2 rounded-lg transition" title="Load Jacob Glass (WA v08 / Format 16) profile">
-                            👤 Jacob Glass (WA v08)
-                        </button>
-                        <button type="button" onclick="loadSeanHarrisonScreenshotPreset()" class="text-[11px] bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 font-semibold py-1.5 px-2 rounded-lg transition" title="Load Sean Harrison (CA) profile">
-                            📸 Sean Harrison (CA)
-                        </button>
-                        <button type="button" onclick="loadTexasPreset()" class="text-[11px] bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-800 font-semibold py-1.5 px-2 rounded-lg transition" title="Load Texas (TX v09 Audit Number / No ICN) profile">
-                            ⭐ Texas (TX Audit #)
-                        </button>
-                        <button type="button" onclick="generateRandomAAMVA()" class="text-[11px] bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2 rounded-lg transition" title="Randomize data">
+                        <button type="button" onclick="generateRandomAAMVA()" class="text-[11px] bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2.5 rounded-lg transition" title="Randomize data">
                             🎲 Randomize
                         </button>
-                        <button type="button" onclick="clearAllInputs()" class="text-[11px] bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold py-1.5 px-2 rounded-lg transition" title="Clear all fields back to placeholders">
+                        <button type="button" onclick="clearAllInputs()" class="text-[11px] bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Clear all fields back to placeholders">
                             🗑️ Clear
                         </button>
                     </div>
@@ -1208,6 +1353,22 @@
             <canvas id="hidden-code128-canvas" class="hidden"></canvas>
         </section>
     </main>
+
+    <!-- Sleek Minimal Legal Footer -->
+    <footer class="shrink-0 py-2 px-6 bg-slate-900 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2 z-10 select-none">
+        <div class="flex items-center gap-3">
+            <span class="font-semibold text-slate-300">&copy; 2026 Barcode Studio Pro. All rights reserved.</span>
+            <span class="text-slate-600">&bull;</span>
+            <span class="text-slate-400">ISO/IEC 15438 &amp; AAMVA Compliant</span>
+        </div>
+        <div class="flex items-center gap-4 text-slate-400 font-medium">
+            <button type="button" onclick="openPrivacyModal()" class="hover:text-white transition underline-offset-2 hover:underline">Privacy Policy</button>
+            <span class="text-slate-600">&bull;</span>
+            <button type="button" onclick="openTermsModal()" class="hover:text-white transition underline-offset-2 hover:underline">Terms of Service</button>
+            <span class="text-slate-600">&bull;</span>
+            <button type="button" onclick="openSupportModal()" class="hover:text-white transition underline-offset-2 hover:underline">Support</button>
+        </div>
+    </footer>
 
     <!-- Client-Side Engine -->
     <script>
@@ -3211,6 +3372,101 @@
             }
         }
 
+        // --- CUSTOMER ORDER HISTORY ENGINE ---
+        function openUserOrdersModal() {
+            if (!currentUser) {
+                showToast('Please sign in to view your order history.', 'info');
+                openAuthModal();
+                return;
+            }
+            const modal = document.getElementById('user-orders-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                loadUserOrders();
+            }
+        }
+
+        function closeUserOrdersModal() {
+            const modal = document.getElementById('user-orders-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function loadUserOrders() {
+            const tbody = document.getElementById('user-orders-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">Loading your orders...</td></tr>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/user/orders`, {
+                    headers: { ...getAuthHeader() }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Failed to fetch order history');
+
+                if (!data.orders || data.orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">No orders placed yet. Choose a package to get started!</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.orders.map(o => {
+                    const isConfirmed = o.status === 'confirmed';
+                    const statusBadge = isConfirmed
+                        ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>CONFIRMED</span>'
+                        : (o.status === 'submitted'
+                            ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>VERIFYING TXID</span>'
+                            : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDING</span>');
+
+                    const txDisplay = o.tx_hash
+                        ? `<span class="font-mono text-[10px] text-blue-600 select-all cursor-pointer hover:underline" title="${o.tx_hash}">${o.tx_hash.substring(0, 8)}...${o.tx_hash.substring(o.tx_hash.length - 6)}</span>`
+                        : '<span class="text-slate-400 italic">None</span>';
+
+                    const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString() : '—';
+                    const pkgName = o.package_id ? o.package_id.toUpperCase().replace('_', ' ') : 'CUSTOM';
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-2.5 font-bold text-slate-900">#${o.id}</td>
+                            <td class="p-2.5 font-semibold text-slate-700">${pkgName}</td>
+                            <td class="p-2.5 font-bold text-emerald-700">${o.tokens} Sets <span class="text-[10px] font-normal text-slate-400">(${o.tokens * 2} barcodes)</span></td>
+                            <td class="p-2.5 font-mono text-slate-900 font-bold">$${o.amount_usd.toFixed(2)}</td>
+                            <td class="p-2.5 text-slate-600">${o.crypto_currency} <span class="text-[10px] text-slate-400">(${o.network})</span></td>
+                            <td class="p-2.5">${txDisplay}</td>
+                            <td class="p-2.5">${statusBadge}</td>
+                            <td class="p-2.5 text-slate-500 text-[11px]">${dateStr}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-rose-500 font-bold">Error loading orders: ${err.message}</td></tr>`;
+            }
+        }
+
+        // --- LEGAL & SUPPORT MODAL CONTROLS ---
+        function openPrivacyModal() {
+            const m = document.getElementById('privacy-modal');
+            if (m) m.classList.remove('hidden');
+        }
+        function closePrivacyModal() {
+            const m = document.getElementById('privacy-modal');
+            if (m) m.classList.add('hidden');
+        }
+        function openTermsModal() {
+            const m = document.getElementById('terms-modal');
+            if (m) m.classList.remove('hidden');
+        }
+        function closeTermsModal() {
+            const m = document.getElementById('terms-modal');
+            if (m) m.classList.add('hidden');
+        }
+        function openSupportModal() {
+            const m = document.getElementById('support-modal');
+            if (m) m.classList.remove('hidden');
+        }
+        function closeSupportModal() {
+            const m = document.getElementById('support-modal');
+            if (m) m.classList.add('hidden');
+        }
+
         function openTokenModal() {
             if (!currentUser) {
                 showToast('Please sign in or create an account to store tokens.', 'info');
@@ -3461,12 +3717,17 @@
             const paywallGuest = document.getElementById('paywall-guest-content');
             const paywallDepleted = document.getElementById('paywall-depleted-content');
             const adminCryptoBtn = document.getElementById('admin-crypto-btn');
+            const userOrdersBtn = document.getElementById('user-orders-btn');
 
             if (currentUser) {
                 authBtn.classList.add('hidden');
                 logoutBtn.classList.remove('hidden');
                 userTokenPill.classList.remove('hidden');
                 userTokenPill.classList.add('flex');
+                if (userOrdersBtn) {
+                    userOrdersBtn.classList.remove('hidden');
+                    userOrdersBtn.classList.add('flex');
+                }
 
                 const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
 
@@ -3508,6 +3769,10 @@
                 if (adminCryptoBtn) {
                     adminCryptoBtn.classList.add('hidden');
                     adminCryptoBtn.classList.remove('flex');
+                }
+                if (userOrdersBtn) {
+                    userOrdersBtn.classList.add('hidden');
+                    userOrdersBtn.classList.remove('flex');
                 }
                 roleBadge.textContent = 'Guest';
                 roleBadge.className = 'bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full';

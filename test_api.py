@@ -364,8 +364,28 @@ def run_tests():
     assert xl_data["tokens"] == 100
     print(f"  -> Passed: Created Crypto Order for XL Best Value tier ($95.00 USDT, 100 sets).")
 
+    # 16. Test User Order History Endpoint (/api/user/orders)
+    print("\n[16/16] Testing /api/user/orders Customer Order History...")
+    res_orders = client.get("/api/user/orders", headers=out_headers)
+    assert res_orders.status_code == 200, f"Expected 200, got {res_orders.status_code}"
+    orders_data = res_orders.json()
+    assert "orders" in orders_data, "No 'orders' key in response"
+    assert len(orders_data["orders"]) >= 1, "Expected at least 1 order in user history"
+    found_order = next((o for o in orders_data["orders"] if o["id"] == xl_data["order_id"]), None)
+    assert found_order is not None, f"Created order {xl_data['order_id']} not found in user orders"
+    assert found_order["package_id"] == "xl_100"
+    assert found_order["tokens"] == 100
+    assert found_order["amount_usd"] == 95.00
+    assert found_order["crypto_currency"] == "USDT_TRC20"
+    print(f"  -> Passed: Retrieved {len(orders_data['orders'])} order(s) for customer; verified Order #{found_order['id']} ({found_order['tokens']} sets).")
+
+    # Verify unauthenticated protection on /api/user/orders
+    res_unauth = client.get("/api/user/orders")
+    assert res_unauth.status_code == 401, f"Expected 401 for unauthenticated request, got {res_unauth.status_code}"
+    print("  -> Passed: Unauthenticated request to /api/user/orders correctly blocked (401 Unauthorized).")
+
     print("\n" + "=" * 60)
-    print("ALL 15/15 TEST SUITES PASSED! 8-Tier Pricing Matrix (XXS-XXXL) & Dual Barcode Companion Sets verified.")
+    print("ALL 16/16 TEST SUITES PASSED! User Order History, 8-Tier Pricing, & Dual Barcode Companion Sets verified.")
     print("=" * 60)
 
 if __name__ == "__main__":

@@ -598,6 +598,28 @@ def verify_crypto_mock(req: VerifyMockCryptoRequest, current_user: User = Depend
         "order_id": order.id
     }
 
+@app.get("/api/user/orders", summary="Get crypto order history for current logged-in user")
+def get_user_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    orders = db.query(CryptoPayment).filter(CryptoPayment.user_id == current_user.id).order_by(CryptoPayment.id.desc()).all()
+    return {
+        "orders": [
+            {
+                "id": o.id,
+                "package_id": o.package_id,
+                "tokens": o.tokens,
+                "amount_usd": o.amount_usd,
+                "crypto_currency": o.crypto_currency,
+                "network": o.network,
+                "wallet_address": o.wallet_address,
+                "tx_hash": o.tx_hash,
+                "status": o.status,
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+                "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None
+            }
+            for o in orders
+        ]
+    }
+
 @app.get("/api/admin/crypto/orders", summary="Admin list all crypto payment orders")
 def list_crypto_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
