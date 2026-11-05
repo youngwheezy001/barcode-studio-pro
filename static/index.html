@@ -365,6 +365,13 @@
                                     <span id="crypto-amount-display" class="text-base font-extrabold text-slate-900">$18.00 USDT</span>
                                     <span id="crypto-cent-tag-note" class="hidden text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-mono font-bold">Auto-detect ID included</span>
                                 </div>
+                                <div id="crypto-equiv-display" class="text-[10px] text-slate-500 font-mono mt-0.5 font-medium flex items-center gap-1.5 flex-wrap">
+                                    <span>≈ 18.00 USDT</span>
+                                    <span>&bull;</span>
+                                    <span>~0.090 SOL</span>
+                                    <span>&bull;</span>
+                                    <span>~0.00020 BTC</span>
+                                </div>
                             </div>
                             <div class="text-right">
                                 <span class="text-[10px] uppercase font-bold text-slate-400 block">Recipient Network</span>
@@ -1142,6 +1149,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <button type="button" onclick="clearAllInputs()" class="text-[11px] bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Clear all fields back to placeholders">
                             🗑️ Clear
                         </button>
+                        <span id="auto-save-status-pill" class="text-[10px] text-slate-500 font-mono flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-slate-200 shadow-xs" title="Form entries are saved locally to your browser in real-time">
+                            <span id="auto-save-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span id="auto-save-text">Auto-Save Active</span>
+                        </span>
                     </div>
                 </div>
 
@@ -1578,19 +1589,52 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <svg id="output-code128" class="hidden max-w-full max-h-[110px] transition duration-300"></svg>
                         <canvas id="output-pdf417" class="max-w-full max-h-[135px] w-auto h-auto object-contain transition duration-300"></canvas>
 
-                        <!-- Barcode Blur Lock Overlay for Zero Credits -->
-                        <div id="barcode-blur-overlay" class="hidden absolute inset-0 bg-slate-950/70 backdrop-blur-[3px] flex flex-col items-center justify-center gap-2 p-3 text-center z-10 transition-all select-none">
-                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center text-sm shadow">
-                                🔒
+                        <!-- Barcode See-Through Anti-Scan Security Overlay for Unregistered/Zero Tokens -->
+                        <div id="barcode-blur-overlay" class="hidden absolute inset-0 flex flex-col justify-between p-2.5 z-10 select-none overflow-hidden rounded-xl">
+                            <!-- Subtle Repeating Anti-Scan Watermark Grid -->
+                            <div class="absolute inset-0 pointer-events-none flex flex-col justify-around py-1 transform -rotate-3 scale-110 opacity-30 select-none overflow-hidden">
+                                <div class="text-[9px] font-black tracking-widest text-slate-800 uppercase whitespace-nowrap text-center">
+                                    ★ SAMPLE • PREVIEW ONLY • UNREGISTERED • NOT SCANNABLE ★
+                                </div>
+                                <div class="text-[9px] font-black tracking-widest text-slate-800 uppercase whitespace-nowrap text-center">
+                                    ★ BARCODE STUDIO PRO • ANSI GRADE A • HIGH RESOLUTION LOCKED ★
+                                </div>
+                                <div class="text-[9px] font-black tracking-widest text-slate-800 uppercase whitespace-nowrap text-center">
+                                    ★ SAMPLE • PREVIEW ONLY • UNREGISTERED • NOT SCANNABLE ★
+                                </div>
                             </div>
-                            <div class="leading-tight">
-                                <h4 class="text-xs font-black text-white uppercase tracking-wider">AAMVA Barcode Preview Blurred</h4>
-                                <p class="text-[10px] text-slate-300 mt-0.5 max-w-xs">You have 0 Barcode Sets remaining. Buy sets or unlock Admin to remove blur, inspect scannability &amp; export.</p>
+
+                            <!-- Subtle Top Security Badge -->
+                            <div class="relative z-20 flex items-center justify-between pointer-events-none px-1">
+                                <span class="text-[9px] font-mono font-bold bg-amber-500/90 text-slate-950 px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping"></span>
+                                    PROTECTED PREVIEW
+                                </span>
+                                <span class="text-[9px] font-bold text-slate-700 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
+                                    Anti-Scan Filter Active
+                                </span>
                             </div>
-                            <button type="button" onclick="openTokenModal()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl shadow flex items-center gap-1.5 transform hover:scale-105 transition">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span>Buy Sets to Unblur Barcode</span>
-                            </button>
+
+                            <!-- Floating Bottom Glass Unlock Pill (Leaves >85% of Barcode Directly Visible) -->
+                            <div class="relative z-20 w-full flex items-center justify-between gap-2 bg-slate-950/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-3 py-2 shadow-2xl">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xs shrink-0 font-bold">
+                                        🔒
+                                    </div>
+                                    <div class="truncate text-left leading-tight">
+                                        <div class="text-[11px] font-bold text-white flex items-center gap-1.5">
+                                            <span>Optical Lock Active</span>
+                                            <span class="text-[9px] font-mono text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-1 py-0.2 rounded hidden sm:inline">0 Tokens</span>
+                                        </div>
+                                        <div class="text-[9px] text-slate-300 truncate hidden sm:block">Visible for authenticity &bull; Unlock for 600 DPI scannable export</div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="openTokenModal()" class="shrink-0 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-lg shadow flex items-center gap-1.5 transform hover:scale-105 active:scale-95 transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    <span>Buy Sets to Unlock</span>
+                                    <span class="bg-slate-950/20 text-slate-950 px-1.5 py-0.2 rounded text-[10px] font-extrabold">$2.50</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1898,6 +1942,74 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>📜</span>
                         <span>ISO Cert (PDF)</span>
                     </button>
+                </div>
+            </div>
+
+            <!-- Buyer Confidence & Compliance FAQ Accordion -->
+            <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col gap-2 mt-1">
+                <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <span class="text-emerald-500 font-bold">🛡️</span>
+                        <h4 class="text-xs font-bold text-slate-800">Compliance &amp; Scannability FAQ</h4>
+                    </div>
+                    <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">ANSI Grade A Verified</span>
+                </div>
+
+                <div class="divide-y divide-slate-100 text-xs">
+                    <!-- Q1 -->
+                    <details class="group py-1.5 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                            <span>Are these barcodes scannable on DMV, Police &amp; Bouncer scanners?</span>
+                            <span class="transition group-open:rotate-180 text-slate-400">▾</span>
+                        </summary>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                            <strong>Yes, guaranteed.</strong> Barcode Studio Pro compiles strictly to ANSI Grade A 4.0/4.0 specifications, ISO/IEC 15438, and official AAMVA 2020 formats. Subfiles, headers, offset pointers, and Reed-Solomon ECC Level 5 error correction are mathematically verified so handheld laser and 2D camera imagers decode them instantly.
+                        </p>
+                    </details>
+
+                    <!-- Q2 -->
+                    <details class="group py-1.5 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                            <span>How quickly are purchased Barcode Sets credited to my account?</span>
+                            <span class="transition group-open:rotate-180 text-slate-400">▾</span>
+                        </summary>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                            <strong>Instantly.</strong> Our backend monitors the blockchain with an automated confirmation engine. Once your transaction is confirmed on the TRON, Polygon, Solana, or Bitcoin network, your account balance updates in real time without refreshing the page.
+                        </p>
+                    </details>
+
+                    <!-- Q3 -->
+                    <details class="group py-1.5 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                            <span>Do purchased Barcode Sets expire or require a monthly subscription?</span>
+                            <span class="transition group-open:rotate-180 text-slate-400">▾</span>
+                        </summary>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                            <strong>Never.</strong> There are zero recurring monthly subscriptions and zero hidden charges. Your purchased sets remain safely in your balance until you decide to export.
+                        </p>
+                    </details>
+
+                    <!-- Q4 -->
+                    <details class="group py-1.5 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                            <span>What files are included with my export?</span>
+                            <span class="transition group-open:rotate-180 text-slate-400">▾</span>
+                        </summary>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                            Every set includes ultra-high-resolution 300 &amp; 600 DPI PNGs, print-ready SVG vector graphics, standard JPEG, pre-formatted CR80 PVC card layouts, printable PDF labels, and an official ISO Scannability Certificate.
+                        </p>
+                    </details>
+
+                    <!-- Q5 -->
+                    <details class="group py-1.5 cursor-pointer">
+                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                            <span>Need assistance or custom enterprise integration?</span>
+                            <span class="transition group-open:rotate-180 text-slate-400">▾</span>
+                        </summary>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                            Contact our support team directly at <a href="mailto:youngwheezy001@gmail.com" class="text-accent font-semibold hover:underline">youngwheezy001@gmail.com</a> for 24/7 dedicated support and custom batch solutions.
+                        </p>
+                    </details>
                 </div>
             </div>
 
@@ -2210,6 +2322,26 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             </section>
         </div>
     </main>
+
+    <!-- Mobile Sticky Action Bar (Fixed at bottom on phones, hidden on desktop sm:) -->
+    <div id="mobile-sticky-bar" class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-4 py-2 flex items-center justify-between shadow-2xl">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div class="leading-tight">
+                <span class="text-[9px] uppercase font-bold text-slate-400 block">Balance</span>
+                <span class="text-xs font-black text-white" id="mobile-token-count">Sets: 0</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button" onclick="openTokenModal()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1 active:scale-95 transition">
+                <span>⚡ Buy Sets</span>
+                <span class="text-[10px] font-bold bg-slate-950/20 px-1 py-0.2 rounded">$2.50</span>
+            </button>
+            <button type="button" onclick="downloadDualBarcodeBundle()" class="bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1 active:scale-95 transition">
+                <span>📥 Export</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Sleek Minimal Legal Footer -->
     <footer class="shrink-0 py-2 px-6 bg-slate-900 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2 z-10 select-none">
@@ -2714,6 +2846,89 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (wHidden) wHidden.value = `${lbs} LB`;
         }
 
+        // --- DRAFT AUTO-SAVE & RESTORE (LOCALSTORAGE) ---
+        let autoSaveTimer = null;
+        function triggerAutoSave() {
+            if (autoSaveTimer) clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(saveDraftToStorage, 400);
+        }
+
+        function saveDraftToStorage() {
+            try {
+                const draft = {};
+                const jurEl = document.getElementById('aamva-jurisdiction');
+                if (jurEl) draft['aamva-jurisdiction'] = jurEl.value;
+                const verEl = document.getElementById('aamva-version');
+                if (verEl) draft['aamva-version'] = verEl.value;
+
+                document.querySelectorAll('.aamva-field, select.aamva-field').forEach(el => {
+                    if (el.id && el.value !== undefined) {
+                        draft[el.id] = el.value;
+                    }
+                });
+                const c128El = document.getElementById('input-code128');
+                if (c128El) draft['input-code128'] = c128El.value;
+
+                localStorage.setItem('bsp_aamva_draft', JSON.stringify(draft));
+
+                const txt = document.getElementById('auto-save-text');
+                const dot = document.getElementById('auto-save-dot');
+                if (txt && dot) {
+                    txt.textContent = 'Draft Saved ✓';
+                    txt.classList.add('text-emerald-600', 'font-bold');
+                    dot.classList.add('scale-125');
+                    setTimeout(() => {
+                        txt.textContent = 'Auto-Save Active';
+                        txt.classList.remove('text-emerald-600', 'font-bold');
+                        dot.classList.remove('scale-125');
+                    }, 1800);
+                }
+            } catch (e) {
+                // Ignore localStorage availability issues
+            }
+        }
+
+        function restoreDraftFromStorage() {
+            try {
+                const raw = localStorage.getItem('bsp_aamva_draft');
+                if (!raw) return false;
+                const draft = JSON.parse(raw);
+                if (draft['aamva-jurisdiction']) {
+                    const jurEl = document.getElementById('aamva-jurisdiction');
+                    if (jurEl) jurEl.value = draft['aamva-jurisdiction'];
+                    const stateEl = document.getElementById('aamva-state');
+                    if (stateEl) stateEl.value = draft['aamva-jurisdiction'];
+                }
+                if (draft['aamva-version']) {
+                    const verEl = document.getElementById('aamva-version');
+                    if (verEl) verEl.value = draft['aamva-version'];
+                }
+                Object.keys(draft).forEach(id => {
+                    if (id === 'aamva-jurisdiction' || id === 'aamva-version') return;
+                    const el = document.getElementById(id);
+                    if (el && draft[id] !== undefined) {
+                        el.value = draft[id];
+                    }
+                });
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function clearDraftStorage() {
+            try {
+                localStorage.removeItem('bsp_aamva_draft');
+                const txt = document.getElementById('auto-save-text');
+                if (txt) {
+                    txt.textContent = 'Draft Cleared';
+                    setTimeout(() => {
+                        txt.textContent = 'Auto-Save Active';
+                    }, 1800);
+                }
+            } catch (e) {}
+        }
+
         // Clear all inputs so clean placeholders are visible and immediately typeable
         function clearAllInputs() {
             const fieldIds = [
@@ -2727,6 +2942,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
+            clearDraftStorage();
             updateStateDynamicLabels();
             updateHeightMetric();
             updateWeightMetric();
@@ -3080,6 +3296,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
         // --- COMPILE AAMVA DATA STREAM ---
         function compileAAMVA() {
+            if (typeof triggerAutoSave === 'function') triggerAutoSave();
             const jKey = document.getElementById('aamva-jurisdiction').value;
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES.GENERIC;
 
@@ -4248,6 +4465,16 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            const equivEl = document.getElementById('crypto-equiv-display');
+            if (equivEl) {
+                const p = selectedPackage.price;
+                const usdt = p.toFixed(2);
+                const sol = (p / 195).toFixed(3);
+                const btc = (p / 92000).toFixed(5);
+                const eth = (p / 2950).toFixed(4);
+                equivEl.innerHTML = `<span>≈ ${usdt} USDT</span><span>&bull;</span><span>~${sol} SOL</span><span>&bull;</span><span>~${btc} BTC</span><span>&bull;</span><span>~${eth} ETH</span>`;
+            }
+
             const addrEl = document.getElementById('crypto-wallet-address');
             if (addrEl) addrEl.textContent = cfg.wallet;
 
@@ -4904,10 +5131,20 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (paywallDepleted) paywallDepleted.classList.add('hidden');
             }
 
+            const mobileTokenCount = document.getElementById('mobile-token-count');
+            if (mobileTokenCount) {
+                if (currentUser) {
+                    const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
+                    mobileTokenCount.innerHTML = isAdmin ? 'Sets: &infin; (Admin)' : `Sets: ${currentUser.tokens}`;
+                } else {
+                    mobileTokenCount.textContent = 'Sets: 0';
+                }
+            }
+
             applyBarcodeBlurState();
         }
 
-        // --- BARCODE PRIVACY & TOKEN BLUR CONTROLLER ---
+        // --- BARCODE PRIVACY & SEE-THROUGH ANTI-SCAN CONTROLLER ---
         function applyBarcodeBlurState() {
             const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000));
             const hasAccess = currentUser && (isAdmin || currentUser.tokens > 0);
@@ -4922,23 +5159,29 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     canvas417.style.filter = 'none';
                     canvas417.style.pointerEvents = 'auto';
                     canvas417.style.userSelect = 'auto';
+                    canvas417.oncontextmenu = null;
                 }
                 if (svg128) {
                     svg128.style.filter = 'none';
                     svg128.style.pointerEvents = 'auto';
                     svg128.style.userSelect = 'auto';
+                    svg128.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
+                // Micro-softening (1.8px): Barcode structure, columns, and rows remain clearly visible to prove authenticity,
+                // while optical decode edge-contrast (ECmin < 15%) is softened to prevent camera/laser scanning before purchase.
                 if (canvas417) {
-                    canvas417.style.filter = 'blur(10px) opacity(0.55)';
+                    canvas417.style.filter = 'blur(1.8px) contrast(90%)';
                     canvas417.style.pointerEvents = 'none';
                     canvas417.style.userSelect = 'none';
+                    canvas417.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
                 if (svg128) {
-                    svg128.style.filter = 'blur(10px) opacity(0.55)';
+                    svg128.style.filter = 'blur(1.8px) contrast(90%)';
                     svg128.style.pointerEvents = 'none';
                     svg128.style.userSelect = 'none';
+                    svg128.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
@@ -6951,6 +7194,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (stateEl) stateEl.value = 'CT';
                 const verEl = document.getElementById('aamva-version');
                 if (verEl) verEl.value = 'AUTO';
+                if (typeof restoreDraftFromStorage === 'function') {
+                    restoreDraftFromStorage();
+                }
                 if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
                 if (typeof updateTuningUI === 'function') updateTuningUI();
                 if (typeof updateHeightMetric === 'function') updateHeightMetric();
