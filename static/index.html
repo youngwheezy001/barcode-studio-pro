@@ -50,6 +50,8 @@
     <!-- ZXing for universal in-browser PDF417, Code 128, and QR camera/image barcode scanning -->
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
+    <!-- Certified Multi-Revision State & Calculator Engine -->
+    <script src="/static/state_engine.js"></script>
     <script>
         // Immediately unregister all Service Workers and clear caches
         if ('serviceWorker' in navigator) {
@@ -1216,41 +1218,57 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             <div id="form-pdf417" class="flex flex-col gap-2.5">
                 
                 <!-- Jurisdiction & Preset Toolbar -->
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-bordercol flex flex-wrap items-center justify-between gap-2">
-                    <div class="flex items-center gap-2 flex-1 min-w-[280px]">
-                        <div class="flex-1">
-                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Jurisdiction Profile (State)</label>
-                            <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-bordercol flex flex-col gap-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-1 min-w-[280px]">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Jurisdiction Profile &amp; Revision</label>
+                                <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
+                            </div>
+                            <div class="w-48">
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex items-center justify-between">
+                                    <span>AAMVA Standard</span>
+                                    <span id="aamva-resolved-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Auto: v09</span>
+                                </label>
+                                <select id="aamva-version" onchange="compileAAMVA()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer">
+                                    <option value="AUTO" selected>Auto (State & Issue Date)</option>
+                                    <option value="09">v09 (Format 11 - 2020)</option>
+                                    <option value="08">v08 (Format 16 - 2016)</option>
+                                    <option value="07">v07 (Format 15)</option>
+                                    <option value="05">v05 (Format 13)</option>
+                                    <option value="04">v04 (Format 12)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="w-48">
-                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex items-center justify-between">
-                                <span>AAMVA Standard</span>
-                                <span id="aamva-resolved-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Auto: v09</span>
-                            </label>
-                            <select id="aamva-version" onchange="compileAAMVA()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer">
-                                <option value="AUTO" selected>Auto (State & Issue Date)</option>
-                                <option value="09">v09 (Format 11 - 2020)</option>
-                                <option value="08">v08 (Format 16 - 2016)</option>
-                                <option value="07">v07 (Format 15)</option>
-                                <option value="05">v05 (Format 13)</option>
-                                <option value="04">v04 (Format 12)</option>
-                            </select>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Load Jonathan Garcia (CT v09 / Format 11) profile">
+                                ⚡ Jonathan Garcia (CT v09)
+                            </button>
+                            <button type="button" onclick="generateRandomAAMVA()" class="text-[11px] bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2.5 rounded-lg transition" title="Randomize data">
+                                🎲 Randomize
+                            </button>
+                            <button type="button" onclick="clearAllInputs()" class="text-[11px] bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Clear all fields back to placeholders">
+                                🗑️ Clear
+                            </button>
+                            <span id="auto-save-status-pill" class="text-[10px] text-slate-500 font-mono flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-slate-200 shadow-xs" title="Form entries are saved locally to your browser in real-time">
+                                <span id="auto-save-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span id="auto-save-text">Auto-Save Active</span>
+                            </span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5 pt-2 flex-wrap">
-                        <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Load Jonathan Garcia (CT v09 / Format 11) profile">
-                            ⚡ Jonathan Garcia (CT v09)
-                        </button>
-                        <button type="button" onclick="generateRandomAAMVA()" class="text-[11px] bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2.5 rounded-lg transition" title="Randomize data">
-                            🎲 Randomize
-                        </button>
-                        <button type="button" onclick="clearAllInputs()" class="text-[11px] bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Clear all fields back to placeholders">
-                            🗑️ Clear
-                        </button>
-                        <span id="auto-save-status-pill" class="text-[10px] text-slate-500 font-mono flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-slate-200 shadow-xs" title="Form entries are saved locally to your browser in real-time">
-                            <span id="auto-save-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span id="auto-save-text">Auto-Save Active</span>
-                        </span>
+
+                    <!-- Dynamic State Revision & Scanner Certification Badges Bar -->
+                    <div id="state-compliance-bar" class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/80 text-xs">
+                        <div class="flex items-center gap-1.5 font-mono text-[11px] font-bold text-slate-800">
+                            <span class="text-amber-500 text-xs">★</span>
+                            <span id="state-rev-badge">Rev. 26/04/2022 (0403)</span>
+                        </div>
+                        <div id="state-scanners-badges" class="flex items-center gap-1.5 flex-wrap">
+                            <span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>Scandit</span><span class="text-emerald-600 font-bold">&check;</span></span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>Show-Me ID</span><span class="text-emerald-600 font-bold">&check;</span></span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>FIDScan</span><span class="text-emerald-600 font-bold">&check;</span></span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>Veriscan</span><span class="text-emerald-600 font-bold">&check;</span></span>
+                        </div>
                     </div>
                 </div>
 
@@ -1387,7 +1405,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <input type="text" id="aamva-exp" placeholder="MMDDYYYY (e.g. 06212030)" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm code-font outline-none focus:ring-2 focus:ring-accent" oninput="compileAAMVA()">
                         </div>
 
-                        <div>
+                        <div id="container-dd">
                             <div class="flex items-center justify-between mb-1">
                                 <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
                                     <span id="label-dcf-text">DD</span>
@@ -1402,7 +1420,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
 
                         <!-- Row 7: ICN (Inventory Control Number) Full Width with Dynamic Standard Status Badge -->
-                        <div class="col-span-2">
+                        <div id="container-icn" class="col-span-2">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-1.5">
                                     <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
@@ -1440,7 +1458,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <input type="hidden" id="aamva-height" value="061 IN">
                         </div>
 
-                        <div>
+                        <div id="container-weight-lb">
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Weight (lb.)</label>
                             <div class="relative">
                                 <input type="number" id="aamva-weight-lb" placeholder="160" class="w-full border border-slate-300 rounded-lg p-2 pr-20 text-sm code-font outline-none focus:ring-2 focus:ring-accent" oninput="updateWeightMetric(); compileAAMVA()">
@@ -1449,7 +1467,23 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <input type="hidden" id="aamva-weight" value="160 LB">
                         </div>
 
-                        <!-- Row 10: Name Suffix & Limited Term -->
+                        <div id="container-weight-range" class="hidden">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Weight Range (ANSI D-20)</label>
+                            <select id="aamva-weight-range" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
+                                <option value="0">0 (up to 100 lb / 45 kg)</option>
+                                <option value="1">1 (101 - 125 lb / 46 - 57 kg)</option>
+                                <option value="2">2 (126 - 150 lb / 58 - 68 kg)</option>
+                                <option value="3" selected>3 (151 - 175 lb / 69 - 79 kg)</option>
+                                <option value="4">4 (176 - 200 lb / 80 - 90 kg)</option>
+                                <option value="5">5 (201 - 225 lb / 91 - 102 kg)</option>
+                                <option value="6">6 (226 - 250 lb / 103 - 113 kg)</option>
+                                <option value="7">7 (251 - 275 lb / 114 - 125 kg)</option>
+                                <option value="8">8 (276 - 300 lb / 126 - 136 kg)</option>
+                                <option value="9">9 (301+ lb / 137+ kg)</option>
+                            </select>
+                        </div>
+
+                        <!-- Row 10: Name Suffix & Limited Term & REAL ID -->
                         <div>
                             <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
                                 <span>Name Suffix</span>
@@ -1468,17 +1502,31 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </select>
                         </div>
 
-                        <div>
-                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
-                                <span>Limited Term</span>
-                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
-                                    ⓘ<span class="tooltip-box">Limited Term Indicator (DDO)</span>
-                                </span>
-                            </label>
-                            <select id="aamva-limited-term" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                    <span>Limited Term</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                        ⓘ<span class="tooltip-box">Limited Term Indicator (DDO)</span>
+                                    </span>
+                                </label>
+                                <select id="aamva-limited-term" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                            <div id="container-realid">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                        <span>REAL ID</span>
+                                    </label>
+                                    <button type="button" onclick="calcField('real_id')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate REAL ID compliance">🧮</button>
+                                </div>
+                                <select id="aamva-realid" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
+                                    <option value="Yes" selected>Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Row 11: Dual Eye Color (As on DL vs ANSI D-20) with Maximum Colors -->
@@ -2887,21 +2935,114 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             }, 3500);
         }
 
+        function getRevisionInfo(slug) {
+            if (!window.STATE_HIERARCHY) return null;
+            for (const [parentName, group] of Object.entries(window.STATE_HIERARCHY)) {
+                for (const rev of group.revisions) {
+                    if (rev.slug === slug) {
+                        return { ...rev, parent_name: parentName, is_canada: group.is_canada, base_code: group.base_code };
+                    }
+                }
+            }
+            return null;
+        }
+
         function populateStateDropdown() {
             const select = document.getElementById('aamva-jurisdiction');
-            let optionsHtml = '';
-            for (const [key, data] of Object.entries(STATE_PROFILES)) {
-                optionsHtml += `<option value="${key}">${data.name} (${data.iin})</option>`;
+            if (!select) return;
+
+            if (window.STATE_HIERARCHY) {
+                let usHtml = '';
+                let caHtml = '';
+
+                for (const [stateName, group] of Object.entries(window.STATE_HIERARCHY)) {
+                    let groupOptions = '';
+                    for (const rev of group.revisions) {
+                        groupOptions += `<option value="${rev.slug}">${rev.label}</option>`;
+                    }
+                    const block = group.revisions.length > 1
+                        ? `<optgroup label="${stateName}">${groupOptions}</optgroup>`
+                        : groupOptions;
+
+                    if (group.is_canada) {
+                        caHtml += block;
+                    } else {
+                        usHtml += block;
+                    }
+                }
+                select.innerHTML = `<optgroup label="🇺🇸 United States">${usHtml}</optgroup><optgroup label="🇨🇦 Canada">${caHtml}</optgroup>`;
+            } else {
+                let optionsHtml = '';
+                for (const [key, data] of Object.entries(STATE_PROFILES)) {
+                    optionsHtml += `<option value="${key}">${data.name} (${data.iin})</option>`;
+                }
+                select.innerHTML = optionsHtml;
             }
-            select.innerHTML = optionsHtml;
         }
 
         function applyStatePreset() {
-            const jKey = document.getElementById('aamva-jurisdiction').value;
-            const profile = STATE_PROFILES[jKey] || STATE_PROFILES.GENERIC;
-            if (jKey !== 'GENERIC') {
-                document.getElementById('aamva-state').value = jKey;
+            const slug = document.getElementById('aamva-jurisdiction').value;
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(slug) : null;
+            const baseCode = revInfo ? revInfo.base_code : slug.split('_')[0];
+            const profile = STATE_PROFILES[slug] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
+
+            if (slug !== 'GENERIC') {
+                const stateEl = document.getElementById('aamva-state');
+                if (stateEl) stateEl.value = baseCode;
             }
+
+            // 1. Dynamic Revision Header Badge & Star
+            const revBadge = document.getElementById('state-rev-badge');
+            if (revBadge) {
+                revBadge.textContent = (revInfo && revInfo.rev_header) ? revInfo.rev_header : (profile.revHeader || 'Rev. Certified AAMVA');
+            }
+
+            // 2. Dynamic Scanner Test Badges
+            const scannersContainer = document.getElementById('state-scanners-badges');
+            if (scannersContainer) {
+                const activeScanners = (revInfo && revInfo.scanners && revInfo.scanners.length > 0)
+                    ? revInfo.scanners
+                    : ['Scandit', 'Show-Me ID', 'FIDScan', 'Veriscan'];
+                scannersContainer.innerHTML = activeScanners.map(s => 
+                    `<span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>${s}</span><span class="text-emerald-600 font-bold">&check;</span></span>`
+                ).join(' ');
+            }
+
+            // 3. Dynamic Field Visibility (ICN & DD)
+            const icnContainer = document.getElementById('container-icn');
+            const hasIcn = revInfo ? revInfo.has_icn : (profile.usesIcn !== false);
+            if (icnContainer) {
+                icnContainer.style.display = hasIcn ? '' : 'none';
+            }
+
+            const ddContainer = document.getElementById('container-dd');
+            const hasDd = revInfo ? revInfo.has_dd : true;
+            if (ddContainer) {
+                ddContainer.style.display = hasDd ? '' : 'none';
+            }
+
+            // Default DD value handling (e.g. Alabama default_dd is "NONE")
+            const ddInput = document.getElementById('aamva-dcf');
+            if (ddInput && revInfo && revInfo.default_dd) {
+                if (!ddInput.value || ddInput.value === 'NONE') {
+                    ddInput.value = revInfo.default_dd;
+                }
+            }
+
+            // 4. Weight Range (ANSI D-20) vs Numeric Weight (lb.) Toggle
+            const weightLbContainer = document.getElementById('container-weight-lb');
+            const weightRangeContainer = document.getElementById('container-weight-range');
+            const usesWeightRange = revInfo ? revInfo.has_weight_range : false;
+            if (weightLbContainer && weightRangeContainer) {
+                if (usesWeightRange) {
+                    weightLbContainer.classList.add('hidden');
+                    weightRangeContainer.classList.remove('hidden');
+                } else {
+                    weightLbContainer.classList.remove('hidden');
+                    weightRangeContainer.classList.add('hidden');
+                }
+            }
+
             const verEl = document.getElementById('aamva-version');
             if (verEl && verEl.value !== 'AUTO' && profile.version) {
                 verEl.value = profile.version;
@@ -3099,8 +3240,33 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         // --- INDIVIDUAL CALCULATORS 🧮 ---
         function calcField(field) {
             const jKey = document.getElementById('aamva-jurisdiction').value;
-            const profile = STATE_PROFILES[jKey] || STATE_PROFILES.GENERIC;
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
+            const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
+            const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
             
+            // 0. Special REAL ID toggle
+            if (field === 'real_id') {
+                const realIdEl = document.getElementById('aamva-realid');
+                if (realIdEl) {
+                    realIdEl.value = (realIdEl.value === 'Yes') ? 'No' : 'Yes';
+                    showToast(`Toggled REAL ID compliance: ${realIdEl.value}`, 'info');
+                    compileAAMVA();
+                    return;
+                }
+            }
+
+            // 1. Try State-Aware Calculation Engine (from state_engine.js)
+            if (typeof window.runStateCalculation === 'function') {
+                const handled = window.runStateCalculation(field, jKey);
+                if (handled) {
+                    validateDlNumber();
+                    compileAAMVA();
+                    showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                    return;
+                }
+            }
+            
+            // 2. Standard Fallback Engine
             if (field === 'id') {
                 const newId = profile.genDL ? profile.genDL() : String(Math.floor(100000000 + Math.random() * 900000000));
                 document.getElementById('aamva-id').value = newId;
@@ -3417,6 +3583,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 return v !== '' ? v : fallback;
             };
 
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
+            const baseState = revInfo ? revInfo.base_code : jKey.split('_')[0];
+
             const fields = {
                 first: getVal('aamva-first', 'JONATHAN').toUpperCase(),
                 mid: getVal('aamva-mid', '').toUpperCase(),
@@ -3425,23 +3594,30 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 issued: getVal('aamva-issued', '07262024'),
                 exp: getVal('aamva-exp', '06212030'),
                 id: getVal('aamva-id', '188892143').toUpperCase(),
-                dcf: getVal('aamva-dcf', (jKey === 'TX' ? '2407261442200188' : (jKey === 'CA' ? '08/25/202165508/AAFD/26' : (jKey === 'FL' ? '24072614422001M1' : '24072614422001MVI6')))).toUpperCase(),
+                dcf: getVal('aamva-dcf', (jKey.startsWith('AL') ? 'NONE' : (baseState === 'TX' ? '2407261442200188' : (baseState === 'CA' ? '08/25/202165508/AAFD/26' : (baseState === 'FL' ? '24072614422001M1' : '24072614422001MVI6'))))).toUpperCase(),
                 dck: (function() {
                     const el = document.getElementById('aamva-dck');
                     const val = el ? el.value.trim().toUpperCase() : '';
                     if (val) return val;
-                    if (jKey === 'CT') return '188892143CTBRRL01';
-                    if (jKey === 'WA') return '210212003666014417006801';
+                    if (baseState === 'CT') return '188892143CTBRRL01';
+                    if (baseState === 'WA') return '210212003666014417006801';
                     return ''; // Omitted for standard non-ICN states
                 })(),
                 sex: document.getElementById('aamva-sex').value,
                 height: getVal('aamva-height', '061 IN').toUpperCase(),
                 eyes: document.getElementById('aamva-eyes').value,
                 hair: document.getElementById('aamva-hair').value,
-                weight: getVal('aamva-weight', '').toUpperCase(),
+                weight: (function() {
+                    const rangeContainer = document.getElementById('container-weight-range');
+                    const rangeEl = document.getElementById('aamva-weight-range');
+                    if (rangeContainer && !rangeContainer.classList.contains('hidden') && rangeEl) {
+                        return rangeEl.value;
+                    }
+                    return getVal('aamva-weight', '').toUpperCase();
+                })(),
                 street: getVal('aamva-street', '30 BEATTY ST').toUpperCase(),
                 city: getVal('aamva-city', 'NEW BRITAIN').toUpperCase(),
-                state: getVal('aamva-state', jKey !== 'GENERIC' ? jKey : 'CT').toUpperCase(),
+                state: getVal('aamva-state', baseState !== 'GENERIC' ? baseState : 'CT').toUpperCase(),
                 zip: getVal('aamva-zip', '06051'),
                 vClass: getVal('aamva-class', 'D').toUpperCase(),
                 restrictions: getVal('aamva-restrictions', 'NONE').toUpperCase(),
@@ -5251,6 +5427,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             if (!email || !password) return showToast('Please enter both email and password.', 'warning');
 
+            const submitBtn = document.getElementById('auth-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Creating account...';
+            }
+
             try {
                 const payload = { email, password };
                 if (admin_key) payload.admin_key = admin_key;
@@ -5263,10 +5445,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || 'Registration failed');
                 
-                showToast(data.message || 'Registration successful! Logging you in...', 'success');
-                await apiLogin();
+                if (data.access_token && data.user) {
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('bsp_cached_user', JSON.stringify(data.user));
+                    currentUser = data.user;
+                    closeAuthModal();
+                    updateAuthUI();
+                    showToast(data.message || 'Account created & logged in!', 'success');
+                } else {
+                    showToast(data.message || 'Registration successful! Logging you in...', 'success');
+                    await apiLogin();
+                }
             } catch (err) {
                 showToast(err.message, 'error');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Sign In / Register';
+                }
             }
         }
 
@@ -5274,6 +5470,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             if (!email || !password) return showToast('Please enter both email and password.', 'warning');
+
+            const submitBtn = document.getElementById('auth-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Signing in...';
+            }
 
             try {
                 const formData = new URLSearchParams();
@@ -5289,11 +5491,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (!res.ok) throw new Error(data.detail || 'Invalid email or password');
 
                 localStorage.setItem('token', data.access_token);
-                closeAuthModal();
-                showToast('Signed in successfully!', 'success');
-                await checkAuth();
+                if (data.user) {
+                    localStorage.setItem('bsp_cached_user', JSON.stringify(data.user));
+                    currentUser = data.user;
+                    closeAuthModal();
+                    updateAuthUI();
+                    showToast('Signed in successfully!', 'success');
+                } else {
+                    closeAuthModal();
+                    showToast('Signed in successfully!', 'success');
+                    await checkAuth();
+                }
             } catch (err) {
                 showToast(err.message, 'error');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'Sign In / Register';
+                }
             }
         }
 
@@ -7244,6 +7459,307 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             }
         }
 
+        function parseMrzClient(rawText) {
+            if (!rawText || !rawText.trim()) throw new Error('Empty MRZ input');
+            const isoCountries = {
+                "USA": "United States", "CAN": "Canada", "GBR": "United Kingdom", "AUS": "Australia",
+                "DEU": "Germany", "FRA": "France", "ITA": "Italy", "ESP": "Spain", "MEX": "Mexico",
+                "JPN": "Japan", "KOR": "South Korea", "CHN": "China", "IND": "India", "BRA": "Brazil",
+                "ARG": "Argentina", "COL": "Colombia", "CHL": "Chile", "PER": "Peru", "ZAF": "South Africa",
+                "EGY": "Egypt", "NGA": "Nigeria", "KEN": "Kenya", "GHA": "Ghana", "MAR": "Morocco",
+                "RUS": "Russia", "UKR": "Ukraine", "POL": "Poland", "NLD": "Netherlands", "BEL": "Belgium",
+                "CHE": "Switzerland", "AUT": "Austria", "SWE": "Sweden", "NOR": "Norway", "DNK": "Denmark",
+                "FIN": "Finland", "IRL": "Ireland", "PRT": "Portugal", "GRC": "Greece", "TUR": "Turkey",
+                "ISR": "Israel", "ARE": "United Arab Emirates", "SAU": "Saudi Arabia", "QAT": "Qatar",
+                "SGP": "Singapore", "MYS": "Malaysia", "THA": "Thailand", "IDN": "Indonesia", "PHL": "Philippines",
+                "VNM": "Vietnam", "NZL": "New Zealand", "UTO": "Utopia (Test)"
+            };
+
+            const cleanedLines = rawText.split(/\r?\n/).map(l => l.trim().toUpperCase()).filter(l => l.length > 0);
+            if (cleanedLines.length === 0) throw new Error('No MRZ lines found');
+
+            const numLines = cleanedLines.length;
+            const lineLen = cleanedLines[0].length;
+
+            function cleanName(seg) {
+                const parts = seg.split('<<');
+                const surname = (parts[0] || '').replace(/</g, ' ').trim();
+                const given = (parts[1] || '').replace(/</g, ' ').trim();
+                return { surname, given_names: given, full_name: `${given} ${surname}`.trim() };
+            }
+
+            function formatReadableDate(yymmdd, isDob = false) {
+                if (!/^\d{6}$/.test(yymmdd)) return { date: yymmdd, status: 'Unknown', isExpired: false };
+                const yy = parseInt(yymmdd.slice(0, 2), 10);
+                const mm = yymmdd.slice(2, 4);
+                const dd = yymmdd.slice(4, 6);
+                const now = new Date();
+                const currentYY = now.getUTCFullYear() % 100;
+                let century = '';
+                if (isDob) {
+                    century = yy > currentYY ? '19' : '20';
+                    const fullYear = parseInt(`${century}${String(yy).padStart(2, '0')}`, 10);
+                    const age = now.getUTCFullYear() - fullYear;
+                    return { date: `${century}${String(yy).padStart(2, '0')}-${mm}-${dd}`, status: `${age} yrs`, isExpired: false };
+                } else {
+                    century = yy <= 70 ? '20' : '19';
+                    const fullYear = parseInt(`${century}${String(yy).padStart(2, '0')}`, 10);
+                    const expDate = new Date(Date.UTC(fullYear, parseInt(mm, 10) - 1, parseInt(dd, 10)));
+                    const isExpired = expDate.getTime() < now.getTime();
+                    return { date: `${century}${String(yy).padStart(2, '0')}-${mm}-${dd}`, status: isExpired ? 'EXPIRED' : 'VALID', isExpired };
+                }
+            }
+
+            let format = '';
+            let l1 = '', l2 = '', l3 = '';
+            if (numLines === 2 && (lineLen === 44 || (cleanedLines[0].length >= 40 && cleanedLines[0].length <= 48))) {
+                format = 'TD3';
+                l1 = cleanedLines[0].padEnd(44, '<').slice(0, 44);
+                l2 = cleanedLines[1].padEnd(44, '<').slice(0, 44);
+            } else if (numLines === 3 && (lineLen === 30 || (cleanedLines[0].length >= 28 && cleanedLines[0].length <= 34))) {
+                format = 'TD1';
+                l1 = cleanedLines[0].padEnd(30, '<').slice(0, 30);
+                l2 = cleanedLines[1].padEnd(30, '<').slice(0, 30);
+                l3 = cleanedLines[2].padEnd(30, '<').slice(0, 30);
+            } else if (numLines === 2 && (lineLen === 36 || (cleanedLines[0].length >= 34 && cleanedLines[0].length <= 38))) {
+                format = 'TD2';
+                l1 = cleanedLines[0].padEnd(36, '<').slice(0, 36);
+                l2 = cleanedLines[1].padEnd(36, '<').slice(0, 36);
+            } else {
+                throw new Error(`Unrecognized MRZ layout: ${numLines} lines of length ${lineLen}`);
+            }
+
+            if (format === 'TD3') {
+                const docCode = l1.slice(0, 2).replace(/</g, '');
+                const countryCode = l1.slice(2, 5).replace(/</g, '');
+                const countryName = isoCountries[countryCode] || countryCode;
+                const names = cleanName(l1.slice(5, 44));
+
+                const docNumRaw = l2.slice(0, 9);
+                const docNum = docNumRaw.replace(/</g, '');
+                const docNumChk = l2[9];
+                const expectedDocChk = calcIcaoCheckDigit(docNumRaw);
+
+                const natCode = l2.slice(10, 13).replace(/</g, '');
+                const natName = isoCountries[natCode] || natCode;
+
+                const dobRaw = l2.slice(13, 19);
+                const dobChk = l2[19];
+                const expectedDobChk = calcIcaoCheckDigit(dobRaw);
+                const dobObj = formatReadableDate(dobRaw, true);
+
+                const sexChar = l2[20];
+                const sexDesc = sexChar === 'M' ? 'Male' : (sexChar === 'F' ? 'Female' : 'Unspecified');
+
+                const expRaw = l2.slice(21, 27);
+                const expChk = l2[27];
+                const expectedExpChk = calcIcaoCheckDigit(expRaw);
+                const expObj = formatReadableDate(expRaw, false);
+
+                const optRaw = l2.slice(28, 42);
+                const optChk = l2[42];
+                const compositeChk = l2[43];
+
+                const compositeString = `${docNumRaw}${docNumChk}${dobRaw}${dobChk}${expRaw}${expChk}${optRaw}${optChk}`;
+                const expectedCompositeChk = calcIcaoCheckDigit(compositeString);
+
+                const docNumValid = docNumChk === expectedDocChk;
+                const dobValid = dobChk === expectedDobChk;
+                const expValid = expChk === expectedExpChk;
+                const compValid = compositeChk === expectedCompositeChk;
+                const allPass = docNumValid && dobValid && expValid && compValid;
+
+                return {
+                    format: 'TD3',
+                    document_type: docCode.startsWith('P') ? 'Passport' : (docCode.startsWith('V') ? 'Visa A' : 'Travel Document'),
+                    issuing_country: `${countryCode} (${countryName})`,
+                    country_code: countryCode,
+                    document_number: docNum,
+                    surname: names.surname,
+                    given_names: names.given_names,
+                    full_name: names.full_name,
+                    nationality: `${natCode} (${natName})`,
+                    birth_date: dobObj.date,
+                    age: dobObj.status,
+                    sex: sexDesc,
+                    expiry_date: expObj.date,
+                    is_expired: expObj.isExpired,
+                    all_checksums_pass: allPass,
+                    checksums: {
+                        doc_number: { valid: docNumValid },
+                        dob: { valid: dobValid },
+                        expiry: { valid: expValid },
+                        composite: { valid: compValid }
+                    }
+                };
+            } else if (format === 'TD1') {
+                const docCode = l1.slice(0, 2).replace(/</g, '');
+                const countryCode = l1.slice(2, 5).replace(/</g, '');
+                const countryName = isoCountries[countryCode] || countryCode;
+
+                const docNumRaw = l1.slice(5, 14);
+                const docNum = docNumRaw.replace(/</g, '');
+                const docNumChk = l1[14];
+                const expectedDocChk = calcIcaoCheckDigit(docNumRaw);
+                const opt1 = l1.slice(15, 30);
+
+                const dobRaw = l2.slice(0, 6);
+                const dobChk = l2[6];
+                const expectedDobChk = calcIcaoCheckDigit(dobRaw);
+                const dobObj = formatReadableDate(dobRaw, true);
+
+                const sexChar = l2[7];
+                const sexDesc = sexChar === 'M' ? 'Male' : (sexChar === 'F' ? 'Female' : 'Unspecified');
+
+                const expRaw = l2.slice(8, 14);
+                const expChk = l2[14];
+                const expectedExpChk = calcIcaoCheckDigit(expRaw);
+                const expObj = formatReadableDate(expRaw, false);
+
+                const natCode = l2.slice(15, 18).replace(/</g, '');
+                const natName = isoCountries[natCode] || natCode;
+                const opt2 = l2.slice(18, 29);
+                const compositeChk = l2[29];
+
+                const compositeString = `${docNumRaw}${docNumChk}${opt1}${dobRaw}${dobChk}${expRaw}${expChk}${opt2}`;
+                const expectedCompositeChk = calcIcaoCheckDigit(compositeString);
+
+                const names = cleanName(l3);
+
+                const docNumValid = docNumChk === expectedDocChk;
+                const dobValid = dobChk === expectedDobChk;
+                const expValid = expChk === expectedExpChk;
+                const compValid = compositeChk === expectedCompositeChk;
+                const allPass = docNumValid && dobValid && expValid && compValid;
+
+                return {
+                    format: 'TD1',
+                    document_type: 'ID Card / Driver License',
+                    issuing_country: `${countryCode} (${countryName})`,
+                    country_code: countryCode,
+                    document_number: docNum,
+                    surname: names.surname,
+                    given_names: names.given_names,
+                    full_name: names.full_name,
+                    nationality: `${natCode} (${natName})`,
+                    birth_date: dobObj.date,
+                    age: dobObj.status,
+                    sex: sexDesc,
+                    expiry_date: expObj.date,
+                    is_expired: expObj.isExpired,
+                    all_checksums_pass: allPass,
+                    checksums: {
+                        doc_number: { valid: docNumValid },
+                        dob: { valid: dobValid },
+                        expiry: { valid: expValid },
+                        composite: { valid: compValid }
+                    }
+                };
+            } else if (format === 'TD2') {
+                const docCode = l1.slice(0, 2).replace(/</g, '');
+                const countryCode = l1.slice(2, 5).replace(/</g, '');
+                const countryName = isoCountries[countryCode] || countryCode;
+                const names = cleanName(l1.slice(5, 36));
+
+                const docNumRaw = l2.slice(0, 9);
+                const docNum = docNumRaw.replace(/</g, '');
+                const docNumChk = l2[9];
+                const expectedDocChk = calcIcaoCheckDigit(docNumRaw);
+
+                const natCode = l2.slice(10, 13).replace(/</g, '');
+                const natName = isoCountries[natCode] || natCode;
+
+                const dobRaw = l2.slice(13, 19);
+                const dobChk = l2[19];
+                const expectedDobChk = calcIcaoCheckDigit(dobRaw);
+                const dobObj = formatReadableDate(dobRaw, true);
+
+                const sexChar = l2[20];
+                const sexDesc = sexChar === 'M' ? 'Male' : (sexChar === 'F' ? 'Female' : 'Unspecified');
+
+                const expRaw = l2.slice(21, 27);
+                const expChk = l2[27];
+                const expectedExpChk = calcIcaoCheckDigit(expRaw);
+                const expObj = formatReadableDate(expRaw, false);
+
+                const optRaw = l2.slice(28, 35);
+                const compositeChk = l2[35];
+                const compositeString = `${docNumRaw}${docNumChk}${dobRaw}${dobChk}${expRaw}${expChk}${optRaw}`;
+                const expectedCompositeChk = calcIcaoCheckDigit(compositeString);
+
+                const docNumValid = docNumChk === expectedDocChk;
+                const dobValid = dobChk === expectedDobChk;
+                const expValid = expChk === expectedExpChk;
+                const compValid = compositeChk === expectedCompositeChk;
+                const allPass = docNumValid && dobValid && expValid && compValid;
+
+                return {
+                    format: 'TD2',
+                    document_type: docCode.startsWith('V') ? 'Visa B' : 'Resident Card / Travel Doc',
+                    issuing_country: `${countryCode} (${countryName})`,
+                    country_code: countryCode,
+                    document_number: docNum,
+                    surname: names.surname,
+                    given_names: names.given_names,
+                    full_name: names.full_name,
+                    nationality: `${natCode} (${natName})`,
+                    birth_date: dobObj.date,
+                    age: dobObj.status,
+                    sex: sexDesc,
+                    expiry_date: expObj.date,
+                    is_expired: expObj.isExpired,
+                    all_checksums_pass: allPass,
+                    checksums: {
+                        doc_number: { valid: docNumValid },
+                        dob: { valid: dobValid },
+                        expiry: { valid: expValid },
+                        composite: { valid: compValid }
+                    }
+                };
+            }
+        }
+
+        function renderMrzInspectionCard(data) {
+            const cardEl = document.getElementById('mrz-inspection-card');
+            if (!cardEl) return;
+            const checks = data.checksums || {};
+            const checkBadge = (pass) => pass 
+                ? `<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">PASS &check;</span>`
+                : `<span class="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">FAIL &cross;</span>`;
+
+            cardEl.classList.remove('hidden');
+            cardEl.innerHTML = `
+                <div class="flex items-center justify-between pb-2 border-b border-slate-700/80">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">🛂</span>
+                        <span class="font-bold text-white text-xs">Decoded Document: ${data.document_type || 'TD3'} (${data.issuing_country || ''})</span>
+                    </div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded ${data.all_checksums_pass ? 'bg-emerald-950 text-emerald-400 border border-emerald-700' : 'bg-amber-950 text-amber-300 border border-amber-700'} font-bold">
+                        ${data.all_checksums_pass ? 'All 4 Checksums PASS' : 'Checksum Warning'}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] pt-1">
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Holder Name</span><span class="font-bold text-white">${data.surname || ''}, ${data.given_names || ''}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Document Number</span><span class="font-mono font-bold text-emerald-400">${data.document_number || ''}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Nationality / State</span><span class="font-bold text-white">${data.nationality || ''} (${data.issuing_country || ''})</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Date of Birth</span><span class="font-bold text-white">${data.birth_date || ''} (${data.sex || ''})</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Expiration Date</span><span class="font-bold text-white">${data.expiry_date || ''}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Status</span><span class="font-bold ${data.is_expired ? 'text-rose-400' : 'text-emerald-400'}">${data.is_expired ? 'EXPIRED' : 'VALID'}</span></div>
+                </div>
+
+                <div class="mt-2 pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-1 text-[10px]">
+                    <span class="text-slate-400 font-semibold">Checksum Breakdown:</span>
+                    <div class="flex items-center gap-2">
+                        <span>Doc #: ${checkBadge(checks.doc_number?.valid)}</span>
+                        <span>DOB: ${checkBadge(checks.dob?.valid)}</span>
+                        <span>Expiry: ${checkBadge(checks.expiry?.valid)}</span>
+                        <span>Composite: ${checkBadge(checks.composite?.valid)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
         async function inspectScannerMrz() {
             const inputEl = document.getElementById('scanner-mrz-input');
             const cardEl = document.getElementById('mrz-inspection-card');
@@ -7255,6 +7771,17 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 return;
             }
 
+            // 1. Instant Client-Side Parsing (0ms latency, zero server round-trip)
+            try {
+                const clientData = parseMrzClient(text);
+                renderMrzInspectionCard(clientData);
+                return;
+            } catch (clientErr) {
+                // If client parser couldn't recognize formatting, fallback to backend parser
+                console.warn('Client-side MRZ parser fallback to API:', clientErr);
+            }
+
+            // 2. Server API Fallback if needed
             cardEl.classList.remove('hidden');
             cardEl.innerHTML = `<div class="flex items-center gap-2 text-slate-400 py-2"><span class="animate-spin">⏳</span> Decoding &amp; verifying ICAO 9303 checksums...</div>`;
 
@@ -7270,44 +7797,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     cardEl.innerHTML = `<div class="text-rose-400 font-bold p-2 bg-rose-950/60 rounded-lg border border-rose-800">❌ Error: ${data.detail || 'Failed to parse MRZ'}</div>`;
                     return;
                 }
-
-                const checks = data.checksums || {};
-                const checkBadge = (pass) => pass 
-                    ? `<span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">PASS &check;</span>`
-                    : `<span class="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">FAIL &cross;</span>`;
-
-                cardEl.innerHTML = `
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-700/80">
-                        <div class="flex items-center gap-2">
-                            <span class="text-base">🛂</span>
-                            <span class="font-bold text-white text-xs">Decoded Document: ${data.document_type || 'TD3'} (${data.issuing_country || ''})</span>
-                        </div>
-                        <span class="text-[10px] font-mono px-2 py-0.5 rounded ${data.all_checksums_pass ? 'bg-emerald-950 text-emerald-400 border border-emerald-700' : 'bg-amber-950 text-amber-300 border border-amber-700'} font-bold">
-                            ${data.all_checksums_pass ? 'All 4 Checksums PASS' : 'Checksum Warning'}
-                        </span>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] pt-1">
-                        <div><span class="text-slate-400 block text-[9px] uppercase">Holder Name</span><span class="font-bold text-white">${data.surname || ''}, ${data.given_names || ''}</span></div>
-                        <div><span class="text-slate-400 block text-[9px] uppercase">Document Number</span><span class="font-mono font-bold text-emerald-400">${data.document_number || ''}</span></div>
-                        <div><span class="text-slate-400 block text-[9px] uppercase">Nationality / State</span><span class="font-bold text-white">${data.nationality || ''} (${data.issuing_country || ''})</span></div>
-                        <div><span class="text-slate-400 block text-[9px] uppercase">Date of Birth</span><span class="font-bold text-white">${data.birth_date || ''} (${data.sex || ''})</span></div>
-                        <div><span class="text-slate-400 block text-[9px] uppercase">Expiration Date</span><span class="font-bold text-white">${data.expiry_date || ''}</span></div>
-                        <div><span class="text-slate-400 block text-[9px] uppercase">Status</span><span class="font-bold ${data.is_expired ? 'text-rose-400' : 'text-emerald-400'}">${data.is_expired ? 'EXPIRED' : 'VALID'}</span></div>
-                    </div>
-
-                    <div class="mt-2 pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-1 text-[10px]">
-                        <span class="text-slate-400 font-semibold">Checksum Breakdown:</span>
-                        <div class="flex items-center gap-2">
-                            <span>Doc #: ${checkBadge(checks.doc_number?.valid)}</span>
-                            <span>DOB: ${checkBadge(checks.dob?.valid)}</span>
-                            <span>Expiry: ${checkBadge(checks.expiry?.valid)}</span>
-                            <span>Composite: ${checkBadge(checks.composite?.valid)}</span>
-                        </div>
-                    </div>
-                `;
+                renderMrzInspectionCard(data);
             } catch (err) {
-                cardEl.innerHTML = `<div class="text-rose-400 font-bold p-2 bg-rose-950/60 rounded-lg border border-rose-800">❌ Network error verifying MRZ</div>`;
+                cardEl.innerHTML = `<div class="text-rose-400 font-bold p-2 bg-rose-950/60 rounded-lg border border-rose-800">❌ Error verifying MRZ: ${err.message}</div>`;
             }
         }
 

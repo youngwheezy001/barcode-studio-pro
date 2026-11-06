@@ -274,7 +274,7 @@ try:
     import bcrypt
     def get_password_hash(password: str) -> str:
         pwd_bytes = password.encode('utf-8')[:72]
-        salt = bcrypt.gensalt()
+        salt = bcrypt.gensalt(rounds=10)
         return bcrypt.hashpw(pwd_bytes, salt).decode('utf-8')
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         pwd_bytes = plain_password.encode('utf-8')[:72]
@@ -425,7 +425,22 @@ def register(request: Request, payload: UserRegister, db: Session = Depends(get_
     db.refresh(new_user)
     sync_users_to_backup(db)
     msg = "Admin account registered with unlimited export access!" if is_admin else "Account created successfully! Please select a barcode package to export."
-    return {"message": msg, "role": role}
+    access_token = create_access_token(
+        data={"sub": new_user.email},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    return {
+        "message": msg,
+        "role": role,
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": new_user.id,
+            "email": new_user.email,
+            "role": new_user.role,
+            "tokens": new_user.tokens
+        }
+    }
 
 @app.post("/login", summary="User login for OAuth2 JWT token")
 @limiter.limit("10/minute")
@@ -458,7 +473,16 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
         data={"sub": user.email},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "tokens": user.tokens
+        }
+    }
 
 @app.get("/users/me", response_model=UserResponse, summary="Get current logged-in user details")
 def read_users_me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):

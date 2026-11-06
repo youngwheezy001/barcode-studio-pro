@@ -489,7 +489,13 @@ def resolve_state_profile(
     If requested_version is explicitly set ('09', '08', etc.):
       - Forces that specific version and its associated data format.
     """
-    base = STATE_AAMVA_PROFILES.get(state_code.upper(), STATE_AAMVA_PROFILES["GENERIC"]).copy()
+    clean_code = state_code.strip().upper()
+    base_code = clean_code.split('_')[0]
+    base = (
+        STATE_AAMVA_PROFILES.get(clean_code) or 
+        STATE_AAMVA_PROFILES.get(base_code) or 
+        STATE_AAMVA_PROFILES["GENERIC"]
+    ).copy()
     
     format_map = {
         "09": "11",
