@@ -113,6 +113,12 @@ def run_tests():
     assert profiles["TX"]["uses_icn"] is True
     assert profiles["CT"]["uses_icn"] is True
     assert profiles["WA"]["uses_audit"] is True and profiles["WA"]["uses_icn"] is False
+    assert profiles["NM"]["uses_dd"] is False and profiles["NM"]["uses_icn"] is True
+    assert profiles["MI"]["uses_dd"] is False and profiles["MI"]["uses_icn"] is True
+    assert profiles["CO"]["uses_icn"] is False and profiles["CO"]["uses_audit"] is True
+    assert profiles["NY"]["uses_icn"] is False
+    assert profiles["SC"]["uses_icn"] is False
+    assert profiles["VT"]["uses_icn"] is False
     print("  -> Passed: 52 AAMVA state profiles retrieved successfully with state-aware DD & ICN rules.")
 
     res_comp = client.post("/api/aamva/compile", json={

@@ -1115,13 +1115,13 @@ STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
     "NM": {
         "label": "New Mexico",
         "uses_icn": True,
-        "uses_dd": True,
+        "uses_dd": False,
         "uses_audit": False,
-        "dd_label": "Document Discriminator (DD)",
+        "dd_label": "DD (Not used in New Mexico - Omitted)",
         "icn_label": "Inventory Control Number (ICN)",
         "audit_label": "Audit Information",
         "sample_icn": "03640809101",
-        "sample_dd": "08231910000123",
+        "sample_dd": "",
         "sample_audit": "",
         "sample_dl": "036408091"
     },
