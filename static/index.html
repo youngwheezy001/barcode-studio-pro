@@ -1388,7 +1388,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </label>
                                 <button type="button" onclick="calcField('issued')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate Issue Date">🧮</button>
                             </div>
-                            <input type="text" id="aamva-issued" placeholder="MMDDYYYY (e.g. 07262024)" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm code-font outline-none focus:ring-2 focus:ring-accent" oninput="compileAAMVA()">
+                            <input type="text" id="aamva-issued" placeholder="MMDDYYYY (e.g. 07262024)" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm code-font outline-none focus:ring-2 focus:ring-accent" oninput="autoSyncExpiryDate(); compileAAMVA()">
                         </div>
 
                         <!-- Row 6: Expiry Date & DD (Document Discriminator) -->
@@ -1435,6 +1435,39 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
                             <input type="text" id="aamva-dck" placeholder="ICN (e.g. 188892143CTBRRL01)" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm code-font outline-none focus:ring-2 focus:ring-accent" oninput="compileAAMVA()">
                             <div id="icn-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
+                        </div>
+
+                        <!-- Audit Information (DCJ) - Used by Colorado, Louisiana, etc. -->
+                        <div id="container-audit" class="col-span-2 hidden">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                    <span>Audit Information</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                        ⓘ<span class="tooltip-box">Audit Information (DCJ)</span>
+                                    </span>
+                                </label>
+                                <button type="button" onclick="calcField('audit')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate Audit Info">🧮</button>
+                            </div>
+                            <input type="text" id="aamva-audit" placeholder="Audit (e.g. CODL_0_051224_89211)" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm code-font outline-none focus:ring-2 focus:ring-accent" oninput="compileAAMVA()">
+                        </div>
+
+                        <!-- Race / Ethnicity (DCL) - Mandated by CO_2022, NE, TX -->
+                        <div id="container-race" class="col-span-2 hidden">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                <span>Race / Ethnicity (ANSI D-20)</span>
+                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                    ⓘ<span class="tooltip-box">Race Code (DCL)</span>
+                                </span>
+                            </label>
+                            <select id="aamva-race" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
+                                <option value="W" selected>W - White</option>
+                                <option value="BK">BK - Black</option>
+                                <option value="H">H - Hispanic</option>
+                                <option value="AP">AP - Asian / Pacific Islander</option>
+                                <option value="AI">AI - American Indian / Alaska Native</option>
+                                <option value="O">O - Other</option>
+                                <option value="U">U - Unknown</option>
+                            </select>
                         </div>
 
                         <!-- Row 8: Restrictions & Endorsement -->
@@ -1484,7 +1517,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
 
                         <!-- Row 10: Name Suffix & Limited Term & REAL ID -->
-                        <div>
+                        <div id="container-suffix">
                             <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
                                 <span>Name Suffix</span>
                                 <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
@@ -1503,7 +1536,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
+                            <div id="container-limited-term">
                                 <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
                                     <span>Limited Term</span>
                                     <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
@@ -1527,6 +1560,110 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <option value="No">No</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <!-- State-Specific Extra Rows (Florida / Georgia) -->
+                        <div id="container-florida-extras" class="grid grid-cols-2 gap-2" style="display: none;">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                    <span>Revision date</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                        ⓘ<span class="tooltip-box">Florida Revision Date</span>
+                                    </span>
+                                </label>
+                                <select id="aamva-revision-date" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
+                                    <option value="">== Select ==</option>
+                                    <option value="03162017">03/16/2017</option>
+                                    <option value="05012019">05/01/2019</option>
+                                    <option value="03012020">03/01/2020</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                    <span>Safe Driver</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                        ⓘ<span class="tooltip-box">Safe Driver Indicator</span>
+                                    </span>
+                                </label>
+                                <select id="aamva-safe-driver" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" onchange="compileAAMVA()">
+                                    <option value="Yes" selected>Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="container-georgia-extras" style="display: none;">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                <span>Country / County</span>
+                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                    ⓘ<span class="tooltip-box">Georgia County Indicator (e.g. Gwinnett)</span>
+                                </span>
+                            </label>
+                            <input type="text" id="aamva-country" value="Gwinnett" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Gwinnett" oninput="compileAAMVA()">
+                        </div>
+
+                        <!-- New Jersey extras (Option 1, Option 2, Option 3) -->
+                        <div id="container-nj-extras" class="grid grid-cols-3 gap-2" style="display: none;">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                    <span>Option 1</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">NJ Option 1 (e.g. WV)</span></span>
+                                </label>
+                                <input type="text" id="aamva-nj-opt1" value="WV" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="WV" oninput="compileAAMVA()">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                    <span>Option 2</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">NJ Option 2 (e.g. REN)</span></span>
+                                </label>
+                                <input type="text" id="aamva-nj-opt2" value="REN" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="REN" oninput="compileAAMVA()">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                    <span>Option 3</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">NJ Option 3 (e.g. 24.00)</span></span>
+                                </label>
+                                <input type="text" id="aamva-nj-opt3" value="24.00" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="24.00" oninput="compileAAMVA()">
+                            </div>
+                        </div>
+
+                        <!-- North Dakota extras (Option) -->
+                        <div id="container-nd-extras" style="display: none;">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                    <span>Option</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">ND Option Code (3 digits)</span></span>
+                                </label>
+                                <button type="button" onclick="calcField('option')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate Option">🧮</button>
+                            </div>
+                            <input type="text" id="aamva-nd-opt" value="274" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="274" oninput="compileAAMVA()">
+                        </div>
+
+                        <!-- Ohio extras (Place of birth) -->
+                        <div id="container-oh-extras" style="display: none;">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                <span>Place of birth</span>
+                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">Place of birth (e.g. Ohio)</span></span>
+                            </label>
+                            <input type="text" id="aamva-pob" value="Ohio" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Ohio" oninput="compileAAMVA()">
+                        </div>
+
+                        <!-- Pennsylvania extras (Dups) -->
+                        <div id="container-pa-extras" style="display: none;">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                <span>Dups</span>
+                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">Duplicate Card Number</span></span>
+                            </label>
+                            <input type="text" id="aamva-dups" value="00" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="00" oninput="compileAAMVA()">
+                        </div>
+
+                        <!-- Oregon extras (Address line 2) -->
+                        <div id="container-or-extras" style="display: none;">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                <span>Address (2nd line)</span>
+                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">Secondary Street Address Line (AAMVA DAH)</span></span>
+                            </label>
+                            <input type="text" id="aamva-street2" value="" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent" placeholder="Apt, Suite, Unit, etc." oninput="compileAAMVA()">
                         </div>
 
                         <!-- Row 11: Dual Eye Color (As on DL vs ANSI D-20) with Maximum Colors -->
@@ -2192,6 +2329,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>📑 Visa (MRV-A)</span>
                         <span class="text-[9px] px-1 py-0.2 rounded bg-slate-200 text-slate-700 font-mono">2×44</span>
                     </button>
+                    <button type="button" onclick="setMrzType('MRV_B')" id="mrz-tab-MRV_B" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                        <span>🏷️ Visa (MRV-B)</span>
+                        <span class="text-[9px] px-1 py-0.2 rounded bg-slate-200 text-slate-700 font-mono">2×36</span>
+                    </button>
                 </div>
 
                 <!-- MRZ Presets & Quick Actions Toolbar -->
@@ -2207,11 +2348,17 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <button type="button" onclick="loadMrzPreset('ca_passport')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs">
                             🇨🇦 Canadian Pass
                         </button>
+                        <button type="button" onclick="loadMrzPreset('ca_pr')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs" title="Benchmark from pdf417.pro">
+                            🍁 Canada PR (TD1)
+                        </button>
                         <button type="button" onclick="loadMrzPreset('uk_visa')" class="px-2.5 py-1 bg-white border border-slate-300 hover:border-accent text-slate-700 hover:text-accent rounded-lg font-semibold text-[11px] transition shadow-xs">
                             🇬🇧 UK Visa
                         </button>
                     </div>
                     <div class="flex items-center gap-2">
+                        <a href="/mrz" target="_blank" class="px-2.5 py-1 bg-blue-50 border border-blue-300 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-[11px] transition flex items-center gap-1 shadow-xs" title="Open Standalone PDF417.PRO MRZ Calculator">
+                            <span>🚀 Full MRZ Page (/mrz)</span>
+                        </a>
                         <button type="button" onclick="randomizeMrzData()" class="px-2.5 py-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold text-[11px] transition flex items-center gap-1">
                             <span>🎲 Randomize</span>
                         </button>
@@ -2295,12 +2442,21 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex justify-between">
-                            <span>Optional Data / Personal Number</span>
-                            <span class="text-[9px] text-slate-400 font-normal">Max 14 chars (TD3) / 15 chars (TD1)</span>
-                        </label>
-                        <input type="text" id="mrz-optional-data" value="A1234567" maxlength="15" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="Optional data or personal ID">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex justify-between">
+                                <span>Optional Data 1</span>
+                                <span class="text-[9px] text-slate-400 font-normal">Max 14/15 chars</span>
+                            </label>
+                            <input type="text" id="mrz-optional-data" value="A1234567" maxlength="15" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="Optional data 1">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex justify-between">
+                                <span>Optional Data 2 (TD1)</span>
+                                <span class="text-[9px] text-slate-400 font-normal">Max 11 chars</span>
+                            </label>
+                            <input type="text" id="mrz-optional-data-2" value="" maxlength="11" oninput="compileMrz()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg font-mono text-xs py-1.5 px-2.5 uppercase outline-none focus:ring-2 focus:ring-accent" placeholder="Optional data 2">
+                        </div>
                     </div>
                 </div>
 
@@ -2536,7 +2692,23 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             CO: { name: "Colorado", iin: "636020", version: "08", format: "16", jurver: "00", stateName: "Colorado", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits or 1 letter + 6 digits", dlRegex: /^([0-9]{9}|[A-Z][0-9]{6})$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             CT: { name: "Connecticut", iin: "636006", version: "09", format: "11", jurver: "00", stateName: "Connecticut", v9_effective_year: 2020, uses_offsets: true, drop_empty_tags: true, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             DE: { name: "Delaware", iin: "636011", version: "08", format: "16", jurver: "00", stateName: "Delaware", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits (1-7 digits)", dlRegex: /^[0-9]{1,7}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
-            DC: { name: "District of Columbia", iin: "636047", version: "08", format: "16", jurver: "00", stateName: "District of Columbia", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits or 9 digits", dlRegex: /^([0-9]{7}|[0-9]{9})$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
+            DC: {
+                name: "District of Columbia",
+                iin: "636047",
+                version: "08",
+                format: "16",
+                jurver: "00",
+                stateName: "District of Columbia",
+                v9_effective_year: 2022,
+                uses_offsets: false,
+                drop_empty_tags: false,
+                defaultClass: "D",
+                defaultRestrictions: "0",
+                defaultEndorsements: "0",
+                dlDesc: "7 digits",
+                dlRegex: /^[0-9]{7}$/,
+                genDL: () => String(Math.floor(1000000 + Math.random() * 9000000))
+            },
             FL: { name: "Florida", iin: "636010", version: "09", format: "11", jurver: "00", stateName: "Florida", v9_effective_year: 2020, uses_offsets: true, drop_empty_tags: true, dlDesc: "1 letter + 12 digits", dlRegex: /^[A-Z][0-9]{12}$/, genDL: () => "H" + String(Math.floor(100000000000 + Math.random() * 900000000000)) },
             GA: { name: "Georgia", iin: "636055", version: "08", format: "16", jurver: "00", stateName: "Georgia", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             HI: { name: "Hawaii", iin: "636048", version: "08", format: "16", jurver: "00", stateName: "Hawaii", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 8 digits or 9 digits", dlRegex: /^([A-Z][0-9]{8}|[0-9]{9})$/, genDL: () => "H" + Math.floor(10000000 + Math.random() * 90000000) },
@@ -2554,35 +2726,72 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             MN: { name: "Minnesota", iin: "636039", version: "08", format: "16", jurver: "00", stateName: "Minnesota", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 12 digits", dlRegex: /^[A-Z][0-9]{12}$/, genDL: () => "M" + String(Math.floor(100000000000 + Math.random() * 900000000000)) },
             MS: { name: "Mississippi", iin: "636050", version: "08", format: "16", jurver: "00", stateName: "Mississippi", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             MO: { name: "Missouri", iin: "636030", version: "08", format: "16", jurver: "00", stateName: "Missouri", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 9 digits or 9 digits", dlRegex: /^([A-Z][0-9]{9}|[0-9]{9})$/, genDL: () => "J" + Math.floor(100000000 + Math.random() * 900000000) },
-            MT: { name: "Montana", iin: "636008", version: "08", format: "16", jurver: "00", stateName: "Montana", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 8 digits or 9 digits", dlRegex: /^([A-Z][0-9]{8}|[0-9]{9})$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
-            NE: { name: "Nebraska", iin: "636054", version: "08", format: "16", jurver: "00", stateName: "Nebraska", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 8 digits", dlRegex: /^[A-Z][0-9]{8}$/, genDL: () => "E" + Math.floor(10000000 + Math.random() * 90000000) },
-            NV: { name: "Nevada", iin: "636049", version: "08", format: "16", jurver: "00", stateName: "Nevada", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "10 digits or 12 digits", dlRegex: /^([0-9]{10}|[0-9]{12})$/, genDL: () => String(Math.floor(1000000000 + Math.random() * 9000000000)) },
-            NH: { name: "New Hampshire", iin: "636043", version: "08", format: "16", jurver: "00", stateName: "New Hampshire", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "2 digits + 3 letters + 5 digits", dlRegex: /^[0-9]{2}[A-Z]{3}[0-9]{5}$/, genDL: () => "08NHB" + Math.floor(10000 + Math.random() * 90000) },
-            NJ: { name: "New Jersey", iin: "636036", version: "08", format: "16", jurver: "00", stateName: "New Jersey", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 14 digits", dlRegex: /^[A-Z][0-9]{14}$/, genDL: () => "G" + String(Math.floor(10000000000000 + Math.random() * 90000000000000)) },
-            NM: { name: "New Mexico", iin: "636009", version: "08", format: "16", jurver: "00", stateName: "New Mexico", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
-            NY: { name: "New York", iin: "636001", version: "08", format: "16", jurver: "00", stateName: "New York", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
-            NC: { name: "North Carolina", iin: "636004", version: "08", format: "16", jurver: "00", stateName: "North Carolina", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 to 12 digits", dlRegex: /^[0-9]{8,12}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
-            ND: { name: "North Dakota", iin: "636032", version: "08", format: "16", jurver: "00", stateName: "North Dakota", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "3 letters + 6 digits or 9 digits", dlRegex: /^([A-Z]{3}[0-9]{6}|[0-9]{9})$/, genDL: () => "NDK" + Math.floor(100000 + Math.random() * 900000) },
-            OH: { name: "Ohio", iin: "636025", version: "08", format: "16", jurver: "00", stateName: "Ohio", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "2 letters + 6 digits", dlRegex: /^[A-Z]{2}[0-9]{6}$/, genDL: () => "RT" + Math.floor(100000 + Math.random() * 900000) },
-            OK: { name: "Oklahoma", iin: "636056", version: "08", format: "16", jurver: "00", stateName: "Oklahoma", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 9 digits or 9 digits", dlRegex: /^([A-Z][0-9]{9}|[0-9]{9})$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
-            OR: { name: "Oregon", iin: "636029", version: "08", format: "16", jurver: "00", stateName: "Oregon", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits", dlRegex: /^[0-9]{1,9}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
-            PA: { name: "Pennsylvania", iin: "636024", version: "08", format: "16", jurver: "00", stateName: "Pennsylvania", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 digits", dlRegex: /^[0-9]{8}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
-            RI: { name: "Rhode Island", iin: "636052", version: "08", format: "16", jurver: "00", stateName: "Rhode Island", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits or 1 letter + 6 digits", dlRegex: /^([0-9]{7}|[A-Z][0-9]{6})$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
-            SC: { name: "South Carolina", iin: "636005", version: "08", format: "16", jurver: "00", stateName: "South Carolina", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
-            SD: { name: "South Dakota", iin: "636044", version: "08", format: "16", jurver: "00", stateName: "South Dakota", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 or 9 digits", dlRegex: /^[0-9]{8,9}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
-            TN: { name: "Tennessee", iin: "636053", version: "08", format: "16", jurver: "00", stateName: "Tennessee", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 or 9 digits", dlRegex: /^[0-9]{8,9}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
+            MO_2012: { name: "Missouri (2012)", iin: "636030", version: "08", format: "16", jurver: "00", stateName: "Missouri", revHeader: "Rev. 12/10/2012)", dlDesc: "1 letter + '1' + 8 digits", dlRegex: /^[A-Z]1[0-9]{8}$/, genDL: () => "S1" + Math.floor(10000000 + Math.random() * 90000000) },
+            MO_2020: { name: "Missouri (2020)", iin: "636030", version: "09", format: "11", jurver: "00", stateName: "Missouri", revHeader: "Rev. 01/27/2020 (0900)", dlDesc: "1 letter + '0' + 8 digits", dlRegex: /^[A-Z]0[0-9]{8}$/, genDL: () => "M0" + Math.floor(10000000 + Math.random() * 90000000) },
+            MT: { name: "Montana", iin: "636008", version: "08", format: "16", jurver: "00", stateName: "Montana", revHeader: "Rev. 10/07/2015 (0800)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "13 digits", dlRegex: /^[0-9]{13}$/, genDL: () => "01" + Math.floor(100 + Math.random() * 900) + "19704151" },
+            NE: { name: "Nebraska", iin: "636054", version: "08", format: "16", jurver: "00", stateName: "Nebraska", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 8 digits", dlRegex: /^[ABCEGHV][0-9]{8}$/, genDL: () => "E" + Math.floor(10000000 + Math.random() * 90000000) },
+            NE_2017: { name: "Nebraska (2017)", iin: "636054", version: "09", format: "11", jurver: "00", stateName: "Nebraska", revHeader: "Rev. 02/28/2017 (0900)", dlDesc: "1 letter (A/B/C/E/G/H/V) + 8 digits", dlRegex: /^[ABCEGHV][0-9]{8}$/, genDL: () => "V" + Math.floor(10000000 + Math.random() * 90000000) },
+            NE_2021: { name: "Nebraska (2021)", iin: "636054", version: "10", format: "10", jurver: "00", stateName: "Nebraska", revHeader: "Rev. 04/05/2021 (1000)", dlDesc: "1 letter (A/B/C/E/G/H/V) + 8 digits", dlRegex: /^[ABCEGHV][0-9]{8}$/, genDL: () => "B" + Math.floor(10000000 + Math.random() * 90000000) },
+            NV: { name: "Nevada", iin: "636049", version: "08", format: "16", jurver: "00", stateName: "Nevada", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "10 digits (starts with 1)", dlRegex: /^1[0-9]{9}$/, genDL: () => "1" + Math.floor(100000000 + Math.random() * 900000000) },
+            NV_2008: { name: "Nevada (2008)", iin: "636049", version: "08", format: "16", jurver: "00", stateName: "Nevada", revHeader: "Rev. 10/10/2008)", dlDesc: "10 digits (starts with 1)", dlRegex: /^1[0-9]{9}$/, genDL: () => "1" + Math.floor(100000000 + Math.random() * 900000000) },
+            NV_2021: { name: "Nevada (2021)", iin: "636049", version: "10", format: "10", jurver: "00", stateName: "Nevada", revHeader: "Rev. 05/24/2021 (1000)", dlDesc: "10 digits (starts with 1)", dlRegex: /^1[0-9]{9}$/, genDL: () => "1" + Math.floor(100000000 + Math.random() * 900000000) },
+            NH: { name: "New Hampshire", iin: "636043", version: "08", format: "16", jurver: "00", stateName: "New Hampshire", revHeader: "Rev. 06/09/2016 (0801)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "NHL + 8 digits", dlRegex: /^NHL[0-9]{8}$/, genDL: () => "NHL" + Math.floor(10000000 + Math.random() * 90000000) },
+            NH_2024: { name: "New Hampshire (2024)", iin: "636043", version: "10", format: "10", jurver: "00", stateName: "New Hampshire", revHeader: "Rev. 08/30/2024 (1000)", dlDesc: "NHL + 8 digits", dlRegex: /^NHL[0-9]{8}$/, genDL: () => "NHL" + Math.floor(10000000 + Math.random() * 90000000) },
+            NJ: { name: "New Jersey", iin: "636036", version: "08", format: "16", jurver: "00", stateName: "New Jersey", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 14 digits", dlRegex: /^[A-Z][0-9]{14}$/, genDL: () => "D" + String(Math.floor(10000000000000 + Math.random() * 90000000000000)) },
+            NJ_2020: { name: "New Jersey (2020)", iin: "636036", version: "04", format: "12", jurver: "02", stateName: "New Jersey", revHeader: "Rev. 01/08/2020 (0402)", dlDesc: "1 letter + 14 digits", dlRegex: /^[A-Z][0-9]{14}$/, genDL: () => "D" + String(Math.floor(10000000000000 + Math.random() * 90000000000000)) },
+            NM: { name: "New Mexico", iin: "636009", version: "08", format: "16", jurver: "00", stateName: "New Mexico", revHeader: "Rev. 08/23/2019 (0800)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits (starts with 0)", dlRegex: /^0[0-9]{8}$/, genDL: () => "0" + Math.floor(10000000 + Math.random() * 90000000) },
+            NY: { name: "New York", iin: "636001", version: "08", format: "16", jurver: "00", stateName: "New York", revHeader: "Rev. 09/28/2017 (0303)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits (starts with 7)", dlRegex: /^7[0-9]{8}$/, genDL: () => "7" + Math.floor(10000000 + Math.random() * 90000000) },
+            NY_2017: { name: "New York (2017)", iin: "636001", version: "08", format: "16", jurver: "00", stateName: "New York", revHeader: "Rev. 09/28/2017 (0303)", dlDesc: "9 digits (starts with 7)", dlRegex: /^7[0-9]{8}$/, genDL: () => "7" + Math.floor(10000000 + Math.random() * 90000000) },
+            NY_2022: { name: "New York (2022)", iin: "636001", version: "10", format: "10", jurver: "04", stateName: "New York", revHeader: "Rev. 03/07/2022 (1004)", dlDesc: "9 digits (starts with 7)", dlRegex: /^7[0-9]{8}$/, genDL: () => "7" + Math.floor(10000000 + Math.random() * 90000000) },
+            NC: { name: "North Carolina", iin: "636004", version: "08", format: "16", jurver: "00", stateName: "North Carolina", revHeader: "Rev. 10/24/2014 (0800)", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "12 digits (starts with 00000)", dlRegex: /^00000[0-9]{7}$/, genDL: () => "00000" + Math.floor(1000000 + Math.random() * 9000000) },
+            ND: { name: "North Dakota", iin: "636032", version: "08", format: "16", jurver: "00", stateName: "North Dakota", revHeader: "Rev. 01/08/2014 (0800)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "3 letters + 6 digits", dlRegex: /^[A-Z]{3}[0-9]{6}$/, genDL: () => "DOE" + Math.floor(100000 + Math.random() * 900000) },
+            ND_2023: { name: "North Dakota (2023)", iin: "636032", version: "10", format: "10", jurver: "00", stateName: "North Dakota", revHeader: "Rev. 03/10/2023 (1000)", dlDesc: "3 letters + 6 digits", dlRegex: /^[A-Z]{3}[0-9]{6}$/, genDL: () => "DOE" + Math.floor(100000 + Math.random() * 900000) },
+            OH: { name: "Ohio", iin: "636025", version: "08", format: "16", jurver: "00", stateName: "Ohio", revHeader: "Rev. 07/01/2018 (0901)", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "2 letters + 6 digits", dlRegex: /^[A-Z]{2}[0-9]{6}$/, genDL: () => "RT" + Math.floor(100000 + Math.random() * 900000) },
+            OK: { name: "Oklahoma", iin: "636056", version: "08", format: "16", jurver: "00", stateName: "Oklahoma", revHeader: "Rev. 01/13/2020 (0900)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 08 + 7 digits", dlRegex: /^[A-Z]08[0-9]{7}$/, genDL: () => "S08" + Math.floor(1000000 + Math.random() * 9000000) },
+            OR: { name: "Oregon", iin: "636029", version: "08", format: "16", jurver: "00", stateName: "Oregon", revHeader: "(Rev. 07/09/2018)", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits", dlRegex: /^[0-9]{7}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
+            PA: { name: "Pennsylvania", iin: "636024", version: "08", format: "16", jurver: "00", stateName: "Pennsylvania", revHeader: "Rev. 06/07/2016 (9000)", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 digits", dlRegex: /^[0-9]{8}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
+            PA_2022: { name: "Pennsylvania (2022)", iin: "636024", version: "10", format: "10", jurver: "00", stateName: "Pennsylvania", revHeader: "Rev. 03/25/2022 (1000)", dlDesc: "8 digits", dlRegex: /^[0-9]{8}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
+            RI: { name: "Rhode Island", iin: "636052", version: "08", format: "16", jurver: "00", stateName: "Rhode Island", revHeader: "(Rev. 01/26/2016)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits", dlRegex: /^[0-9]{7}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
+            RI_2022: { name: "Rhode Island (2022)", iin: "636052", version: "08", format: "16", jurver: "01", stateName: "Rhode Island", revHeader: "Rev. 03/01/2022 (0801)", dlDesc: "7 digits", dlRegex: /^[0-9]{7}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
+            SC: { name: "South Carolina", iin: "636005", version: "08", format: "16", jurver: "00", stateName: "South Carolina", revHeader: "(Rev. 01/01/2018)", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits (starts with 10)", dlRegex: /^10[0-9]{7}$/, genDL: () => "10" + Math.floor(1000000 + Math.random() * 9000000) },
+            SD: { name: "South Dakota", iin: "636044", version: "08", format: "16", jurver: "00", stateName: "South Dakota", revHeader: "(Rev. 06/29/2017)", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 digits (starts with 01)", dlRegex: /^01[0-9]{6}$/, genDL: () => "01" + Math.floor(100000 + Math.random() * 900000) },
+            TN: { name: "Tennessee", iin: "636053", version: "08", format: "16", jurver: "00", stateName: "Tennessee", revHeader: "Rev. 12/02/2011 (0600)", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits", dlRegex: /^[0-1][0-9]{8}$/, genDL: () => Math.floor(Math.random() * 2) + String(Math.floor(10000000 + Math.random() * 90000000)) },
             TX: { name: "Texas", iin: "636015", version: "09", format: "11", jurver: "00", stateName: "Texas", v9_effective_year: 2020, uses_offsets: true, drop_empty_tags: true, dlDesc: "8 digits", dlRegex: /^[0-9]{8}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
+            TX_2016: { name: "Texas (2016)", iin: "636015", version: "08", format: "16", jurver: "00", stateName: "Texas", uses_offsets: false, drop_empty_tags: false, dlDesc: "8 digits", dlRegex: /^[0-9]{8}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
+            TX_2020: { name: "Texas (2020)", iin: "636015", version: "09", format: "11", jurver: "00", stateName: "Texas", v9_effective_year: 2020, uses_offsets: true, drop_empty_tags: true, dlDesc: "8 digits", dlRegex: /^[0-9]{8}$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
+            UT_2016: { name: "Utah (2016)", iin: "636045", version: "08", format: "16", jurver: "00", stateName: "Utah", uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits (starts with 1)", dlRegex: /^1[0-9]{8}$/, genDL: () => "1" + Math.floor(10000000 + Math.random() * 90000000) },
+            UT_2021: { name: "Utah (2021)", iin: "636045", version: "09", format: "11", jurver: "00", stateName: "Utah", v9_effective_year: 2021, uses_offsets: true, drop_empty_tags: true, dlDesc: "9 digits (starts with 1)", dlRegex: /^1[0-9]{8}$/, genDL: () => "1" + Math.floor(10000000 + Math.random() * 90000000) },
+            WA_2025: {
+                name: "Washington (2025)",
+                iin: "636046",
+                version: "09",
+                format: "11",
+                jurver: "01",
+                stateName: "Washington",
+                uses_offsets: true,
+                drop_empty_tags: true,
+                dlDesc: "12 alphanumeric characters (e.g. WDL5NHA2R3KB)",
+                dlRegex: /^WDL[A-Z0-9*]{9}$/,
+                genDL: () => {
+                    const chars = '0123456789ABCDEFGHJKLMNPRSTUVWXYZ';
+                    let r = 'WDL';
+                    for (let i = 0; i < 8; i++) r += chars[Math.floor(Math.random() * chars.length)];
+                    r += 'B';
+                    return r;
+                }
+            },
+            WI_2023: { name: "Wisconsin (2023)", iin: "636031", version: "09", format: "11", jurver: "00", stateName: "Wisconsin", v9_effective_year: 2023, uses_offsets: true, drop_empty_tags: true, dlDesc: "1 letter + 13 digits (e.g. S530-4799-0185-00)", dlRegex: /^[A-Z][0-9]{3}-?[0-9]{4}-?[0-9]{4}-?[0-9]{2}$/, genDL: () => "W" + String(Math.floor(1000000000000 + Math.random() * 9000000000000)) },
             UT: { name: "Utah", iin: "636045", version: "08", format: "16", jurver: "00", stateName: "Utah", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits (4 to 10 digits)", dlRegex: /^[0-9]{4,10}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             VT: { name: "Vermont", iin: "636027", version: "08", format: "16", jurver: "00", stateName: "Vermont", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "8 digits or 7 digits + 'A'", dlRegex: /^([0-9]{8}|[0-9]{7}[A-Z])$/, genDL: () => String(Math.floor(10000000 + Math.random() * 90000000)) },
             VA: { name: "Virginia", iin: "636021", version: "08", format: "16", jurver: "00", stateName: "Virginia", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 8 digits or 9 digits", dlRegex: /^([A-Z][0-9]{8}|[0-9]{9})$/, genDL: () => "T" + Math.floor(10000000 + Math.random() * 90000000) },
-            WA: { name: "Washington", iin: "636046", version: "08", format: "16", jurver: "00", stateName: "Washington", v9_effective_year: null, uses_offsets: false, drop_empty_tags: false, dlDesc: "12 alphanumeric characters (e.g. WDLYXY3PA0TB)", dlRegex: /^[A-Z0-9*]{12}$/, genDL: () => {
+            WA: { name: "Washington", iin: "636046", version: "08", format: "16", jurver: "00", stateName: "Washington", v9_effective_year: null, uses_offsets: false, drop_empty_tags: false, defaultClass: "NONE", defaultRestrictions: "NONE", defaultEndorsements: "NONE", dlDesc: "12 alphanumeric characters (e.g. WDLYXY3PA0TB)", dlRegex: /^[A-Z0-9*]{12}$/, genDL: () => {
                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 let res = "WDL";
                 for (let i = 0; i < 9; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
                 return res;
             }},
-            WV: { name: "West Virginia", iin: "636061", version: "08", format: "16", jurver: "00", stateName: "West Virginia", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits", dlRegex: /^[0-9]{7}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
-            WI: { name: "Wisconsin", iin: "636031", version: "08", format: "16", jurver: "00", stateName: "Wisconsin", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 13 digits", dlRegex: /^[A-Z][0-9]{13}$/, genDL: () => "W" + String(Math.floor(1000000000000 + Math.random() * 9000000000000)) },
+            WV: { name: "West Virginia", iin: "636061", version: "08", format: "16", jurver: "00", stateName: "West Virginia", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 6 digits or 7 digits", dlRegex: /^([A-Z][0-9]{6}|[0-9]{7})$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
+            WI: { name: "Wisconsin", iin: "636031", version: "08", format: "16", jurver: "00", stateName: "Wisconsin", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 13 digits (or hyphenated S530-4799-0185-00)", dlRegex: /^[A-Z][0-9]{3}-?[0-9]{4}-?[0-9]{4}-?[0-9]{2}$/, genDL: () => "W" + String(Math.floor(1000000000000 + Math.random() * 9000000000000)) },
             WY: { name: "Wyoming", iin: "636060", version: "08", format: "16", jurver: "00", stateName: "Wyoming", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 or 10 digits", dlRegex: /^[0-9]{9,10}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             GENERIC: { name: "Generic Standard", iin: "636000", version: "09", format: "11", jurver: "00", stateName: "Standard", v9_effective_year: 2020, uses_offsets: true, drop_empty_tags: true, dlDesc: "Standard format", dlRegex: /^[A-Z0-9]{7,14}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) }
         };
@@ -2958,7 +3167,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 for (const [stateName, group] of Object.entries(window.STATE_HIERARCHY)) {
                     let groupOptions = '';
                     for (const rev of group.revisions) {
-                        groupOptions += `<option value="${rev.slug}">${rev.label}</option>`;
+                        const verifiedBadge = rev.verified ? ' ✔' : '';
+                        const newBadge = rev.is_new ? ' [NEW]' : '';
+                        groupOptions += `<option value="${rev.slug}">${rev.label}${newBadge}${verifiedBadge}</option>`;
                     }
                     const block = group.revisions.length > 1
                         ? `<optgroup label="${stateName}">${groupOptions}</optgroup>`
@@ -2980,6 +3191,205 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             }
         }
 
+        function autoSyncExpiryDate() {
+            const issuedEl = document.getElementById('aamva-issued');
+            const expEl = document.getElementById('aamva-exp');
+            const dobEl = document.getElementById('aamva-dob');
+            if (!issuedEl || !expEl) return;
+            
+            const issued = issuedEl.value.trim();
+            if (issued.length !== 8) return;
+            
+            const jKey = document.getElementById('aamva-jurisdiction')?.value || 'AL_2022';
+            const dob = dobEl ? dobEl.value.trim() : '';
+
+            // State-specific authentic rules:
+            if (jKey === 'AL_2022' || jKey === 'AL_2024') {
+                // Strictly 4 years from Issue Date, independent of DOB
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (!isNaN(issueYear)) {
+                    expEl.value = issued.slice(0, 4) + (issueYear + 4);
+                    return;
+                }
+            } else if (jKey === 'AL') {
+                // Legacy AL: 4 years from Issue Date, previous day (makeRandomDOE_AL)
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                const issueDay = parseInt(issued.slice(2, 4), 10);
+                if (!isNaN(issueYear) && !isNaN(issueDay)) {
+                    const prevDay = ("0" + Math.max(1, issueDay - 1)).slice(-2);
+                    expEl.value = issued.slice(0, 2) + prevDay + (issueYear + 4);
+                    return;
+                }
+            } else if (jKey === 'AZ' || jKey === 'AZ_2023') {
+                // Arizona expires on 65th birthday
+                if (dob.length === 8) {
+                    const birthYear = parseInt(dob.slice(4, 8), 10);
+                    if (!isNaN(birthYear)) {
+                        expEl.value = dob.slice(0, 4) + (birthYear + 65);
+                        return;
+                    }
+                }
+            } else if (jKey === 'AK' || jKey === 'AR' || jKey === 'DE' || jKey === 'FL' || jKey.startsWith('GA')) {
+                // Alaska, Arkansas, Delaware, Florida, Georgia: 8 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 8);
+                    return;
+                }
+            } else if (jKey.startsWith('MO') || jKey === 'MT') {
+                // Missouri, Montana: 6 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 6);
+                    return;
+                }
+            } else if (jKey.startsWith('NE')) {
+                // Nebraska: 5 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 5);
+                    return;
+                }
+            } else if (jKey.startsWith('NV')) {
+                // Nevada: 8 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 8);
+                    return;
+                }
+            } else if (jKey.startsWith('NH')) {
+                // New Hampshire: 5 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 5);
+                    return;
+                }
+            } else if (jKey.startsWith('NJ')) {
+                // New Jersey: 4 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 4);
+                    return;
+                }
+            } else if (jKey === 'NM') {
+                // New Mexico: 8 years minus 1 day from Issue Date
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                const issueMonth = parseInt(issued.slice(0, 2), 10);
+                const issueDay = parseInt(issued.slice(2, 4), 10);
+                if (!isNaN(issueYear) && !isNaN(issueMonth) && !isNaN(issueDay)) {
+                    const dt = new Date(issueYear + 8, issueMonth - 1, issueDay);
+                    dt.setDate(dt.getDate() - 1);
+                    const outM = ('0' + (dt.getMonth() + 1)).slice(-2);
+                    const outD = ('0' + dt.getDate()).slice(-2);
+                    const outY = dt.getFullYear();
+                    expEl.value = `${outM}${outD}${outY}`;
+                    return;
+                }
+            } else if (jKey.startsWith('NY') || jKey === 'NC' || jKey === 'OR' || jKey === 'SC') {
+                // New York, North Carolina, Oregon, South Carolina: 8 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 8);
+                    return;
+                }
+            } else if (jKey.startsWith('ND')) {
+                // North Dakota: 6 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 6);
+                    return;
+                }
+            } else if (jKey === 'OH' || jKey === 'RI_2022') {
+                // Ohio, Rhode Island (2022): 4 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 4);
+                    return;
+                }
+            } else if (jKey === 'OK') {
+                // Oklahoma: 4 years, last day of issue month
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                const issueMonth = parseInt(issued.slice(0, 2), 10);
+                if (!isNaN(issueYear) && !isNaN(issueMonth)) {
+                    const lastDay = new Date(issueYear + 4, issueMonth, 0).getDate();
+                    expEl.value = issued.slice(0, 2) + String(lastDay).padStart(2, '0') + (issueYear + 4);
+                    return;
+                }
+            } else if (jKey.startsWith('PA')) {
+                // Pennsylvania: 4 years birthday + 1 day
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    const bMonth = parseInt(dob.slice(0, 2), 10);
+                    const bDay = parseInt(dob.slice(2, 4), 10);
+                    const dt = new Date(issueYear + 4, bMonth - 1, bDay);
+                    dt.setDate(dt.getDate() + 1);
+                    const outM = ('0' + (dt.getMonth() + 1)).slice(-2);
+                    const outD = ('0' + dt.getDate()).slice(-2);
+                    expEl.value = `${outM}${outD}${dt.getFullYear()}`;
+                    return;
+                }
+            } else if (jKey === 'RI' || jKey === 'SD') {
+                // Rhode Island (2016), South Dakota: 5 years snapping to birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 5);
+                    return;
+                }
+            } else if (jKey === 'TN') {
+                // Tennessee: 8 years strictly from Issue Date
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (!isNaN(issueYear)) {
+                    expEl.value = issued.slice(0, 4) + (issueYear + 8);
+                    return;
+                }
+            } else if (jKey.startsWith('TX') || jKey === 'WA') {
+                // Texas (6 yrs), Washington (6 yrs): birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 6);
+                    return;
+                }
+            } else if (jKey === 'UT_2016' || jKey === 'VA' || jKey.startsWith('WI') || jKey === 'DC' || jKey === 'WV') {
+                // Utah 2016 (8 yrs), Virginia (8 yrs), Wisconsin (8 yrs), DC (8 yrs), West Virginia (8 yrs): birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 8);
+                    return;
+                }
+            } else if (jKey === 'UT_2021' || jKey === 'UT' || jKey === 'WA_2025' || jKey === 'WY') {
+                // Utah 2021 (5 yrs), Washington DC 2025 (5 yrs), Wyoming (5 yrs): birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 5);
+                    return;
+                }
+            } else if (jKey === 'VT') {
+                // Vermont (4 yrs): birthday
+                const issueYear = parseInt(issued.slice(4, 8), 10);
+                if (dob.length === 8 && !isNaN(issueYear)) {
+                    expEl.value = dob.slice(0, 4) + (issueYear + 4);
+                    return;
+                }
+            }
+            
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
+            const termYears = (revInfo && revInfo.term_years) ? revInfo.term_years : 5;
+            
+            const issueYear = parseInt(issued.slice(4, 8), 10);
+            if (isNaN(issueYear)) return;
+            const expYear = issueYear + termYears;
+            
+            let expMonth = issued.slice(0, 2);
+            let expDay = issued.slice(2, 4);
+            
+            if (dob.length === 8) {
+                expMonth = dob.slice(0, 2);
+                expDay = dob.slice(2, 4);
+            }
+            
+            expEl.value = `${expMonth}${expDay}${expYear}`;
+        }
+
         function applyStatePreset() {
             const slug = document.getElementById('aamva-jurisdiction').value;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(slug) : null;
@@ -2994,18 +3404,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             // 1. Dynamic Revision Header Badge & Star
             const revBadge = document.getElementById('state-rev-badge');
             if (revBadge) {
-                revBadge.textContent = (revInfo && revInfo.rev_header) ? revInfo.rev_header : (profile.revHeader || 'Rev. Certified AAMVA');
+                if (revInfo && revInfo.rev_header === '') {
+                    revBadge.style.display = 'none';
+                } else {
+                    revBadge.style.display = '';
+                    revBadge.textContent = (revInfo && revInfo.rev_header) ? revInfo.rev_header : (profile.revHeader || 'Rev. Certified AAMVA');
+                }
             }
 
             // 2. Dynamic Scanner Test Badges
             const scannersContainer = document.getElementById('state-scanners-badges');
             if (scannersContainer) {
-                const activeScanners = (revInfo && revInfo.scanners && revInfo.scanners.length > 0)
-                    ? revInfo.scanners
-                    : ['Scandit', 'Show-Me ID', 'FIDScan', 'Veriscan'];
-                scannersContainer.innerHTML = activeScanners.map(s => 
-                    `<span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>${s}</span><span class="text-emerald-600 font-bold">&check;</span></span>`
-                ).join(' ');
+                const activeScanners = (revInfo && revInfo.scanners) ? revInfo.scanners : [];
+                if (activeScanners.length > 0) {
+                    scannersContainer.style.display = '';
+                    scannersContainer.innerHTML = activeScanners.map(s => 
+                        `<span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>${s}</span><span class="text-emerald-600 font-bold">&check;</span></span>`
+                    ).join(' ');
+                } else {
+                    scannersContainer.style.display = 'none';
+                    scannersContainer.innerHTML = '';
+                }
             }
 
             // 3. Dynamic Field Visibility (ICN & DD)
@@ -3021,6 +3440,88 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 ddContainer.style.display = hasDd ? '' : 'none';
             }
 
+            // Audit Container (DCJ)
+            const auditContainer = document.getElementById('container-audit');
+            const hasAudit = revInfo ? revInfo.has_audit : false;
+            if (auditContainer) {
+                if (hasAudit) {
+                    auditContainer.classList.remove('hidden');
+                } else {
+                    auditContainer.classList.add('hidden');
+                }
+            }
+
+            // Race Container (DCL)
+            const raceContainer = document.getElementById('container-race');
+            const hasRace = revInfo ? revInfo.has_race : false;
+            if (raceContainer) {
+                if (hasRace) {
+                    raceContainer.classList.remove('hidden');
+                } else {
+                    raceContainer.classList.add('hidden');
+                }
+            }
+
+            // Suffix Container (DCU)
+            const suffixContainer = document.getElementById('container-suffix');
+            if (suffixContainer) {
+                suffixContainer.style.display = (revInfo && revInfo.has_suffix) ? '' : 'none';
+            }
+
+            // Limited Term Container (DDO)
+            const limitedTermContainer = document.getElementById('container-limited-term');
+            if (limitedTermContainer) {
+                limitedTermContainer.style.display = (revInfo && revInfo.has_limited_term) ? '' : 'none';
+            }
+
+            // Florida extras (Revision Date & Safe Driver)
+            const flExtras = document.getElementById('container-florida-extras');
+            if (flExtras) {
+                flExtras.style.display = (baseCode === 'FL') ? '' : 'none';
+            }
+
+            // Georgia extras (Country / County)
+            const gaExtras = document.getElementById('container-georgia-extras');
+            if (gaExtras) {
+                gaExtras.style.display = (baseCode === 'GA') ? '' : 'none';
+            }
+
+            // New Jersey extras (Option 1, 2, 3)
+            const njExtras = document.getElementById('container-nj-extras');
+            if (njExtras) {
+                njExtras.style.display = (baseCode === 'NJ') ? '' : 'none';
+            }
+
+            // North Dakota extras (Option) - only for ND (2008), not ND_2023
+            const ndExtras = document.getElementById('container-nd-extras');
+            if (ndExtras) {
+                ndExtras.style.display = (jKey === 'ND') ? '' : 'none';
+            }
+
+            // Ohio extras (Place of birth)
+            const ohExtras = document.getElementById('container-oh-extras');
+            if (ohExtras) {
+                ohExtras.style.display = (baseCode === 'OH') ? '' : 'none';
+            }
+
+            // Pennsylvania extras (Dups)
+            const paExtras = document.getElementById('container-pa-extras');
+            if (paExtras) {
+                paExtras.style.display = (baseCode === 'PA') ? '' : 'none';
+            }
+
+            // REAL ID Container
+            const realidContainer = document.getElementById('container-realid');
+            if (realidContainer) {
+                realidContainer.style.display = (revInfo && revInfo.has_real_id) ? '' : 'none';
+            }
+
+            // Address line 2 Container (aamva-street2)
+            const orExtras = document.getElementById('container-or-extras');
+            if (orExtras) {
+                orExtras.style.display = (revInfo && revInfo.has_address2) ? '' : 'none';
+            }
+
             // Default DD value handling (e.g. Alabama default_dd is "NONE")
             const ddInput = document.getElementById('aamva-dcf');
             if (ddInput && revInfo && revInfo.default_dd) {
@@ -3029,17 +3530,40 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
-            // 4. Weight Range (ANSI D-20) vs Numeric Weight (lb.) Toggle
+            // 4. Weight Range (ANSI D-20) vs Numeric Weight (lb.) Toggle (Omitted for DC)
             const weightLbContainer = document.getElementById('container-weight-lb');
             const weightRangeContainer = document.getElementById('container-weight-range');
             const usesWeightRange = revInfo ? revInfo.has_weight_range : false;
             if (weightLbContainer && weightRangeContainer) {
-                if (usesWeightRange) {
+                if (baseCode === 'DC' || (revInfo && revInfo.has_weight === false)) {
+                    weightLbContainer.classList.add('hidden');
+                    weightRangeContainer.classList.add('hidden');
+                } else if (usesWeightRange) {
                     weightLbContainer.classList.add('hidden');
                     weightRangeContainer.classList.remove('hidden');
                 } else {
                     weightLbContainer.classList.remove('hidden');
                     weightRangeContainer.classList.add('hidden');
+                }
+            }
+
+            // Populate state-specific default class, restrictions, and endorsements
+            if (profile.defaultClass) {
+                const classEl = document.getElementById('aamva-class');
+                if (classEl && (!classEl.value || classEl.value === 'D' || classEl.value === 'NONE')) {
+                    classEl.value = profile.defaultClass;
+                }
+            }
+            if (profile.defaultRestrictions !== undefined) {
+                const restEl = document.getElementById('aamva-restrictions');
+                if (restEl && (!restEl.value || restEl.value === 'NONE' || restEl.value === '0')) {
+                    restEl.value = profile.defaultRestrictions;
+                }
+            }
+            if (profile.defaultEndorsements !== undefined) {
+                const endEl = document.getElementById('aamva-endorsements');
+                if (endEl && (!endEl.value || endEl.value === 'NONE' || endEl.value === '0')) {
+                    endEl.value = profile.defaultEndorsements;
                 }
             }
 
@@ -3244,17 +3768,6 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
             
-            // 0. Special REAL ID toggle
-            if (field === 'real_id') {
-                const realIdEl = document.getElementById('aamva-realid');
-                if (realIdEl) {
-                    realIdEl.value = (realIdEl.value === 'Yes') ? 'No' : 'Yes';
-                    showToast(`Toggled REAL ID compliance: ${realIdEl.value}`, 'info');
-                    compileAAMVA();
-                    return;
-                }
-            }
-
             // 1. Try State-Aware Calculation Engine (from state_engine.js)
             if (typeof window.runStateCalculation === 'function') {
                 const handled = window.runStateCalculation(field, jKey);
@@ -3262,6 +3775,17 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     validateDlNumber();
                     compileAAMVA();
                     showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                    return;
+                }
+            }
+
+            // Fallback REAL ID toggle
+            if (field === 'real_id') {
+                const realIdEl = document.getElementById('aamva-realid');
+                if (realIdEl) {
+                    realIdEl.value = (realIdEl.value === 'Yes') ? 'No' : 'Yes';
+                    showToast(`Toggled REAL ID compliance: ${realIdEl.value}`, 'info');
+                    compileAAMVA();
                     return;
                 }
             }
@@ -3295,13 +3819,23 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
                 const day = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
                 document.getElementById('aamva-issued').value = `${month}${day}${year}`;
-                showToast('Calculated new Issue Date!', 'info');
+                autoSyncExpiryDate();
+                showToast('Calculated new Issue Date (Expiry synced)!', 'info');
             } else if (field === 'exp') {
                 const dob = document.getElementById('aamva-dob').value;
                 const dobMonthDay = dob.length === 8 ? dob.substring(0, 4) : '0525';
-                const year = 2030;
+                const termYears = (revInfo && revInfo.term_years) ? revInfo.term_years : 5;
+                const issued = document.getElementById('aamva-issued').value;
+                const issueYear = issued.length === 8 ? parseInt(issued.slice(4, 8), 10) : 2024;
+                const year = issueYear + termYears;
                 document.getElementById('aamva-exp').value = `${dobMonthDay}${year}`;
-                showToast('Calculated new Expiry Date!', 'info');
+                showToast(`Calculated new Expiry Date (+${termYears} yrs)!`, 'info');
+            } else if (field === 'audit') {
+                const el = document.getElementById('aamva-audit');
+                if (el) {
+                    el.value = `CODL_0_051224_${Math.floor(10000 + Math.random() * 90000)}`;
+                    showToast('Calculated Audit Information!', 'info');
+                }
             } else if (field === 'dcf') {
                 if (profile.genDD) {
                     document.getElementById('aamva-dcf').value = profile.genDD();
@@ -3616,6 +4150,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     return getVal('aamva-weight', '').toUpperCase();
                 })(),
                 street: getVal('aamva-street', '30 BEATTY ST').toUpperCase(),
+                street2: getVal('aamva-street2', '').toUpperCase(),
                 city: getVal('aamva-city', 'NEW BRITAIN').toUpperCase(),
                 state: getVal('aamva-state', baseState !== 'GENERIC' ? baseState : 'CT').toUpperCase(),
                 zip: getVal('aamva-zip', '06051'),
@@ -3623,7 +4158,13 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 restrictions: getVal('aamva-restrictions', 'NONE').toUpperCase(),
                 endorsements: getVal('aamva-endorsements', 'NONE').toUpperCase(),
                 donor: document.getElementById('aamva-donor').value,
-                suffix: document.getElementById('aamva-suffix') ? document.getElementById('aamva-suffix').value : 'NONE'
+                suffix: document.getElementById('aamva-suffix') ? document.getElementById('aamva-suffix').value : 'NONE',
+                race: (function() {
+                    const el = document.getElementById('aamva-race');
+                    return el ? el.value : 'W';
+                })(),
+                audit: getVal('aamva-audit', ''),
+                realId: document.getElementById('aamva-realid') ? document.getElementById('aamva-realid').value : 'Yes'
             };
 
             const versionSelect = document.getElementById('aamva-version');
@@ -3675,15 +4216,26 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (fields.height) dlElements.push(`DAU${fields.height}`);
             if (fields.eyes) dlElements.push(`DAY${fields.eyes}`);
             if (fields.hair) dlElements.push(`DAZ${fields.hair}`);
-            if (fields.weight) dlElements.push(`DAW${fields.weight}`);
+            if (fields.weight) {
+                if (revInfo && revInfo.has_weight_range) {
+                    dlElements.push(`DCE${fields.weight}`);
+                } else {
+                    dlElements.push(`DAW${fields.weight}`);
+                }
+            }
+            if (fields.race && revInfo && revInfo.has_race) {
+                dlElements.push(`DCL${fields.race}`);
+            }
             if (fields.street) dlElements.push(`DAG${fields.street}`);
+            if (fields.street2) dlElements.push(`DAH${fields.street2}`);
             if (fields.city) dlElements.push(`DAI${fields.city}`);
             if (fields.state) dlElements.push(`DAJ${fields.state}`);
             if (fields.zip) dlElements.push(`DAK${fields.zip}`);
-            if (fields.dcf) dlElements.push(`DCF${fields.dcf}`);
+            if (fields.dcf && (!revInfo || revInfo.has_dd !== false)) dlElements.push(`DCF${fields.dcf}`);
             dlElements.push(`DCGUSA`);
-            if (fields.dck) dlElements.push(`DCK${fields.dck}`);
-            dlElements.push(`DDAF`);
+            if (fields.audit && revInfo && revInfo.has_audit) dlElements.push(`DCJ${fields.audit}`);
+            if (fields.dck && (!revInfo || revInfo.has_icn !== false)) dlElements.push(`DCK${fields.dck}`);
+            dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
             dlElements.push(`DDB02102017`);
             dlElements.push(`DDK${fields.donor}`);
 
@@ -7100,7 +7652,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
         function setMrzType(type) {
             currentMrzType = type;
-            const tabs = ['TD3', 'TD1', 'TD2', 'MRV_A'];
+            const tabs = ['TD3', 'TD1', 'TD2', 'MRV_A', 'MRV_B'];
             tabs.forEach(t => {
                 const el = document.getElementById(`mrz-tab-${t}`);
                 if (!el) return;
@@ -7130,6 +7682,10 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             } else if (type === 'MRV_A') {
                 if (badge) badge.textContent = 'Format: MRV-A (2×44)';
                 if (title) title.textContent = 'OFFICIAL VISA / VISA OFFICIEL';
+                if (docTypeInput && (!docTypeInput.value || docTypeInput.value === 'P' || docTypeInput.value === 'I')) docTypeInput.value = 'V';
+            } else if (type === 'MRV_B') {
+                if (badge) badge.textContent = 'Format: MRV-B (2×36)';
+                if (title) title.textContent = 'OFFICIAL VISA (MRV-B)';
                 if (docTypeInput && (!docTypeInput.value || docTypeInput.value === 'P' || docTypeInput.value === 'I')) docTypeInput.value = 'V';
             }
 
@@ -7161,12 +7717,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
         function formatIcaoDate(dateStr) {
             if (!dateStr) return '000101';
+            dateStr = String(dateStr).trim();
+            const dmy = dateStr.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+            if (dmy) {
+                return dmy[3].slice(-2) + dmy[2].padStart(2, '0') + dmy[1].padStart(2, '0');
+            }
+            const ymd = dateStr.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+            if (ymd) {
+                return ymd[1].slice(-2) + ymd[2].padStart(2, '0') + ymd[3].padStart(2, '0');
+            }
             const clean = dateStr.replace(/\D/g, '');
             if (clean.length === 8) {
-                return clean.slice(2, 8); // YYYYMMDD -> YYMMDD
+                if (parseInt(clean.slice(0, 4)) >= 1900 && parseInt(clean.slice(0, 4)) <= 2100) {
+                    return clean.slice(2, 8);
+                }
+                if (parseInt(clean.slice(4)) >= 1900 && parseInt(clean.slice(4)) <= 2100) {
+                    return clean.slice(6, 8) + clean.slice(2, 4) + clean.slice(0, 2);
+                }
+                return clean.slice(2, 8);
             }
             if (clean.length === 6) return clean;
-            return '000101';
+            return clean.slice(0, 6).padEnd(6, '0');
         }
 
         function loadMrzPreset(preset) {
@@ -7206,6 +7777,20 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 document.getElementById('mrz-sex').value = 'M';
                 document.getElementById('mrz-expiry').value = '2033-11-04';
                 document.getElementById('mrz-optional-data').value = '';
+                if (document.getElementById('mrz-optional-data-2')) document.getElementById('mrz-optional-data-2').value = '';
+            } else if (preset === 'ca_pr') {
+                setMrzType('TD1');
+                document.getElementById('mrz-doc-type').value = 'CA';
+                document.getElementById('mrz-country').value = 'CAN';
+                document.getElementById('mrz-doc-number').value = 'PD1074738';
+                document.getElementById('mrz-surname').value = 'SAMPLE';
+                document.getElementById('mrz-given-names').value = 'SPECIMEN';
+                document.getElementById('mrz-nationality').value = 'CAN';
+                document.getElementById('mrz-dob').value = '1973-10-06';
+                document.getElementById('mrz-sex').value = 'F';
+                document.getElementById('mrz-expiry').value = '2025-05-25';
+                document.getElementById('mrz-optional-data').value = '32525518';
+                if (document.getElementById('mrz-optional-data-2')) document.getElementById('mrz-optional-data-2').value = '';
             } else if (preset === 'uk_visa') {
                 setMrzType('MRV_A');
                 document.getElementById('mrz-doc-type').value = 'V';
@@ -7218,6 +7803,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 document.getElementById('mrz-sex').value = 'M';
                 document.getElementById('mrz-expiry').value = '2027-03-15';
                 document.getElementById('mrz-optional-data').value = '';
+                if (document.getElementById('mrz-optional-data-2')) document.getElementById('mrz-optional-data-2').value = '';
             }
             compileMrz();
             showToast(`Loaded ${preset.replace('_', ' ').toUpperCase()} template`, 'info');
@@ -7234,6 +7820,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             document.getElementById('mrz-sex').value = 'M';
             document.getElementById('mrz-expiry').value = '';
             document.getElementById('mrz-optional-data').value = '';
+            if (document.getElementById('mrz-optional-data-2')) document.getElementById('mrz-optional-data-2').value = '';
             compileMrz();
         }
 
@@ -7276,6 +7863,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const sex = (document.getElementById('mrz-sex')?.value || 'M').toUpperCase().slice(0, 1);
             const expiry = formatIcaoDate(document.getElementById('mrz-expiry')?.value);
             const optDataRaw = (document.getElementById('mrz-optional-data')?.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const optData2Raw = (document.getElementById('mrz-optional-data-2')?.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 
             let lines = [];
             let docNumCheck = '';
@@ -7310,7 +7898,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const opt1 = cleanIcaoText(optDataRaw, 15);
                 const line1 = cleanIcaoText(`${docType}${country}${docNumField}${docNumCheck}${opt1}`, 30);
 
-                const opt2 = cleanIcaoText('', 11);
+                const opt2 = cleanIcaoText(optData2Raw, 11);
                 const compData = `${docNumField}${docNumCheck}${opt1}${dob}${dobCheck}${expiry}${expiryCheck}${opt2}`;
                 compCheck = calcIcaoCheckDigit(compData);
                 const line2 = cleanIcaoText(`${dob}${dobCheck}${sex}${expiry}${expiryCheck}${nationality}${opt2}${compCheck}`, 30);
@@ -7329,6 +7917,16 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 compCheck = calcIcaoCheckDigit(compData);
                 const line2 = cleanIcaoText(`${docNumField}${docNumCheck}${nationality}${dob}${dobCheck}${sex}${expiry}${expiryCheck}${optField}${compCheck}`, 36);
                 lines = [line1, line2];
+            } else if (currentMrzType === 'MRV_B') {
+                const nameField = `${surname}<<${givenNames}`.replace(/<+/g, '<').replace(/<$/, '');
+                const line1 = cleanIcaoText(`${docType}${country}${nameField}`, 36);
+
+                const docNumField = cleanIcaoText(docNumRaw, 9);
+                docNumCheck = calcIcaoCheckDigit(docNumField);
+                const optFieldVisaB = cleanIcaoText(optDataRaw, 8);
+                const line2 = `${docNumField}${docNumCheck}${nationality}${dob}${dobCheck}${sex}${expiry}${expiryCheck}${optFieldVisaB}`;
+                lines = [line1, cleanIcaoText(line2, 36)];
+                compCheck = 'N/A';
             }
 
             const mrzText = lines.join('\n');

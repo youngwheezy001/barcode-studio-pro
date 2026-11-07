@@ -1,11 +1,12 @@
 import os
 import stripe
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Dict, Any
 from pathlib import Path
 from dotenv import load_dotenv
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body
+from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -1664,6 +1665,36 @@ def api_mrz_sample(doc_type: str = "TD3"):
         }
     }
     return samples.get(doc_type.upper(), samples["TD3"])
+
+@app.post("/create_mrz_ajax/")
+@app.post("/mrz/create_mrz_ajax/")
+async def api_create_mrz_ajax(payload: Dict[str, Any] = Body(...)):
+    """Handles AJAX MRZ creation requests matching pdf417.pro form submissions."""
+    try:
+        doc_type = payload.get("MRZ_TYPE") or payload.get("document_type") or payload.get("doc_type") or "TD1"
+        res = mrz.generate_mrz(doc_type, payload)
+        lines = res.get("lines", [])
+        return {
+            "status": "SUCCESS",
+            "message": "<br>".join(lines),
+            "lines": lines,
+            "mrz_text": res.get("mrz_text", "\n".join(lines)),
+            "metadata": res.get("metadata", {})
+        }
+    except Exception as e:
+        return {
+            "status": "ERROR",
+            "message": f"MRZ Generation Error: {str(e)}"
+        }
+
+@app.get("/mrz", response_class=FileResponse)
+@app.get("/mrz/", response_class=FileResponse)
+def get_mrz_page():
+    """Serves the dedicated pdf417.pro-compliant MRZ calculator interface."""
+    mrz_file = BASE_DIR / "static" / "mrz.html"
+    if mrz_file.exists():
+        return FileResponse(str(mrz_file))
+    return FileResponse(str(BASE_DIR / "static" / "index.html"))
 
 # Serve Frontend static files (Mounted after API routes so routes take priority)
 static_path = BASE_DIR / "static"

@@ -1,0 +1,1227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="pdf417, Driver's License barcode, barcode generator, pdf417 barcode, US DL, DL barcode">
+    
+    <meta name="description" content="Free MRZ calculator for passports, ID cards and VISA. Valid check digits. Free MRZ Generator.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pdf417.pro/mrz">
+    <meta property="og:title" content="Free MRZ Calculator. MRZ Generator">
+    <meta property="og:image" content="">
+    <meta property="og:description" content="Calculate MRZ with valid check digits in couple of seconds! Free MRZ Generator.">
+    <meta property="og:site_name" content="PDF417.PRO">
+
+    
+
+    <link rel="canonical" href="https://pdf417.pro/mrz/" />
+
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link href="https://db.onlinewebfonts.com/c/2c8b7b9e605950d44bbcb64eef38f456?family=OCR-B" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+.accordion_link  {
+    margin-left: 12px;
+}
+.green {
+    color: green;
+}
+.blink {
+     animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+         opacity: 0;
+    }
+}
+
+#kgDisplay, #cmDisplay {
+    font-size: 85%;
+}
+
+.valid-marker {
+    margin-right: 6px;
+}
+
+.big-text {
+    font-size: larger;
+}
+
+.footer-text {
+    font-size: 0.8em;
+}
+
+.payment-information {
+    font-size: larger;
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "OCR-B";
+    src: url(https://cdn.jsdelivr.net/gh/raisty/OCR-B/dist/OCR-B.ttf) format("truetype"),
+         url(https://cdn.jsdelivr.net/gh/raisty/OCR-B/dist/OCR-B.otf) format("opentype");
+}
+
+#referralModalDialog,
+#referralModalContent {
+    height: 80%;
+}
+
+@media (max-width: 992px) {
+    #referralModalDialog,
+    #referralModalContent {
+    height: 100%;
+    }
+}
+
+#referralModalBody {
+    max-height:100%;
+}
+
+.custom-heading {
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+    font-weight: 300!important;
+    font-size: calc(1.375rem + 1.5vw);
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+}
+.features-body {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    font-weight: 500;
+    padding-top: 1rem;
+}
+.features-ul{
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+}
+.state-li {
+    display: block;
+}
+
+.state-name-bold {
+    font-weight: 500;
+}
+.shaking-div {
+    display: inline-block;
+    animation: shake 4s infinite;
+}
+
+@keyframes shake {
+0% {
+    transform: translateX(0);
+}
+10% {
+    transform: translateX(-5px);
+}
+20% {
+    transform: translateX(5px);
+}
+30% {
+    transform: translateX(-5px);
+}
+40% {
+    transform: translateX(0);
+}
+50% {
+transform: translateY(-5px);
+}
+60% {
+transform: translateY(5px);
+}
+70% {
+transform: translateY(-5px);
+}
+80% {
+transform: translateY(0);
+}
+}
+
+
+
+.hover-3d{
+    display:inline-grid;
+    perspective:75rem;
+  
+    --tx: 0;
+    --ty: 0;
+    --shine-x: 100%;
+    --shine-y: 100%;
+    --sx: 0rem;
+    --sy: 0rem;
+  
+    /* Ð¼ÑÐ³ÐºÐ°Ñ âÐ¿ÑÑÐ¶Ð¸Ð½Ð°â ÐºÐ°Ðº Ð² Ð¿ÑÐ¸Ð¼ÐµÑÐµ */
+    --ease: linear(0, 0.931 13.8%, 1.196 21.4%, 1.343 29.8%, 1.378 36%, 1.365 43.2%, 1.059 78%, 1);
+  
+    filter:
+      drop-shadow(var(--sx) var(--sy) 0.1rem #00000005)
+      drop-shadow(var(--sx) var(--sy) 0.2rem #00000005)
+      drop-shadow(var(--sx) var(--sy) 0.3rem #00000005)
+      drop-shadow(var(--sx) var(--sy) 0.4rem #00000005);
+  
+    transition: filter ease-out 400ms;
+  }
+  
+  /* Ð·Ð¾Ð½Ñ Ð¿Ð¾Ð²ÐµÑÑ â ÑÑÐ¾Ð±Ñ Ð»Ð¾Ð²Ð¸ÑÑ hover */
+  .hover-3d > :nth-child(n + 2){
+    isolation:isolate;
+    z-index:1;
+    transform: scale(1.2);
+  }
+  
+  /* ÑÐ°Ð¼ ÐºÐ¾Ð½ÑÐµÐ½Ñ */
+  .hover-3d > :first-child{
+    position:relative;
+    overflow:hidden;
+    grid-area:1/1/4/4;
+    transform: rotate3d(var(--tx), var(--ty), 0, 20deg);
+    transition: transform var(--ease) 500ms, scale var(--ease) 500ms, outline-color ease-out 500ms;
+    outline: 0.5px solid transparent;
+    outline-offset:-1px;
+  }
+  
+  .hover-3d > :first-child::before{
+    content:"";
+    pointer-events:none;
+    position:absolute;
+    z-index:1;
+    width:33.333%;
+    height:33.333%;
+    transform: scale(5);
+    opacity:0;
+    filter: blur(0.75rem);
+    background-image: radial-gradient(circle at 50%, #fff3 10%, transparent 50%);
+    translate: var(--shine-x) var(--shine-y);
+    transition: translate ease-out 400ms, opacity ease-out 400ms;
+  }
+  
+  .hover-3d:hover{
+    --ease: linear(0, 0.708 15.2%, 0.927 23.6%, 1.067 33%, 1.12 41%, 1.13 50.2%, 1.019 83.2%, 1);
+  }
+  .hover-3d:hover > :first-child{
+    scale:1.05;
+    outline-color:#fff1;
+  }
+  .hover-3d:hover > :first-child::before{
+    opacity:1;
+  }
+  
+  /* ÑÐ°ÑÐºÐ»Ð°Ð´ÐºÐ° 3x3 (ÐºÐ¾Ð½ÑÐµÐ½Ñ Ð·Ð°Ð½Ð¸Ð¼Ð°ÐµÑ Ð²ÑÑ Ð¿Ð¾Ð»Ðµ, Ð·Ð¾Ð½Ñ â Ð¿Ð¾ ÐºÑÐ°ÑÐ¼/ÑÐ³Ð»Ð°Ð¼) */
+  .hover-3d > :nth-child(2){ grid-area:1/1/2/2; }
+  .hover-3d > :nth-child(3){ grid-area:1/2/2/3; }
+  .hover-3d > :nth-child(4){ grid-area:1/3/2/4; }
+  .hover-3d > :nth-child(5){ grid-area:2/1/3/2; }
+  .hover-3d > :nth-child(6){ grid-area:2/3/3/4; }
+  .hover-3d > :nth-child(7){ grid-area:3/1/4/2; }
+  .hover-3d > :nth-child(8){ grid-area:3/2/4/3; }
+  .hover-3d > :nth-child(9){ grid-area:3/3/4/4; }
+  
+  /* Ð¼Ð°Ð³Ð¸Ñ: ÐºÐ°ÐºÐ¾Ð¹ âÐºÐ²Ð°Ð´ÑÐ°ÑÐ¸Ðºâ ÑÐ¾Ð²ÐµÑÐ¸ÑÑÑ â ÑÐ°ÐºÐ¾Ð¹ Ð¿Ð¾Ð²Ð¾ÑÐ¾Ñ/Ð±Ð»Ð¸Ðº/ÑÐµÐ½Ñ */
+  .hover-3d:has(> :nth-child(2):hover){ --tx:-1; --ty: 1; --shine-x: 0%;   --shine-y: 0%;   --sx:-0.5rem; --sy:-0.5rem; }
+  .hover-3d:has(> :nth-child(3):hover){ --tx:-1; --ty: 0; --shine-x:100%;  --shine-y: 0%;   --sx: 0rem;   --sy:-0.5rem; }
+  .hover-3d:has(> :nth-child(4):hover){ --tx:-1; --ty:-1; --shine-x:200%;  --shine-y: 0%;   --sx: 0.5rem; --sy:-0.5rem; }
+  .hover-3d:has(> :nth-child(5):hover){ --tx: 0; --ty: 1; --shine-x: 0%;   --shine-y:100%;  --sx:-0.5rem; --sy: 0rem; }
+  .hover-3d:has(> :nth-child(6):hover){ --tx: 0; --ty:-1; --shine-x:200%;  --shine-y:100%;  --sx: 0.5rem; --sy: 0rem; }
+  .hover-3d:has(> :nth-child(7):hover){ --tx: 1; --ty: 1; --shine-x: 0%;   --shine-y:200%;  --sx:-0.5rem; --sy: 0.5rem; }
+  .hover-3d:has(> :nth-child(8):hover){ --tx: 1; --ty: 0; --shine-x:100%;  --shine-y:200%;  --sx: 0rem;   --sy: 0.5rem; }
+  .hover-3d:has(> :nth-child(9):hover){ --tx: 1; --ty:-1; --shine-x:200%;  --shine-y:200%;  --sx: 0.5rem; --sy: 0.5rem; }
+  
+
+
+  .hover-3d > :first-child{
+    overflow: visible; /* Ð¼Ð¾Ð¶Ð½Ð¾ ÑÐ±ÑÐ°ÑÑ */
+    border-radius: 0;  /* Ð¼Ð¾Ð¶Ð½Ð¾ ÑÐ±ÑÐ°ÑÑ */
+    clip-path: inset(0 round 1.4rem);
+  }
+
+
+  .card-3d{
+    aspect-ratio: 16 / 10;
+    max-height: 100%;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .card-3d > img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+  }
+
+  .field-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .calc-icon {
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+  }
+
+  .calc-icon.loading { pointer-events: none; }
+  .calc-icon.loading::before { visibility: hidden; }
+
+  .calc-icon.loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    top: var(--spinner-offset-y, -1px);
+    width: var(--spinner-size, 0.9em);
+    height: var(--spinner-size, 0.9em);
+    border: var(--spinner-stroke, 0.15em) solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: icn-spin 0.75s linear infinite;
+    pointer-events: none;
+  }
+
+  .calc-ok, .calc-err { display: none; }
+  .calc-ok { color: #198754; }
+  .calc-err { color: #dc3545; }
+
+  .calc-ok.show, .calc-err.show {
+    display: inline-block;
+    animation: icn-fade 1.4s ease-out forwards;
+  }
+
+  @keyframes icn-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes icn-fade {
+    0%   { opacity: 0; transform: scale(0.85); }
+    15%  { opacity: 1; transform: scale(1); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+
+  .btn-outline-purple {
+    color: #6f42c1;
+    border-color: #6f42c1;
+  }
+  .btn-outline-purple:hover {
+    color: #fff;
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+  }
+    @font-face {
+        font-family: "OCR-B";
+        src: url("https://cdn.jsdelivr.net/gh/raisty/OCR-B/dist/OCR-B.ttf") format("truetype"),
+             url("https://cdn.jsdelivr.net/gh/raisty/OCR-B/dist/OCR-B.otf") format("opentype");
+    }
+    .mrz-copy-btn {
+        transition: all 0.2s ease-in-out;
+    }
+    .mrz-copy-btn:hover {
+        transform: translateY(-1px);
+    }
+    </style>
+    
+    <title> MRZ  · PDF417.PRO</title>
+  </head>
+  <body>
+    <div itemscope itemtype="https://schema.org/WebSite">
+      <header class="font-monospace">
+         
+        <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar navbar-expand-lg navbar-dark bg-dark font-monospace">
+          <div class="container">
+            <a itemprop="url" class="navbar-brand pe-lg-4" href="/" style="font-size: 1.5em;"><strong itemprop="name">PDF417.PRO</strong></a>
+            <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navBar" aria-controls="navBar" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse" id="navBar">
+              <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item ms-1">
+                  <a itemprop="url" class="nav-link" href="/"><i class="bi bi-geo-alt-fill pe-2"></i><span itemprop="name">States</span></a>
+                </li>
+                <li class="nav-item ms-1">
+                  <a itemprop="url" class="nav-link" href="/"> <i class="bi bi-house pe-2"></i><span itemprop="name">Main</span></a>
+                </li>
+                <li class="nav-item ms-1">
+                  <a itemprop="url" class="nav-link" href="#pricing"><i class="bi bi-currency-dollar pe-2"></i><span itemprop="name">Pricing</span></a>
+                </li>
+                <li class="nav-item ms-1">
+                  <a itemprop="url" class="nav-link active" href="/mrz/"> <i class="bi bi-calculator pe-2"></i><span itemprop="name">MRZ</span></a>
+                  </li>
+                <li class="nav-item ms-1">
+                  <a itemprop="url" class="nav-link" href="#profile"> <i class="bi bi-person pe-2"></i><span itemprop="name">Profile</span></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </header>
+      <main class="font-monospace">
+        
+
+    
+
+ 
+        <div class="py-5 container">
+          <section class="text-center">
+              <div class="row py-lg-1">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                  <h1 itemprop="headline" class="fw-light">MRZ Calculator</h1>
+                  <p  itemprop="description" class="lead text-muted">
+                    A simple and free Machine Readable Zone generator that calculates check digits correctly.
+                  </p>
+                </div>
+              </div>
+              <figure>
+                <img itemprop="image" src="/media/images/mrz.jpg" class="img-fluid" style="max-height: 120px" alt="Application for barcode validation">
+              </figure>
+          </section>
+
+          <section itemscope itemtype="https://schema.org/WebApplication">
+            <h4 class="text-center pt-5">Choose ID type</h4>             
+            <meta itemprop="name" content="MRZ calculator (MRZ Generator)">
+            <meta itemprop="description" content="A tool to generate and calculate different types of MRZ (Machine-Readable Zone)">
+            <meta itemprop="applicationCategory" content="Utilities">
+            <meta itemprop="operatingSystem" content="Web">
+            <meta itemprop="url" content="https://pdf417.pro/mrz/">
+
+            <ul itemprop="name" class="nav nav-pills justify-content-center mb-3" id="pills-tab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-td1-tab" data-bs-toggle="pill" data-bs-target="#pills-td1" type="button" role="tab" aria-controls="pills-td1" aria-selected="true"> ID Cards (TD1)</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-td2-tab" data-bs-toggle="pill" data-bs-target="#pills-td2" type="button" role="tab" aria-controls="pills-td2" aria-selected="false"> ID Cards (TD2) </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-td3-tab" data-bs-toggle="pill" data-bs-target="#pills-td3" type="button" role="tab" aria-controls="pills-td3" aria-selected="false"> Passports (TD3) </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-mrvb-tab" data-bs-toggle="pill" data-bs-target="#pills-mrvb" type="button" role="tab" aria-controls="pills-mrva" aria-selected="false"> Visas (MRRV-B) </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-mrva-tab" data-bs-toggle="pill" data-bs-target="#pills-mrva" type="button" role="tab" aria-controls="pills-mrvb" aria-selected="false"> Visas (MRRV-A) </button>
+              </li>
+            </ul>
+
+            <div class="border bg-light border rounded-3 px-3 pt-3">
+              <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-td1" role="tabpanel" aria-labelledby="pills-td1-tab">
+                  <form class="row g-3 needs-validation" id="mrzDataForm1" novalidate>
+
+                    <!-- Surname -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputSurname_TD1">Surname</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder primary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="SURNAME" value="" id="inputSurname_TD1" placeholder="Doe" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a surname. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Given names -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputGivenNames_TD1">Given Names</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder secondary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="GIVENNAMES" value="" id="inputGivenNames_TD1" placeholder="John William" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a given names. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Document number -->
+                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                      <label for="inputDocumentNumber_TD1">Document Number</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Document number"></i>
+                      <input type="text" class="form-control" name="NUMBER" value="" id="inputDocumentNumber_TD1" placeholder="123456789" pattern="[a-zA-Z0-9]{7,9}" minlength="7" maxlength="9" required>
+                      <div class="invalid-feedback">Enter a number. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Birth date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                      <label for="inputBrithDate_TD1">Birth date</label>
+                      <input type="text" class="form-control" name="DOB" value="01.01.1970" id="inputBrithDate_TD1" placeholder="01.01.1970" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>
+                    </div>
+
+                    <!-- Expiry date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                      <label for="inputExpiryDate_TD1">Expiry date</label>
+                      <input type="text" class="form-control" name="DOE" value="12.12.2030" id="inputExpiryDate_TD1" placeholder="15.12.2022" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>    
+                    </div>
+
+                    <!-- Country -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputCountry_TD1">Country</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the issuing State"></i>
+                      <input type="text" class="form-control" name="COUNTRY" value="USA" id="inputCountry_TD1" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputNationality_TD1">Nationality</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the nationality of the holder"></i>
+                      <input type="text" class="form-control" name="NATIONALITY" value="USA" id="inputNationality_TD1" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Sex -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputSex_TD1">Sex</label>
+                      <select class="form-select" name="SEX" id="inputSex_TD1">
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    </div>
+
+                    <!-- Document Type -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputDocumentType_TD1">Type</label>
+                      <input type="text" class="form-control" name="DOCUMENTTYPE" value="ID" id="inputDocumentType_TD1" placeholder="ID" pattern="[a-zA-Z{1,3}" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Optional Data 1 -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                      <label for="inputOptionalData1_TD1">Optoinal Data 1</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Optional personal data at the discretion of the issuing State. Non-mandatory field. Empty string by default"></i>
+                      <input type="text" class="form-control" name="OPTIONALDATA1" value="" id="inputOptionalData1_TD1" placeholder="1234567890" pattern="[a-zA-Z0-9<]{1,15}" minlength="1" maxlength="15">
+                    </div>
+
+                    <!-- Optional Data 2 -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-6">
+                      <label for="inputOptionalData2_TD1">Optoinal Data 2</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Optional personal data at the discretion of the issuing State. Non-mandatory field. Empty string by default"></i>
+                      <input type="text" class="form-control" name="OPTIONALDATA2" value="" id="inputOptionalData2_TD1" placeholder="" pattern="[a-zA-Z0-9<]{1,11}" minlength="1" maxlength="11">
+                    </div>
+
+                    <input type="hidden" name="MRZ_TYPE" value="TD1">
+
+                    <!-- Submit button for barcode generation -->
+                    <div class="col-12 pt-3 pb-3 d-flex justify-content-center">
+                    
+                      <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="bi bi-gear-wide-connected me-1"></i> Create</button>
+                    
+                    </div>
+                  </form>
+
+
+                </div>
+                <div class="tab-pane fade" id="pills-td2" role="tabpanel" aria-labelledby="pills-td2-tab">
+                  <form class="row g-3 needs-validation" id="mrzDataForm2" novalidate> 
+
+                    <!-- Surname -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputSurname_TD2">Surname</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder primary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="SURNAME" value="" id="inputSurname_TD2" placeholder="Doe" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a surname. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Given names -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputGivenNames_TD2">Given Names</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder secondary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="GIVENNAMES" value="" id="inputGivenNames_TD2" placeholder="John William" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a given names. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Document number -->
+                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                      <label for="inputDocumentNumber_TD2">Document Number</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Document number"></i>
+                      <input type="text" class="form-control" name="NUMBER" value="" id="inputDocumentNumber_TD2" placeholder="123456789" pattern="[a-zA-Z0-9]{7,9}" minlength="7" maxlength="9" required>
+                      <div class="invalid-feedback">Enter a number. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Birth date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputBrithDate_TD2">Birth date</label>
+                      <input type="text" class="form-control" name="DOB" value="01.01.1970" id="inputBrithDate_TD2" placeholder="01.01.1970" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>
+                    </div>
+
+                    <!-- Expiry date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputExpiryDate_TD2">Expiry date</label>
+                      <input type="text" class="form-control" name="DOE" value="12.12.2030" id="inputExpiryDate_TD2" placeholder="15.12.2022" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>    
+                    </div>
+
+                    <!-- Country -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputCountry_TD2">Country</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the issuing State"></i>
+                      <input type="text" class="form-control" name="COUNTRY" value="USA" id="inputCountry_TD2" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputNationality_TD2">Nationality</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the nationality of the holder"></i>
+                      <input type="text" class="form-control" name="NATIONALITY" value="USA" id="inputNationality_TD2" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Sex -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputSex_TD2">Sex</label>
+                      <select class="form-select" name="SEX" id="inputSex_TD2" required>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    </div>
+
+                    <!-- Document Type -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputDocumentType_TD2">Type</label>
+                      <input type="text" class="form-control" name="DOCUMENTTYPE" value="ID" id="inputDocumentType_TD2" placeholder="ID" pattern="[a-zA-Z{1,3}" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Optional Data 1 -->
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-2">
+                      <label for="inputOptionalData1_TD2">Optoinal Data</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Optional personal data at the discretion of the issuing State. Non-mandatory field. Empty string by default"></i>
+                      <input type="text" class="form-control" name="OPTIONALDATA1" value="" id="inputOptionalData1_TD2" placeholder="1234567890" pattern="[a-zA-Z0-9<]{1,15}" minlength="1" maxlength="15">
+                    </div>
+
+
+                    <input type="hidden" name="MRZ_TYPE" value="TD2">
+
+
+                    <!-- Submit button for barcode generation -->
+                    <div class="col-12 pt-3 pb-3 d-flex justify-content-center">
+                    
+                      <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="bi bi-gear-wide-connected me-1"></i> Create</button>
+                    
+                    </div>
+
+                  </form>
+
+
+                </div>
+                <div class="tab-pane fade" id="pills-td3" role="tabpanel" aria-labelledby="pills-td3-tab">
+                  <form class="row g-3 needs-validation" id="mrzDataForm3" novalidate> 
+
+                    <!-- Surname -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputSurname_TD3">Surname</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder primary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="SURNAME" value="" id="inputSurname_TD3" placeholder="Doe" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a surname. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Given names -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputGivenNames_TD3">Given Names</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder secondary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="GIVENNAMES" value="" id="inputGivenNames_TD3" placeholder="John William" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a given names. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Document number -->
+                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                      <label for="inputDocumentNumber_TD3">Document Number</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Document number"></i>
+                      <input type="text" class="form-control" name="NUMBER" value="" id="inputDocumentNumber_TD3" placeholder="123456789" pattern="[a-zA-Z0-9]{7,9}" minlength="7" maxlength="9" required>
+                      <div class="invalid-feedback">Enter a number. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Birth date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputBrithDate_TD3">Birth date</label>
+                      <input type="text" class="form-control" name="DOB" value="01.01.1970" id="inputBrithDate_TD3" placeholder="01.01.1970" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>
+                    </div>
+
+                    <!-- Expiry date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputExpiryDate_TD3">Expiry date</label>
+                      <input type="text" class="form-control" name="DOE" value="12.12.2030" id="inputExpiryDate_TD3" placeholder="15.12.2022" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>    
+                    </div>
+
+                    <!-- Country -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputCountry_TD3">Country</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the issuing State"></i>
+                      <input type="text" class="form-control" name="COUNTRY" value="USA" id="inputCountry_TD3" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputNationality_TD3">Nationality</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the nationality of the holder"></i>
+                      <input type="text" class="form-control" name="NATIONALITY" value="USA" id="inputNationality_TD3" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Sex -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputSex_TD3">Sex</label>
+                      <select class="form-select" name="SEX" id="inputSex_TD3">
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    </div>
+
+                    <!-- Document Type -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputDocumentType_TD3">Type</label>
+                      <input type="text" class="form-control" name="DOCUMENTTYPE" value="P" id="inputDocumentType_TD3" placeholder="ID" pattern="[a-zA-Z{1,3}" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Optional Data 1 -->
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-2">
+                      <label for="inputOptionalData1_TD3">Optoinal Data</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Optional personal data at the discretion of the issuing State. Non-mandatory field. Empty string by default"></i>
+                      <input type="text" class="form-control" name="OPTIONALDATA1" value="" id="inputOptionalData1_TD3" placeholder="1234567890" pattern="[a-zA-Z0-9<]{1,15}" minlength="1" maxlength="15">
+                    </div>
+
+
+                    <input type="hidden" name="MRZ_TYPE" value="TD3">
+
+
+                    <!-- Submit button for barcode generation -->
+                    <div class="col-12 pt-3 pb-3 d-flex justify-content-center">
+                    
+                      <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="bi bi-gear-wide-connected me-1"></i> Create</button>
+                    
+                    </div>
+
+                  </form>
+
+
+                </div>
+                <div class="tab-pane fade" id="pills-mrvb" role="tabpanel" aria-labelledby="pills-mrvb-tab">
+                  <form class="row g-3 needs-validation" id="mrzDataForm4" novalidate> 
+
+                    <!-- Surname -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputSurname_MRVB">Surname</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder primary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="SURNAME" value="" id="inputSurname_MRVB" placeholder="Doe" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a surname. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Given names -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputGivenNames_MRVB">Given Names</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder secondary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="GIVENNAMES" value="" id="inputGivenNames_MRVB" placeholder="John William" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a given names. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Document number -->
+                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                      <label for="inputDocumentNumber_MRVB">Document Number</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Document number"></i>
+                      <input type="text" class="form-control" name="NUMBER" value="" id="inputDocumentNumber_MRVB" placeholder="123456789" pattern="[a-zA-Z0-9]{7,9}" minlength="7" maxlength="9" required>
+                      <div class="invalid-feedback">Enter a number. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Birth date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputBrithDate_MRVB">Birth date</label>
+                      <input type="text" class="form-control" name="DOB" value="01.01.1970" id="inputBrithDate_MRVB" placeholder="01.01.1970" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>
+                    </div>
+
+                    <!-- Expiry date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputExpiryDate_MRVB">Expiry date</label>
+                      <input type="text" class="form-control" name="DOE" value="12.12.2030" id="inputExpiryDate_MRVB" placeholder="15.12.2022" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>    
+                    </div>
+
+                    <!-- Country -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputCountry_MRVB">Country</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the issuing State"></i>
+                      <input type="text" class="form-control" name="COUNTRY" value="USA" id="inputCountry_MRVB" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputNationality_MRVB">Nationality</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the nationality of the holder"></i>
+                      <input type="text" class="form-control" name="NATIONALITY" value="USA" id="inputNationality_MRVB" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Sex -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputSex_MRVB">Sex</label>
+                      <select class="form-select" name="SEX" id="inputSex_MRVB">
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    </div>
+
+                    <!-- Document Type -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputDocumentType_MRVB">Type</label>
+                      <input type="text" class="form-control" name="DOCUMENTTYPE" value="V" id="inputDocumentType_MRVB" placeholder="ID" pattern="[a-zA-Z{1,3}" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Optional Data 1 -->
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-2">
+                      <label for="inputOptionalData1_MRVB">Optoinal Data</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Optional personal data at the discretion of the issuing State. Non-mandatory field. Empty string by default"></i>
+                      <input type="text" class="form-control" name="OPTIONALDATA1" value="" id="inputOptionalData1_MRVB" placeholder="1234567890" pattern="[a-zA-Z0-9]{1,15}" minlength="1" maxlength="15">
+                    </div>
+
+
+                    <input type="hidden" name="MRZ_TYPE" value="MRVB">
+
+
+                    <!-- Submit button for barcode generation -->
+                    <div class="col-12 pt-3 pb-3 d-flex justify-content-center">
+                    
+                      <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="bi bi-gear-wide-connected me-1"></i> Create</button>
+                    
+                    </div>
+
+                  </form>
+
+
+                </div>
+                <div class="tab-pane fade" id="pills-mrva" role="tabpanel" aria-labelledby="pills-mrva-tab">
+                  <form class="row g-3 needs-validation" id="mrzDataForm5" novalidate> 
+
+                    <!-- Surname -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputSurname_MRVA">Surname</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder primary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="SURNAME" value="" id="inputSurname_MRVA" placeholder="Doe" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a surname. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Given names -->
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                      <label for="inputGivenNames_MRVA">Given Names</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Holder secondary identifier(s). This field will be transliterated"></i>
+                      <input type="text" class="form-control" name="GIVENNAMES" value="" id="inputGivenNames_MRVA" placeholder="John William" pattern="[a-zA-Z\s]+" required>
+                      <div class="invalid-feedback">Enter a given names. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Document number -->
+                    <div class="col-12 col-sm-12 col-md-4 col-lg-4">
+                      <label for="inputDocumentNumber_MRVA">Document Number</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Document number"></i>
+                      <input type="text" class="form-control" name="NUMBER" value="" id="inputDocumentNumber_MRVA" placeholder="123456789" pattern="[a-zA-Z0-9]{7,9}" minlength="7" maxlength="9" required>
+                      <div class="invalid-feedback">Enter a number. The field must not be empty.</div>
+                    </div>
+
+                    <!-- Birth date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputBrithDate_MRVA">Birth date</label>
+                      <input type="text" class="form-control" name="DOB" value="01.01.1970" id="inputBrithDate_MRVA" placeholder="01.01.1970" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>
+                    </div>
+
+                    <!-- Expiry date -->
+                    <div class="col-6 col-sm-6 col-md-4 col-lg-2">
+                      <label for="inputExpiryDate_MRVA">Expiry date</label>
+                      <input type="text" class="form-control" name="DOE" value="12.12.2030" id="inputExpiryDate_MRVA" placeholder="15.12.2022" pattern="(((0[1-9]|[12][0-9]|3[01])\.((0[13578]|1[02]))|((0[1-9]|[12][0-9]|30)\.(0[469]|11))|(0[1-9]|[1][0-9]|2[0-8])\.(02))\.([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3}))|(29\.02\.(([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00)))
+                      " minlength="10" maxlength="10" required>
+                      <div class="invalid-feedback">Requires a date in the DD.MM.YYYY format.</div>    
+                    </div>
+
+                    <!-- Country -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputCountry_MRVA">Country</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the issuing State"></i>
+                      <input type="text" class="form-control" name="COUNTRY" value="USA" id="inputCountry_MRVA" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-2">
+                      <label for="inputNationality_MRVA">Nationality</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="The three-letter code to indicate the nationality of the holder"></i>
+                      <input type="text" class="form-control" name="NATIONALITY" value="USA" id="inputNationality_MRVA" placeholder="USA" pattern="(AFG|ALA|ALB|DZA|ASM|AND|AGO|AIA|ATA|ATG|ARG|ARM|ABW|AUS|AUT|AZE|BHS|BHR|BGD|BRB|BLR|BEL|BLZ|BEN|BMU|BTN|BOL|BES|BIH|BWA|BVT|BRA|IOT|BRN|BGR|BFA|BDI|CPV|KHM|CMR|CAN|CYM|CAF|TCD|CHL|CHN|CXR|CCK|COL|COM|COG|COD|COK|CRI|CIV|HRV|CUB|CUW|CYP|CZE|DNK|DJI|DMA|DOM|ECU|EGY|SLV|GNQ|ERI|EST|ETH|FLK|FRO|FJI|FIN|FRA|GUF|PYF|ATF|GAB|GMB|GEO|D|GHA|GIB|GRC|GRL|GRD|GLP|GUM|GTM|GGY|GIN|GNB|GUY|HTI|HMD|VAT|HND|HKG|HUN|ISL|IND|IDN|IRN|IRQ|IRL|IMN|ISR|ITA|JAM|JPN|JEY|JOR|KAZ|KEN|KIR|RKS|PRK|KOR|KWT|KGZ|LAO|LVA|LBN|LSO|LBR|LBY|LIE|LTU|LUX|MAC|MKD|MDG|MWI|MYS|MDV|MLI|MLT|MHL|MTQ|MRT|MUS|MYT|MEX|FSM|MDA|MCO|MNG|MNE|MSR|MAR|MOZ|MMR|NAM|NRU|NPL|NLD|ANT|NTZ|NCL|NZL|NIC|NER|NGA|NIU|NFK|MNP|NOR|OMN|PAK|PLW|PSE|PAN|PNG|PRY|PER|PHL|PCN|POL|PRT|PRI|QAT|REU|ROU|RUS|RWA|BLM|SHN|KNA|LCA|MAF|SPM|VCT|WSM|SMR|STP|SAU|SEN|SRB|SYC|SLE|SGP|SXM|SVK|SVN|SLB|SOM|ZAF|SGS|SSD|ESP|LKA|SDN|SUR|SJM|SWZ|SWE|CHE|SYR|TWN|TJK|TZA|THA|TLS|TGO|TKL|TON|TTO|TUN|TUR|TKM|TCA|TUV|UGA|UKR|ARE|GB|GBR|GBD|GBN|GBO|GBP|GBS|USA|UMI|URY|UTO|UZB|VUT|VEN|VNM|VGB|VIR|WLF|ESH|YEM|ZMB|ZWE|EUE|UNO|UNA|UNK|WSA|XBA|XIM|XCC|XCO|XEC|INP|XPO|XOM|XXA|XXB|XXC|XXX)" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Sex -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputSex_MRVA">Sex</label>
+                      <select class="form-select" name="SEX" id="inputSex_MRVA">
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                      </select>
+                    </div>
+
+                    <!-- Document Type -->
+                    <div class="col-6 col-sm-3 col-md-3 col-lg-1">
+                      <label for="inputDocumentType_MRVA">Type</label>
+                      <input type="text" class="form-control" name="DOCUMENTTYPE" value="V" id="inputDocumentType_MRVA" placeholder="ID" pattern="[a-zA-Z{1,3}" minlength="1" maxlength="3" required>
+                    </div>
+
+                    <!-- Optional Data 1 -->
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-3 col-xl-2">
+                      <label for="inputOptionalData1_MRVA">Optoinal Data</label>
+                      <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-html="true" title="Optional personal data at the discretion of the issuing State. Non-mandatory field. Empty string by default"></i>
+                      <input type="text" class="form-control" name="OPTIONALDATA1" value="" id="inputOptionalData1_MRVA" placeholder="1234567890" pattern="[a-zA-Z0-9]{1,15}" minlength="1" maxlength="15">
+                    </div>
+
+                    <input type="hidden" name="MRZ_TYPE" value="MRVA">
+
+                    <!-- Submit button for barcode generation -->
+                    <div class="col-12 pt-3 pb-3 d-flex justify-content-center">
+                    
+                      <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm"><i class="bi bi-gear-wide-connected me-1"></i> Create</button>
+                    
+                    </div>
+                  </form>
+
+
+                </div>
+              </div>
+            </div>
+
+            <div class="container font-monospace mt-3 border rounded-3 bg-white shadow-sm" id="mrzBlock">
+                <div class="d-flex flex-column align-items-center justify-content-center text-center py-3">
+                    <p id="mrzAreaPlaceholder" class="pt-3 user-select-all" style="font-size: clamp(12px, 2.4vw, 30px); font-family:'OCR-B', monospace; letter-spacing: 2px; line-height: 1.35; color: #1e293b;">
+                      IDUSA1234567897&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>7001017M3012121USA&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;0<br>DOE&lt;&lt;JOHN&lt;WILLIAM&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+                    </p>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" onclick="copyMrzToClipboard()" class="btn btn-sm btn-outline-primary mrz-copy-btn px-3 py-1">
+                            <i class="bi bi-clipboard me-1"></i> Copy MRZ
+                        </button>
+                        <button type="button" onclick="downloadMrzText()" class="btn btn-sm btn-outline-secondary mrz-copy-btn px-3 py-1">
+                            <i class="bi bi-download me-1"></i> Download .txt
+                        </button>
+                    </div>
+                    <span id="copyToast" class="text-success small mt-1 visually-hidden font-monospace">
+                        <i class="bi bi-check-circle-fill me-1"></i> Copied to clipboard!
+                    </span>
+                    <span id="mrz_info_area" class="p-3 visually-hidden" style="font-size: 16px;">
+                      Fill in the fields and click the "Create" button and your mrz code will appear here.
+                    </span>
+                </div>
+            </div>
+
+            <div class="container font-monospace mt-3 p-3 border rounded-3 visually-hidden" id="mrzLoading">
+                <div class="d-flex justify-content-center p-4">
+                    <div class="spinner-border" role="status">
+                    </div>
+                </div>
+            </div>
+          </section>
+
+          <section itemscope itemtype="https://schema.org/Article">
+            <div class="container d-flex justify-content-center font-monospace px-3 pt-5 pb-3">
+                <h3 itemprop="headline"> What is a MRZ? </h3>
+            </div>
+
+            <p itemprop="articleBody">
+                MRZ (Machine-Readable Zone) is a section found on documents like passports, visas,
+                and some ID cards that is specifically designed for quick and accurate machine reading.
+                The MRZ encodes essential information about the document holder, including their name,
+                nationality, date of birth, document number, and expiration date. It is typically located
+                at the bottom of the document's information page and consists of two or three lines of text.
+                The text is formatted in a standardized way using letters, numbers,
+                and special characters like &lt; to ensure that the data can be processed efficiently by scanners
+                at border controls and other checkpoints. You can read more information about the MRZ in this
+                <a itemprop="url" href="/articles/what-is-mrz/">article</a>.
+            </p>
+          </section>
+
+          <section itemscope itemtype="https://schema.org/Article">
+            <div class="container d-flex justify-content-center font-monospace px-3 pt-5 pb-3">
+                <h3 itemprop="headline"> Usage example </h3>
+            </div>
+
+            <p itemprop="articleBody">
+              With our generator you can create any MRZ for any document. For example, the MRZ for a Canadian permanent resident card:
+            </p>
+            <figure class="text-center">
+              <img itemprop="image" src="/media/images/canada_rp_mrz_example.png" onerror="this.src='https://pdf417.pro/media/images/canada_rp_mrz_example.png'" class="img-fluid" style="max-height: 360px" alt="Application for barcode validation">
+            </figure>
+          </section>
+
+
+          <section itemscope itemtype="https://schema.org/VideoObject">
+            <div class="container d-flex justify-content-center font-monospace px-3 pt-5 pb-3">
+              <h3 itemprop="name">Video Demonstration</h3>
+            </div>
+
+            <meta itemprop="description" content="A demonstration of how to use the free MRZ calculator on PDF417.PRO.">
+            <meta itemprop="uploadDate" content="2025-01-01">
+            <meta itemprop="thumbnailUrl" content="https://pdf417.pro/media/images/canada_rp_mrz_example.png">
+
+            <div class="container mb-5">
+              <div class="ratio ratio-16x9">
+                <iframe
+                  itemprop="embedUrl"
+                  src="https://pdf417.pro/media/images/mrz_demo.webm"
+                  title="MRZ Calculator Demo"
+                  allowfullscreen
+                  loading="lazy">
+                </iframe>
+              </div>
+            </div>
+          </section>
+
+
+        </div>
+
+</main>
+<footer class="footer mt-auto py-3 bg-light"><div class="container d-flex justify-content-center font-monospace text-sm footer-text">PDF417.PRO &copy; 2022 &mdash; 2026</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// --- ICAO 9303 MRZ Engine & Form Controller ---
+const ICAO_WEIGHTS = [7, 3, 1];
+
+function getCharVal(c) {
+    if (c === '<') return 0;
+    if (c >= '0' && c <= '9') return c.charCodeAt(0) - 48;
+    if (c >= 'A' && c <= 'Z') return c.charCodeAt(0) - 55;
+    return 0;
+}
+
+function calcCheckDigit(str) {
+    let sum = 0;
+    const s = (str || '').toUpperCase();
+    for (let i = 0; i < s.length; i++) {
+        sum += getCharVal(s[i]) * ICAO_WEIGHTS[i % 3];
+    }
+    return String(sum % 10);
+}
+
+function sanitizeMrz(str) {
+    if (!str) return '';
+    const trans = {
+        'Ä':'AE','Ö':'OE','Ü':'UE','ß':'SS','À':'A','Á':'A','Â':'A','Ã':'A','Å':'AA',
+        'È':'E','É':'E','Ê':'E','Ë':'E','Ì':'I','Í':'I','Î':'I','Ï':'I',
+        'Ò':'O','Ó':'O','Ô':'O','Õ':'O','Ø':'OE','Ù':'U','Ú':'U','Û':'U','Ñ':'N','Ç':'C','Ý':'Y'
+    };
+    let s = String(str).toUpperCase();
+    for (const [k, v] of Object.entries(trans)) {
+        s = s.split(k).join(v);
+    }
+    return s.replace(/[^A-Z0-9<]/g, '<');
+}
+
+function padMrz(str, len) {
+    const s = sanitizeMrz(str);
+    if (s.length > len) return s.slice(0, len);
+    return s.padEnd(len, '<');
+}
+
+function formatMrzDate(dateStr) {
+    if (!dateStr) return '000101';
+    dateStr = String(dateStr).trim();
+    const dmy = dateStr.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+    if (dmy) {
+        return dmy[3].slice(-2) + dmy[2].padStart(2, '0') + dmy[1].padStart(2, '0');
+    }
+    const ymd = dateStr.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+    if (ymd) {
+        return ymd[1].slice(-2) + ymd[2].padStart(2, '0') + ymd[3].padStart(2, '0');
+    }
+    const clean = dateStr.replace(/\D/g, '');
+    if (clean.length === 8) {
+        if (parseInt(clean.slice(0, 4)) >= 1900 && parseInt(clean.slice(0, 4)) <= 2100) return clean.slice(2, 8);
+        if (parseInt(clean.slice(4)) >= 1900 && parseInt(clean.slice(4)) <= 2100) return clean.slice(6, 8) + clean.slice(2, 4) + clean.slice(0, 2);
+        return clean.slice(2, 8);
+    }
+    if (clean.length === 6) return clean;
+    return clean.slice(0, 6).padEnd(6, '0');
+}
+
+function formatName(surname, givenNames, len) {
+    const sur = sanitizeMrz(surname).replace(/<+/g, ' ').trim().replace(/\s+/g, '<');
+    const giv = sanitizeMrz(givenNames).replace(/<+/g, ' ').trim().replace(/\s+/g, '<');
+    let comb = '';
+    if (sur && giv) comb = sur + '<<' + giv;
+    else if (sur) comb = sur;
+    else if (giv) comb = giv;
+    return padMrz(comb, len);
+}
+
+function computeMRZForData(data) {
+    const mrzType = data.MRZ_TYPE || 'TD1';
+    const sur = data.SURNAME || '';
+    const giv = data.GIVENNAMES || '';
+    const num = padMrz(data.NUMBER || '123456789', 9);
+    const numChk = calcCheckDigit(num);
+    const dob = formatMrzDate(data.DOB);
+    const dobChk = calcCheckDigit(dob);
+    const doe = formatMrzDate(data.DOE);
+    const doeChk = calcCheckDigit(doe);
+    const country = padMrz(data.COUNTRY || 'USA', 3);
+    const nat = padMrz(data.NATIONALITY || country, 3);
+    const sexRaw = (data.SEX || 'M').toUpperCase();
+    const sex = (sexRaw === 'M' || sexRaw === 'F') ? sexRaw : '<';
+    const sub = padMrz(data.DOCUMENTTYPE || (mrzType.startsWith('MRV') ? 'V' : (mrzType === 'TD3' ? 'P' : 'ID')), 2);
+
+    if (mrzType === 'TD1') {
+        const opt1 = padMrz(data.OPTIONALDATA1 || '', 15);
+        const opt2 = padMrz(data.OPTIONALDATA2 || '', 11);
+        const compStr = num + numChk + opt1 + dob + dobChk + doe + doeChk + opt2;
+        const compChk = calcCheckDigit(compStr);
+        const l1 = (sub + country + num + numChk + opt1).slice(0, 30);
+        const l2 = (dob + dobChk + sex + doe + doeChk + nat + opt2 + compChk).slice(0, 30);
+        const l3 = formatName(sur, giv, 30);
+        return [l1, l2, l3];
+    } else if (mrzType === 'TD2') {
+        const l1 = (sub + country + formatName(sur, giv, 31)).slice(0, 36);
+        const opt = padMrz(data.OPTIONALDATA1 || '', 7);
+        const compStr = num + numChk + dob + dobChk + doe + doeChk + opt;
+        const compChk = calcCheckDigit(compStr);
+        const l2 = (num + numChk + nat + dob + dobChk + sex + doe + doeChk + opt + compChk).slice(0, 36);
+        return [l1, l2];
+    } else if (mrzType === 'TD3') {
+        const l1 = (sub + country + formatName(sur, giv, 39)).slice(0, 44);
+        const opt = padMrz(data.OPTIONALDATA1 || '', 14);
+        const optChk = calcCheckDigit(opt);
+        const compStr = num + numChk + dob + dobChk + doe + doeChk + opt + optChk;
+        const compChk = calcCheckDigit(compStr);
+        const l2 = (num + numChk + nat + dob + dobChk + sex + doe + doeChk + opt + optChk + compChk).slice(0, 44);
+        return [l1, l2];
+    } else if (mrzType === 'MRVB') {
+        const l1 = (sub + country + formatName(sur, giv, 31)).slice(0, 36);
+        const opt = padMrz(data.OPTIONALDATA1 || '', 8);
+        const l2 = (num + numChk + nat + dob + dobChk + sex + doe + doeChk + opt).slice(0, 36);
+        return [l1, l2];
+    } else if (mrzType === 'MRVA') {
+        const l1 = (sub + country + formatName(sur, giv, 39)).slice(0, 44);
+        const opt = padMrz(data.OPTIONALDATA1 || '', 16);
+        const l2 = (num + numChk + nat + dob + dobChk + sex + doe + doeChk + opt).slice(0, 44);
+        return [l1, l2];
+    }
+    return [];
+}
+
+function createMRZ(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const block = document.getElementById('mrzBlock');
+    const loading = document.getElementById('mrzLoading');
+    const placeholder = document.getElementById('mrzAreaPlaceholder');
+
+    if (block) block.classList.add("visually-hidden");
+    if (loading) loading.classList.remove("visually-hidden");
+
+    const formData = new FormData(form);
+    const data = {};
+    for (let [key, val] of formData) { data[key] = val; }
+
+    // Instant zero-latency computation
+    setTimeout(() => {
+        const lines = computeMRZForData(data);
+        if (lines && lines.length) {
+            placeholder.innerHTML = lines.join('<br>');
+        }
+        if (block) block.classList.remove("visually-hidden");
+        if (loading) loading.classList.add("visually-hidden");
+    }, 100);
+
+    // Synchronize with backend API in background
+    fetch('/create_mrz_ajax/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res && res.status === 'SUCCESS' && res.message) {
+            placeholder.innerHTML = res.message;
+        }
+    })
+    .catch(e => console.log('MRZ API background sync:', e));
+}
+
+// Copy MRZ helper
+function copyMrzToClipboard() {
+    const placeholder = document.getElementById('mrzAreaPlaceholder');
+    if (!placeholder) return;
+    const text = placeholder.innerText || placeholder.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('copyToast');
+        if (toast) {
+            toast.classList.remove('visually-hidden');
+            setTimeout(() => toast.classList.add('visually-hidden'), 2500);
+        }
+    });
+}
+
+function downloadMrzText() {
+    const placeholder = document.getElementById('mrzAreaPlaceholder');
+    if (!placeholder) return;
+    const text = placeholder.innerText || placeholder.textContent;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ICAO_9303_MRZ.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Initialize tooltips and form validation listeners
+document.addEventListener('DOMContentLoaded', function () {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    ['mrzDataForm1', 'mrzDataForm2', 'mrzDataForm3', 'mrzDataForm4', 'mrzDataForm5'].forEach(fId => {
+        const f = document.getElementById(fId);
+        if (f) {
+            f.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (f.checkValidity()) {
+                    createMRZ(fId);
+                } else {
+                    f.classList.add('was-validated');
+                }
+            });
+        }
+    });
+});
+
+// Tab placeholder synchronization matching pdf417.pro
+document.addEventListener('shown.bs.tab', function (event) {
+    const activatedTab = event.target;
+    const placeholder = document.getElementById("mrzAreaPlaceholder");
+    if (!placeholder) return;
+    switch (activatedTab.getAttribute('id')) {
+        case 'pills-td1-tab':
+            placeholder.innerHTML = 'IDUSA1234567897&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>7001017M3012121USA&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;0<br>DOE&lt;&lt;JOHN&lt;WILLIAM&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;';
+            break;
+        case 'pills-td2-tab':
+            placeholder.innerHTML = 'IDUSADOE&lt;&lt;JOHN&lt;WILLIAM&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>1234567897USA7001017M3012121&lt;&lt;&lt;&lt;&lt;&lt;&lt;0';
+            break;
+        case 'pills-td3-tab':
+            placeholder.innerHTML = 'P&lt;USADOE&lt;&lt;JOHN&lt;WILLIAM&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>1234567897USA7001017M3012121&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;00';
+            break;
+        case 'pills-mrvb-tab':
+            placeholder.innerHTML = 'V&lt;USADOE&lt;&lt;JOHN&lt;WILLIAM&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>1234567897USA7001017M3012121&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;';
+            break;
+        case 'pills-mrva-tab':
+            placeholder.innerHTML = 'V&lt;USADOE&lt;&lt;JOHN&lt;WILLIAM&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>1234567897USA7001017M3012121&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;';
+            break;
+    }
+});
+</script>
+</body>
+</html>

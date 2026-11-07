@@ -72,13 +72,26 @@ def pad_mrz(text: str, length: int) -> str:
     return sanitized.ljust(length, "<")
 
 def format_date_yymmdd(dt_str: str) -> str:
-    """Normalizes various date formats (YYYY-MM-DD, YYYYMMDD, YYMMDD) to 6-digit YYMMDD."""
+    """Normalizes various date formats (DD.MM.YYYY, YYYY-MM-DD, DDMMYYYY, YYYYMMDD, YYMMDD) to 6-digit YYMMDD."""
     if not dt_str:
         return "000101"
+    dt_str = str(dt_str).strip()
+    m = re.match(r"^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$", dt_str)
+    if m:
+        day, month, year = m.groups()
+        return f"{year[-2:]:0>2}{int(month):02d}{int(day):02d}"
+    m = re.match(r"^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$", dt_str)
+    if m:
+        year, month, day = m.groups()
+        return f"{year[-2:]:0>2}{int(month):02d}{int(day):02d}"
     digits = re.sub(r"\D", "", dt_str)
-    if len(digits) == 8:  # YYYYMMDD
+    if len(digits) == 8:
+        if 1900 <= int(digits[:4]) <= 2100:
+            return digits[2:8]
+        if 1900 <= int(digits[4:]) <= 2100:
+            return digits[6:8] + digits[2:4] + digits[0:2]
         return digits[2:8]
-    if len(digits) == 6:  # YYMMDD
+    if len(digits) == 6:
         return digits
     return digits[:6].ljust(6, "0")
 
@@ -106,33 +119,31 @@ def generate_td3(params: Dict[str, Any]) -> Dict[str, Any]:
     Line 1: P<[ISSUER_3][SURNAME]<<[GIVEN_NAMES]...
     Line 2: [DOC_9][CHK][NAT_3][DOB_6][CHK][SEX][EXP_6][CHK][OPT_14][CHK][COMPOSITE_CHK]
     """
-    doc_type_code = params.get("document_subtype", "P")
-    if not doc_type_code:
-        doc_type_code = "P"
-    doc_type = pad_mrz(doc_type_code, 2)
-    issuer = pad_mrz(params.get("country", "USA"), 3)
-    name_field = format_name_field(params.get("surname", ""), params.get("given_names", ""), 39)
+    raw_sub = params.get("document_subtype") or params.get("document_type_code") or params.get("DOCUMENTTYPE") or "P"
+    doc_type = pad_mrz(raw_sub, 2)
+    issuer = pad_mrz(params.get("country") or params.get("COUNTRY") or "USA", 3)
+    surname = params.get("surname") or params.get("SURNAME") or ""
+    given_names = params.get("given_names") or params.get("GIVENNAMES") or ""
+    name_field = format_name_field(surname, given_names, 39)
     line1 = f"{doc_type}{issuer}{name_field}"[:44]
 
-    # Line 2
-    raw_doc_num = params.get("document_number", "L898902C3")
+    raw_doc_num = params.get("document_number") or params.get("NUMBER") or "L898902C3"
     doc_num = pad_mrz(raw_doc_num, 9)
     doc_num_chk = compute_check_digit(doc_num)
     
-    nationality = pad_mrz(params.get("nationality", issuer), 3)
-    dob = format_date_yymmdd(params.get("birth_date", "740812"))
+    nationality = pad_mrz(params.get("nationality") or params.get("NATIONALITY") or issuer, 3)
+    dob = format_date_yymmdd(params.get("birth_date") or params.get("DOB") or "740812")
     dob_chk = compute_check_digit(dob)
     
-    sex_val = params.get("sex", "M").upper()
+    sex_val = (params.get("sex") or params.get("SEX") or "M").upper()
     sex = sex_val[0] if sex_val in ["M", "F"] else "<"
     
-    expiry = format_date_yymmdd(params.get("expiry_date", "281231"))
+    expiry = format_date_yymmdd(params.get("expiry_date") or params.get("DOE") or "281231")
     expiry_chk = compute_check_digit(expiry)
     
-    opt_data = pad_mrz(params.get("optional_data", ""), 14)
-    opt_chk = compute_check_digit(opt_data) if params.get("optional_data") else "<"
+    opt_data = pad_mrz(params.get("optional1") or params.get("OPTIONALDATA1") or params.get("optional_data") or "", 14)
+    opt_chk = compute_check_digit(opt_data)
     
-    # Composite check digit calculated over doc_num + chk + dob + chk + expiry + chk + opt_data + opt_chk
     composite_string = f"{doc_num}{doc_num_chk}{dob}{dob_chk}{expiry}{expiry_chk}{opt_data}{opt_chk}"
     composite_chk = compute_check_digit(composite_string)
     
@@ -165,28 +176,31 @@ def generate_td1(params: Dict[str, Any]) -> Dict[str, Any]:
     Line 2: [DOB_6][CHK][SEX][EXP_6][CHK][NAT_3][OPT2_11][COMPOSITE_CHK]
     Line 3: [SURNAME]<<[GIVEN_NAMES]...
     """
-    doc_type = pad_mrz(params.get("document_subtype", "I"), 2)
-    issuer = pad_mrz(params.get("country", "USA"), 3)
-    doc_num = pad_mrz(params.get("document_number", "D12345678"), 9)
+    doc_type = pad_mrz(params.get("document_subtype") or params.get("document_type_code") or params.get("DOCUMENTTYPE") or "ID", 2)
+    issuer = pad_mrz(params.get("country") or params.get("COUNTRY") or "USA", 3)
+    raw_doc_num = params.get("document_number") or params.get("NUMBER") or "D12345678"
+    doc_num = pad_mrz(raw_doc_num, 9)
     doc_num_chk = compute_check_digit(doc_num)
-    opt1 = pad_mrz(params.get("optional1", params.get("optional_data", "")), 15)
+    opt1 = pad_mrz(params.get("optional1") or params.get("OPTIONALDATA1") or params.get("optional_data") or "", 15)
     line1 = f"{doc_type}{issuer}{doc_num}{doc_num_chk}{opt1}"[:30]
 
-    dob = format_date_yymmdd(params.get("birth_date", "850520"))
+    dob = format_date_yymmdd(params.get("birth_date") or params.get("DOB") or "850520")
     dob_chk = compute_check_digit(dob)
-    sex_val = params.get("sex", "M").upper()
+    sex_val = (params.get("sex") or params.get("SEX") or "M").upper()
     sex = sex_val[0] if sex_val in ["M", "F"] else "<"
-    expiry = format_date_yymmdd(params.get("expiry_date", "300520"))
+    expiry = format_date_yymmdd(params.get("expiry_date") or params.get("DOE") or "300520")
     expiry_chk = compute_check_digit(expiry)
-    nationality = pad_mrz(params.get("nationality", issuer), 3)
-    opt2 = pad_mrz(params.get("optional2", ""), 11)
+    nationality = pad_mrz(params.get("nationality") or params.get("NATIONALITY") or issuer, 3)
+    opt2 = pad_mrz(params.get("optional2") or params.get("OPTIONALDATA2") or "", 11)
     
-    # Composite string for TD1: Line 1 chars 6-15 (doc_num + chk) + Line 2 chars 1-7 (dob+chk) + chars 9-15 (exp+chk) + chars 19-29 (opt2)
+    # Composite string for TD1: Line 1 chars 6-30 (doc_num + chk + opt1) + Line 2 chars 1-7 (dob+chk) + chars 9-15 (exp+chk) + chars 19-29 (opt2)
     composite_string = f"{doc_num}{doc_num_chk}{opt1}{dob}{dob_chk}{expiry}{expiry_chk}{opt2}"
     composite_chk = compute_check_digit(composite_string)
     line2 = f"{dob}{dob_chk}{sex}{expiry}{expiry_chk}{nationality}{opt2}{composite_chk}"[:30]
 
-    line3 = format_name_field(params.get("surname", ""), params.get("given_names", ""), 30)[:30]
+    surname = params.get("surname") or params.get("SURNAME") or ""
+    given_names = params.get("given_names") or params.get("GIVENNAMES") or ""
+    line3 = format_name_field(surname, given_names, 30)[:30]
 
     return {
         "format": "TD1",
@@ -212,21 +226,24 @@ def generate_td2(params: Dict[str, Any]) -> Dict[str, Any]:
     Line 1: I<[ISSUER_3][SURNAME]<<[GIVEN_NAMES]...
     Line 2: [DOC_9][CHK][NAT_3][DOB_6][CHK][SEX][EXP_6][CHK][OPT_7][COMPOSITE_CHK]
     """
-    doc_type = pad_mrz(params.get("document_subtype", "I"), 2)
-    issuer = pad_mrz(params.get("country", "USA"), 3)
-    name_field = format_name_field(params.get("surname", ""), params.get("given_names", ""), 31)
+    doc_type = pad_mrz(params.get("document_subtype") or params.get("document_type_code") or params.get("DOCUMENTTYPE") or "ID", 2)
+    issuer = pad_mrz(params.get("country") or params.get("COUNTRY") or "USA", 3)
+    surname = params.get("surname") or params.get("SURNAME") or ""
+    given_names = params.get("given_names") or params.get("GIVENNAMES") or ""
+    name_field = format_name_field(surname, given_names, 31)
     line1 = f"{doc_type}{issuer}{name_field}"[:36]
 
-    doc_num = pad_mrz(params.get("document_number", "T98765432"), 9)
+    raw_doc_num = params.get("document_number") or params.get("NUMBER") or "T98765432"
+    doc_num = pad_mrz(raw_doc_num, 9)
     doc_num_chk = compute_check_digit(doc_num)
-    nationality = pad_mrz(params.get("nationality", issuer), 3)
-    dob = format_date_yymmdd(params.get("birth_date", "900101"))
+    nationality = pad_mrz(params.get("nationality") or params.get("NATIONALITY") or issuer, 3)
+    dob = format_date_yymmdd(params.get("birth_date") or params.get("DOB") or "900101")
     dob_chk = compute_check_digit(dob)
-    sex_val = params.get("sex", "M").upper()
+    sex_val = (params.get("sex") or params.get("SEX") or "M").upper()
     sex = sex_val[0] if sex_val in ["M", "F"] else "<"
-    expiry = format_date_yymmdd(params.get("expiry_date", "300101"))
+    expiry = format_date_yymmdd(params.get("expiry_date") or params.get("DOE") or "300101")
     expiry_chk = compute_check_digit(expiry)
-    opt = pad_mrz(params.get("optional_data", ""), 7)
+    opt = pad_mrz(params.get("optional1") or params.get("OPTIONALDATA1") or params.get("optional_data") or "", 7)
 
     composite_string = f"{doc_num}{doc_num_chk}{dob}{dob_chk}{expiry}{expiry_chk}{opt}"
     composite_chk = compute_check_digit(composite_string)
@@ -251,33 +268,105 @@ def generate_td2(params: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 def generate_mrv_a(params: Dict[str, Any]) -> Dict[str, Any]:
-    """Visa Type A (2 lines x 44 chars)"""
-    params = params.copy()
-    params["document_subtype"] = "V<"
-    res = generate_td3(params)
-    res["format"] = "MRVA"
-    res["title"] = "Visa (Format A - 44ch)"
-    return res
+    """
+    ICAO 9303 Visa Type A (2 lines x 44 chars)
+    Line 1: V<[ISSUER_3][SURNAME]<<[GIVEN_NAMES]...
+    Line 2: [DOC_9][CHK][NAT_3][DOB_6][CHK][SEX][EXP_6][CHK][OPT_16] (No composite check)
+    """
+    raw_sub = params.get("document_subtype") or params.get("document_type_code") or params.get("DOCUMENTTYPE") or "V"
+    doc_type = pad_mrz(raw_sub, 2)
+    issuer = pad_mrz(params.get("country") or params.get("COUNTRY") or "USA", 3)
+    surname = params.get("surname") or params.get("SURNAME") or ""
+    given_names = params.get("given_names") or params.get("GIVENNAMES") or ""
+    name_field = format_name_field(surname, given_names, 39)
+    line1 = f"{doc_type}{issuer}{name_field}"[:44]
+
+    raw_doc_num = params.get("document_number") or params.get("NUMBER") or "V12345678"
+    doc_num = pad_mrz(raw_doc_num, 9)
+    doc_num_chk = compute_check_digit(doc_num)
+    nationality = pad_mrz(params.get("nationality") or params.get("NATIONALITY") or issuer, 3)
+    dob = format_date_yymmdd(params.get("birth_date") or params.get("DOB") or "800820")
+    dob_chk = compute_check_digit(dob)
+    sex_val = (params.get("sex") or params.get("SEX") or "M").upper()
+    sex = sex_val[0] if sex_val in ["M", "F"] else "<"
+    expiry = format_date_yymmdd(params.get("expiry_date") or params.get("DOE") or "260820")
+    expiry_chk = compute_check_digit(expiry)
+    opt = pad_mrz(params.get("optional1") or params.get("OPTIONALDATA1") or params.get("optional_data") or "", 16)
+    line2 = f"{doc_num}{doc_num_chk}{nationality}{dob}{dob_chk}{sex}{expiry}{expiry_chk}{opt}"[:44]
+
+    return {
+        "format": "MRVA",
+        "title": "Visa (Format A - 44ch)",
+        "lines": [line1, line2],
+        "mrz_text": f"{line1}\n{line2}",
+        "metadata": {
+            "document_number": doc_num.replace("<", ""),
+            "doc_num_check": doc_num_chk,
+            "dob": dob,
+            "dob_check": dob_chk,
+            "expiry": expiry,
+            "expiry_check": expiry_chk,
+            "composite_check": "N/A",
+            "issuer": issuer.replace("<", ""),
+            "nationality": nationality.replace("<", "")
+        }
+    }
 
 def generate_mrv_b(params: Dict[str, Any]) -> Dict[str, Any]:
-    """Visa Type B (2 lines x 36 chars)"""
-    params = params.copy()
-    params["document_subtype"] = "V<"
-    res = generate_td2(params)
-    res["format"] = "MRVB"
-    res["title"] = "Visa (Format B - 36ch)"
-    return res
+    """
+    ICAO 9303 Visa Type B (2 lines x 36 chars)
+    Line 1: V<[ISSUER_3][SURNAME]<<[GIVEN_NAMES]...
+    Line 2: [DOC_9][CHK][NAT_3][DOB_6][CHK][SEX][EXP_6][CHK][OPT_8] (No composite check)
+    """
+    raw_sub = params.get("document_subtype") or params.get("document_type_code") or params.get("DOCUMENTTYPE") or "V"
+    doc_type = pad_mrz(raw_sub, 2)
+    issuer = pad_mrz(params.get("country") or params.get("COUNTRY") or "USA", 3)
+    surname = params.get("surname") or params.get("SURNAME") or ""
+    given_names = params.get("given_names") or params.get("GIVENNAMES") or ""
+    name_field = format_name_field(surname, given_names, 31)
+    line1 = f"{doc_type}{issuer}{name_field}"[:36]
+
+    raw_doc_num = params.get("document_number") or params.get("NUMBER") or "V98765432"
+    doc_num = pad_mrz(raw_doc_num, 9)
+    doc_num_chk = compute_check_digit(doc_num)
+    nationality = pad_mrz(params.get("nationality") or params.get("NATIONALITY") or issuer, 3)
+    dob = format_date_yymmdd(params.get("birth_date") or params.get("DOB") or "951103")
+    dob_chk = compute_check_digit(dob)
+    sex_val = (params.get("sex") or params.get("SEX") or "M").upper()
+    sex = sex_val[0] if sex_val in ["M", "F"] else "<"
+    expiry = format_date_yymmdd(params.get("expiry_date") or params.get("DOE") or "271103")
+    expiry_chk = compute_check_digit(expiry)
+    opt = pad_mrz(params.get("optional1") or params.get("OPTIONALDATA1") or params.get("optional_data") or "", 8)
+    line2 = f"{doc_num}{doc_num_chk}{nationality}{dob}{dob_chk}{sex}{expiry}{expiry_chk}{opt}"[:36]
+
+    return {
+        "format": "MRVB",
+        "title": "Visa (Format B - 36ch)",
+        "lines": [line1, line2],
+        "mrz_text": f"{line1}\n{line2}",
+        "metadata": {
+            "document_number": doc_num.replace("<", ""),
+            "doc_num_check": doc_num_chk,
+            "dob": dob,
+            "dob_check": dob_chk,
+            "expiry": expiry,
+            "expiry_check": expiry_chk,
+            "composite_check": "N/A",
+            "issuer": issuer.replace("<", ""),
+            "nationality": nationality.replace("<", "")
+        }
+    }
 
 def generate_mrz(doc_type: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """Master generation router based on standard format."""
-    dt = doc_type.upper().strip()
-    if dt == "TD1":
+    dt = (doc_type or params.get("MRZ_TYPE") or params.get("document_type") or "TD3").upper().strip()
+    if dt in ["TD1", "ID"]:
         return generate_td1(params)
-    elif dt == "TD2":
+    elif dt in ["TD2"]:
         return generate_td2(params)
-    elif dt == "MRVA":
+    elif dt in ["MRVA", "MRV-A", "MRV_A"]:
         return generate_mrv_a(params)
-    elif dt == "MRVB":
+    elif dt in ["MRVB", "MRV-B", "MRV_B"]:
         return generate_mrv_b(params)
     else:  # Default to TD3 Passport
         return generate_td3(params)
