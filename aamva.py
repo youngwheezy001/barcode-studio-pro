@@ -152,6 +152,12 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 12 digits", "dl_regex": r"^[A-Z][0-9]{12}$"
     },
+    "MI_2024": {
+        "issuer_name": "Michigan (2024)", "state_code": "MI", "iin": "636034",
+        "aamva_version": "09", "data_format": "11", "jurver": "00",
+        "v9_effective_year": 2024, "uses_offsets": True, "drop_empty_tags": True,
+        "dl_desc": "1 letter + 12 digits", "dl_regex": r"^[A-Z][0-9]{12}$"
+    },
     "MN": {
         "issuer_name": "Minnesota", "state_code": "MN", "iin": "636039",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
@@ -197,6 +203,12 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
     "NJ": {
         "issuer_name": "New Jersey", "state_code": "NJ", "iin": "636036",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "1 letter + 14 digits", "dl_regex": r"^[A-Z][0-9]{14}$"
+    },
+    "NJ_2020": {
+        "issuer_name": "New Jersey (2020)", "state_code": "NJ", "iin": "636036",
+        "aamva_version": "04", "data_format": "12", "jurver": "02",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 14 digits", "dl_regex": r"^[A-Z][0-9]{14}$"
     },
@@ -417,17 +429,38 @@ STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
         "uses_icn": True,
         "icn_label": "Inventory Control Number (ICN)"
     },
+    "NJ": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "17-character alphanumeric DD (Option 1 + YYYY + DOY + 0000 + 4 digits)",
+        "uses_icn": True,
+        "icn_label": "ICN (Inventory Control Number)"
+    },
+    "NJ_2020": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "17-character alphanumeric DD (Option 1 + YYYY + DOY + 0000 + 4 digits)",
+        "uses_icn": True,
+        "icn_label": "ICN (Inventory Control Number)"
+    },
+    "NM": {
+        "dd_label": "DD (Document Discriminator)",
+        "dd_desc": "14-character DD (MMDDYY + Office Code + 00 + 3 digits)",
+        "uses_icn": True,
+        "icn_label": "ICN (Inventory Control Number)"
+    },
     "AL": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "AR": {"dd_label": "Doc #", "dd_desc": "Document number on lower back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "KS": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "LA": {"dd_label": "Audit #", "dd_desc": "Audit number on reverse", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "MA": {"dd_label": "Doc #", "dd_desc": "Doc number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "MA": {"dd_label": "DD", "dd_desc": "Document Discriminator (e.g. 08262020 REV 02222016)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
+    "MI": {"dd_label": "DD", "dd_desc": "Document Discriminator (Omitted/Optional)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
+    "MI_2024": {"dd_label": "DD", "dd_desc": "Document Discriminator (Omitted/Optional)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
     "MN": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "MS": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "NC": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "NE": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "OR": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "SC": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "SC": {"dd_label": "Audit # / DD", "dd_desc": "19-digit numeric Document Discriminator", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "SD": {"dd_label": "DD (Document Discriminator)", "dd_desc": "23-digit Document Discriminator (DL + YYYYMMDD + 7 digits)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
     "VA": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "VT": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
     "WI": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
@@ -595,16 +628,16 @@ def generate_aamva_payload(
     issue_date = user_data.get("issued", "")
     profile = resolve_state_profile(state_code, issue_date, version)
     
-    first = str(user_data.get("first", "")).strip().upper()
-    mid = str(user_data.get("mid", "")).strip().upper()
-    last = str(user_data.get("last", "")).strip().upper()
-    dob = str(user_data.get("dob", "")).strip()
-    issued = str(user_data.get("issued", "")).strip()
-    exp = str(user_data.get("exp", "")).strip()
-    dl_id = str(user_data.get("id", "")).strip().upper()
+    first = str(user_data.get("first") or user_data.get("customer_first_name") or "").strip().upper()
+    mid = str(user_data.get("mid") or user_data.get("customer_middle_name") or "").strip().upper()
+    last = str(user_data.get("last") or user_data.get("customer_family_name") or "").strip().upper()
+    dob = str(user_data.get("dob") or user_data.get("date_of_birth") or "").strip()
+    issued = str(user_data.get("issued") or user_data.get("issue_date") or "").strip()
+    exp = str(user_data.get("exp") or user_data.get("expiration_date") or "").strip()
+    dl_id = str(user_data.get("id") or user_data.get("customer_id_number") or "").strip().upper()
     
     # State-aware Document Discriminator (DD / DCF) resolution
-    dcf_val = user_data.get("dcf")
+    dcf_val = user_data.get("dcf") if user_data.get("dcf") is not None else user_data.get("document_discriminator")
     if dcf_val is not None and str(dcf_val).strip():
         dcf = str(dcf_val).strip().upper()
     else:
@@ -615,12 +648,21 @@ def generate_aamva_payload(
             dcf = "08/25/202165508/AAFD/26"
         elif st_upper == "FL":
             dcf = "24072614422001M1"
+        elif st_upper in ("NJ", "NJ_2020"):
+            dcf = "WV202023900007318"
+        elif st_upper == "NM":
+            dcf = "08231910000123"
+        elif st_upper == "MA":
+            dcf = "08262020 REV 02222016"
+        elif st_upper == "SC":
+            dcf = "8513940203280844439"
+        elif st_upper == "SD":
+            dcf = f"{dl_id}202008261234567" if dl_id and len(dl_id) == 8 else "01384574202008261234567"
         else:
             dcf = "24072614422001MVI6"
 
     # State-aware Inventory Control Number (ICN / DCK) resolution
-    # Standard in CT, WA, AZ, CO, NV, MO, TN; OMITTED in standard TX, CA, FL, NY, etc.
-    dck_val = user_data.get("dck")
+    dck_val = user_data.get("dck") if user_data.get("dck") is not None else user_data.get("inventory_control_number")
     if dck_val is not None and str(dck_val).strip():
         dck = str(dck_val).strip().upper()
     else:
@@ -629,6 +671,17 @@ def generate_aamva_payload(
             dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
         elif st_upper == "WA":
             dck = "210212003666014417006801"
+        elif st_upper in ("NJ", "NJ_2020"):
+            dck = "DWCDQP3F98YNLD8M01"
+        elif st_upper == "NM":
+            dck = f"{dl_id}01" if dl_id else "01234567801"
+        elif st_upper == "MA":
+            dck = f"20239{dl_id}0601" if dl_id else "20239S945061490601"
+        elif st_upper in ("MI", "MI_2024"):
+            clean_id = dl_id.replace(" ", "") if dl_id else "M123456789012"
+            dck = f"{clean_id}198001152801"
+        elif st_upper == "SD":
+            dck = "0420001234567890"
         elif profile.get("uses_icn", False):
             dck = f"{dl_id}01" if dl_id else "1001"
         else:
@@ -738,16 +791,16 @@ def generate_scanner_xml(
     issue_date = user_data.get("issued", "")
     profile = resolve_state_profile(state_code, issue_date, version)
     
-    first = str(user_data.get("first", "")).strip()
-    mid = str(user_data.get("mid", "")).strip()
-    last = str(user_data.get("last", "")).strip()
-    dob = str(user_data.get("dob", "")).strip()
-    issued = str(user_data.get("issued", "")).strip()
-    exp = str(user_data.get("exp", "")).strip()
-    dl_id = str(user_data.get("id", "")).strip().upper()
+    first = str(user_data.get("first") or user_data.get("customer_first_name") or "").strip()
+    mid = str(user_data.get("mid") or user_data.get("customer_middle_name") or "").strip()
+    last = str(user_data.get("last") or user_data.get("customer_family_name") or "").strip()
+    dob = str(user_data.get("dob") or user_data.get("date_of_birth") or "").strip()
+    issued = str(user_data.get("issued") or user_data.get("issue_date") or "").strip()
+    exp = str(user_data.get("exp") or user_data.get("expiration_date") or "").strip()
+    dl_id = str(user_data.get("id") or user_data.get("customer_id_number") or "").strip().upper()
     
     # State-aware Document Discriminator (DD / DCF) resolution
-    dcf_val = user_data.get("dcf")
+    dcf_val = user_data.get("dcf") if user_data.get("dcf") is not None else user_data.get("document_discriminator")
     if dcf_val is not None and str(dcf_val).strip():
         dcf = str(dcf_val).strip().upper()
     else:
@@ -758,12 +811,21 @@ def generate_scanner_xml(
             dcf = "08/25/202165508/AAFD/26"
         elif st_upper == "FL":
             dcf = "24072614422001M1"
+        elif st_upper in ("NJ", "NJ_2020"):
+            dcf = "WV202023900007318"
+        elif st_upper == "NM":
+            dcf = "08231910000123"
+        elif st_upper == "MA":
+            dcf = "08262020 REV 02222016"
+        elif st_upper == "SC":
+            dcf = "8513940203280844439"
+        elif st_upper == "SD":
+            dcf = f"{dl_id}202008261234567" if dl_id and len(dl_id) == 8 else "01384574202008261234567"
         else:
             dcf = "24072614422001MVI6"
 
     # State-aware Inventory Control Number (ICN / DCK) resolution
-    # Standard in CT, WA, AZ, CO, NV, MO, TN; OMITTED in standard TX, CA, FL, NY, etc.
-    dck_val = user_data.get("dck")
+    dck_val = user_data.get("dck") if user_data.get("dck") is not None else user_data.get("inventory_control_number")
     if dck_val is not None and str(dck_val).strip():
         dck = str(dck_val).strip().upper()
     else:
@@ -772,6 +834,17 @@ def generate_scanner_xml(
             dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
         elif st_upper == "WA":
             dck = "210212003666014417006801"
+        elif st_upper in ("NJ", "NJ_2020"):
+            dck = "DWCDQP3F98YNLD8M01"
+        elif st_upper == "NM":
+            dck = f"{dl_id}01" if dl_id else "01234567801"
+        elif st_upper == "MA":
+            dck = f"20239{dl_id}0601" if dl_id else "20239S945061490601"
+        elif st_upper in ("MI", "MI_2024"):
+            clean_id = dl_id.replace(" ", "") if dl_id else "M123456789012"
+            dck = f"{clean_id}198001152801"
+        elif st_upper == "SD":
+            dck = "0420001234567890"
         elif profile.get("uses_icn", False):
             dck = f"{dl_id}01" if dl_id else "1001"
         else:

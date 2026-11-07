@@ -42,7 +42,8 @@ const STATE_HIERARCHY = {
           "Scandit",
           "Show-Me ID",
           "FIDScan",
-          "Veriscan"
+          "Veriscan",
+          "Uscan.pro"
         ],
         "has_icn": true,
         "has_dd": true,
@@ -816,7 +817,7 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
-        "default_dd": "",
+        "default_dd": "08262020 REV 02222016",
         "has_real_id": true,
         "has_address2": true,
         "has_race": false,
@@ -850,7 +851,7 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "verified": false,
+        "verified": true,
         "is_new": false
       },
       {
@@ -872,7 +873,7 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "verified": false,
+        "verified": true,
         "is_new": false
       }
     ]
@@ -1220,8 +1221,8 @@ const STATE_HIERARCHY = {
         "has_nj_options": true,
         "has_weight_range": false,
         "has_audit": false,
-        "default_dd": "",
-        "has_real_id": false,
+        "default_dd": "WV202023900007318",
+        "has_real_id": true,
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
@@ -1247,10 +1248,10 @@ const STATE_HIERARCHY = {
         "verified": true,
         "term_years": 8,
         "has_icn": true,
-        "has_dd": false,
+        "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
-        "default_dd": "",
+        "default_dd": "08231910000123",
         "has_real_id": false,
         "has_address2": false,
         "has_race": false,
@@ -1610,14 +1611,14 @@ const STATE_HIERARCHY = {
           "FIDScan",
           "Veriscan"
         ],
-        "verified": false,
+        "verified": true,
         "term_years": 8,
         "has_icn": false,
         "has_dd": true,
         "has_race": true,
         "has_weight_range": false,
         "has_audit": false,
-        "default_dd": "",
+        "default_dd": "8513940203280844439",
         "has_real_id": false,
         "has_address2": false,
         "has_suffix": false,
@@ -1640,13 +1641,13 @@ const STATE_HIERARCHY = {
           "FIDScan",
           "Veriscan"
         ],
-        "verified": false,
+        "verified": true,
         "term_years": 5,
         "has_icn": true,
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
-        "default_dd": "",
+        "default_dd": "01384574202008261234567",
         "has_real_id": false,
         "has_address2": false,
         "has_race": false,
@@ -3918,7 +3919,8 @@ function SC_calculate_documentNumber() {
 function SC_calculate_DD() {
     var expEl = getTargetElement("inputExpiryDate");
     var expiryDate = expEl && expEl.value.length === 8 ? expEl.value.trim() : "01152028";
-    var days = typeof getNumberOfDaysFromBeginnigOfYear === 'function' ? getNumberOfDaysFromBeginnigOfYear(expiryDate) : "015";
+    var rawDays = typeof getNumberOfDaysFromBeginnigOfYear === 'function' ? getNumberOfDaysFromBeginnigOfYear(expiryDate) : "015";
+    var days = ("00" + rawDays).slice(-3);
     var ddEl = getTargetElement("inputDD");
     if (ddEl) {
         ddEl.value = getRandomNumericString(8) + expiryDate.slice(0, 2) + expiryDate.slice(-2) + days + getRandomNumericString(4);
@@ -4051,23 +4053,17 @@ $$   $ $$$$$$  $$$$  $$  $$ $$$$$$  $$$$  $$  $$ $$  $$
 
 
 function MI_calculate_documentNumber() {
-    var lastName = getTargetElement("inputLastName").value;
-    if (!lastName) {
-        showInputDataAlert("Document number calculation error. Incorrect Last name!")
-        return;
-    }
+    var lastNameEl = getTargetElement("inputLastName");
+    var firstNameEl = getTargetElement("inputFirstName");
+    var birthEl = getTargetElement("inputBrithDate");
+    var lastName = lastNameEl ? lastNameEl.value : "";
+    var firstName = firstNameEl ? firstNameEl.value : "";
+    var middleName = getTargetElement("inputMiddleName") ? getTargetElement("inputMiddleName").value : "";
+    var birthDate = birthEl ? birthEl.value : "";
 
-    var firstName = getTargetElement("inputFirstName").value;
-    if (!firstName) {
-        showInputDataAlert("Document number calculation error. Incorrect First name!")
-        return;
-    }
-
-    var middleName = getTargetElement("inputMiddleName").value;
-
-    var birthDate = getTargetElement("inputBrithDate").value;
-    if (birthDate.length != 8) {
-        showInputDataAlert("Document number calculation error. Incorrect birth date!")
+    if (!lastName || !firstName || birthDate.length != 8) {
+        var docEl = getTargetElement('inputDocumentNumber');
+        if (docEl) docEl.value = getRandomLetter() + getRandomNumericString(12);
         return;
     }
 
@@ -4079,23 +4075,24 @@ function MI_calculate_documentNumber() {
 function MI_calculate_ICN() {
     var birthDate = getTargetElement("inputBrithDate").value;
     if (birthDate.length != 8) {
-        showInputDataAlert("ICN calculation error. Incorrect birth date!")
+        showInputDataAlert("ICN calculation error. Incorrect birth date!");
         return;
     }
 
     var expiryDate = getTargetElement("inputExpiryDate").value;
     if (expiryDate.length != 8) {
-        showInputDataAlert("ICN calculation error. Incorrect expiry date!")
+        showInputDataAlert("ICN calculation error. Incorrect expiry date!");
         return;
     }
 
     var documentNumber = getTargetElement("inputDocumentNumber").value;
-    if (documentNumber.length != 17) {
-        showInputDataAlert("ICN calculation error. Incorrect document number!")
+    var cleanDoc = documentNumber.replace(/\s/g, '');
+    if (cleanDoc.length != 13) {
+        showInputDataAlert("ICN calculation error. Incorrect document number!");
         return;
     }
 
-    getTargetElement("inputICN").value = documentNumber.replace(/\s/g, '')
+    getTargetElement("inputICN").value = cleanDoc
      + birthDate.slice(-4) + birthDate.slice(0,2) + birthDate.slice(2,4) + expiryDate.slice(-2) + expiryDate.slice(0,2);
 }
 
@@ -4126,8 +4123,8 @@ function NJ_2020_calculate_ICN() {
     var lastName = lastEl ? lastEl.value.trim() : "";
     var initial = lastName ? lastName[0].toUpperCase() : "D";
     var rand = "";
-    for (var i = 0; i < 9; i++) { rand += getRandomLetterAndDigit(); }
-    var icn = initial + rand + "NJ" + getRandomNumericString(2) + "SL01";
+    for (var i = 0; i < 13; i++) { rand += getRandomLetterAndDigit(); }
+    var icn = initial + rand + "8M01";
     var icnEl = getTargetElement("inputICN");
     if (icnEl) icnEl.value = icn;
 }
@@ -4406,19 +4403,24 @@ function NM_calculate_ICN() {
 }
 
 function NM_calculate_DD() {
-    var issuigOfficeCode = getTargetElement("inputOfficeCode").value;
+    var officeEl = getTargetElement("inputOfficeCode");
+    var issuigOfficeCode = officeEl ? officeEl.value.trim() : "";
     if (issuigOfficeCode.length != 3) {
-        showInputDataAlert("DD calculation error. Issuing office code!")
-        return;
+        issuigOfficeCode = "100";
+        if (officeEl) officeEl.value = issuigOfficeCode;
     }
 
-    var issueDate = getTargetElement("inputIssueDate").value;
+    var issueEl = getTargetElement("inputIssueDate");
+    var issueDate = issueEl ? issueEl.value.trim() : "";
     if (issueDate.length != 8) {
-        showInputDataAlert("DD calculation error. Incorrect issue date!")
-        return;
+        issueDate = "08232019";
+        if (issueEl) issueEl.value = issueDate;
     }
 
-    getTargetElement("inputDD").value = issueDate.slice(0,2) + issueDate.slice(2, 4) + issueDate.slice(-2) + issuigOfficeCode + "00" + getRandomNumericString(3);
+    var ddEl = getTargetElement("inputDD");
+    if (ddEl) {
+        ddEl.value = issueDate.slice(0,2) + issueDate.slice(2, 4) + issueDate.slice(-2) + issuigOfficeCode + "00" + getRandomNumericString(3);
+    }
 }
 
 
@@ -8290,7 +8292,7 @@ function runStateCalculation(field, stateSlug) {
             for (const c of candidates) {
                 if (typeof window[c] === 'function') { fnName = c; break; }
             }
-        } else if (field === 'id' || field === 'dl') {
+        } else if (field === 'id' || field === 'dl' || field === 'doc') {
             const candidates = [
                 `${slugClean}_calculate_documentNumber`,
                 (slugClean === 'AL_2022' ? 'AL_2024_calculate_documentNumber' : null),
@@ -8320,7 +8322,21 @@ function runStateCalculation(field, stateSlug) {
                     window.makeRandomDOE(6);
                     return true;
                 }
-            } else if (slugClean === 'NM') {
+            } else if (slugClean === 'MA') {
+                if (typeof window.makeRandomDOE === 'function') {
+                    window.makeRandomDOE(5);
+                    return true;
+                }
+            } else if (slugClean.startsWith('MI')) {
+                if (typeof window.makeRandomDOE === 'function') {
+                    window.makeRandomDOE(4);
+                    return true;
+                }
+            } else if (slugClean === 'MA') {
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(5);
+                } else if (slugClean.startsWith('MI')) {
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
+                } else if (slugClean === 'NM') {
                 if (typeof window.makeRandomDOE_minus_day === 'function') {
                     window.makeRandomDOE_minus_day(8);
                     return true;
@@ -8552,6 +8568,26 @@ function runStateCalculation(field, stateSlug) {
                 if (typeof window.makeRandomDOI === 'function') {
                     window.makeRandomDOI(2023);
                     if (typeof window.AZ_makeRandomDOE === 'function') window.AZ_makeRandomDOE();
+                    return true;
+                }
+            } else if (slugClean === 'MA') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2017);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(5);
+                    if (typeof window.MA_calculate_DD === 'function') window.MA_calculate_DD();
+                    if (typeof window.MA_calculate_ICN === 'function') window.MA_calculate_ICN();
+                    return true;
+                }
+            } else if (slugClean === 'MI') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2021);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
+                    return true;
+                }
+            } else if (slugClean === 'MI_2024') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2024);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
                     return true;
                 }
             } else if (slugClean === 'NM') {
@@ -9028,6 +9064,8 @@ function runStateCalculation(field, stateSlug) {
         window.WA_calculate_ICN = function() { var el = getTargetElement('inputICN'); if (el) el.value = ''; };
         window.WA_2025_calculate_ICN = function() { var el = getTargetElement('inputICN'); if (el) el.value = ''; };
         window.DC_calculate_ICN = function() { var el = getTargetElement('inputICN'); if (el) el.value = ''; };
+        window.MI_2024_calculate_documentNumber = MI_calculate_documentNumber;
+        window.MI_2024_calculate_ICN = MI_calculate_ICN;
 
         window.STATE_HIERARCHY = STATE_HIERARCHY;
     window.runStateCalculation = runStateCalculation;

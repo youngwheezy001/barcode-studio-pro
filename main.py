@@ -6,7 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -1695,6 +1695,42 @@ def get_mrz_page():
     if mrz_file.exists():
         return FileResponse(str(mrz_file))
     return FileResponse(str(BASE_DIR / "static" / "index.html"))
+
+@app.get("/states", response_class=FileResponse)
+@app.get("/states/", response_class=FileResponse)
+def get_states_page():
+    """Serves the dedicated pdf417.pro-compliant states directory interface."""
+    states_file = BASE_DIR / "static" / "states.html"
+    if states_file.exists():
+        return FileResponse(str(states_file))
+    return FileResponse(str(BASE_DIR / "static" / "index.html"))
+
+# 86 Known Jurisdiction & Revision Slugs for direct URL compatibility (e.g. /AL/, /CA_2024/)
+KNOWN_STATE_SLUGS = {
+    'AB', 'AK', 'AL', 'AL_2022', 'AR', 'AZ', 'AZ_2023', 'BC', 'CA', 'CA_2024',
+    'CO_2015', 'CO_2022', 'CT', 'DC', 'DE', 'FL', 'GA_2015', 'GA_2019', 'HI',
+    'IA_2011', 'IA_2017', 'ID', 'ID_2023', 'IL', 'IN', 'KS', 'KY_2012', 'KY_2018',
+    'LA', 'MA', 'MB', 'MD', 'MD_2021', 'ME', 'MI', 'MI_2024', 'MN', 'MO_2012',
+    'MO_2020', 'MS', 'MS_2023', 'MT', 'NB', 'NC', 'ND', 'ND_2023', 'NE_2017',
+    'NE_2021', 'NH', 'NH_2024', 'NJ_2020', 'NL', 'NM', 'NS', 'NU', 'NV_2008',
+    'NV_2021', 'NY_2017', 'NY_2022', 'OH', 'OK', 'ON', 'OR', 'PA', 'PA_2022',
+    'PE', 'QC', 'RI', 'RI_2022', 'SC', 'SD', 'SK', 'TN', 'TX_2016', 'TX_2020',
+    'UT_2016', 'UT_2021', 'VA', 'VT', 'WA', 'WA_2025', 'WI', 'WI_2023', 'WV',
+    'WY', 'YT', 'NJ', 'TX', 'NY', 'IA', 'KY', 'MO', 'MS', 'NE', 'NV', 'RI', 'UT', 'WI'
+}
+
+@app.get("/{slug}")
+@app.get("/{slug}/")
+def state_slug_redirect(slug: str):
+    """Redirects reference state URLs (e.g. /AL/ or /CA_2024/) to generator with state parameter."""
+    slug_upper = slug.upper()
+    if slug_upper in KNOWN_STATE_SLUGS:
+        return RedirectResponse(url=f"/?state={slug_upper}", status_code=302)
+    # Check if a static file exists by this name before 404
+    static_file = BASE_DIR / "static" / slug
+    if static_file.exists() and static_file.is_file():
+        return FileResponse(str(static_file))
+    raise HTTPException(status_code=404, detail="Not Found")
 
 # Serve Frontend static files (Mounted after API routes so routes take priority)
 static_path = BASE_DIR / "static"
