@@ -2937,12 +2937,36 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 ddPlaceholder: "Audit Number (e.g. 2407261442200188)",
                 ddTooltip: "Document Discriminator (DCF) — Labeled on Texas card face/back as Audit Number",
                 ddHint: "Texas: 16-20 digit numeric Audit Number printed vertically on card face or back (maps to DCF).",
-                usesIcn: false,
-                icnLabel: "ICN (Not used in TX — Omitted)",
-                icnTooltip: "Inventory Control Number (DCK) — Texas cards omit DCK per AAMVA Section D.2",
-                icnPlaceholder: "Optional — Texas cards omit DCK. Leave blank for standard compliance.",
+                usesIcn: true,
+                icnLabel: "ICN (Inventory Control Number)",
+                icnTooltip: "Inventory Control Number (DCK) — Active in Texas: 11 digits (10000 + 6 digits)",
+                icnPlaceholder: "ICN (e.g. 10001846127)",
                 genDD: () => "24" + String(Math.floor(1000000000000000 + Math.random() * 9000000000000000)),
-                genICN: () => ""
+                genICN: () => "10000" + String(Math.floor(100000 + Math.random() * 900000))
+            },
+            TX_2016: {
+                ddLabel: "Audit Number (DD)",
+                ddPlaceholder: "Audit Number (e.g. 2407261442200188)",
+                ddTooltip: "Document Discriminator (DCF) — Labeled on Texas card face/back as Audit Number",
+                ddHint: "Texas (2016): 16-20 digit numeric Audit Number (maps to DCF).",
+                usesIcn: true,
+                icnLabel: "ICN (Inventory Control Number)",
+                icnTooltip: "Inventory Control Number (DCK) — 18 chars: 8-digit DL + 2 spaces + YYYYMMDD (Issue Date + 1 day)",
+                icnPlaceholder: "ICN (e.g. 94116090  20180228)",
+                genDD: () => "24" + String(Math.floor(1000000000000000 + Math.random() * 9000000000000000)),
+                genICN: (dl) => `${dl || '94116090'}  20180228`
+            },
+            TX_2020: {
+                ddLabel: "Audit Number (DD)",
+                ddPlaceholder: "Audit Number (e.g. 2407261442200188)",
+                ddTooltip: "Document Discriminator (DCF) — Labeled on Texas card face/back as Audit Number",
+                ddHint: "Texas (2020): 16-20 digit numeric Audit Number (maps to DCF).",
+                usesIcn: true,
+                icnLabel: "ICN (Inventory Control Number)",
+                icnTooltip: "Inventory Control Number (DCK) — 11 digits: 10000 + 6 digits",
+                icnPlaceholder: "ICN (e.g. 10001846127)",
+                genDD: () => "24" + String(Math.floor(1000000000000000 + Math.random() * 9000000000000000)),
+                genICN: () => "10000" + String(Math.floor(100000 + Math.random() * 900000))
             },
             CA: {
                 ddLabel: "Audit String (DD)",

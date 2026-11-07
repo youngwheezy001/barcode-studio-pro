@@ -348,8 +348,8 @@ STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
     "TX": {
         "dd_label": "Audit Number",
         "dd_desc": "16 to 20 digit numeric audit number printed vertically on card face or back",
-        "uses_icn": False,
-        "icn_label": "ICN (Not used in TX - Omitted per AAMVA Section D.2)"
+        "uses_icn": True,
+        "icn_label": "ICN (Inventory Control Number)"
     },
     "CA": {
         "dd_label": "Audit String",
@@ -682,6 +682,10 @@ def generate_aamva_payload(
             dck = f"{clean_id}198001152801"
         elif st_upper == "SD":
             dck = "0420001234567890"
+        elif st_upper in ("TX", "TX_2020"):
+            dck = "10001846127"
+        elif st_upper == "TX_2016":
+            dck = f"{dl_id}  20180228" if dl_id else "94116090  20180228"
         elif profile.get("uses_icn", False):
             dck = f"{dl_id}01" if dl_id else "1001"
         else:
@@ -845,6 +849,10 @@ def generate_scanner_xml(
             dck = f"{clean_id}198001152801"
         elif st_upper == "SD":
             dck = "0420001234567890"
+        elif st_upper in ("TX", "TX_2020"):
+            dck = "10001846127"
+        elif st_upper == "TX_2016":
+            dck = f"{dl_id}  20180228" if dl_id else "94116090  20180228"
         elif profile.get("uses_icn", False):
             dck = f"{dl_id}01" if dl_id else "1001"
         else:

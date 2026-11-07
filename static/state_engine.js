@@ -10218,7 +10218,10 @@ function runStateCalculation(field, stateSlug) {
     window.STATE_DEMOGRAPHIC_DEFAULTS = STATE_DEMOGRAPHIC_DEFAULTS;
     window.getStateDemographicDefaults = getStateDemographicDefaults;
 
-    window.STATE_HIERARCHY = STATE_HIERARCHY;
+            window.TX_calculate_ICN = TX_2020_calculate_ICN;
+        window.TX_2020_calculate_ICN = TX_2020_calculate_ICN;
+        window.TX_2016_calculate_ICN = TX_2016_calculate_ICN;
+window.STATE_HIERARCHY = STATE_HIERARCHY;
     window.runStateCalculation = runStateCalculation;
     window.getTargetElement = getTargetElement;
 

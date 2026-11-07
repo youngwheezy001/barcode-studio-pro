@@ -110,7 +110,7 @@ def run_tests():
     assert len(profiles) >= 52
     assert "CT" in profiles and "WA" in profiles and "TX" in profiles
     assert profiles["TX"]["dd_label"] == "Audit Number"
-    assert profiles["TX"]["uses_icn"] is False
+    assert profiles["TX"]["uses_icn"] is True
     assert profiles["CT"]["uses_icn"] is True
     assert profiles["WA"]["uses_icn"] is True
     print("  -> Passed: 52 AAMVA state profiles retrieved successfully with state-aware DD & ICN rules.")
@@ -134,7 +134,7 @@ def run_tests():
     assert "DCK" in comp_data["payload"]  # CT uses ICN
     print("  -> Passed: CT 2024 compiled to v09 Format 11 with offset 41 & active ICN via API.")
 
-    # Test Texas (Audit Number used, ICN omitted per AAMVA Section D.2)
+    # Test Texas (Audit Number used, active ICN present)
     res_tx = client.post("/api/aamva/compile", json={
         "state": "TX",
         "user_data": {
@@ -150,10 +150,10 @@ def run_tests():
     tx_data = res_tx.json()
     assert tx_data["profile"]["dd_label"] == "Audit Number"
     assert "DCF" in tx_data["payload"]  # Texas Audit Number present
-    assert "DCK" not in tx_data["payload"]  # Texas standard cards omit DCK!
+    assert "DCK" in tx_data["payload"]  # Texas active ICN present!
     assert '<element id="DCF" name="Audit Number"' in tx_data["xml"]
-    assert '<element id="DCK"' not in tx_data["xml"]
-    print("  -> Passed: TX 2023 compiled with Audit Number (DCF) and omitted ICN (DCK).")
+    assert '<element id="DCK"' in tx_data["xml"]
+    print("  -> Passed: TX 2023 compiled with Audit Number (DCF) and active ICN (DCK).")
 
     # 7. Test Admin User Unlimited Exports (No Token Depletion)
     print("\n[7/9] Testing Admin Auto-Promotion & Unlimited Exports...")
