@@ -8280,6 +8280,11 @@ function runStateCalculation(field, stateSlug) {
                 if (typeof window[c] === 'function') { fnName = c; break; }
             }
         } else if (field === 'dd' || field === 'dcf') {
+            if (revInfo && revInfo.has_dd === false) {
+                const ddEl = getTargetElement('inputDD');
+                if (ddEl) ddEl.value = '';
+                return true;
+            }
             const candidates = [
                 (slugClean === 'GA_2015' ? 'GA_calculate_DD_2015' : null),
                 (slugClean === 'GA_2019' ? 'GA_calculate_DD' : null),
