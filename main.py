@@ -1696,14 +1696,11 @@ def get_mrz_page():
         return FileResponse(str(mrz_file))
     return FileResponse(str(BASE_DIR / "static" / "index.html"))
 
-@app.get("/states", response_class=FileResponse)
-@app.get("/states/", response_class=FileResponse)
+@app.get("/states")
+@app.get("/states/")
 def get_states_page():
-    """Serves the dedicated pdf417.pro-compliant states directory interface."""
-    states_file = BASE_DIR / "static" / "states.html"
-    if states_file.exists():
-        return FileResponse(str(states_file))
-    return FileResponse(str(BASE_DIR / "static" / "index.html"))
+    """Redirects to single-page application states directory on index.html."""
+    return RedirectResponse(url="/?view=states", status_code=302)
 
 # 86 Known Jurisdiction & Revision Slugs for direct URL compatibility (e.g. /AL/, /CA_2024/)
 KNOWN_STATE_SLUGS = {

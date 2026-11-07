@@ -1134,13 +1134,17 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 <p class="text-[10px] text-slate-400">Strict Dimension Engine &bull; Dual-Subfile DL+ZC &bull; 100% Mobile & Hardware Scannable</p>
             </div>
             <!-- Mode Switcher: AAMVA Barcode vs MRZ Passport -->
-            <a href="/states/" class="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg transition shadow-xs" title="Browse full 51-state and Canadian directory">
+            <button type="button" onclick="switchWorkspace('states')" class="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg transition shadow-xs cursor-pointer" title="Browse full 51-state and Canadian directory">
                 <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span>States</span>
-            </a>
+            </button>
             <div class="hidden sm:flex bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl text-xs font-bold ml-2 shadow-inner">
                 <button type="button" id="workspace-tab-aamva" onclick="switchWorkspace('aamva')" class="px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition">
                     <span>🪪 AAMVA Barcode</span>
+                </button>
+                <button type="button" id="workspace-tab-states" onclick="switchWorkspace('states')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+                    <span>🗺️ States Directory</span>
+                    <span class="text-[9px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">50 States + CA</span>
                 </button>
                 <button type="button" id="workspace-tab-mrz" onclick="switchWorkspace('mrz')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
                     <span>🛂 MRZ Passport</span>
@@ -2709,6 +2713,52 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 <canvas id="hidden-mrz-canvas" class="hidden"></canvas>
             </section>
         </div>
+    
+        <!-- Mode 3: AAMVA States & Canadian Provinces Directory Workspace -->
+        <div id="workspace-view-states" class="hidden flex-1 flex flex-col overflow-y-auto bg-cardbg rounded-2xl border border-bordercol p-4 sm:p-6 shadow-sm w-full">
+            <!-- Directory Toolbar & Header -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🗺️</span>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900">AAMVA States &amp; Canadian Provinces Directory</h2>
+                        <span class="text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>57 Verified Standards</span>
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Click any state or revision to immediately load its verified specifications, authentic demographics, and formatting algorithms.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div class="relative flex-1 min-w-[240px]">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="states-search-input" oninput="filterStatesDirectory()" placeholder="Search state, code, or year..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent">
+                    </div>
+                    <div class="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-semibold">
+                        <button type="button" onclick="setStatesFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded-lg bg-white text-accent font-bold shadow-xs transition">All (86)</button>
+                        <button type="button" onclick="setStatesFilter('verified')" id="filter-btn-verified" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span>Verified (57)</span>
+                        </button>
+                        <button type="button" onclick="setStatesFilter('usa')" id="filter-btn-usa" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">USA 🇺🇸</button>
+                        <button type="button" onclick="setStatesFilter('canada')" id="filter-btn-canada" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Canada 🇨🇦</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Directory Content Area -->
+            <div id="states-directory-content" class="flex flex-col gap-6 pt-5">
+                <!-- Rendered dynamically by renderStatesDirectory() -->
+            </div>
+            
+            <p class="text-xs text-slate-400 text-center pt-8 pb-4">
+                *Other states coming soon. If you have original barcodes please contact support.
+            </p>
+        </div>
+
     </main>
 
     <!-- Mobile Sticky Action Bar (Fixed at bottom on phones, hidden on desktop sm:) -->
@@ -3696,7 +3746,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             // North Dakota extras (Option) - only for ND (2008), not ND_2023
             const ndExtras = document.getElementById('container-nd-extras');
             if (ndExtras) {
-                ndExtras.style.display = (jKey === 'ND') ? '' : 'none';
+                ndExtras.style.display = (slug === 'ND') ? '' : 'none';
             }
 
             // Ohio extras (Place of birth)
@@ -3778,6 +3828,94 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (verEl && verEl.value !== 'AUTO' && profile.version) {
                 verEl.value = profile.version;
             }
+
+            // 5. Populate Authentic Reference Demographics & Defaults (pdf417.pro verified)
+            const defaults = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(slug) : null;
+            if (defaults) {
+                const streetEl = document.getElementById('aamva-street');
+                if (streetEl && defaults.street) streetEl.value = defaults.street;
+
+                const cityEl = document.getElementById('aamva-city');
+                if (cityEl && defaults.city) cityEl.value = defaults.city;
+
+                const zipEl = document.getElementById('aamva-zip');
+                if (zipEl && defaults.zip) zipEl.value = defaults.zip;
+
+                const classEl = document.getElementById('aamva-class');
+                if (classEl && defaults.class) classEl.value = defaults.class;
+
+                const restEl = document.getElementById('aamva-restrictions');
+                if (restEl && defaults.restrictions !== undefined) restEl.value = defaults.restrictions;
+
+                const endEl = document.getElementById('aamva-endorsements');
+                if (endEl && defaults.endorsements !== undefined) endEl.value = defaults.endorsements;
+
+                const htEl = document.getElementById('aamva-height');
+                if (htEl && defaults.height) {
+                    htEl.value = defaults.height;
+                    const htInEl = document.getElementById('aamva-height-in');
+                    if (htInEl) htInEl.value = `${defaults.height} in`;
+                }
+
+                const wtEl = document.getElementById('aamva-weight');
+                if (wtEl && defaults.weight) {
+                    wtEl.value = defaults.weight;
+                    const wtLbEl = document.getElementById('aamva-weight-lb');
+                    if (wtLbEl) wtLbEl.value = `${defaults.weight} lb`;
+                }
+
+                const eyesEl = document.getElementById('aamva-eyes');
+                if (eyesEl && defaults.eyes) eyesEl.value = defaults.eyes;
+
+                const hairEl = document.getElementById('aamva-hair');
+                if (hairEl && defaults.hair) hairEl.value = defaults.hair;
+
+                const sexEl = document.getElementById('aamva-sex');
+                if (sexEl && defaults.sex) sexEl.value = defaults.sex;
+
+                const realidEl = document.getElementById('aamva-realid');
+                if (realidEl && defaults.realid) {
+                    realidEl.value = (defaults.realid === 'T' || defaults.realid === 'Yes' || defaults.realid === '1') ? 'Yes' : 'No';
+                }
+
+                const wtRangeEl = document.getElementById('aamva-weight-range');
+                if (wtRangeEl && defaults.weight_range) wtRangeEl.value = defaults.weight_range;
+
+                if (defaults.opt1) {
+                    const o1 = document.getElementById('aamva-nj-opt1');
+                    if (o1) o1.value = defaults.opt1;
+                }
+                if (defaults.opt2) {
+                    const o2 = document.getElementById('aamva-nj-opt2');
+                    if (o2) o2.value = defaults.opt2;
+                }
+                if (defaults.opt3) {
+                    const o3 = document.getElementById('aamva-nj-opt3');
+                    if (o3) o3.value = defaults.opt3;
+                }
+
+                const idEl = document.getElementById('aamva-id');
+                if (idEl && defaults.sample_dl) {
+                    idEl.placeholder = defaults.sample_dl;
+                }
+            }
+
+            // 6. Automatically run state-specific calculation algorithms if available
+            if (typeof window.runStateCalculation === 'function') {
+                window.runStateCalculation('id', slug);
+                window.runStateCalculation('dck', slug);
+                window.runStateCalculation('dcf', slug);
+                window.runStateCalculation('audit', slug);
+            }
+            const idInput = document.getElementById('aamva-id');
+            if (idInput && (!idInput.value || idInput.value === '188892143') && defaults && defaults.sample_dl) {
+                idInput.value = defaults.sample_dl;
+            }
+
+            if (typeof autoSyncExpiryDate === 'function') {
+                autoSyncExpiryDate();
+            }
+
             updateStateDynamicLabels();
             validateDlNumber();
             compileAAMVA();
@@ -7836,26 +7974,252 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         function switchWorkspace(mode) {
             currentWorkspace = mode;
             const aamvaView = document.getElementById('workspace-view-aamva');
+            const statesView = document.getElementById('workspace-view-states');
             const mrzView = document.getElementById('workspace-view-mrz');
+            
             const aamvaTab = document.getElementById('workspace-tab-aamva');
+            const statesTab = document.getElementById('workspace-tab-states');
             const mrzTab = document.getElementById('workspace-tab-mrz');
 
             const activeHeaderBtn = 'px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition';
             const inactiveHeaderBtn = 'px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition';
 
-            if (mode === 'mrz') {
-                if (aamvaView) aamvaView.classList.add('hidden');
+            // Hide all views first
+            if (aamvaView) aamvaView.classList.add('hidden');
+            if (statesView) statesView.classList.add('hidden');
+            if (mrzView) mrzView.classList.add('hidden');
+
+            // Reset tab styles
+            if (aamvaTab) aamvaTab.className = inactiveHeaderBtn;
+            if (statesTab) statesTab.className = inactiveHeaderBtn;
+            if (mrzTab) mrzTab.className = inactiveHeaderBtn;
+
+            if (mode === 'states') {
+                if (statesView) statesView.classList.remove('hidden');
+                if (statesTab) statesTab.className = activeHeaderBtn;
+                renderStatesDirectory();
+            } else if (mode === 'mrz') {
                 if (mrzView) mrzView.classList.remove('hidden');
-                if (aamvaTab) aamvaTab.className = inactiveHeaderBtn;
                 if (mrzTab) mrzTab.className = activeHeaderBtn;
                 compileMrz();
             } else {
-                if (mrzView) mrzView.classList.add('hidden');
                 if (aamvaView) aamvaView.classList.remove('hidden');
-                if (mrzTab) mrzTab.className = inactiveHeaderBtn;
                 if (aamvaTab) aamvaTab.className = activeHeaderBtn;
             }
         }
+
+        // =========================================================================
+        // --- COMPLETE AAMVA & CANADIAN STATES DIRECTORY COMPONENT ---
+        // =========================================================================
+        let currentStatesFilter = 'all';
+        let statesDirectoryRendered = false;
+
+        function setStatesFilter(filter) {
+            currentStatesFilter = filter;
+            const filters = ['all', 'verified', 'usa', 'canada'];
+            filters.forEach(f => {
+                const btn = document.getElementById(`filter-btn-${f}`);
+                if (!btn) return;
+                if (f === filter) {
+                    btn.className = 'px-2.5 py-1 rounded-lg bg-white text-accent font-bold shadow-xs transition';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                }
+            });
+            filterStatesDirectory();
+        }
+
+        function filterStatesDirectory() {
+            const query = (document.getElementById('states-search-input')?.value || '').trim().toLowerCase();
+            const container = document.getElementById('states-directory-content');
+            if (!container) return;
+
+            const cards = container.querySelectorAll('.state-item-card, .state-group-card');
+            cards.forEach(card => {
+                const text = card.getAttribute('data-search') || '';
+                const isVerified = card.getAttribute('data-verified') === 'true';
+                const isCanada = card.getAttribute('data-canada') === 'true';
+
+                let matchesFilter = true;
+                if (currentStatesFilter === 'verified' && !isVerified) matchesFilter = false;
+                if (currentStatesFilter === 'usa' && isCanada) matchesFilter = false;
+                if (currentStatesFilter === 'canada' && !isCanada) matchesFilter = false;
+
+                const matchesQuery = !query || text.includes(query);
+
+                if (matchesFilter && matchesQuery) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function toggleStateAccordion(baseCode) {
+            const body = document.getElementById(`acc-body-${baseCode}`);
+            const chevron = document.getElementById(`acc-chevron-${baseCode}`);
+            if (!body) return;
+            const isHidden = body.classList.contains('hidden');
+            if (isHidden) {
+                body.classList.remove('hidden');
+                if (chevron) chevron.style.transform = 'rotate(180deg)';
+            } else {
+                body.classList.add('hidden');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function selectStateFromDirectory(slug) {
+            const jurSelect = document.getElementById('aamva-jurisdiction');
+            if (jurSelect) {
+                jurSelect.value = slug;
+            }
+            switchWorkspace('aamva');
+            applyStatePreset();
+
+            const rev = (typeof getRevisionInfo === 'function') ? getRevisionInfo(slug) : null;
+            showToast(`Loaded ${rev ? rev.label : slug} specifications and reference demographics!`, 'success');
+
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, '', `/?state=${slug}`);
+            }
+
+            const formEl = document.getElementById('form-pdf417');
+            if (formEl) {
+                formEl.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function renderStatesDirectory() {
+            if (statesDirectoryRendered) return;
+            const container = document.getElementById('states-directory-content');
+            if (!container) return;
+
+            const hierarchy = window.STATE_HIERARCHY || {};
+            const usaStates = [];
+            const canadaStates = [];
+
+            for (const [name, sdata] of Object.entries(hierarchy)) {
+                if (sdata.is_canada) {
+                    canadaStates.push({ name, ...sdata });
+                } else {
+                    usaStates.push({ name, ...sdata });
+                }
+            }
+
+            // Sort alphabetically by name
+            usaStates.sort((a, b) => a.parent_name.localeCompare(b.parent_name));
+            canadaStates.sort((a, b) => a.parent_name.localeCompare(b.parent_name));
+
+            function buildCardHtml(sdata, isCanada) {
+                const revs = sdata.revisions || [];
+                const anyVerified = revs.some(r => r.verified);
+                const hasNew = revs.some(r => r.is_new);
+                const searchTokens = `${sdata.parent_name} ${sdata.base_code} ${revs.map(r => r.label + ' ' + r.slug).join(' ')}`.toLowerCase();
+
+                if (revs.length === 1) {
+                    const r = revs[0];
+                    return `
+                    <div class="state-item-card bg-white border border-slate-200 hover:border-accent hover:shadow-md rounded-xl p-3 flex items-center justify-between cursor-pointer transition group" data-search="${searchTokens}" data-verified="${r.verified ? 'true' : 'false'}" data-canada="${isCanada ? 'true' : 'false'}" onclick="selectStateFromDirectory('${r.slug}')">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center font-mono group-hover:bg-accent group-hover:text-white transition shrink-0">${sdata.base_code}</span>
+                            <div class="truncate">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-xs text-slate-800 group-hover:text-accent transition truncate">${sdata.parent_name}</span>
+                                    ${r.is_new ? '<span class="text-[8px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.2 rounded shrink-0">NEW</span>' : ''}
+                                </div>
+                                <span class="text-[10px] text-slate-400 font-mono block truncate">${r.label}</span>
+                            </div>
+                        </div>
+                        ${r.verified ? '<span class="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold flex items-center justify-center shrink-0 ml-2" title="Verified Specification">&check;</span>' : '<span class="text-slate-300 text-xs shrink-0 ml-2">&rarr;</span>'}
+                    </div>`;
+                } else {
+                    // Multi-revision accordion card
+                    return `
+                    <div class="state-group-card bg-white border border-slate-200 hover:border-slate-300 rounded-xl overflow-hidden shadow-2xs transition" data-search="${searchTokens}" data-verified="${anyVerified ? 'true' : 'false'}" data-canada="${isCanada ? 'true' : 'false'}">
+                        <button type="button" onclick="toggleStateAccordion('${sdata.base_code}')" class="w-full p-3 flex items-center justify-between bg-slate-50/70 hover:bg-slate-100 transition text-left cursor-pointer">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center font-mono shrink-0">${sdata.base_code}</span>
+                                <div class="truncate">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-xs text-slate-800 truncate">${sdata.parent_name}</span>
+                                        ${hasNew ? '<span class="text-[8px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.2 rounded shrink-0">NEW</span>' : ''}
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 font-semibold">${revs.length} revisions available</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                                ${anyVerified ? '<span class="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold flex items-center justify-center" title="Verified Specification">&check;</span>' : ''}
+                                <svg id="acc-chevron-${sdata.base_code}" class="w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </button>
+                        <div id="acc-body-${sdata.base_code}" class="divide-y divide-slate-100 bg-white border-t border-slate-100">
+                            ${revs.map(r => `
+                                <div onclick="selectStateFromDirectory('${r.slug}')" class="px-3.5 py-2 hover:bg-blue-50/60 cursor-pointer flex items-center justify-between transition group">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="text-accent font-bold text-xs">&rarr;</span>
+                                        <span class="text-xs text-slate-700 group-hover:text-accent font-semibold truncate">${r.label}</span>
+                                        ${r.is_new ? '<span class="text-[8px] bg-emerald-500 text-white font-extrabold px-1 py-0.2 rounded">NEW</span>' : ''}
+                                    </div>
+                                    ${r.verified ? '<span class="text-emerald-600 text-xs font-bold shrink-0 ml-1" title="Verified Specification">&check;</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                }
+            }
+
+            let fullHtml = `
+            <!-- USA Section -->
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between pb-1">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-base">🇺🇸</span>
+                        <span>United States (50 States + DC)</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-500 font-mono">74 Revisions &bull; 56 Verified</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    ${usaStates.map(s => buildCardHtml(s, false)).join('')}
+                </div>
+            </div>
+
+            <!-- Canada Section -->
+            <div class="flex flex-col gap-3 pt-4 border-t border-slate-200">
+                <div class="flex items-center justify-between pb-1">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-base">🇨🇦</span>
+                        <span>Canada (10 Provinces + 3 Territories)</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-500 font-mono">12 Revisions &bull; 1 Verified</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    ${canadaStates.map(s => buildCardHtml(s, true)).join('')}
+                </div>
+            </div>
+            `;
+
+            container.innerHTML = fullHtml;
+            statesDirectoryRendered = true;
+        }
+
+        // Handle URL search parameters on page initialization (?state=SLUG or ?view=states)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewParam = urlParams.get('view');
+            const stateParam = urlParams.get('state');
+
+            if (viewParam === 'states' || window.location.hash === '#states' || window.location.hash === '#states-directory') {
+                switchWorkspace('states');
+            } else if (stateParam) {
+                const s = stateParam.toUpperCase();
+                const jurSelect = document.getElementById('aamva-jurisdiction');
+                if (jurSelect) {
+                    jurSelect.value = s;
+                    applyStatePreset();
+                }
+            }
+        });
 
         function setMrzType(type) {
             currentMrzType = type;
