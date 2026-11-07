@@ -8268,13 +8268,25 @@ function runStateCalculation(field, stateSlug) {
         let fnName = null;
         
         const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(slugClean) : null;
+        
+        const NO_ICN_SET = new Set([
+            'CO', 'CO_2015', 'CO_2022',
+            'DC',
+            'NY', 'NY_2017', 'NY_2022',
+            'SC',
+            'VT',
+            'WA', 'WA_2019', 'WA_2025',
+            'AB', 'BC', 'NB', 'NL', 'NS', 'NU', 'PE', 'YT'
+        ]);
+
+        const NO_DD_SET = new Set([
+            'MI', 'MI_2024',
+            'NM',
+            'BC', 'NB', 'NL', 'NS', 'NU'
+        ]);
+
         if (field === 'icn' || field === 'dck') {
-            if (revInfo && revInfo.has_icn === false) {
-                const icnEl = getTargetElement('inputICN');
-                if (icnEl) icnEl.value = '';
-                return true;
-            }
-            if (baseState === 'CO' || baseState === 'WA' || baseState === 'DC' || baseState === 'SC') {
+            if (NO_ICN_SET.has(slugClean) || NO_ICN_SET.has(baseState) || (revInfo && revInfo.has_icn === false)) {
                 const icnEl = getTargetElement('inputICN');
                 if (icnEl) icnEl.value = '';
                 return true;
@@ -8282,8 +8294,9 @@ function runStateCalculation(field, stateSlug) {
             const candidates = [
                 (slugClean === 'GA_2015' ? 'GA_calculate_ICN_2015' : null),
                 (slugClean === 'GA_2019' ? 'GA_calculate_ICN' : null),
-                `${slugClean}_calculate_ICN`,
                 (slugClean === 'AL_2022' ? 'AL_2024_calculate_ICN' : null),
+                (slugClean.startsWith('KY') ? 'KY_2012_calculate_ICN' : null),
+                `${slugClean}_calculate_ICN`,
                 `${baseState}_calculate_ICN`,
                 `${slugClean}_calculate_icn`,
                 `${baseState}_calculate_icn`
@@ -8292,7 +8305,7 @@ function runStateCalculation(field, stateSlug) {
                 if (typeof window[c] === 'function') { fnName = c; break; }
             }
         } else if (field === 'dd' || field === 'dcf') {
-            if (revInfo && revInfo.has_dd === false) {
+            if (NO_DD_SET.has(slugClean) || NO_DD_SET.has(baseState) || (revInfo && revInfo.has_dd === false)) {
                 const ddEl = getTargetElement('inputDD');
                 if (ddEl) ddEl.value = '';
                 return true;
@@ -8309,7 +8322,8 @@ function runStateCalculation(field, stateSlug) {
                 if (typeof window[c] === 'function') { fnName = c; break; }
             }
         } else if (field === 'audit' || field === 'dcj') {
-            if (revInfo && revInfo.has_audit === false) {
+            const hasAudit = (revInfo && revInfo.has_audit === true) || (slugClean === 'DC' || baseState === 'CO' || baseState === 'WA' || baseState === 'LA');
+            if (!hasAudit) {
                 const auditEl = getTargetElement('inputAudit');
                 if (auditEl) auditEl.value = '';
                 return true;
@@ -10798,6 +10812,9 @@ function runStateCalculation(field, stateSlug) {
 window.TX_calculate_ICN = TX_2020_calculate_ICN;
         window.TX_2020_calculate_ICN = TX_2020_calculate_ICN;
         window.TX_2016_calculate_ICN = TX_2016_calculate_ICN;
+        if (typeof AL_2024_calculate_ICN === 'function') {
+            window.AL_2022_calculate_ICN = AL_2024_calculate_ICN;
+        }
 
 function QC_calculate_ICN() {
     var icnEl = getTargetElement("inputICN");
