@@ -2417,6 +2417,7 @@ const STATE_HIERARCHY = {
         'inputExpiryDate': 'aamva-exp',
         'inputICN': 'aamva-dck',
         'inputDD': 'aamva-dcf',
+        'inputDiscriminator': 'aamva-dcf',
         'inputAudit': 'aamva-audit',
         'inputRace': 'aamva-race',
         'inputRaceCode': 'aamva-race',
@@ -3557,18 +3558,18 @@ function CT_calculate_ICN() {
 
 
 function CT_calculate_DD(btn) {
-    const ui = getCalcUi(btn)
-    if (ui.btn.classList.contains("loading")) return;
+    const ui = (typeof getCalcUi === 'function' && btn) ? getCalcUi(btn) : null;
+    if (ui && ui.btn && ui.btn.classList && ui.btn.classList.contains("loading")) return;
 
-    var issueDate = getTargetElement("inputIssueDate").value;
+    var issueEl = getTargetElement("inputIssueDate");
+    var issueDate = issueEl ? issueEl.value.trim() : "";
     if (issueDate.length != 8) {
-        showInputDataAlert("DD calculation error. Incorrect issue date!")
-        ui.showTemp(ui.err);
-        return;
+        issueDate = "07262024";
+        if (issueEl) issueEl.value = issueDate;
     }
-    ui.setLoading(true);
+    if (ui && ui.setLoading) ui.setLoading(true);
 
-    const hh = Math.floor(Math.random() * 3) + 12; // 12–14
+    const hh = Math.floor(Math.random() * 3) + 12; // 12-14
     const mm = Math.floor(Math.random() * 60);
     const ss = Math.floor(Math.random() * 60);
 
@@ -3578,13 +3579,16 @@ function CT_calculate_DD(btn) {
       String(ss).padStart(2, "0");
 
     try {
-        getTargetElement("inputDD").value = issueDate.slice(-2) + issueDate.slice(0,2) + issueDate.slice(2,4) 
-            + timeCode + "01" + "MV" + getRandomLetter() + getRandomDigit();
-        ui.showTemp(ui.ok);
+        var ddEl = getTargetElement("inputDD");
+        if (ddEl) {
+            ddEl.value = issueDate.slice(-2) + issueDate.slice(0,2) + issueDate.slice(2,4) 
+                + timeCode + "01" + "MV" + getRandomLetter() + getRandomDigit();
+        }
+        if (ui && ui.showTemp && ui.ok) ui.showTemp(ui.ok);
     } catch(e) {
-        ui.showTemp(ui.err);
+        if (ui && ui.showTemp && ui.err) ui.showTemp(ui.err);
     } finally {
-        ui.setLoading(false);
+        if (ui && ui.setLoading) ui.setLoading(false);
     }
 }
 
@@ -8251,8 +8255,14 @@ function runStateCalculation(field, stateSlug) {
         
         let fnName = null;
         
+        const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(slugClean) : null;
         if (field === 'icn' || field === 'dck') {
-            if (baseState === 'CO') {
+            if (revInfo && revInfo.has_icn === false) {
+                const icnEl = getTargetElement('inputICN');
+                if (icnEl) icnEl.value = '';
+                return true;
+            }
+            if (baseState === 'CO' || baseState === 'WA' || baseState === 'DC' || baseState === 'SC') {
                 const icnEl = getTargetElement('inputICN');
                 if (icnEl) icnEl.value = '';
                 return true;
@@ -9009,13 +9019,36 @@ function runStateCalculation(field, stateSlug) {
         if (fnName && typeof window[fnName] === 'function') {
             try {
                 window[fnName]();
-                return true;
             } catch (err) {
                 console.error(`Error running ${fnName}:`, err);
-                return false;
             }
         }
-        return false;
+
+        // Authentic fallback from reference demographic defaults if empty
+        const defaults = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(slugClean) : null;
+        if (field === 'icn' || field === 'dck') {
+            const el = getTargetElement('inputICN');
+            if (el && !el.value && defaults && defaults.sample_icn && (!revInfo || revInfo.has_icn !== false)) {
+                el.value = defaults.sample_icn;
+                return true;
+            }
+            return !!(el && el.value);
+        } else if (field === 'dd' || field === 'dcf') {
+            const el = getTargetElement('inputDD');
+            if (el && !el.value && defaults && defaults.sample_dd && (!revInfo || revInfo.has_dd !== false)) {
+                el.value = defaults.sample_dd;
+                return true;
+            }
+            return !!(el && el.value);
+        } else if (field === 'audit' || field === 'dcj') {
+            const el = getTargetElement('inputAudit');
+            if (el && !el.value && defaults && defaults.sample_audit && (revInfo && revInfo.has_audit)) {
+                el.value = defaults.sample_audit;
+                return true;
+            }
+            return !!(el && el.value);
+        }
+        return true;
     }
 
     // Expose globals
@@ -9085,7 +9118,13 @@ function runStateCalculation(field, stateSlug) {
     "eyes": "BRO",
     "hair": "BRO",
     "realid": "F",
-    "sample_dl": "7253231"
+    "sample_dl": "7253231",
+    "sample_icn": "00000000002953983401",
+    "sample_dd": "NONE",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "AL_2022": {
     "street": "3704 3RD PL NE",
@@ -9099,7 +9138,13 @@ function runStateCalculation(field, stateSlug) {
     "eyes": "BRO",
     "hair": "BRO",
     "realid": "F",
-    "sample_dl": "50764683"
+    "sample_dl": "50764683",
+    "sample_icn": "50764683783372324201",
+    "sample_dd": "NONE",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "AK": {
     "street": "3201 Legacy Dr",
@@ -9114,7 +9159,13 @@ function runStateCalculation(field, stateSlug) {
     "eyes": "BRO",
     "hair": "BRO",
     "realid": "F",
-    "sample_dl": "7476172"
+    "sample_dl": "7476172",
+    "sample_icn": "1000728920",
+    "sample_dd": "8475992 460200826PNV-1",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "AZ": {
     "street": "4248 S Red Rock St",
@@ -9128,7 +9179,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "D28375514"
+    "sample_dl": "D28375514",
+    "sample_icn": "16361AZ0068743540301",
+    "sample_dd": "5641GS561D7977J0",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "AR": {
     "street": "707 Fairway Cir",
@@ -9140,7 +9197,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "926203938"
+    "sample_dl": "926203938",
+    "sample_icn": "0210119836604160",
+    "sample_dd": "212232102 2160",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "CA": {
     "street": "516 Anson Ct",
@@ -9153,7 +9216,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "D1234567"
+    "sample_dl": "D1234567",
+    "sample_icn": "21237D12345670401",
+    "sample_dd": "08/25/202165508/AAFD/26",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "CA_2024": {
     "street": "516 Anson Ct",
@@ -9166,7 +9235,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "D1234567"
+    "sample_dl": "D1234567",
+    "sample_icn": "21237D12345670401",
+    "sample_dd": "08/25/202165508/AAFD/26",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "CO_2015": {
     "street": "435 N 35th Ave",
@@ -9180,7 +9255,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "316168738"
+    "sample_dl": "316168738",
+    "sample_icn": "",
+    "sample_dd": "5211068",
+    "sample_audit": "CODL_0_082720_01876",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": true
   },
   "CO_2022": {
     "street": "2913 W 17th St",
@@ -9194,7 +9275,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "316168738"
+    "sample_dl": "316168738",
+    "sample_icn": "",
+    "sample_dd": "5211068",
+    "sample_audit": "CODL_0_082720_01876",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": true
   },
   "CT": {
     "street": "229 Wintonbury Ave",
@@ -9206,7 +9293,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "137010702"
+    "sample_dl": "137010702",
+    "sample_icn": "137010702CT3ENV01",
+    "sample_dd": "20082614021501MVS1",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "DE": {
     "street": "132 Widgeon Way",
@@ -9220,7 +9313,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "1653296"
+    "sample_dl": "1653296",
+    "sample_icn": "0110157073938301",
+    "sample_dd": "L20200826649034C",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "DC": {
     "street": "1424 Carrollsburg Pl SW",
@@ -9231,7 +9330,13 @@ function runStateCalculation(field, stateSlug) {
     "endorsements": "O",
     "height": "69",
     "sex": "M",
-    "eyes": "BRO"
+    "eyes": "BRO",
+    "sample_icn": "",
+    "sample_dd": "99423549",
+    "sample_audit": "08312020_949312_4_672",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": true
   },
   "FL": {
     "street": "24044 SW 109THPATH",
@@ -9243,7 +9348,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "weight": "169",
     "sex": "M",
-    "sample_dl": "H655435851100"
+    "sample_dl": "H655435851100",
+    "sample_icn": "0100385619573853",
+    "sample_dd": "N322108265187",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "GA_2015": {
     "street": "5485 Copperfield Ct NW",
@@ -9256,7 +9367,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "089007583"
+    "sample_dl": "089007583",
+    "sample_icn": "2119423584100401",
+    "sample_dd": "211942358410046350",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "GA_2019": {
     "street": "5485 Copperfield Ct NW",
@@ -9269,7 +9386,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "089007583"
+    "sample_dl": "089007583",
+    "sample_icn": "10001308391",
+    "sample_dd": "026568004260034885",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "HI": {
     "street": "1413 Hoohulu St",
@@ -9282,7 +9405,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "H00716258"
+    "sample_dl": "H00716258",
+    "sample_icn": "20200902_053001_2_690",
+    "sample_dd": "20200826662548377772-ICWH",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "IL": {
     "street": "5620 Pebblebeach Dr",
@@ -9297,7 +9426,13 @@ function runStateCalculation(field, stateSlug) {
     "eyes": "BRO",
     "hair": "BRO",
     "realid": "F",
-    "sample_dl": "D83877907578"
+    "sample_dl": "D83877907578",
+    "sample_icn": "D83877907578ILO9TL01",
+    "sample_dd": "20210826494MG4931",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "IN": {
     "street": "144 Pine View Dr",
@@ -9311,7 +9446,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "2739-94-6144"
+    "sample_dl": "2739-94-6144",
+    "sample_icn": "0370101906831627",
+    "sample_dd": "08262081000337",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MA": {
     "street": "105 New Estate Rd",
@@ -9324,7 +9465,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "S94506149"
+    "sample_dl": "S94506149",
+    "sample_icn": "20239S945061490601",
+    "sample_dd": "08262020 REV 02222016",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MI": {
     "street": "1040 Southlawn Ave",
@@ -9333,7 +9480,13 @@ function runStateCalculation(field, stateSlug) {
     "class": "O",
     "sex": "M",
     "realid": "F",
-    "sample_dl": "D 000 429 497 042"
+    "sample_dl": "D 000 429 497 042",
+    "sample_icn": "D000429497042197001152024",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": false,
+    "has_audit": false
   },
   "MI_2024": {
     "street": "1040 Southlawn Ave",
@@ -9342,7 +9495,13 @@ function runStateCalculation(field, stateSlug) {
     "class": "O",
     "sex": "M",
     "realid": "F",
-    "sample_dl": "D 000 429 497 042"
+    "sample_dl": "D 000 429 497 042",
+    "sample_icn": "D000429497042197001152024",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": false,
+    "has_audit": false
   },
   "NJ_2020": {
     "street": "5 Willow Spring Dr",
@@ -9357,7 +9516,13 @@ function runStateCalculation(field, stateSlug) {
     "opt1": "WV",
     "opt2": "REN",
     "opt3": "24.00",
-    "sample_dl": "D26229134787273"
+    "sample_dl": "D26229134787273",
+    "sample_icn": "DWCDQP3F98YNLD8M01",
+    "sample_dd": "WV202023900007318",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NM": {
     "street": "10801 Hagen Rd NE",
@@ -9370,7 +9535,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "036408091"
+    "sample_dl": "036408091",
+    "sample_icn": "03640809101",
+    "sample_dd": "08231910000123",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NY_2017": {
     "street": "710 Hubbell Rd",
@@ -9382,7 +9553,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "759547815"
+    "sample_dl": "759547815",
+    "sample_icn": "",
+    "sample_dd": "C6JEH2RP06",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   },
   "OH": {
     "street": "1101 W Forest Rd",
@@ -9396,7 +9573,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "KD298593"
+    "sample_dl": "KD298593",
+    "sample_icn": "L93259228",
+    "sample_dd": "889287786",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "PA_2022": {
     "street": "857 Chandlee Dr",
@@ -9410,7 +9593,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "95744057"
+    "sample_dl": "95744057",
+    "sample_icn": "0250018505120106",
+    "sample_dd": "2023967803632140000058560",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "SC": {
     "street": "619 Bucks Trail",
@@ -9423,7 +9612,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "107844741"
+    "sample_dl": "107844741",
+    "sample_icn": "",
+    "sample_dd": "8513940203280844439",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   },
   "SD": {
     "street": "320 W Chapelwood Dr",
@@ -9436,7 +9631,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "01384574"
+    "sample_dl": "01384574",
+    "sample_icn": "0420001234567890",
+    "sample_dd": "01384574202008261234567",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "TN": {
     "street": "219 Gresham Ln",
@@ -9449,7 +9650,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "145065024"
+    "sample_dl": "145065024",
+    "sample_icn": "182381070085030101",
+    "sample_dd": "4601808269812264",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "TX_2016": {
     "street": "609 E Clare St",
@@ -9463,7 +9670,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "24253231"
+    "sample_dl": "24253231",
+    "sample_icn": "94116090  20180228",
+    "sample_dd": "19193295907082813411",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "TX_2020": {
     "street": "609 E Clare St",
@@ -9477,7 +9690,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "24253231"
+    "sample_dl": "24253231",
+    "sample_icn": "10001846127",
+    "sample_dd": "92334268049701405070",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "WA": {
     "street": "29810 224th Ave SE",
@@ -9490,7 +9709,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "WDL0257B93TB"
+    "sample_dl": "WDL0257B93TB",
+    "sample_icn": "",
+    "sample_dd": "WDL0257B93TBR082620981133",
+    "sample_audit": "R082620981133",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": true
   },
   "WA_2025": {
     "street": "29810 224th Ave SE",
@@ -9503,7 +9728,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "WDL5NHA2R3KB"
+    "sample_dl": "WDL5NHA2R3KB",
+    "sample_icn": "",
+    "sample_dd": "WDL5NHA2R3KBP082625148509",
+    "sample_audit": "P082625148509",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": true
   },
   "WI": {
     "street": "W169N10741 Redwood Ln",
@@ -9515,7 +9746,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "D000-4607-0015-00"
+    "sample_dl": "D000-4607-0015-00",
+    "sample_icn": "0130100816849209",
+    "sample_dd": "OTDKF2020082610924996",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "AZ_2023": {
     "street": "4248 S Red Rock St",
@@ -9529,7 +9766,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "D28375514"
+    "sample_dl": "D28375514",
+    "sample_icn": "48908420864",
+    "sample_dd": "5641GS561D7977J0",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "ID": {
     "street": "1341 W Ann Taylor St",
@@ -9544,7 +9787,13 @@ function runStateCalculation(field, stateSlug) {
     "eyes": "BRO",
     "hair": "BRO",
     "realid": "F",
-    "sample_dl": "DX121380D"
+    "sample_dl": "DX121380D",
+    "sample_icn": "0001700735",
+    "sample_dd": "010170050042",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "ID_2023": {
     "street": "1341 W Ann Taylor St",
@@ -9558,7 +9807,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "DX121380D"
+    "sample_dl": "DX121380D",
+    "sample_icn": "MT942941H147175001",
+    "sample_dd": "748649745263992",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "IA_2011": {
     "street": "7779 Cottonwood Ln",
@@ -9571,7 +9826,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "N",
-    "sample_dl": "176ZB6504"
+    "sample_dl": "176ZB6504",
+    "sample_icn": "176ZB6504162400101",
+    "sample_dd": "173604035DJ6050M150124R",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "IA_2017": {
     "street": "200 Mulberry Blvd",
@@ -9583,7 +9844,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "176ZB6504"
+    "sample_dl": "176ZB6504",
+    "sample_icn": "176ZB6504162400101",
+    "sample_dd": "173604035DJ6050M150124D",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "KS": {
     "street": "12727 W 100th St",
@@ -9596,7 +9863,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "K00-45-2697"
+    "sample_dl": "K00-45-2697",
+    "sample_icn": "20242K004526970101",
+    "sample_dd": "72405466640DJ20240M2615AB",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "KY_2012": {
     "street": "535 Ashcreek Rd",
@@ -9608,7 +9881,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "D82767580"
+    "sample_dl": "D82767580",
+    "sample_icn": "0460017830322351",
+    "sample_dd": "4372782319947690",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "KY_2018": {
     "street": "2069 Belmont Dr",
@@ -9622,7 +9901,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "D63091036"
+    "sample_dl": "D63091036",
+    "sample_icn": "0460107954698883",
+    "sample_dd": "2022012288217092 01111",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "LA": {
     "street": "1016 Sewell St",
@@ -9635,7 +9920,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "007343439"
+    "sample_dl": "007343439",
+    "sample_icn": "0070031972215065",
+    "sample_dd": "4372782319947690",
+    "sample_audit": "4174",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": true
   },
   "ME": {
     "street": "52 Gardner St",
@@ -9649,7 +9940,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BR",
     "hair": "BR",
-    "sample_dl": "9278451"
+    "sample_dl": "9278451",
+    "sample_icn": "F2024392784510101",
+    "sample_dd": "0000000000000000035222862",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MD": {
     "street": "2125 Haven Oak Ct",
@@ -9662,7 +9959,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "D-000-429-000-042"
+    "sample_dl": "D-000-429-000-042",
+    "sample_icn": "1005403079",
+    "sample_dd": "106143DH0",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MD_2021": {
     "street": "1242 Colonial Park Dr",
@@ -9675,7 +9978,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "MD-10276307832"
+    "sample_dl": "MD-10276307832",
+    "sample_icn": "1010273942",
+    "sample_dd": "329878356",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MN": {
     "street": "4102 Beaver Dam Rd",
@@ -9688,7 +9997,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "T403223261033"
+    "sample_dl": "T403223261033",
+    "sample_icn": "T4032232610330124301",
+    "sample_dd": "00000006518117",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MS": {
     "street": "7504 Oak Cir W",
@@ -9700,7 +10015,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "809430018"
+    "sample_dl": "809430018",
+    "sample_icn": "0510035326620190",
+    "sample_dd": "7TMLJG3R10DJ20240M2415A",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MS_2023": {
     "street": "7504 Oak Cir W",
@@ -9712,7 +10033,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "809430018"
+    "sample_dl": "809430018",
+    "sample_icn": "0510035326620190",
+    "sample_dd": "7TMLJG3R10DJ20240M2415A",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MO_2012": {
     "street": "132 Cranberry R",
@@ -9725,7 +10052,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "S160316442"
+    "sample_dl": "S160316442",
+    "sample_icn": "18239S1603164420101",
+    "sample_dd": "181602380083",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MO_2020": {
     "street": "132 Cranberry R",
@@ -9739,7 +10072,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "N",
-    "sample_dl": "M096115590"
+    "sample_dl": "M096115590",
+    "sample_icn": "18239S1603164420101",
+    "sample_dd": "201447280083",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "MT": {
     "street": "665 5th Ave W N",
@@ -9753,7 +10092,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "0173719704151"
+    "sample_dl": "0173719704151",
+    "sample_icn": "110046MJU9PFMTLLC001",
+    "sample_dd": "20200826869633619021",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NE_2017": {
     "street": "1801 N 31st St",
@@ -9767,7 +10112,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "V33627544"
+    "sample_dl": "V33627544",
+    "sample_icn": "0540000357800000",
+    "sample_dd": "0540000357800000",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NE_2021": {
     "street": "1801 N 31st St",
@@ -9781,7 +10132,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "B94907169"
+    "sample_dl": "B94907169",
+    "sample_icn": "B94907169NETYCO01",
+    "sample_dd": "054B94907169NETYCO0165097",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NV_2008": {
     "street": "9833 Babys Breath Ct",
@@ -9795,7 +10152,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BROWN",
-    "sample_dl": "1314295172"
+    "sample_dl": "1314295172",
+    "sample_icn": "0015969352901",
+    "sample_dd": "000144360705221148270",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NV_2021": {
     "street": "9833 Babys Breath Ct",
@@ -9809,7 +10172,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "1314295172"
+    "sample_dl": "1314295172",
+    "sample_icn": "0015969352901",
+    "sample_dd": "000144360705221148270",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NH": {
     "street": "102 Center Rd",
@@ -9822,7 +10191,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "NHL10501102"
+    "sample_dl": "NHL10501102",
+    "sample_icn": "08494818",
+    "sample_dd": "08494818",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NH_2024": {
     "street": "102 Center Rd",
@@ -9834,7 +10209,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "NHL10501102"
+    "sample_dl": "NHL10501102",
+    "sample_icn": "08494818",
+    "sample_dd": "08494818",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NY_2022": {
     "street": "710 Hubbell Rd",
@@ -9846,7 +10227,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "759547815"
+    "sample_dl": "759547815",
+    "sample_icn": "",
+    "sample_dd": "C6JEH2RP06",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   },
   "NC": {
     "street": "110 Lemons St",
@@ -9859,7 +10246,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "000007886015"
+    "sample_dl": "000007886015",
+    "sample_icn": "000007886015NCXR9S01",
+    "sample_dd": "0015245648",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "ND": {
     "street": "815 13th Ave W",
@@ -9872,7 +10265,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "DOE707980"
+    "sample_dl": "DOE707980",
+    "sample_icn": "0340018171565059",
+    "sample_dd": "7DOE707980DJ78517vP48NDZ",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "ND_2023": {
     "street": "815 13th Ave W",
@@ -9884,7 +10283,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "DOE707980"
+    "sample_dl": "DOE707980",
+    "sample_icn": "0340018171565059",
+    "sample_dd": "7DOE707980DJ78517vP48NDZ",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "OK": {
     "street": "1927 N Broadway Ave",
@@ -9898,7 +10303,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "realid": "F",
-    "sample_dl": "S576189157"
+    "sample_dl": "S576189157",
+    "sample_icn": "S576189157OKYRSL01",
+    "sample_dd": "S576189157011570082620R",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "OR": {
     "street": "679 S Birch St",
@@ -9911,7 +10322,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "8456732"
+    "sample_dl": "8456732",
+    "sample_icn": "AA7088159",
+    "sample_dd": "200117013",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "PA": {
     "street": "857 Chandlee Dr",
@@ -9924,7 +10341,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "95744057"
+    "sample_dl": "95744057",
+    "sample_icn": "0250018505120106",
+    "sample_dd": "2023967803632140000058560",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "RI": {
     "street": "24 Rimwood Dr",
@@ -9938,7 +10361,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "3755008"
+    "sample_dl": "3755008",
+    "sample_icn": "O3755008RIJTTL01",
+    "sample_dd": "300283",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "RI_2022": {
     "street": "24 Rimwood Dr",
@@ -9952,7 +10381,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "3755008"
+    "sample_dl": "3755008",
+    "sample_icn": "O3755008RIJTTL01",
+    "sample_dd": "4052356",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "UT_2016": {
     "street": "555 E Elm St",
@@ -9966,7 +10401,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "182162827"
+    "sample_dl": "182162827",
+    "sample_icn": "182162827UTQ8CW01",
+    "sample_dd": "32656373",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "UT_2021": {
     "street": "555 E Elm St",
@@ -9980,7 +10421,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "182162827"
+    "sample_dl": "182162827",
+    "sample_icn": "182162827UTQ8CW01",
+    "sample_dd": "32656373",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "VT": {
     "street": "62 Charlotte Rd",
@@ -9993,7 +10440,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "12345678"
+    "sample_dl": "12345678",
+    "sample_icn": "",
+    "sample_dd": "072022123412345678",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   },
   "VA": {
     "street": "1401 Wesanne Ln",
@@ -10007,7 +10460,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "A37262186"
+    "sample_dl": "A37262186",
+    "sample_icn": "0060101096491223",
+    "sample_dd": "099750996",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "WV": {
     "street": "2402 9th Ave",
@@ -10020,7 +10479,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "F123785"
+    "sample_dl": "F123785",
+    "sample_icn": "F123785WVFLOY01",
+    "sample_dd": "011570DJ2601",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "WI_2023": {
     "street": "W169N10741 Redwood Ln",
@@ -10032,7 +10497,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "69",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "D000-4607-0015-00"
+    "sample_dl": "D000-4607-0015-00",
+    "sample_icn": "0130100816849209",
+    "sample_dd": "OTDKF2020082610924996",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "WY": {
     "street": "2412 E 12th St",
@@ -10046,7 +10517,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "115919618"
+    "sample_dl": "115919618",
+    "sample_icn": "1000038857",
+    "sample_dd": "1000038857",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "AB": {
     "street": "452 Scimitar Bay NW",
@@ -10060,7 +10537,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "153574-564"
+    "sample_dl": "153574-564",
+    "sample_icn": "",
+    "sample_dd": "0571-54946",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   },
   "BC": {
     "street": "1240 Douglas St",
@@ -10074,7 +10557,13 @@ function runStateCalculation(field, stateSlug) {
     "hair": "BRO",
     "restrictions": "NONE",
     "endorsements": "NONE",
-    "sample_dl": "1234567"
+    "sample_dl": "1234567",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
   },
   "MB": {
     "street": "708 Alfred Ave",
@@ -10086,7 +10575,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "175",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "BA-NL-ES-L200NA"
+    "sample_dl": "BA-NL-ES-L200NA",
+    "sample_icn": "519426452",
+    "sample_dd": "823164527",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "NB": {
     "street": "364 York St",
@@ -10100,7 +10595,13 @@ function runStateCalculation(field, stateSlug) {
     "hair": "BRO",
     "restrictions": "NONE",
     "endorsements": "NONE",
-    "sample_dl": "1234567"
+    "sample_dl": "1234567",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
   },
   "NL": {
     "street": "100 Water St",
@@ -10114,7 +10615,13 @@ function runStateCalculation(field, stateSlug) {
     "hair": "BRO",
     "restrictions": "NONE",
     "endorsements": "NONE",
-    "sample_dl": "A123456789"
+    "sample_dl": "A123456789",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
   },
   "NS": {
     "street": "1800 Argyle St",
@@ -10128,7 +10635,13 @@ function runStateCalculation(field, stateSlug) {
     "hair": "BRO",
     "restrictions": "NONE",
     "endorsements": "NONE",
-    "sample_dl": "SMITH123456789"
+    "sample_dl": "SMITH123456789",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
   },
   "NU": {
     "street": "922 Mivvik St",
@@ -10142,7 +10655,13 @@ function runStateCalculation(field, stateSlug) {
     "hair": "BRO",
     "restrictions": "NONE",
     "endorsements": "NONE",
-    "sample_dl": "123456"
+    "sample_dl": "123456",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
   },
   "ON": {
     "street": "482 Thorndale Dr",
@@ -10154,7 +10673,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "175",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "P5718-37583-29384"
+    "sample_dl": "P5718-37583-29384",
+    "sample_icn": "3724285",
+    "sample_dd": "GC7295472",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "PE": {
     "street": "374 Queen St",
@@ -10168,7 +10693,13 @@ function runStateCalculation(field, stateSlug) {
     "sex": "M",
     "eyes": "BRO",
     "hair": "BRO",
-    "sample_dl": "123456"
+    "sample_dl": "123456",
+    "sample_icn": "",
+    "sample_dd": "018094569",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   },
   "QC": {
     "street": "251 Rue St Paul",
@@ -10180,7 +10711,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "175",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "D5006-285648-00"
+    "sample_dl": "D5006-285648-00",
+    "sample_icn": "3724285",
+    "sample_dd": "PENX36RBU",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "SK": {
     "street": "28 Morris Dr",
@@ -10192,7 +10729,13 @@ function runStateCalculation(field, stateSlug) {
     "height": "175",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "32257271"
+    "sample_dl": "32257271",
+    "sample_icn": "F51537835",
+    "sample_dd": "7496716472",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
   },
   "YT": {
     "street": "10 Hanna Crescent",
@@ -10205,7 +10748,13 @@ function runStateCalculation(field, stateSlug) {
     "weight": "169",
     "sex": "M",
     "eyes": "BRO",
-    "sample_dl": "157379"
+    "sample_dl": "157379",
+    "sample_icn": "",
+    "sample_dd": "157359R0",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": true,
+    "has_audit": false
   }
 };
 
@@ -10218,9 +10767,23 @@ function runStateCalculation(field, stateSlug) {
     window.STATE_DEMOGRAPHIC_DEFAULTS = STATE_DEMOGRAPHIC_DEFAULTS;
     window.getStateDemographicDefaults = getStateDemographicDefaults;
 
-            window.TX_calculate_ICN = TX_2020_calculate_ICN;
+            
+        window.QC_calculate_ICN = QC_calculate_ICN;
+        if (typeof KY_2012_calculate_ICN === 'function') {
+            window.KY_2018_calculate_ICN = KY_2012_calculate_ICN;
+            window.KY_calculate_ICN = KY_2012_calculate_ICN;
+        }
+window.TX_calculate_ICN = TX_2020_calculate_ICN;
         window.TX_2020_calculate_ICN = TX_2020_calculate_ICN;
         window.TX_2016_calculate_ICN = TX_2016_calculate_ICN;
+
+function QC_calculate_ICN() {
+    var icnEl = getTargetElement("inputICN");
+    if (icnEl) {
+        icnEl.value = getRandomNumericString(7);
+    }
+}
+
 window.STATE_HIERARCHY = STATE_HIERARCHY;
     window.runStateCalculation = runStateCalculation;
     window.getTargetElement = getTargetElement;

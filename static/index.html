@@ -3224,28 +3224,26 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
         // Attach state identifier metadata to STATE_PROFILES
         for (const [stKey, stData] of Object.entries(STATE_PROFILES)) {
-            const info = STATE_IDENTIFIER_INFO[stKey] || {
-                ddLabel: "DD (Document Discriminator)",
-                ddPlaceholder: "DD (e.g. 24072614422001MVI6)",
-                ddTooltip: "Document Discriminator (DCF) — Discriminates this specific issued document",
-                ddHint: `${stData.name} standard credential identifier (maps to DCF).`,
-                usesIcn: false,
-                icnLabel: "ICN (Optional / State Specific)",
-                icnTooltip: `Inventory Control Number (DCK) — Optional in ${stData.name}; omitted when left blank`,
-                icnPlaceholder: `Optional — Leave blank for standard ${stData.name} card`,
-                genDD: () => `24072614422001${Math.floor(1000 + Math.random() * 9000)}`,
-                genICN: () => ""
-            };
-            stData.ddLabel = info.ddLabel;
-            stData.ddPlaceholder = info.ddPlaceholder;
-            stData.ddTooltip = info.ddTooltip;
-            stData.ddHint = info.ddHint;
-            stData.usesIcn = info.usesIcn;
-            stData.icnLabel = info.icnLabel;
-            stData.icnTooltip = info.icnTooltip;
-            stData.icnPlaceholder = info.icnPlaceholder;
-            stData.genDD = info.genDD;
-            stData.genICN = info.genICN;
+            const rev = (typeof getRevisionInfo === 'function') ? getRevisionInfo(stKey) : null;
+            const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(stKey) : null;
+            const info = STATE_IDENTIFIER_INFO[stKey] || {};
+
+            stData.usesIcn = (rev && rev.has_icn !== undefined) ? rev.has_icn : (defs && defs.has_icn !== undefined ? defs.has_icn : (info.usesIcn !== undefined ? info.usesIcn : true));
+            stData.usesDd = (rev && rev.has_dd !== undefined) ? rev.has_dd : (defs && defs.has_dd !== undefined ? defs.has_dd : (info.usesDd !== undefined ? info.usesDd : true));
+            stData.usesAudit = (rev && rev.has_audit !== undefined) ? rev.has_audit : (defs && defs.has_audit !== undefined ? defs.has_audit : (info.usesAudit !== undefined ? info.usesAudit : false));
+
+            stData.ddLabel = info.ddLabel || (stKey.startsWith('TX') ? "Audit Number (DD)" : (stKey.startsWith('CA') ? "Audit String (DD)" : (stKey.startsWith('SC') ? "Audit # / DD" : "DD (Document Discriminator)")));
+            stData.ddPlaceholder = info.ddPlaceholder || (defs && defs.sample_dd ? `DD (e.g. ${defs.sample_dd})` : "DD (e.g. 24072614422001MVI6)");
+            stData.ddTooltip = info.ddTooltip || "Document Discriminator (DCF) — Discriminates this specific issued document";
+            stData.ddHint = info.ddHint || `${stData.name} standard credential identifier (maps to DCF).`;
+
+            stData.icnLabel = info.icnLabel || (stData.usesIcn ? "ICN (Inventory Control Number)" : `ICN (Not used in ${stData.name} — Omitted)`);
+            stData.icnTooltip = info.icnTooltip || (stData.usesIcn ? "Inventory Control Number (DCK)" : `Inventory Control Number (DCK) — Omitted per ${stData.name} specifications`);
+            stData.icnPlaceholder = info.icnPlaceholder || (stData.usesIcn ? (defs && defs.sample_icn ? `ICN (e.g. ${defs.sample_icn})` : "Inventory Control Number (ICN)") : `Optional — Leave blank for standard ${stData.name} card`);
+
+            stData.sample_icn = (defs && defs.sample_icn) || info.sample_icn || "";
+            stData.sample_dd = (defs && defs.sample_dd) || info.sample_dd || "";
+            stData.sample_audit = (defs && defs.sample_audit) || info.sample_audit || "";
         }
 
         // Live Dynamic State Identifier Label & Hint Updater
@@ -3293,6 +3291,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     icnHint.innerHTML = `<span class="text-emerald-600 font-medium text-[10px]">✓ Standard stock tracking element in ${profile.name} (Tag: DCK).</span>`;
                 } else {
                     icnHint.innerHTML = `<span class="text-slate-400 text-[10px]">Omitted in standard ${profile.name} card barcodes per AAMVA Section D.2. If left blank, DCK tag is omitted.</span>`;
+                }
+            }
+
+            // 3. Update Audit (DCJ) Field if present
+            const auditContainer = document.getElementById('container-audit');
+            const auditInput = document.getElementById('aamva-audit');
+            if (auditContainer && auditInput) {
+                if (profile.usesAudit) {
+                    auditContainer.classList.remove('hidden');
+                    if (profile.sample_audit) auditInput.placeholder = `Audit (e.g. ${profile.sample_audit})`;
+                } else {
+                    auditContainer.classList.add('hidden');
                 }
             }
         }
@@ -3927,13 +3937,35 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             // 6. Automatically run state-specific calculation algorithms if available
             if (typeof window.runStateCalculation === 'function') {
                 window.runStateCalculation('id', slug);
+                window.runStateCalculation('audit', slug);
                 window.runStateCalculation('dck', slug);
                 window.runStateCalculation('dcf', slug);
-                window.runStateCalculation('audit', slug);
             }
             const idInput = document.getElementById('aamva-id');
             if (idInput && (!idInput.value || idInput.value === '188892143') && defaults && defaults.sample_dl) {
                 idInput.value = defaults.sample_dl;
+            }
+
+            // Fallback for ICN, DD, Audit if empty after calculation
+            const dckInput = document.getElementById('aamva-dck');
+            if (dckInput && hasIcn && !dckInput.value && defaults && defaults.sample_icn) {
+                dckInput.value = defaults.sample_icn;
+            } else if (dckInput && !hasIcn) {
+                dckInput.value = '';
+            }
+
+            const dcfInput = document.getElementById('aamva-dcf');
+            if (dcfInput && hasDd && (!dcfInput.value || dcfInput.value === 'NONE') && defaults && defaults.sample_dd) {
+                dcfInput.value = defaults.sample_dd;
+            } else if (dcfInput && !hasDd) {
+                dcfInput.value = '';
+            }
+
+            const auditInput = document.getElementById('aamva-audit');
+            if (auditInput && hasAudit && !auditInput.value && defaults && defaults.sample_audit) {
+                auditInput.value = defaults.sample_audit;
+            } else if (auditInput && !hasAudit) {
+                auditInput.value = '';
             }
 
             if (typeof autoSyncExpiryDate === 'function') {
@@ -4497,13 +4529,32 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 issued: getVal('aamva-issued', '07262024'),
                 exp: getVal('aamva-exp', '06212030'),
                 id: getVal('aamva-id', '188892143').toUpperCase(),
-                dcf: getVal('aamva-dcf', (jKey.startsWith('AL') ? 'NONE' : (baseState === 'TX' ? '2407261442200188' : (baseState === 'CA' ? '08/25/202165508/AAFD/26' : (baseState === 'FL' ? '24072614422001M1' : '24072614422001MVI6'))))).toUpperCase(),
+                dcf: (function() {
+                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
+                    const hasDd = revInfo ? revInfo.has_dd : (defs ? defs.has_dd : profile.usesDd);
+                    if (hasDd === false) return '';
+                    const el = document.getElementById('aamva-dcf');
+                    const val = el ? el.value.trim().toUpperCase() : '';
+                    if (val && val !== 'NONE') return val;
+                    if (defs && defs.sample_dd) return defs.sample_dd;
+                    if (profile.sample_dd) return profile.sample_dd;
+                    if (baseState === 'TX') return '2407261442200188';
+                    if (baseState === 'CA') return '08/25/202165508/AAFD/26';
+                    if (baseState === 'FL') return '24072614422001M1';
+                    return '24072614422001MVI6';
+                })(),
                 dck: (function() {
+                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
+                    const hasIcn = revInfo ? revInfo.has_icn : (defs ? defs.has_icn : profile.usesIcn);
+                    if (hasIcn === false) return '';
                     const el = document.getElementById('aamva-dck');
                     const val = el ? el.value.trim().toUpperCase() : '';
                     if (val) return val;
+                    if (defs && defs.sample_icn) return defs.sample_icn;
+                    if (profile.sample_icn) return profile.sample_icn;
                     if (baseState === 'CT') return '188892143CTBRRL01';
-                    if (baseState === 'WA') return '210212003666014417006801';
+                    if (baseState === 'TX') return '10001846127';
+                    if (hasIcn) return '1001';
                     return ''; // Omitted for standard non-ICN states
                 })(),
                 sex: document.getElementById('aamva-sex').value,
@@ -4532,7 +4583,21 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     const el = document.getElementById('aamva-race');
                     return el ? el.value : 'W';
                 })(),
-                audit: getVal('aamva-audit', ''),
+                audit: (function() {
+                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
+                    const hasAudit = revInfo ? revInfo.has_audit : (defs ? defs.has_audit : profile.usesAudit);
+                    if (!hasAudit) return '';
+                    const el = document.getElementById('aamva-audit');
+                    const val = el ? el.value.trim() : '';
+                    if (val) return val;
+                    if (defs && defs.sample_audit) return defs.sample_audit;
+                    if (profile.sample_audit) return profile.sample_audit;
+                    if (baseState === 'WA') return 'R082620981133';
+                    if (baseState === 'CO') return 'CODL_0_082720_01876';
+                    if (baseState === 'DC') return '08312020_949312_4_672';
+                    if (baseState === 'LA') return '4174';
+                    return '082620981133';
+                })(),
                 realId: document.getElementById('aamva-realid') ? document.getElementById('aamva-realid').value : 'Yes'
             };
 
@@ -4602,7 +4667,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (fields.zip) dlElements.push(`DAK${fields.zip}`);
             if (fields.dcf && (!revInfo || revInfo.has_dd !== false)) dlElements.push(`DCF${fields.dcf}`);
             dlElements.push(`DCGUSA`);
-            if (fields.audit && revInfo && revInfo.has_audit) dlElements.push(`DCJ${fields.audit}`);
+            if (fields.audit && (revInfo ? revInfo.has_audit : profile.usesAudit)) dlElements.push(`DCJ${fields.audit}`);
             if (fields.dck && (!revInfo || revInfo.has_icn !== false)) dlElements.push(`DCK${fields.dck}`);
             dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
             dlElements.push(`DDB02102017`);

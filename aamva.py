@@ -345,138 +345,1390 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
 # - DCF (DD): Mandatory in modern AAMVA (Audit Number in TX, Audit String in CA, DD in FL/NY/etc.).
 # - DCK (ICN): Conditional/Optional. Standard in CT/WA/AZ/CO/NV/MO/TN; OMITTED in standard cards for TX/CA/FL/NY/etc.
 STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
-    "TX": {
-        "dd_label": "Audit Number",
-        "dd_desc": "16 to 20 digit numeric audit number printed vertically on card face or back",
+    "AB": {
+        "label": "Alberta",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Alberta - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "0571-54946",
+        "sample_audit": "",
+        "sample_dl": "153574-564"
+    },
+    "AK": {
+        "label": "Alaska",
         "uses_icn": True,
-        "icn_label": "ICN (Inventory Control Number)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "1000728920",
+        "sample_dd": "8475992 460200826PNV-1",
+        "sample_audit": "",
+        "sample_dl": "7476172"
     },
-    "CA": {
-        "dd_label": "Audit String",
-        "dd_desc": "Formatted date & audit string (e.g. 08/25/202165508/AAFD/26) embedding stock data",
-        "uses_icn": False,
-        "icn_label": "ICN (Embedded inside DD - Omitted in standard CA barcode)"
-    },
-    "FL": {
-        "dd_label": "Document Discriminator",
-        "dd_desc": "16-character alphanumeric DD printed on card face",
-        "uses_icn": False,
-        "icn_label": "ICN (Not used in FL - Omitted per AAMVA Section D.2)"
-    },
-    "NY": {
-        "dd_label": "Document Discriminator / Doc #",
-        "dd_desc": "8 to 10 alphanumeric DD printed on front lower right",
-        "uses_icn": False,
-        "icn_label": "ICN (Not used in NY - Omitted per AAMVA Section D.2)"
-    },
-    "IL": {
-        "dd_label": "Item # / Control #",
-        "dd_desc": "Alphanumeric control number printed on card back",
-        "uses_icn": False,
-        "icn_label": "ICN (Not used in IL - Omitted)"
-    },
-    "OH": {
-        "dd_label": "Item # / Audit #",
-        "dd_desc": "Numeric audit identifier printed on card back",
-        "uses_icn": False,
-        "icn_label": "ICN (Not used in OH - Omitted)"
-    },
-    "PA": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "8-digit numeric DD printed on card face",
-        "uses_icn": False,
-        "icn_label": "ICN (Not used in PA - Omitted)"
-    },
-    "CT": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "Alphanumeric Document Discriminator",
+    "AL": {
+        "label": "Alabama (2014)",
         "uses_icn": True,
-        "icn_label": "Inventory Control Number (ICN)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "00000000002953983401",
+        "sample_dd": "NONE",
+        "sample_audit": "",
+        "sample_dl": "7253231"
     },
-    "WA": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "19-character alphanumeric Document Discriminator",
+    "AL_2022": {
+        "label": "Alabama (2022)",
         "uses_icn": True,
-        "icn_label": "Inventory Number (ICN)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "50764683783372324201",
+        "sample_dd": "NONE",
+        "sample_audit": "",
+        "sample_dl": "50764683"
+    },
+    "AR": {
+        "label": "Arkansas",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0210119836604160",
+        "sample_dd": "212232102 2160",
+        "sample_audit": "",
+        "sample_dl": "926203938"
     },
     "AZ": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "Alphanumeric Document Discriminator",
+        "label": "Arizona (2014)",
         "uses_icn": True,
-        "icn_label": "Inventory Control Number (ICN)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "16361AZ0068743540301",
+        "sample_dd": "5641GS561D7977J0",
+        "sample_audit": "",
+        "sample_dl": "D28375514"
+    },
+    "AZ_2023": {
+        "label": "Arizona (2023)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "48908420864",
+        "sample_dd": "5641GS561D7977J0",
+        "sample_audit": "",
+        "sample_dl": "D28375514"
+    },
+    "BC": {
+        "label": "British Columbia",
+        "uses_icn": False,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in British Columbia - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": ""
+    },
+    "CA": {
+        "label": "California (2017)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Audit String (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "21237D12345670401",
+        "sample_dd": "08/25/202165508/AAFD/26",
+        "sample_audit": "",
+        "sample_dl": "D1234567"
+    },
+    "CA_2024": {
+        "label": "California (2024)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Audit String (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "21237D12345670401",
+        "sample_dd": "08/25/202165508/AAFD/26",
+        "sample_audit": "",
+        "sample_dl": "D1234567"
     },
     "CO": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "Alphanumeric Document Discriminator",
-        "uses_icn": True,
-        "icn_label": "Inventory Control Number (ICN)"
+        "label": "Colorado (2015)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Colorado (2015) - Omitted)",
+        "audit_label": "Colorado (2015) Audit Number",
+        "sample_icn": "",
+        "sample_dd": "5211068",
+        "sample_audit": "CODL_0_082720_01876",
+        "sample_dl": "316168738"
     },
-    "NV": {
-        "dd_label": "Doc # / DD",
-        "dd_desc": "Alphanumeric Document Discriminator",
+    "CO_2015": {
+        "label": "Colorado (2015)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Colorado (2015) - Omitted)",
+        "audit_label": "Colorado (2015) Audit Number",
+        "sample_icn": "",
+        "sample_dd": "5211068",
+        "sample_audit": "CODL_0_082720_01876",
+        "sample_dl": "316168738"
+    },
+    "CO_2022": {
+        "label": "Colorado (2022)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Colorado (2022) - Omitted)",
+        "audit_label": "Colorado (2022) Audit Number",
+        "sample_icn": "",
+        "sample_dd": "5211068",
+        "sample_audit": "CODL_0_082720_01876",
+        "sample_dl": "316168738"
+    },
+    "CT": {
+        "label": "Connecticut",
         "uses_icn": True,
-        "icn_label": "Stock / Inventory # (ICN)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "137010702CT3ENV01",
+        "sample_dd": "20082614021501MVS1",
+        "sample_audit": "",
+        "sample_dl": "137010702"
+    },
+    "DC": {
+        "label": "Washington, District of Columbia",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Washington, District of Columbia - Omitted)",
+        "audit_label": "Washington, District of Columbia Audit Number",
+        "sample_icn": "",
+        "sample_dd": "99423549",
+        "sample_audit": "08312020_949312_4_672",
+        "sample_dl": ""
+    },
+    "DE": {
+        "label": "Delaware",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0110157073938301",
+        "sample_dd": "L20200826649034C",
+        "sample_audit": "",
+        "sample_dl": "1653296"
+    },
+    "FL": {
+        "label": "Florida",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0100385619573853",
+        "sample_dd": "N322108265187",
+        "sample_audit": "",
+        "sample_dl": "H655435851100"
+    },
+    "GA": {
+        "label": "Georgia (2015)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "2119423584100401",
+        "sample_dd": "211942358410046350",
+        "sample_audit": "",
+        "sample_dl": "089007583"
+    },
+    "GA_2015": {
+        "label": "Georgia (2015)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "2119423584100401",
+        "sample_dd": "211942358410046350",
+        "sample_audit": "",
+        "sample_dl": "089007583"
+    },
+    "GA_2019": {
+        "label": "Georgia (2019)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "10001308391",
+        "sample_dd": "026568004260034885",
+        "sample_audit": "",
+        "sample_dl": "089007583"
+    },
+    "HI": {
+        "label": "Hawaii",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "20200902_053001_2_690",
+        "sample_dd": "20200826662548377772-ICWH",
+        "sample_audit": "",
+        "sample_dl": "H00716258"
+    },
+    "IA": {
+        "label": "Iowa (2011)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "176ZB6504162400101",
+        "sample_dd": "173604035DJ6050M150124R",
+        "sample_audit": "",
+        "sample_dl": "176ZB6504"
+    },
+    "IA_2011": {
+        "label": "Iowa (2011)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "176ZB6504162400101",
+        "sample_dd": "173604035DJ6050M150124R",
+        "sample_audit": "",
+        "sample_dl": "176ZB6504"
+    },
+    "IA_2017": {
+        "label": "Iowa (2017)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "176ZB6504162400101",
+        "sample_dd": "173604035DJ6050M150124D",
+        "sample_audit": "",
+        "sample_dl": "176ZB6504"
+    },
+    "ID": {
+        "label": "Idaho (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0001700735",
+        "sample_dd": "010170050042",
+        "sample_audit": "",
+        "sample_dl": "DX121380D"
+    },
+    "ID_2023": {
+        "label": "Idaho (2023)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "MT942941H147175001",
+        "sample_dd": "748649745263992",
+        "sample_audit": "",
+        "sample_dl": "DX121380D"
+    },
+    "IL": {
+        "label": "Illinois",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Item # / Control # (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "D83877907578ILO9TL01",
+        "sample_dd": "20210826494MG4931",
+        "sample_audit": "",
+        "sample_dl": "D83877907578"
+    },
+    "IN": {
+        "label": "Indiana",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0370101906831627",
+        "sample_dd": "08262081000337",
+        "sample_audit": "",
+        "sample_dl": "2739-94-6144"
+    },
+    "KS": {
+        "label": "Kansas",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "20242K004526970101",
+        "sample_dd": "72405466640DJ20240M2615AB",
+        "sample_audit": "",
+        "sample_dl": "K00-45-2697"
+    },
+    "KY": {
+        "label": "Kentucy (2012)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0460017830322351",
+        "sample_dd": "4372782319947690",
+        "sample_audit": "",
+        "sample_dl": "D82767580"
+    },
+    "KY_2012": {
+        "label": "Kentucy (2012)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0460017830322351",
+        "sample_dd": "4372782319947690",
+        "sample_audit": "",
+        "sample_dl": "D82767580"
+    },
+    "KY_2018": {
+        "label": "Kentucy (2018)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0460107954698883",
+        "sample_dd": "2022012288217092 01111",
+        "sample_audit": "",
+        "sample_dl": "D63091036"
+    },
+    "LA": {
+        "label": "Louisiana",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Louisiana Audit Number",
+        "sample_icn": "0070031972215065",
+        "sample_dd": "4372782319947690",
+        "sample_audit": "4174",
+        "sample_dl": "007343439"
+    },
+    "MA": {
+        "label": "Massachusetts",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "20239S945061490601",
+        "sample_dd": "08262020 REV 02222016",
+        "sample_audit": "",
+        "sample_dl": "S94506149"
+    },
+    "MB": {
+        "label": "Manitoba",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "519426452",
+        "sample_dd": "823164527",
+        "sample_audit": "",
+        "sample_dl": "BA-NL-ES-L200NA"
+    },
+    "MD": {
+        "label": "Maryland (2016 & 2019)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "1005403079",
+        "sample_dd": "106143DH0",
+        "sample_audit": "",
+        "sample_dl": "D-000-429-000-042"
+    },
+    "MD_2021": {
+        "label": "Maryland (2021)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "1010273942",
+        "sample_dd": "329878356",
+        "sample_audit": "",
+        "sample_dl": "MD-10276307832"
+    },
+    "ME": {
+        "label": "Maine",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "F2024392784510101",
+        "sample_dd": "0000000000000000035222862",
+        "sample_audit": "",
+        "sample_dl": "9278451"
+    },
+    "MI": {
+        "label": "Michigan (2011, 2021)",
+        "uses_icn": True,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "D000429497042197001152024",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": "D 000 429 497 042"
+    },
+    "MI_2024": {
+        "label": "Michigan (2024)",
+        "uses_icn": True,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "D000429497042197001152024",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": "D 000 429 497 042"
+    },
+    "MN": {
+        "label": "Minnesota",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "T4032232610330124301",
+        "sample_dd": "00000006518117",
+        "sample_audit": "",
+        "sample_dl": "T403223261033"
     },
     "MO": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "Alphanumeric Document Discriminator",
+        "label": "Missouri (2012)",
         "uses_icn": True,
-        "icn_label": "Inventory Control Number (ICN)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "18239S1603164420101",
+        "sample_dd": "181602380083",
+        "sample_audit": "",
+        "sample_dl": "S160316442"
     },
-    "TN": {
-        "dd_label": "Doc # / DD",
-        "dd_desc": "Alphanumeric Document Discriminator",
+    "MO_2012": {
+        "label": "Missouri (2012)",
         "uses_icn": True,
-        "icn_label": "Inventory Control Number (ICN)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "18239S1603164420101",
+        "sample_dd": "181602380083",
+        "sample_audit": "",
+        "sample_dl": "S160316442"
+    },
+    "MO_2020": {
+        "label": "Missouri (2020)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "18239S1603164420101",
+        "sample_dd": "201447280083",
+        "sample_audit": "",
+        "sample_dl": "M096115590"
+    },
+    "MS": {
+        "label": "Mississippi (2016, 2021)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0510035326620190",
+        "sample_dd": "7TMLJG3R10DJ20240M2415A",
+        "sample_audit": "",
+        "sample_dl": "809430018"
+    },
+    "MS_2023": {
+        "label": "Mississippi (2023)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0510035326620190",
+        "sample_dd": "7TMLJG3R10DJ20240M2415A",
+        "sample_audit": "",
+        "sample_dl": "809430018"
+    },
+    "MT": {
+        "label": "Montana",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "110046MJU9PFMTLLC001",
+        "sample_dd": "20200826869633619021",
+        "sample_audit": "",
+        "sample_dl": "0173719704151"
+    },
+    "NB": {
+        "label": "New Brunswick",
+        "uses_icn": False,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in New Brunswick - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": ""
+    },
+    "NC": {
+        "label": "North Carolina",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "000007886015NCXR9S01",
+        "sample_dd": "0015245648",
+        "sample_audit": "",
+        "sample_dl": "000007886015"
+    },
+    "ND": {
+        "label": "North Dakota (2008)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0340018171565059",
+        "sample_dd": "7DOE707980DJ78517vP48NDZ",
+        "sample_audit": "",
+        "sample_dl": "DOE707980"
+    },
+    "ND_2023": {
+        "label": "North Dakota (2023)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0340018171565059",
+        "sample_dd": "7DOE707980DJ78517vP48NDZ",
+        "sample_audit": "",
+        "sample_dl": "DOE707980"
+    },
+    "NE": {
+        "label": "Nebraska (2017)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0540000357800000",
+        "sample_dd": "0540000357800000",
+        "sample_audit": "",
+        "sample_dl": "V33627544"
+    },
+    "NE_2017": {
+        "label": "Nebraska (2017)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0540000357800000",
+        "sample_dd": "0540000357800000",
+        "sample_audit": "",
+        "sample_dl": "V33627544"
+    },
+    "NE_2021": {
+        "label": "Nebraska (2021)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "B94907169NETYCO01",
+        "sample_dd": "054B94907169NETYCO0165097",
+        "sample_audit": "",
+        "sample_dl": "B94907169"
+    },
+    "NH": {
+        "label": "New Hampshire (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "08494818",
+        "sample_dd": "08494818",
+        "sample_audit": "",
+        "sample_dl": "NHL10501102"
+    },
+    "NH_2024": {
+        "label": "New Hampshire (2024)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "08494818",
+        "sample_dd": "08494818",
+        "sample_audit": "",
+        "sample_dl": "NHL10501102"
     },
     "NJ": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "17-character alphanumeric DD (Option 1 + YYYY + DOY + 0000 + 4 digits)",
+        "label": "New Jersey",
         "uses_icn": True,
-        "icn_label": "ICN (Inventory Control Number)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "DWCDQP3F98YNLD8M01",
+        "sample_dd": "WV202023900007318",
+        "sample_audit": "",
+        "sample_dl": "D26229134787273"
     },
     "NJ_2020": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "17-character alphanumeric DD (Option 1 + YYYY + DOY + 0000 + 4 digits)",
+        "label": "New Jersey",
         "uses_icn": True,
-        "icn_label": "ICN (Inventory Control Number)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "DWCDQP3F98YNLD8M01",
+        "sample_dd": "WV202023900007318",
+        "sample_audit": "",
+        "sample_dl": "D26229134787273"
+    },
+    "NL": {
+        "label": "Newfoundland and Labrador",
+        "uses_icn": False,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Newfoundland and Labrador - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": ""
     },
     "NM": {
-        "dd_label": "DD (Document Discriminator)",
-        "dd_desc": "14-character DD (MMDDYY + Office Code + 00 + 3 digits)",
+        "label": "New Mexico",
         "uses_icn": True,
-        "icn_label": "ICN (Inventory Control Number)"
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "03640809101",
+        "sample_dd": "08231910000123",
+        "sample_audit": "",
+        "sample_dl": "036408091"
     },
-    "AL": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "AR": {"dd_label": "Doc #", "dd_desc": "Document number on lower back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "KS": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "LA": {"dd_label": "Audit #", "dd_desc": "Audit number on reverse", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "MA": {"dd_label": "DD", "dd_desc": "Document Discriminator (e.g. 08262020 REV 02222016)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
-    "MI": {"dd_label": "DD", "dd_desc": "Document Discriminator (Omitted/Optional)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
-    "MI_2024": {"dd_label": "DD", "dd_desc": "Document Discriminator (Omitted/Optional)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
-    "MN": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "MS": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "NC": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "NE": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "OR": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "SC": {"dd_label": "Audit # / DD", "dd_desc": "19-digit numeric Document Discriminator", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "SD": {"dd_label": "DD (Document Discriminator)", "dd_desc": "23-digit Document Discriminator (DL + YYYYMMDD + 7 digits)", "uses_icn": True, "icn_label": "ICN (Inventory Control Number)"},
-    "VA": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "VT": {"dd_label": "Doc #", "dd_desc": "Doc number on card front", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
-    "WI": {"dd_label": "Audit #", "dd_desc": "Audit number on card back", "uses_icn": False, "icn_label": "ICN (Optional / State Specific)"},
+    "NS": {
+        "label": "Nova Scotia",
+        "uses_icn": False,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Nova Scotia - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": ""
+    },
+    "NU": {
+        "label": "Nunavut",
+        "uses_icn": False,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Nunavut - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": ""
+    },
+    "NV": {
+        "label": "Nevada (2008)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0015969352901",
+        "sample_dd": "000144360705221148270",
+        "sample_audit": "",
+        "sample_dl": "1314295172"
+    },
+    "NV_2008": {
+        "label": "Nevada (2008)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0015969352901",
+        "sample_dd": "000144360705221148270",
+        "sample_audit": "",
+        "sample_dl": "1314295172"
+    },
+    "NV_2021": {
+        "label": "Nevada (2021)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0015969352901",
+        "sample_dd": "000144360705221148270",
+        "sample_audit": "",
+        "sample_dl": "1314295172"
+    },
+    "NY": {
+        "label": "New York (2017)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Doc # / DD",
+        "icn_label": "ICN (Not used in New York (2017) - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "C6JEH2RP06",
+        "sample_audit": "",
+        "sample_dl": "759547815"
+    },
+    "NY_2017": {
+        "label": "New York (2017)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Doc # / DD",
+        "icn_label": "ICN (Not used in New York (2017) - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "C6JEH2RP06",
+        "sample_audit": "",
+        "sample_dl": "759547815"
+    },
+    "NY_2022": {
+        "label": "New York (2022)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Doc # / DD",
+        "icn_label": "ICN (Not used in New York (2022) - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "C6JEH2RP06",
+        "sample_audit": "",
+        "sample_dl": "759547815"
+    },
+    "OH": {
+        "label": "Ohio",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Item # / Audit # (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "L93259228",
+        "sample_dd": "889287786",
+        "sample_audit": "",
+        "sample_dl": "KD298593"
+    },
+    "OK": {
+        "label": "Oklahoma",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "S576189157OKYRSL01",
+        "sample_dd": "S576189157011570082620R",
+        "sample_audit": "",
+        "sample_dl": "S576189157"
+    },
+    "ON": {
+        "label": "Ontario",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "3724285",
+        "sample_dd": "GC7295472",
+        "sample_audit": "",
+        "sample_dl": "P5718-37583-29384"
+    },
+    "OR": {
+        "label": "Oregon",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "AA7088159",
+        "sample_dd": "200117013",
+        "sample_audit": "",
+        "sample_dl": "8456732"
+    },
+    "PA": {
+        "label": "Pennsylvania (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0250018505120106",
+        "sample_dd": "2023967803632140000058560",
+        "sample_audit": "",
+        "sample_dl": "95744057"
+    },
+    "PA_2022": {
+        "label": "Pennsylvania (2022)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0250018505120106",
+        "sample_dd": "2023967803632140000058560",
+        "sample_audit": "",
+        "sample_dl": "95744057"
+    },
+    "PE": {
+        "label": "Prince Edward Island",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Prince Edward Island - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "018094569",
+        "sample_audit": "",
+        "sample_dl": "123456"
+    },
+    "QC": {
+        "label": "Quebec",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "3724285",
+        "sample_dd": "PENX36RBU",
+        "sample_audit": "",
+        "sample_dl": "D5006-285648-00"
+    },
+    "RI": {
+        "label": "Rhode Island (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "O3755008RIJTTL01",
+        "sample_dd": "300283",
+        "sample_audit": "",
+        "sample_dl": "3755008"
+    },
+    "RI_2022": {
+        "label": "Rhode Island (2022)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "O3755008RIJTTL01",
+        "sample_dd": "4052356",
+        "sample_audit": "",
+        "sample_dl": "3755008"
+    },
+    "SC": {
+        "label": "South Carolina",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Audit # / DD",
+        "icn_label": "ICN (Not used in South Carolina - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "8513940203280844439",
+        "sample_audit": "",
+        "sample_dl": "107844741"
+    },
+    "SD": {
+        "label": "South Dakota",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0420001234567890",
+        "sample_dd": "01384574202008261234567",
+        "sample_audit": "",
+        "sample_dl": "01384574"
+    },
+    "SK": {
+        "label": "Saskatchewan",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "F51537835",
+        "sample_dd": "7496716472",
+        "sample_audit": "",
+        "sample_dl": "32257271"
+    },
+    "TN": {
+        "label": "Tennessee",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "182381070085030101",
+        "sample_dd": "4601808269812264",
+        "sample_audit": "",
+        "sample_dl": "145065024"
+    },
+    "TX": {
+        "label": "Texas (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Audit Number",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "94116090  20180228",
+        "sample_dd": "19193295907082813411",
+        "sample_audit": "",
+        "sample_dl": "24253231"
+    },
+    "TX_2016": {
+        "label": "Texas (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Audit Number",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "94116090  20180228",
+        "sample_dd": "19193295907082813411",
+        "sample_audit": "",
+        "sample_dl": "24253231"
+    },
+    "TX_2020": {
+        "label": "Texas (2020)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Audit Number",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "10001846127",
+        "sample_dd": "92334268049701405070",
+        "sample_audit": "",
+        "sample_dl": "24253231"
+    },
+    "UT": {
+        "label": "Utah (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "182162827UTQ8CW01",
+        "sample_dd": "32656373",
+        "sample_audit": "",
+        "sample_dl": "182162827"
+    },
+    "UT_2016": {
+        "label": "Utah (2016)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "182162827UTQ8CW01",
+        "sample_dd": "32656373",
+        "sample_audit": "",
+        "sample_dl": "182162827"
+    },
+    "UT_2021": {
+        "label": "Utah (2021)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "182162827UTQ8CW01",
+        "sample_dd": "32656373",
+        "sample_audit": "",
+        "sample_dl": "182162827"
+    },
+    "VA": {
+        "label": "Virginia",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0060101096491223",
+        "sample_dd": "099750996",
+        "sample_audit": "",
+        "sample_dl": "A37262186"
+    },
+    "VT": {
+        "label": "Vermont",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Vermont - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "072022123412345678",
+        "sample_audit": "",
+        "sample_dl": "12345678"
+    },
+    "WA": {
+        "label": "Washington (2019)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Washington (2019) - Omitted)",
+        "audit_label": "Washington (2019) Audit Number",
+        "sample_icn": "",
+        "sample_dd": "WDL0257B93TBR082620981133",
+        "sample_audit": "R082620981133",
+        "sample_dl": "WDL0257B93TB"
+    },
+    "WA_2025": {
+        "label": "Washington (2025)",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": True,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Washington (2025) - Omitted)",
+        "audit_label": "Washington (2025) Audit Number",
+        "sample_icn": "",
+        "sample_dd": "WDL5NHA2R3KBP082625148509",
+        "sample_audit": "P082625148509",
+        "sample_dl": "WDL5NHA2R3KB"
+    },
+    "WI": {
+        "label": "Wisconsin (2015)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0130100816849209",
+        "sample_dd": "OTDKF2020082610924996",
+        "sample_audit": "",
+        "sample_dl": "D000-4607-0015-00"
+    },
+    "WI_2023": {
+        "label": "Wisconsin (2023)",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "0130100816849209",
+        "sample_dd": "OTDKF2020082610924996",
+        "sample_audit": "",
+        "sample_dl": "D000-4607-0015-00"
+    },
+    "WV": {
+        "label": "West Virginia",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "F123785WVFLOY01",
+        "sample_dd": "011570DJ2601",
+        "sample_audit": "",
+        "sample_dl": "F123785"
+    },
+    "WY": {
+        "label": "Wyoming",
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "Inventory Control Number (ICN)",
+        "audit_label": "Audit Information",
+        "sample_icn": "1000038857",
+        "sample_dd": "1000038857",
+        "sample_audit": "",
+        "sample_dl": "115919618"
+    },
+    "YT": {
+        "label": "The Yukon",
+        "uses_icn": False,
+        "uses_dd": True,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in The Yukon - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "157359R0",
+        "sample_audit": "",
+        "sample_dl": "157379"
+    },
 }
 
 for _st_code, _st_prof in STATE_AAMVA_PROFILES.items():
-    _meta = STATE_IDENTIFIER_METADATA.get(_st_code, {
+    _meta = STATE_IDENTIFIER_METADATA.get(_st_code) or STATE_IDENTIFIER_METADATA.get(_st_code.split('_')[0]) or {
         "dd_label": "DD (Document Discriminator)",
         "dd_desc": f"{_st_prof.get('issuer_name', _st_code)} Document Discriminator",
-        "uses_icn": False,
-        "icn_label": "ICN (Optional / State Specific)"
-    })
+        "uses_icn": True,
+        "uses_dd": True,
+        "uses_audit": False,
+        "icn_label": "ICN (Inventory Control Number)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": ""
+    }
     _st_prof["dd_label"] = _meta["dd_label"]
-    _st_prof["dd_desc"] = _meta["dd_desc"]
+    _st_prof["dd_desc"] = _meta.get("dd_desc", f"{_st_prof.get('issuer_name', _st_code)} Document Discriminator")
     _st_prof["uses_icn"] = _meta["uses_icn"]
+    _st_prof["uses_dd"] = _meta.get("uses_dd", True)
+    _st_prof["uses_audit"] = _meta.get("uses_audit", False)
     _st_prof["icn_label"] = _meta["icn_label"]
+    _st_prof["audit_label"] = _meta.get("audit_label", "Audit Information")
+    _st_prof["sample_icn"] = _meta.get("sample_icn", "")
+    _st_prof["sample_dd"] = _meta.get("sample_dd", "")
+    _st_prof["sample_audit"] = _meta.get("sample_audit", "")
+
+
+def resolve_state_identifiers(
+    state_code: str,
+    user_data: Dict[str, Any],
+    profile: Dict[str, Any],
+    dl_id: str
+) -> Tuple[str, str, str]:
+    clean_st = state_code.strip().upper()
+    base_st = clean_st.split('_')[0]
+    meta = STATE_IDENTIFIER_METADATA.get(clean_st) or STATE_IDENTIFIER_METADATA.get(base_st) or {}
+
+    # 1. State-aware Document Discriminator (DD / DCF) resolution
+    uses_dd = profile.get("uses_dd", meta.get("uses_dd", True))
+    dcf_val = user_data.get("dcf") if user_data.get("dcf") is not None else user_data.get("document_discriminator")
+    if dcf_val is not None and str(dcf_val).strip() and str(dcf_val).strip().upper() != "NONE":
+        dcf = str(dcf_val).strip().upper()
+    elif not uses_dd:
+        dcf = ""  # Omitted per state specification (e.g. MI, MI_2024, Canadian provinces with no DD)
+    else:
+        sample_dd = meta.get("sample_dd", "")
+        if clean_st == "TX":
+            dcf = "2407261442200188"
+        elif clean_st == "CA":
+            dcf = "08/25/202165508/AAFD/26"
+        elif clean_st == "FL":
+            dcf = "24072614422001M1"
+        elif clean_st in ("NJ", "NJ_2020"):
+            dcf = "WV202023900007318"
+        elif clean_st == "NM":
+            dcf = "08231910000123"
+        elif clean_st == "MA":
+            dcf = "08262020 REV 02222016"
+        elif clean_st == "SC":
+            dcf = "8513940203280844439"
+        elif clean_st == "SD":
+            dcf = f"{dl_id}202008261234567" if dl_id and len(dl_id) == 8 else "01384574202008261234567"
+        elif sample_dd:
+            dcf = sample_dd
+        else:
+            dcf = "24072614422001MVI6"
+
+    # 2. State-aware Inventory Control Number (ICN / DCK) resolution
+    uses_icn = profile.get("uses_icn", meta.get("uses_icn", False))
+    dck_val = user_data.get("dck") if user_data.get("dck") is not None else user_data.get("inventory_control_number")
+    if dck_val is not None and str(dck_val).strip():
+        dck = str(dck_val).strip().upper()
+    elif not uses_icn:
+        dck = ""  # Omitted per state specification (e.g. CO, NY, SC, VT, WA, DC)
+    else:
+        sample_icn = meta.get("sample_icn", "")
+        if clean_st == "CT":
+            dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
+        elif clean_st in ("NJ", "NJ_2020"):
+            dck = "DWCDQP3F98YNLD8M01"
+        elif clean_st == "NM":
+            dck = f"{dl_id}01" if dl_id else "01234567801"
+        elif clean_st == "MA":
+            dck = f"20239{dl_id}0601" if dl_id else "20239S945061490601"
+        elif clean_st in ("MI", "MI_2024"):
+            clean_id = dl_id.replace(" ", "") if dl_id else "M123456789012"
+            dck = f"{clean_id}198001152801"
+        elif clean_st == "SD":
+            dck = "0420001234567890"
+        elif clean_st in ("TX", "TX_2020"):
+            dck = "10001846127"
+        elif clean_st == "TX_2016":
+            dck = f"{dl_id}  20180228" if dl_id else "94116090  20180228"
+        elif sample_icn:
+            dck = sample_icn
+        else:
+            dck = f"{dl_id}01" if dl_id else "1001"
+
+    # 3. State-aware Audit Information (Audit / DCJ) resolution
+    uses_audit = profile.get("uses_audit", meta.get("uses_audit", False))
+    audit_val = user_data.get("audit") if user_data.get("audit") is not None else user_data.get("audit_information")
+    if audit_val is not None and str(audit_val).strip():
+        audit = str(audit_val).strip().upper()
+    elif not uses_audit:
+        audit = ""
+    else:
+        sample_audit = meta.get("sample_audit", "")
+        if clean_st in ("WA", "WA_2019"):
+            audit = "R082620981133"
+        elif clean_st == "WA_2025":
+            audit = "P082625148509"
+        elif clean_st in ("CO", "CO_2015", "CO_2022"):
+            audit = "CODL_0_082720_01876"
+        elif clean_st == "DC":
+            audit = "08312020_949312_4_672"
+        elif clean_st == "LA":
+            audit = "4174"
+        elif sample_audit:
+            audit = sample_audit
+        else:
+            audit = "082620981133"
+
+    return dcf, dck, audit
 
 
 def parse_issue_year(date_str: Optional[str]) -> int:
@@ -529,6 +1781,19 @@ def resolve_state_profile(
         STATE_AAMVA_PROFILES.get(base_code) or 
         STATE_AAMVA_PROFILES["GENERIC"]
     ).copy()
+    
+    # Ensure revision-specific identifier metadata overrides base profile
+    meta = STATE_IDENTIFIER_METADATA.get(clean_code) or STATE_IDENTIFIER_METADATA.get(base_code)
+    if meta:
+        base["uses_icn"] = meta.get("uses_icn", base.get("uses_icn", False))
+        base["uses_dd"] = meta.get("uses_dd", base.get("uses_dd", True))
+        base["uses_audit"] = meta.get("uses_audit", base.get("uses_audit", False))
+        base["dd_label"] = meta.get("dd_label", base.get("dd_label", "Document Discriminator (DD)"))
+        base["icn_label"] = meta.get("icn_label", base.get("icn_label", "Inventory Control Number (ICN)"))
+        base["audit_label"] = meta.get("audit_label", base.get("audit_label", "Audit Information"))
+        base["sample_icn"] = meta.get("sample_icn", base.get("sample_icn", ""))
+        base["sample_dd"] = meta.get("sample_dd", base.get("sample_dd", ""))
+        base["sample_audit"] = meta.get("sample_audit", base.get("sample_audit", ""))
     
     format_map = {
         "09": "11",
@@ -636,60 +1901,8 @@ def generate_aamva_payload(
     exp = str(user_data.get("exp") or user_data.get("expiration_date") or "").strip()
     dl_id = str(user_data.get("id") or user_data.get("customer_id_number") or "").strip().upper()
     
-    # State-aware Document Discriminator (DD / DCF) resolution
-    dcf_val = user_data.get("dcf") if user_data.get("dcf") is not None else user_data.get("document_discriminator")
-    if dcf_val is not None and str(dcf_val).strip():
-        dcf = str(dcf_val).strip().upper()
-    else:
-        st_upper = state_code.upper()
-        if st_upper == "TX":
-            dcf = "2407261442200188"
-        elif st_upper == "CA":
-            dcf = "08/25/202165508/AAFD/26"
-        elif st_upper == "FL":
-            dcf = "24072614422001M1"
-        elif st_upper in ("NJ", "NJ_2020"):
-            dcf = "WV202023900007318"
-        elif st_upper == "NM":
-            dcf = "08231910000123"
-        elif st_upper == "MA":
-            dcf = "08262020 REV 02222016"
-        elif st_upper == "SC":
-            dcf = "8513940203280844439"
-        elif st_upper == "SD":
-            dcf = f"{dl_id}202008261234567" if dl_id and len(dl_id) == 8 else "01384574202008261234567"
-        else:
-            dcf = "24072614422001MVI6"
-
-    # State-aware Inventory Control Number (ICN / DCK) resolution
-    dck_val = user_data.get("dck") if user_data.get("dck") is not None else user_data.get("inventory_control_number")
-    if dck_val is not None and str(dck_val).strip():
-        dck = str(dck_val).strip().upper()
-    else:
-        st_upper = state_code.upper()
-        if st_upper == "CT":
-            dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
-        elif st_upper == "WA":
-            dck = "210212003666014417006801"
-        elif st_upper in ("NJ", "NJ_2020"):
-            dck = "DWCDQP3F98YNLD8M01"
-        elif st_upper == "NM":
-            dck = f"{dl_id}01" if dl_id else "01234567801"
-        elif st_upper == "MA":
-            dck = f"20239{dl_id}0601" if dl_id else "20239S945061490601"
-        elif st_upper in ("MI", "MI_2024"):
-            clean_id = dl_id.replace(" ", "") if dl_id else "M123456789012"
-            dck = f"{clean_id}198001152801"
-        elif st_upper == "SD":
-            dck = "0420001234567890"
-        elif st_upper in ("TX", "TX_2020"):
-            dck = "10001846127"
-        elif st_upper == "TX_2016":
-            dck = f"{dl_id}  20180228" if dl_id else "94116090  20180228"
-        elif profile.get("uses_icn", False):
-            dck = f"{dl_id}01" if dl_id else "1001"
-        else:
-            dck = ""  # Omitted completely per AAMVA Section D.2
+    # State-aware Document Discriminator, ICN, and Audit resolution
+    dcf, dck, audit = resolve_state_identifiers(state_code, user_data, profile, dl_id)
     sex = str(user_data.get("sex", "1")).strip()
     height = str(user_data.get("height", "061 IN")).strip().upper()
     eyes = str(user_data.get("eyes", "BLK")).strip().upper()
@@ -749,6 +1962,7 @@ def generate_aamva_payload(
     if zip_code: dl_elements.append(f"DAK{zip_code}")
     if dcf: dl_elements.append(f"DCF{dcf}")
     dl_elements.append("DCGUSA")
+    if audit: dl_elements.append(f"DCJ{audit}")
     if dck: dl_elements.append(f"DCK{dck}")
     dl_elements.append("DDAF")
     dl_elements.append("DDB02102017")
@@ -803,60 +2017,8 @@ def generate_scanner_xml(
     exp = str(user_data.get("exp") or user_data.get("expiration_date") or "").strip()
     dl_id = str(user_data.get("id") or user_data.get("customer_id_number") or "").strip().upper()
     
-    # State-aware Document Discriminator (DD / DCF) resolution
-    dcf_val = user_data.get("dcf") if user_data.get("dcf") is not None else user_data.get("document_discriminator")
-    if dcf_val is not None and str(dcf_val).strip():
-        dcf = str(dcf_val).strip().upper()
-    else:
-        st_upper = state_code.upper()
-        if st_upper == "TX":
-            dcf = "2407261442200188"
-        elif st_upper == "CA":
-            dcf = "08/25/202165508/AAFD/26"
-        elif st_upper == "FL":
-            dcf = "24072614422001M1"
-        elif st_upper in ("NJ", "NJ_2020"):
-            dcf = "WV202023900007318"
-        elif st_upper == "NM":
-            dcf = "08231910000123"
-        elif st_upper == "MA":
-            dcf = "08262020 REV 02222016"
-        elif st_upper == "SC":
-            dcf = "8513940203280844439"
-        elif st_upper == "SD":
-            dcf = f"{dl_id}202008261234567" if dl_id and len(dl_id) == 8 else "01384574202008261234567"
-        else:
-            dcf = "24072614422001MVI6"
-
-    # State-aware Inventory Control Number (ICN / DCK) resolution
-    dck_val = user_data.get("dck") if user_data.get("dck") is not None else user_data.get("inventory_control_number")
-    if dck_val is not None and str(dck_val).strip():
-        dck = str(dck_val).strip().upper()
-    else:
-        st_upper = state_code.upper()
-        if st_upper == "CT":
-            dck = f"{dl_id}CTBRRL01" if dl_id else "188892143CTBRRL01"
-        elif st_upper == "WA":
-            dck = "210212003666014417006801"
-        elif st_upper in ("NJ", "NJ_2020"):
-            dck = "DWCDQP3F98YNLD8M01"
-        elif st_upper == "NM":
-            dck = f"{dl_id}01" if dl_id else "01234567801"
-        elif st_upper == "MA":
-            dck = f"20239{dl_id}0601" if dl_id else "20239S945061490601"
-        elif st_upper in ("MI", "MI_2024"):
-            clean_id = dl_id.replace(" ", "") if dl_id else "M123456789012"
-            dck = f"{clean_id}198001152801"
-        elif st_upper == "SD":
-            dck = "0420001234567890"
-        elif st_upper in ("TX", "TX_2020"):
-            dck = "10001846127"
-        elif st_upper == "TX_2016":
-            dck = f"{dl_id}  20180228" if dl_id else "94116090  20180228"
-        elif profile.get("uses_icn", False):
-            dck = f"{dl_id}01" if dl_id else "1001"
-        else:
-            dck = ""  # Omitted completely per AAMVA Section D.2
+    # State-aware Document Discriminator, ICN, and Audit resolution
+    dcf, dck, audit = resolve_state_identifiers(state_code, user_data, profile, dl_id)
     sex = str(user_data.get("sex", "1")).strip()
     height = str(user_data.get("height", "061 IN")).strip().upper()
     eyes = str(user_data.get("eyes", "BLK")).strip().upper()
@@ -973,6 +2135,7 @@ def generate_scanner_xml(
     if zip_code: dl_elements.append(f"DAK{zip_code}")
     if dcf: dl_elements.append(f"DCF{dcf}")
     dl_elements.append("DCGUSA")
+    if audit: dl_elements.append(f"DCJ{audit}")
     if dck: dl_elements.append(f"DCK{dck}")
     dl_elements.append("DDAF")
     dl_elements.append("DDB02102017")
@@ -1025,8 +2188,9 @@ def generate_scanner_xml(
         f"    <element id=\"DAG\" name=\"Address - Street 1\">{street.upper()}</element>\n"
         f"    <element id=\"DAI\" name=\"Address - City\">{city.upper()}</element>\n"
         f"    <element id=\"DAJ\" name=\"Address - Jurisdiction Code\">{state.upper()}</element>\n"
-        f"    <element id=\"DCF\" name=\"{profile.get('dd_label', 'Document Discriminator')}\">{dcf}</element>\n"
-        "    <element id=\"DCG\" name=\"Country Identification\">USA</element>\n"
+        + (f"    <element id=\"DCF\" name=\"{profile.get('dd_label', 'Document Discriminator')}\">{dcf}</element>\n" if dcf else "")
+        + "    <element id=\"DCG\" name=\"Country Identification\">USA</element>\n"
+        + (f"    <element id=\"DCJ\" name=\"{profile.get('audit_label', 'Audit Information')}\">{audit}</element>\n" if audit else "")
         + (f"    <element id=\"DCK\" name=\"{profile.get('icn_label', 'Inventory control number')}\">{dck}</element>\n" if dck else "") +
         "    <element id=\"DDA\" name=\"Compliance Type\">F</element>\n"
         "    <element id=\"DDB\" name=\"Card Revision Date\">02102017</element>\n"
