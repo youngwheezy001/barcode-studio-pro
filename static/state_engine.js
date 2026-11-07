@@ -2443,10 +2443,22 @@ const STATE_HIERARCHY = {
         'inputDups': 'aamva-dups',
         'inputOption1': 'aamva-nj-opt1',
         'inputOption2': 'aamva-nj-opt2',
-        'inputOption3': 'aamva-nj-opt3'
+        'inputOption3': 'aamva-nj-opt3',
+        'inputOfficeCode': 'aamva-in-office',
+        'inputParish': 'aamva-la-parish'
     };
 
     function getTargetElement(id) {
+        if (id === 'inputOfficeCode') {
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const state = jurEl ? jurEl.value.toUpperCase().split('_')[0] : '';
+            if (state === 'IN') return document.getElementById('aamva-in-office') || document.getElementById('aamva-la-office');
+            if (state === 'LA') return document.getElementById('aamva-la-office') || document.getElementById('aamva-in-office');
+            return document.getElementById('aamva-in-office') || document.getElementById('aamva-la-office');
+        }
+        if (id === 'inputParish') {
+            return document.getElementById('aamva-la-parish');
+        }
         const mappedId = ID_MAP[id] || id;
         return document.getElementById(mappedId) || document.getElementById(id);
     }
@@ -8297,6 +8309,11 @@ function runStateCalculation(field, stateSlug) {
                 if (typeof window[c] === 'function') { fnName = c; break; }
             }
         } else if (field === 'audit' || field === 'dcj') {
+            if (revInfo && revInfo.has_audit === false) {
+                const auditEl = getTargetElement('inputAudit');
+                if (auditEl) auditEl.value = '';
+                return true;
+            }
             const candidates = [
                 (slugClean === 'WA_2025' ? 'WA_calculate_AUDIT_with_P' : null),
                 `${slugClean}_calculate_AUDIT`,
