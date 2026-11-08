@@ -35,7 +35,10 @@
     <meta name="theme-color" content="#0F172A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BarcodeStudio">
+    <!-- Google Fonts for Authentic Cursive State Watermark -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- JsBarcode for 1D barcodes (Code 128) -->
@@ -1923,119 +1926,152 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
         </section>
 
-        <!-- Right Column: Real-Time Preview Studio & Exact Screenshot Dimensions Monitor -->
-        <section class="w-[48%] bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col overflow-y-auto shadow-sm gap-3">
+        <!-- Right Column: Real-Time Card Inspection Studio & Exact Screenshot Dimensions Monitor -->
+        <section class="w-[48%] bg-[#0c121e] rounded-2xl border border-slate-800 p-4 sm:p-5 flex flex-col overflow-y-auto shadow-2xl gap-3 text-slate-100">
             
             <div class="flex flex-col gap-2.5">
                 <!-- Monitor Header -->
-                <div class="flex justify-between items-center border-b border-bordercol pb-2">
-                    <div class="flex gap-1.5 flex-wrap">
-                        <button onclick="switchPreviewMode('barcode')" id="btn-view-barcode" class="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-accent text-white shadow transition">
-                            Barcode Graphic
+                <div class="flex justify-between items-center pb-1">
+                    <h3 class="text-base font-semibold text-slate-100 tracking-wide flex items-center gap-2">
+                        Card Inspection Studio
+                    </h3>
+                    <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-lg border border-slate-800 text-[10px]">
+                        <button type="button" onclick="switchPreviewMode('card')" id="btn-view-card" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-accent text-white shadow transition">
+                            Studio Card
                         </button>
-                        <button onclick="switchPreviewMode('xml')" id="btn-view-xml" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 transition">
+                        <button type="button" onclick="switchPreviewMode('xml')" id="btn-view-xml" class="text-xs font-semibold px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">
                             Scanner XML
                         </button>
-                        <button onclick="switchPreviewMode('card')" id="btn-view-card" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 transition">
-                            CR80 Card Back
-                        </button>
-                        <button onclick="switchPreviewMode('stream')" id="btn-view-stream" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 transition">
+                        <button type="button" onclick="switchPreviewMode('stream')" id="btn-view-stream" class="text-xs font-semibold px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">
                             Raw Bytes
                         </button>
-                        <button onclick="switchPreviewMode('diagnostics')" id="btn-view-diagnostics" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition flex items-center gap-1">
-                            <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        <button type="button" onclick="switchPreviewMode('diagnostics')" id="btn-view-diagnostics" class="text-xs font-semibold px-2.5 py-1 rounded-lg text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1">
+                            <svg class="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                             Diagnostics
                         </button>
                     </div>
-
-                    <div class="flex items-center gap-2">
-                        <!-- 2D Symbology Sub-Toggle: PDF417 vs Mobile QR Code -->
-                        <div class="flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold border border-slate-200">
-                            <button onclick="setBarcode2DType('pdf417')" id="sub-pdf417" class="px-2 py-0.5 rounded bg-white shadow text-accent">PDF417</button>
-                            <button onclick="setBarcode2DType('qrcode')" id="sub-qrcode" class="px-2 py-0.5 rounded text-slate-500 hover:text-slate-800">QR Code</button>
-                        </div>
-                        <span id="byte-counter" class="text-xs code-font font-bold text-emerald-600">0 / 800 B</span>
-                    </div>
                 </div>
 
-                <!-- Display Screen 1: Barcode Canvas (Standard AAMVA Dimensions) -->
-                <div id="view-container-barcode" class="bg-slate-900 rounded-2xl p-4 flex flex-col items-center justify-between relative shadow-lg min-h-[300px]">
+                <!-- Hidden Dummy Container for Code 128 / Barcode Graphic Compatibility -->
+                <div id="view-container-barcode" class="hidden">
+                    <svg id="output-code128" class="hidden"></svg>
+                    <span id="barcode-standard-label" class="hidden"></span>
+                    <span id="barcode-physical-dims" class="hidden"></span>
+                </div>
+
+                <!-- Display Screen 1: Primary 3D Card Inspection Studio Chamber & Pedestal -->
+                <div id="view-container-card" class="w-full flex flex-col items-center justify-center">
                     
-                    <!-- Top Standards Header Pill -->
-                    <div class="w-full flex justify-between items-center text-[10px] text-slate-400 mb-2 px-1">
-                        <div class="flex items-center gap-2">
-                            <span class="flex items-center gap-1.5 font-medium text-slate-300">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span id="barcode-standard-label">AAMVA 2020 Standard ID-1 Physical Footprint</span>
-                            </span>
-                            <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Scannability Score: 100% (ANSI Grade A / ISO 15438 Verified)
-                            </span>
-                        </div>
-                        <span class="font-mono text-slate-400" id="barcode-physical-dims">2.75" × 0.65" (69.8 × 16.5 mm) • 10-mil</span>
-                    </div>
-
-                    <!-- White rounded barcode box (Crisp, Perfectly Proportioned Scannable Ribbon) -->
-                    <div id="barcode-display-box" class="relative w-full bg-white rounded-xl p-4 flex items-center justify-center shadow-inner overflow-hidden min-h-[160px] my-auto">
-                        <svg id="output-code128" class="hidden max-w-full max-h-[110px] transition duration-300"></svg>
-                        <canvas id="output-pdf417" class="max-w-full max-h-[135px] w-auto h-auto object-contain transition duration-300"></canvas>
-
-                        <!-- Barcode See-Through Anti-Scan Security Overlay for Unregistered/Zero Tokens -->
-                        <div id="barcode-blur-overlay" class="hidden absolute inset-0 flex flex-col justify-between p-2.5 z-10 select-none overflow-hidden rounded-xl">
-                            <!-- Subtle Repeating Anti-Scan Watermark Grid -->
-                            <div class="absolute inset-0 pointer-events-none flex flex-col justify-around py-1 transform -rotate-3 scale-110 opacity-30 select-none overflow-hidden">
-                                <div class="text-[9px] font-black tracking-widest text-slate-800 uppercase whitespace-nowrap text-center">
-                                    ★ SAMPLE • PREVIEW ONLY • UNREGISTERED • NOT SCANNABLE ★
-                                </div>
-                                <div class="text-[9px] font-black tracking-widest text-slate-800 uppercase whitespace-nowrap text-center">
-                                    ★ BARCODE STUDIO PRO • ANSI GRADE A • HIGH RESOLUTION LOCKED ★
-                                </div>
-                                <div class="text-[9px] font-black tracking-widest text-slate-800 uppercase whitespace-nowrap text-center">
-                                    ★ SAMPLE • PREVIEW ONLY • UNREGISTERED • NOT SCANNABLE ★
+                    <!-- Inner Studio Spotlight Chamber -->
+                    <div id="studio-spotlight-chamber" class="relative w-full rounded-2xl border border-slate-700/50 pt-7 pb-0 px-3 sm:px-6 flex flex-col items-center justify-end overflow-hidden shadow-2xl min-h-[385px]"
+                         style="background: radial-gradient(ellipse at 50% 36%, #3d4c60 0%, #202b3b 45%, #101622 75%, #0a0e16 100%);">
+                        
+                        <!-- Authentic CR80 Physical Card Sitting on Stage -->
+                        <div id="studio-cr80-card" class="relative z-10 w-[420px] max-w-[96%] bg-white rounded-[14px] shadow-[0_22px_45px_-10px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden text-slate-900 select-none flex flex-col justify-between">
+                            
+                            <!-- Top Section (Above Magnetic Stripe) -->
+                            <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white">
+                                <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
+                                <div class="flex items-center justify-end overflow-hidden">
+                                    <svg id="card-code128-svg" class="max-h-[22px] max-w-[190px]"></svg>
                                 </div>
                             </div>
 
-                            <!-- Subtle Top Security Badge -->
-                            <div class="relative z-20 flex items-center justify-between pointer-events-none px-1">
-                                <span class="text-[9px] font-mono font-bold bg-amber-500/90 text-slate-950 px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping"></span>
-                                    PROTECTED PREVIEW
-                                </span>
-                                <span class="text-[9px] font-bold text-slate-700 bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
-                                    Anti-Scan Filter Active
-                                </span>
-                            </div>
+                            <!-- Full-Bleed Magnetic Stripe -->
+                            <div id="card-magstripe" class="w-full h-9 sm:h-10 bg-[#0a0a0a] shadow-inner"></div>
 
-                            <!-- Floating Bottom Glass Unlock Pill (Leaves >85% of Barcode Directly Visible) -->
-                            <div class="relative z-20 w-full flex items-center justify-between gap-2 bg-slate-950/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-3 py-2 shadow-2xl">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xs shrink-0 font-bold">
-                                        🔒
+                            <!-- Card Body Content -->
+                            <div class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-white">
+                                
+                                <!-- Middle Metadata Row -->
+                                <div class="flex justify-between items-start">
+                                    <!-- Left: Class, Endorsements, Restrictions -->
+                                    <div class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5">
+                                        <div>CLASS: <span id="studio-card-class" class="font-semibold text-slate-800">Driver's license</span></div>
+                                        <div>ENDORSEMENTS: <span id="studio-card-endorsements" class="font-semibold text-slate-800">None</span></div>
+                                        <div>RESTRICTIONS: <span id="studio-card-restrictions" class="font-semibold text-slate-800">None</span></div>
                                     </div>
-                                    <div class="truncate text-left leading-tight">
-                                        <div class="text-[11px] font-bold text-white flex items-center gap-1.5">
-                                            <span>Optical Lock Active</span>
-                                            <span class="text-[9px] font-mono text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-1 py-0.2 rounded hidden sm:inline">0 Tokens</span>
+
+                                    <!-- Right: Donor & Living Will -->
+                                    <div class="text-right">
+                                        <div class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 tracking-tight">
+                                            Donor <span id="studio-donor-y" class="underline font-black text-slate-900">_Y</span> <span id="studio-donor-n" class="text-slate-600">_N</span> / Living Will <span id="studio-will-y" class="text-slate-600">_Y</span> <span id="studio-will-n" class="underline font-black text-slate-900">_N</span>
                                         </div>
-                                        <div class="text-[9px] text-slate-300 truncate hidden sm:block">Visible for authenticity &bull; Unlock for 600 DPI scannable export</div>
                                     </div>
                                 </div>
-                                <button type="button" onclick="openTokenModal()" class="shrink-0 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-lg shadow flex items-center gap-1.5 transform hover:scale-105 active:scale-95 transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                    <span>Buy Sets to Unlock</span>
-                                    <span class="bg-slate-950/20 text-slate-950 px-1.5 py-0.2 rounded text-[10px] font-extrabold">$2.50</span>
-                                </button>
+
+                                <!-- Lower Section: Barcode on Left, Gold Watermark & Federal Notice on Right -->
+                                <div class="flex justify-between items-end mt-2 relative">
+                                    
+                                    <!-- Left: 2D Barcode & DMV URL -->
+                                    <div class="flex flex-col items-start max-w-[260px] relative">
+                                        <canvas id="output-pdf417" class="max-w-[245px] sm:max-w-[260px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                        <canvas id="card-preview-barcode" class="hidden"></canvas>
+                                        <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
+
+                                        <!-- See-Through Anti-Scan Security Overlay for Unregistered/Zero Tokens -->
+                                        <div id="barcode-blur-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                                            <span class="text-[8px] font-black tracking-widest text-slate-800 uppercase bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
+                                                ★ PREVIEW ONLY • UNREGISTERED ★
+                                            </span>
+                                        </div>
+                                        <div id="card-barcode-lock-overlay" class="hidden"></div>
+                                    </div>
+
+                                    <!-- Right: State Cursive Watermark, Federal Notice, and Vertical Revision Stamp -->
+                                    <div class="flex items-center gap-1.5 pl-2 max-w-[195px] relative">
+                                        <div class="flex flex-col items-end text-right flex-1">
+                                            <!-- Gold Cursive State Watermark -->
+                                            <div class="flex items-center justify-end gap-1.5 my-0.5">
+                                                <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                <span id="studio-state-watermark" class="text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none" style="font-family: 'Dancing Script', 'Brush Script MT', 'Caveat', cursive; font-weight: 700;">Louisiana</span>
+                                                <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                            </div>
+
+                                            <!-- Federal Regulations Disclaimer -->
+                                            <div class="text-[6px] sm:text-[6.5px] text-slate-800 font-sans leading-[1.2] text-right font-medium max-w-[170px] mt-0.5">
+                                                Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br>
+                                                <span class="italic font-bold">Renewable 180 days prior to expiration.</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Vertical Revision Stamp -->
+                                        <div class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg); height: 75px; text-align: center;" id="studio-rev-stamp">
+                                            REV 03-12-2015 &nbsp; 10-02-1990
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- 3D Geometric Display Pedestal / Stage -->
+                        <div class="relative w-full max-w-[470px] flex flex-col items-center mt-[-10px] z-0">
+                            <!-- Top Pedestal Plane with 3D Perspective Bevel -->
+                            <div class="w-full h-7 sm:h-8 bg-gradient-to-b from-[#243042] via-[#1c2635] to-[#131b27] rounded-t-md border-t border-slate-400/40 relative shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]"
+                                 style="clip-path: polygon(3% 0%, 97% 0%, 100% 100%, 0% 100%);">
+                                <!-- Specular Highlight Line -->
+                                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300/50 to-transparent"></div>
+                                <!-- Contact Drop Shadow under card -->
+                                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/30"></div>
+                            </div>
+                            <!-- Vertical Front Face of Pedestal -->
+                            <div class="w-full h-9 sm:h-11 bg-gradient-to-b from-[#111722] via-[#0d121b] to-[#070b12] rounded-b-lg border-t border-slate-700/60 shadow-[0_15px_35px_rgba(0,0,0,0.9)] flex items-center justify-between px-4">
+                                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-700/40 to-transparent"></div>
                             </div>
                         </div>
+
                     </div>
 
-                    <!-- Discreet Collapsible Advanced Settings Drawer (Hidden by Default) -->
-                    <div class="w-full pt-3 mt-1 border-t border-slate-800">
-                        <button type="button" onclick="toggleAdvancedSettings()" class="w-full flex items-center justify-between text-[11px] text-slate-400 hover:text-slate-200 py-1.5 px-3 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 transition">
+                    <!-- Collapsible Advanced Barcode Parameters Drawer -->
+                    <div class="w-full pt-2">
+                        <button type="button" onclick="toggleAdvancedSettings()" class="w-full flex items-center justify-between text-[11px] text-slate-400 hover:text-slate-200 py-1.5 px-3 rounded-lg bg-slate-900/70 hover:bg-slate-900 border border-slate-800 transition">
                             <div class="flex items-center gap-2">
                                 <svg class="w-3.5 h-3.5 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 <span class="font-semibold text-slate-300">Advanced Barcode Parameters</span>
-                                <span class="text-[9px] bg-slate-700/80 text-emerald-400 border border-slate-600 px-1.5 py-0.2 rounded font-mono font-medium">Standard AAMVA Active</span>
+                                <span class="text-[9px] bg-slate-800 text-emerald-400 border border-slate-700 px-1.5 py-0.2 rounded font-mono font-medium">Standard AAMVA Active</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] text-slate-400 font-mono" id="adv-summary-badge">Cols: 12 &bull; ECC: 5 &bull; 3:1</span>
@@ -2044,7 +2080,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </button>
 
                         <!-- Collapsed Content (Hidden by default) -->
-                        <div id="advanced-settings-panel" class="hidden pt-3 border-t border-slate-800/80 text-slate-200 mt-2">
+                        <div id="advanced-settings-panel" class="hidden pt-3 border-t border-slate-800 text-slate-200 mt-2">
                             <div class="grid grid-cols-4 gap-3">
                                 <div>
                                     <div class="flex justify-between text-[11px] font-medium mb-1">
@@ -2075,7 +2111,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <input type="range" id="tune-ratio" min="2" max="5" value="3" class="w-full cursor-pointer accent-accent" oninput="updateTuningUI(); renderPDF417()">
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center pt-2 mt-2 border-t border-slate-800/60 text-[10px] text-slate-400">
+                            <div class="flex justify-between items-center pt-2 mt-2 border-t border-slate-800 text-[10px] text-slate-400">
                                 <span>Note: Manual tuning may deviate from certified physical AAMVA card standards.</span>
                                 <button type="button" onclick="resetToStandardDimensions()" class="text-accent-light hover:underline font-bold text-[11px]">↺ Reset to AAMVA Standard</button>
                             </div>
@@ -2084,121 +2120,25 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 </div>
 
                 <!-- Display Screen 2: Scanner XML View -->
-                <div id="view-container-xml" class="hidden bg-slate-50 rounded-xl border border-slate-200 h-[280px] flex flex-col p-3 relative shadow-inner overflow-hidden">
+                <div id="view-container-xml" class="hidden bg-slate-900 rounded-xl border border-slate-800 h-[320px] flex flex-col p-3 relative shadow-inner overflow-hidden">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[11px] font-bold text-slate-600 uppercase">Scanner Parsed XML Output</span>
-                        <button onclick="copyXmlOutput()" class="text-[10px] bg-white border border-slate-300 hover:bg-slate-100 text-accent font-semibold px-2 py-1 rounded transition">Copy XML</button>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Scanner Parsed XML Output</span>
+                        <button onclick="copyXmlOutput()" class="text-[10px] bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 font-semibold px-2 py-1 rounded transition">Copy XML</button>
                     </div>
-                    <textarea id="xml-display" rows="10" class="w-full flex-1 bg-white border border-slate-200 rounded p-2.5 code-font text-[11px] text-emerald-700 outline-none resize-none" readonly></textarea>
+                    <textarea id="xml-display" rows="10" class="w-full flex-1 bg-slate-950 border border-slate-800 rounded p-2.5 code-font text-[11px] text-emerald-400 outline-none resize-none" readonly></textarea>
                 </div>
 
-                <!-- Display Screen 3: CR-80 Card Visualizer (Front & Back Flip) -->
-                <div id="view-container-card" class="hidden bg-slate-100 rounded-xl border border-slate-200 h-[280px] flex flex-col justify-between p-2.5 relative shadow-inner overflow-hidden">
-                    <div class="flex justify-between items-center text-[10px] pb-1 border-b border-slate-200">
-                        <span class="font-mono text-slate-500 font-semibold">CR-80: 85.60 &times; 53.98 mm (3.375" &times; 2.125")</span>
-                        <div class="flex gap-1.5">
-                            <button type="button" onclick="toggleCardSide()" id="btn-card-flip" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] transition shadow-sm flex items-center gap-1">
-                                <span>🔄 Flip: <strong id="card-side-label">Card Back</strong></span>
-                            </button>
-                            <button type="button" onclick="toggleMagstripeHeight()" id="btn-mag-height" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] transition shadow-sm">
-                                Mag: <span id="mag-height-label">0.33"</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Card Body -->
-                    <div class="flex-1 flex items-center justify-center py-1">
-                        <!-- Card Back Face -->
-                        <div id="card-face-back" class="w-[370px] h-[215px] bg-white rounded-xl shadow-md p-2.5 flex flex-col justify-between border border-slate-300 text-slate-900 select-none relative">
-                            <!-- Magnetic Stripe -->
-                            <div id="card-magstripe" class="w-full h-7 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 rounded-sm shadow-inner transition-all"></div>
-                            
-                            <!-- 1D Companion Barcode under magstripe -->
-                            <div class="flex justify-center items-center py-0.5 relative">
-                                <svg id="card-code128-svg" class="max-w-[280px] max-h-[30px] transition duration-200"></svg>
-                            </div>
-
-                            <div class="text-[7.5px] text-slate-500 text-center font-mono tracking-wider">
-                                OFFICIAL AAMVA COMPLIANT SPECIFICATION TEST ID &bull; NOT FOR GOV IDENTIFICATION
-                            </div>
-                            
-                            <!-- 2D PDF417 Barcode -->
-                            <div class="flex justify-center items-center py-0.5 relative">
-                                <canvas id="card-preview-barcode" class="max-w-[320px] max-h-[68px] w-auto h-auto object-contain transition duration-200"></canvas>
-                                <!-- Anti-Scan Protected Security Watermark Overlay for Card Barcode (Only covers barcode; DL text remains crisp!) -->
-                                <div id="card-barcode-lock-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                                    <span class="text-[8px] font-black tracking-widest text-slate-800 uppercase bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
-                                        ★ PREVIEW ONLY • UNREGISTERED ★
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-between items-center text-[8.5px] font-mono text-slate-600 border-t border-slate-200 pt-0.5">
-                                <span id="card-id-preview">ID: Y4509481</span>
-                                <span id="card-name-preview">HARRISON, SEAN</span>
-                                <span id="card-state-preview">STATE: CA</span>
-                            </div>
-                        </div>
-
-                        <!-- Card Front Face (Hidden by default) -->
-                        <div id="card-face-front" class="hidden w-[370px] h-[215px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl shadow-md p-2.5 flex flex-col justify-between border border-slate-300 text-slate-900 select-none relative overflow-hidden">
-                            <!-- Header Banner -->
-                            <div class="w-full bg-blue-900 text-white px-2.5 py-1 rounded-t-lg flex justify-between items-center shadow-sm">
-                                <div>
-                                    <span id="front-state-title" class="font-extrabold text-[11px] tracking-wide uppercase">CALIFORNIA</span>
-                                    <span class="text-[8px] text-blue-200 block -mt-0.5 font-sans">DRIVER LICENSE</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <!-- Golden REAL ID Star -->
-                                    <span class="text-amber-300 text-xs font-bold" title="REAL ID Compliant Star">★</span>
-                                    <span class="text-[9px] font-mono font-bold text-blue-100 uppercase">USA</span>
-                                </div>
-                            </div>
-
-                            <!-- Front Body: Photo & Demographic Details -->
-                            <div class="flex gap-2.5 py-1 flex-1 items-center">
-                                <!-- Photo Box -->
-                                <div class="w-20 h-24 bg-slate-200 rounded border border-slate-300 flex flex-col items-center justify-center text-slate-400 text-center p-1 shrink-0">
-                                    <svg class="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-                                    <span class="text-[7.5px] font-bold text-slate-500 uppercase mt-1">PHOTO</span>
-                                </div>
-
-                                <!-- Text Fields -->
-                                <div class="flex-1 flex flex-col justify-between h-full text-[9px] font-sans leading-tight">
-                                    <div>
-                                        <span class="text-[7.5px] text-slate-400 font-bold block uppercase">DL NO.</span>
-                                        <span id="front-dl-num" class="font-mono font-bold text-blue-900 text-[11px]">Y4509481</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-[7.5px] text-slate-400 font-bold block uppercase">NAME</span>
-                                        <span id="front-name" class="font-bold text-slate-900 uppercase">HARRISON, SEAN</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-[7.5px] text-slate-400 font-bold block uppercase">ADDRESS</span>
-                                        <span id="front-address" class="text-slate-700 uppercase">456 MARKET ST, SAN FRANCISCO, CA</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-[8px] border-t border-slate-200 pt-0.5 font-mono">
-                                        <span>DOB: <strong id="front-dob" class="text-rose-700">1970-08-12</strong></span>
-                                        <span>EXP: <strong id="front-exp" class="text-emerald-700">2030-08-12</strong></span>
-                                        <span>SEX: <strong id="front-sex">M</strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Display Screen 4: Raw Bytes -->
-                <div id="view-container-stream" class="hidden bg-slate-50 rounded-xl border border-slate-200 h-[280px] flex flex-col p-3 relative shadow-inner overflow-hidden">
+                <!-- Display Screen 3: Raw Bytes -->
+                <div id="view-container-stream" class="hidden bg-slate-900 rounded-xl border border-slate-800 h-[320px] flex flex-col p-3 relative shadow-inner overflow-hidden">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[11px] font-bold text-slate-600 uppercase">Raw AAMVA Byte Stream</span>
-                        <button onclick="copyPayload()" class="text-[10px] bg-white border border-slate-300 hover:bg-slate-100 text-accent font-semibold px-2 py-1 rounded transition">Copy Raw</button>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase">Raw AAMVA Byte Stream</span>
+                        <button onclick="copyPayload()" class="text-[10px] bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 font-semibold px-2 py-1 rounded transition">Copy Raw</button>
                     </div>
-                    <textarea id="input-pdf417" rows="10" class="w-full flex-1 bg-white border border-slate-200 rounded p-2.5 code-font text-[11px] text-blue-700 outline-none resize-none" readonly></textarea>
+                    <textarea id="input-pdf417" rows="10" class="w-full flex-1 bg-slate-950 border border-slate-800 rounded p-2.5 code-font text-[11px] text-blue-400 outline-none resize-none" readonly></textarea>
                 </div>
 
-                <!-- Display Screen 5: Live Standards Diagnostics & ISO 15415 Quality Grading -->
-                <div id="view-container-diagnostics" class="hidden bg-slate-50 rounded-xl border border-slate-200 h-[280px] flex flex-col p-3 relative shadow-inner overflow-y-auto gap-2.5">
+                <!-- Display Screen 4: Live Standards Diagnostics & ISO 15415 Quality Grading -->
+                <div id="view-container-diagnostics" class="hidden bg-slate-900 rounded-xl border border-slate-800 h-[320px] flex flex-col p-3 relative shadow-inner overflow-y-auto gap-2.5">
                     
                     <!-- ISO/IEC 15415 Industrial Verification Banner -->
                     <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 text-white p-2.5 rounded-xl border border-emerald-500/40 flex items-center justify-between shadow-sm">
@@ -2219,49 +2159,49 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                     <!-- ISO Verification Metrics Grid -->
                     <div class="grid grid-cols-2 gap-2 text-[10px]">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Symbol Contrast (SC):</span>
-                            <span class="text-emerald-700 font-bold font-mono">98.4% [Grade A]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Symbol Contrast (SC):</span>
+                            <span class="text-emerald-400 font-bold font-mono">98.4% [Grade A]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Modulation (MOD):</span>
-                            <span class="text-emerald-700 font-bold font-mono">96.2% [Grade A]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Modulation (MOD):</span>
+                            <span class="text-emerald-400 font-bold font-mono">96.2% [Grade A]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Reflectance Min (Rmin):</span>
-                            <span class="text-emerald-700 font-bold font-mono">0.02 [Pass]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Reflectance Min (Rmin):</span>
+                            <span class="text-emerald-400 font-bold font-mono">0.02 [Pass]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Axial Non-Uniformity:</span>
-                            <span class="text-emerald-700 font-bold font-mono">0.01 [Grade A]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Axial Non-Uniformity:</span>
+                            <span class="text-emerald-400 font-bold font-mono">0.01 [Grade A]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Quiet Zones Margin:</span>
-                            <span class="text-emerald-700 font-bold font-mono">&ge; 4X Modules [Pass]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Quiet Zones Margin:</span>
+                            <span class="text-emerald-400 font-bold font-mono">&ge; 4X Modules [Pass]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Reed-Solomon ECC:</span>
-                            <span class="text-emerald-700 font-bold font-mono">Level 5 [0 Errors]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Reed-Solomon ECC:</span>
+                            <span class="text-emerald-400 font-bold font-mono">Level 5 [0 Errors]</span>
                         </div>
                     </div>
 
                     <!-- AAMVA Structural Conformance -->
                     <div class="grid grid-cols-2 gap-2 text-[10px]">
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Header ANSI Compliance:</span>
-                            <span class="text-emerald-700 font-bold font-mono">@\n\x1e\r ANSI [PASS]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Header ANSI Compliance:</span>
+                            <span class="text-emerald-400 font-bold font-mono">@\n\x1e\r ANSI [PASS]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Subfile Directory:</span>
-                            <span class="text-emerald-700 font-bold font-mono">DL + ZC Directory [PASS]</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Subfile Directory:</span>
+                            <span class="text-emerald-400 font-bold font-mono">DL + ZC Directory [PASS]</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Cardholder Age:</span>
-                            <span id="diag-age" class="text-emerald-700 font-bold">Over 21</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Cardholder Age:</span>
+                            <span id="diag-age" class="text-emerald-400 font-bold">Over 21</span>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-slate-200 flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Validity Status:</span>
-                            <span id="diag-status" class="text-emerald-700 font-bold">Valid &bull; Unexpired</span>
+                        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center">
+                            <span class="text-slate-400 font-medium">Validity Status:</span>
+                            <span id="diag-status" class="text-emerald-400 font-bold">Valid &bull; Unexpired</span>
                         </div>
                     </div>
                 </div>
@@ -2270,13 +2210,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             <!-- Full Export Hub (Multi-Format Downloads) -->
             <div class="mt-2 flex flex-col gap-2">
                 <div class="flex justify-between items-center text-xs font-semibold px-1">
-                    <span class="text-slate-600">Export Hub: <strong class="text-slate-900">Dual Sets, PDF, PNG, JPEG, SVG</strong></span>
-                    <span id="token-counter" class="text-emerald-600 font-bold">Barcode Sets: 0</span>
+                    <span class="text-slate-400">Export Hub: <strong class="text-slate-200">Dual Sets, PDF, PNG, JPEG, SVG</strong></span>
+                    <span id="token-counter" class="text-emerald-400 font-bold">Barcode Sets: 0</span>
                 </div>
                 
                 <div class="relative grid grid-cols-6 gap-1.5 w-full" id="export-actions">
                     <!-- Paywall Lock Overlay -->
-                    <div id="paywall-overlay" class="absolute inset-0 z-20 bg-white/85 backdrop-blur-[2px] flex items-center justify-center rounded-xl border border-slate-200 transition-all p-2">
+                    <div id="paywall-overlay" class="absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-[2px] flex items-center justify-center rounded-xl border border-slate-700 transition-all p-2">
                         <div id="paywall-guest-content" class="flex items-center gap-2">
                             <button onclick="openAuthModal()" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 py-2 rounded-xl shadow flex items-center gap-2 transform hover:scale-105 transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -2300,13 +2240,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>PNG 600</span>
                         <span class="text-[8px] text-emerald-400 font-mono">Ultra HD</span>
                     </button>
-                    <button onclick="secureExport(downloadJPEG)" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center">
+                    <button onclick="secureExport(downloadJPEG)" class="bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center">
                         <span>JPEG</span>
-                        <span class="text-[8px] text-slate-500">Universal</span>
+                        <span class="text-[8px] text-slate-400">Universal</span>
                     </button>
-                    <button onclick="secureExport(downloadSVG)" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center">
+                    <button onclick="secureExport(downloadSVG)" class="bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center">
                         <span>SVG</span>
-                        <span class="text-[8px] text-slate-500">Vector</span>
+                        <span class="text-[8px] text-slate-400">Vector</span>
                     </button>
                     <button onclick="secureExport(downloadPDF)" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-1.5 px-1 rounded-xl transition shadow text-xs flex flex-col items-center justify-center">
                         <span>PDF Label</span>
@@ -2343,67 +2283,67 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             </div>
 
             <!-- Buyer Confidence & Compliance FAQ Accordion -->
-            <div class="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs flex flex-col gap-2 mt-1">
-                <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+            <div class="bg-slate-900/80 rounded-xl border border-slate-800 p-3.5 shadow-xs flex flex-col gap-2 mt-1">
+                <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
                     <div class="flex items-center gap-2">
-                        <span class="text-emerald-500 font-bold">🛡️</span>
-                        <h4 class="text-xs font-bold text-slate-800">Compliance &amp; Scannability FAQ</h4>
+                        <span class="text-emerald-400 font-bold">🛡️</span>
+                        <h4 class="text-xs font-bold text-slate-200">Compliance &amp; Scannability FAQ</h4>
                     </div>
-                    <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">ANSI Grade A Verified</span>
+                    <span class="text-[9px] font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full">ANSI Grade A Verified</span>
                 </div>
 
-                <div class="divide-y divide-slate-100 text-xs">
+                <div class="divide-y divide-slate-800 text-xs">
                     <!-- Q1 -->
                     <details class="group py-1.5 cursor-pointer">
-                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                        <summary class="flex justify-between items-center font-semibold text-slate-200 list-none text-[11px] group-hover:text-accent transition">
                             <span>Are these barcodes scannable on DMV, Police &amp; Bouncer scanners?</span>
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
-                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
                             <strong>Yes, guaranteed.</strong> Barcode Studio Pro compiles strictly to ANSI Grade A 4.0/4.0 specifications, ISO/IEC 15438, and official AAMVA 2020 formats. Subfiles, headers, offset pointers, and Reed-Solomon ECC Level 5 error correction are mathematically verified so handheld laser and 2D camera imagers decode them instantly.
                         </p>
                     </details>
 
                     <!-- Q2 -->
                     <details class="group py-1.5 cursor-pointer">
-                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                        <summary class="flex justify-between items-center font-semibold text-slate-200 list-none text-[11px] group-hover:text-accent transition">
                             <span>How quickly are purchased Barcode Sets credited to my account?</span>
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
-                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
                             <strong>Instantly.</strong> Our backend monitors the blockchain with an automated confirmation engine. Once your transaction is confirmed on the TRON, Polygon, Solana, or Bitcoin network, your account balance updates in real time without refreshing the page.
                         </p>
                     </details>
 
                     <!-- Q3 -->
                     <details class="group py-1.5 cursor-pointer">
-                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                        <summary class="flex justify-between items-center font-semibold text-slate-200 list-none text-[11px] group-hover:text-accent transition">
                             <span>Do purchased Barcode Sets expire or require a monthly subscription?</span>
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
-                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
                             <strong>Never.</strong> There are zero recurring monthly subscriptions and zero hidden charges. Your purchased sets remain safely in your balance until you decide to export.
                         </p>
                     </details>
 
                     <!-- Q4 -->
                     <details class="group py-1.5 cursor-pointer">
-                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                        <summary class="flex justify-between items-center font-semibold text-slate-200 list-none text-[11px] group-hover:text-accent transition">
                             <span>What files are included with my export?</span>
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
-                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
                             Every set includes ultra-high-resolution 300 &amp; 600 DPI PNGs, print-ready SVG vector graphics, standard JPEG, pre-formatted CR80 PVC card layouts, printable PDF labels, and an official ISO Scannability Certificate.
                         </p>
                     </details>
 
                     <!-- Q5 -->
                     <details class="group py-1.5 cursor-pointer">
-                        <summary class="flex justify-between items-center font-semibold text-slate-800 list-none text-[11px] group-hover:text-accent transition">
+                        <summary class="flex justify-between items-center font-semibold text-slate-200 list-none text-[11px] group-hover:text-accent transition">
                             <span>Need assistance or custom enterprise integration?</span>
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
-                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed pl-1">
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
                             Contact our support team directly at <a href="mailto:youngwheezy001@gmail.com" class="text-accent font-semibold hover:underline">youngwheezy001@gmail.com</a> for 24/7 dedicated support and custom batch solutions.
                         </p>
                     </details>
@@ -2833,7 +2773,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         } catch (e) {}
         let currentTab = 'pdf417';
         let barcode2DType = 'pdf417'; // 'pdf417' or 'qrcode'
-        let previewMode = 'barcode';
+        let previewMode = 'card';
         let authMode = 'login';
 
         // 50-State + DC Jurisdiction & Numbering Format System
@@ -5417,18 +5357,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         // --- PREVIEW MONITOR MODE SWITCHER ---
         function switchPreviewMode(mode) {
             previewMode = mode;
-            const modes = ['barcode', 'xml', 'card', 'stream', 'diagnostics'];
+            const modes = ['card', 'xml', 'stream', 'diagnostics'];
             modes.forEach(m => {
                 const el = document.getElementById(`view-container-${m}`);
                 const btn = document.getElementById(`btn-view-${m}`);
                 if (el) el.classList.add('hidden');
-                if (btn) btn.className = 'text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 transition';
+                if (btn) btn.className = 'text-xs font-semibold px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition';
             });
 
-            document.getElementById(`view-container-${mode}`).classList.remove('hidden');
-            document.getElementById(`btn-view-${mode}`).className = 'text-xs font-bold px-2.5 py-1.5 rounded-lg bg-accent text-white shadow transition';
+            const targetEl = document.getElementById(`view-container-${mode}`) || document.getElementById('view-container-card');
+            if (targetEl) targetEl.classList.remove('hidden');
+            const targetBtn = document.getElementById(`btn-view-${mode}`) || document.getElementById('btn-view-card');
+            if (targetBtn) targetBtn.className = 'text-xs font-bold px-2.5 py-1 rounded-lg bg-accent text-white shadow transition';
 
-            if (mode === 'card') renderCardPreview();
+            if (mode === 'card') {
+                updateStudioCardDetails();
+            }
         }
 
         let currentCardSide = 'back';
@@ -5513,32 +5457,141 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (sexEl) sexEl.textContent = sexLabel;
         }
 
+        function updateStudioCardDetails() {
+            // 1. Sequence / Audit / Document number
+            const seqEl = document.getElementById('studio-seq-num');
+            if (seqEl) {
+                const docVal = (document.getElementById('aamva-dcf')?.value || '').trim() ||
+                               (document.getElementById('aamva-dck')?.value || '').trim() ||
+                               (document.getElementById('aamva-audit')?.value || '').trim() ||
+                               (document.getElementById('aamva-id')?.value || '').trim() ||
+                               '0070051972513905';
+                seqEl.textContent = docVal;
+            }
+
+            // 2. Class, Endorsements, Restrictions
+            const classEl = document.getElementById('studio-card-class');
+            if (classEl) {
+                const cVal = (document.getElementById('aamva-class')?.value || '').trim() || "Driver's license";
+                classEl.textContent = cVal.startsWith('Class') ? cVal : (cVal === 'D' ? "Driver's license (Class D)" : cVal);
+            }
+            const endEl = document.getElementById('studio-card-endorsements');
+            if (endEl) {
+                const eVal = (document.getElementById('aamva-endorsements')?.value || '').trim() || 'None';
+                endEl.textContent = eVal;
+            }
+            const restEl = document.getElementById('studio-card-restrictions');
+            if (restEl) {
+                const rVal = (document.getElementById('aamva-restrictions')?.value || '').trim() || 'None';
+                restEl.textContent = rVal;
+            }
+
+            // 3. State & Portal URL
+            const stateEl = document.getElementById('aamva-state');
+            const jurEl = document.getElementById('jurisdiction-profile');
+            let stateCode = (stateEl ? stateEl.value : '').trim().toUpperCase();
+            if (!stateCode && jurEl) {
+                const jurVal = jurEl.value.split('_')[0].trim().toUpperCase();
+                stateCode = jurVal;
+            }
+            if (!stateCode) stateCode = 'LA';
+
+            const STATE_NAMES = {
+                'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+                'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'DC': 'District of Columbia',
+                'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois',
+                'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana',
+                'ME': 'Maine', 'MD': 'Maryland', 'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota',
+                'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+                'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+                'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma', 'OR': 'Oregon',
+                'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota',
+                'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 'VA': 'Virginia',
+                'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming'
+            };
+            const STATE_URLS = {
+                'LA': 'www.expresslane.org',
+                'CA': 'www.dmv.ca.gov',
+                'TX': 'www.txdps.state.tx.us',
+                'FL': 'www.flhsmv.gov',
+                'NY': 'dmv.ny.gov',
+                'CT': 'portal.ct.gov/dmv',
+                'AL': 'www.alea.gov',
+                'OH': 'www.bmv.ohio.gov',
+                'PA': 'www.dmv.pa.gov',
+                'IL': 'www.ilsos.gov',
+                'GA': 'dds.georgia.gov',
+                'NC': 'www.ncdot.gov/dmv',
+                'NJ': 'www.njmvc.gov',
+                'VA': 'www.dmvnow.com',
+                'WA': 'www.dol.wa.gov',
+                'CO': 'dmv.colorado.gov',
+                'AZ': 'azdot.gov/mvd',
+                'MI': 'www.michigan.gov/sos'
+            };
+
+            const stateWatermark = document.getElementById('studio-state-watermark');
+            if (stateWatermark) {
+                stateWatermark.textContent = STATE_NAMES[stateCode] || stateCode;
+            }
+            const portalUrl = document.getElementById('studio-portal-url');
+            if (portalUrl) {
+                portalUrl.textContent = STATE_URLS[stateCode] || `www.dmv.${stateCode.toLowerCase()}.gov`;
+            }
+
+            // 4. Organ Donor
+            const donorVal = (document.getElementById('aamva-donor')?.value || 'N').toUpperCase();
+            const donorY = document.getElementById('studio-donor-y');
+            const donorN = document.getElementById('studio-donor-n');
+            if (donorY && donorN) {
+                if (donorVal === '1' || donorVal === 'Y' || donorVal === 'YES') {
+                    donorY.className = 'underline font-black text-slate-900';
+                    donorN.className = 'font-normal text-slate-600';
+                } else {
+                    donorY.className = 'font-normal text-slate-600';
+                    donorN.className = 'underline font-black text-slate-900';
+                }
+            }
+
+            // 5. Revision Stamp
+            const revStamp = document.getElementById('studio-rev-stamp');
+            if (revStamp) {
+                const dobVal = (document.getElementById('aamva-dob')?.value || '1990-10-02');
+                const parts = dobVal.includes('-') ? dobVal.split('-') : [];
+                let dobFmt = '10-02-1990';
+                if (parts.length === 3) {
+                    dobFmt = `${parts[1]}-${parts[2]}-${parts[0]}`;
+                } else if (dobVal.length === 8) {
+                    dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
+                }
+                revStamp.textContent = `REV 03-12-2015   ${dobFmt}`;
+            }
+
+            renderCardBackCompanionBarcode();
+        }
+
         function renderCardBackCompanionBarcode() {
-            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || (document.getElementById('aamva-id')?.value || 'DEMO');
+            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || 
+                               (document.getElementById('aamva-id')?.value || '').trim() || 
+                               '0070051972513905';
             try {
-                JsBarcode("#card-code128-svg", code128Val, {
-                    format: "CODE128",
-                    displayValue: false,
-                    height: 22,
-                    width: 1.4,
-                    margin: 0,
-                    lineColor: "#0F172A"
-                });
+                if (document.getElementById('card-code128-svg')) {
+                    JsBarcode("#card-code128-svg", code128Val, {
+                        format: "CODE128",
+                        displayValue: false,
+                        height: 22,
+                        width: 1.25,
+                        margin: 0,
+                        lineColor: "#0a0a0a"
+                    });
+                }
             } catch (e) {
                 console.error("Card back 1D barcode error:", e);
             }
         }
 
         function renderCardPreview() {
-            const srcCanvas = document.getElementById('output-pdf417');
-            const targetCanvas = document.getElementById('card-preview-barcode');
-            if (srcCanvas && targetCanvas) {
-                targetCanvas.width = srcCanvas.width;
-                targetCanvas.height = srcCanvas.height;
-                const ctx = targetCanvas.getContext('2d');
-                ctx.drawImage(srcCanvas, 0, 0);
-            }
-            renderCardBackCompanionBarcode();
+            updateStudioCardDetails();
             updateCardFrontDetails();
             if (typeof applyBarcodeBlurState === 'function') applyBarcodeBlurState();
         }
@@ -5612,7 +5665,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     if (dimsEl) dimsEl.textContent = `${widthInches}" × ~0.60" (${widthMm} × 15.2 mm) • 10-mil`;
                 }
 
-                if (previewMode === 'card') renderCardPreview();
+                if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
                 if (typeof applyBarcodeBlurState === 'function') applyBarcodeBlurState();
             } catch (e) {
                 console.error("PDF417 rendering error:", e);
@@ -5622,25 +5675,30 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         function renderCode128() {
             const el = document.getElementById('input-code128');
             const val = (el ? el.value.trim() : '') || 'DEMO-123456789';
-            const height = parseInt(document.getElementById('tune-128-height').value, 10);
-            const width = parseInt(document.getElementById('tune-128-width').value, 10);
-            const showText = document.getElementById('tune-128-text').checked;
+            const height = parseInt(document.getElementById('tune-128-height')?.value || 50, 10);
+            const width = parseInt(document.getElementById('tune-128-width')?.value || 2, 10);
+            const showText = document.getElementById('tune-128-text')?.checked ?? false;
 
-            document.getElementById('val-128-height').textContent = `${height}px`;
-            document.getElementById('val-128-width').textContent = `${width}px`;
+            const valHeight = document.getElementById('val-128-height');
+            if (valHeight) valHeight.textContent = `${height}px`;
+            const valWidth = document.getElementById('val-128-width');
+            if (valWidth) valWidth.textContent = `${width}px`;
 
             try {
-                JsBarcode("#output-code128", val, {
-                    format: "CODE128",
-                    displayValue: showText,
-                    height: height,
-                    width: width,
-                    fontSize: 15,
-                    fontOptions: "bold",
-                    font: "monospace",
-                    margin: 15,
-                    lineColor: "#0F172A"
-                });
+                if (document.getElementById('output-code128')) {
+                    JsBarcode("#output-code128", val, {
+                        format: "CODE128",
+                        displayValue: showText,
+                        height: height,
+                        width: width,
+                        fontSize: 15,
+                        fontOptions: "bold",
+                        font: "monospace",
+                        margin: 15,
+                        lineColor: "#0F172A"
+                    });
+                }
+                if (typeof renderCardBackCompanionBarcode === 'function') renderCardBackCompanionBarcode();
                 if (typeof applyBarcodeBlurState === 'function') applyBarcodeBlurState();
             } catch (e) {
                 console.error("JsBarcode error:", e);
@@ -9602,11 +9660,13 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (typeof updateWeightMetric === 'function') updateWeightMetric();
                 if (typeof validateDlNumber === 'function') validateDlNumber();
 
-                if (urlParams.get('mode') === 'card' && typeof switchPreviewMode === 'function') {
-                    switchPreviewMode('card');
+                if (typeof switchPreviewMode === 'function') {
+                    const targetMode = urlParams.get('mode') || 'card';
+                    switchPreviewMode(targetMode);
                 }
 
                 if (typeof compileAAMVA === 'function') compileAAMVA();
+                if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
                 if (typeof compileMrz === 'function') compileMrz();
                 if (typeof checkAuth === 'function') checkAuth();
 
