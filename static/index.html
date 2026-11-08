@@ -1122,122 +1122,87 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
     </div>
 
     <!-- Top Navigation Header -->
-        <!-- Outer App Container: Left Sidebar + Main Content Layout -->
-    <div class="flex flex-row min-h-screen w-full bg-slate-100 overflow-hidden font-sans text-slate-800">
-        
-        <!-- Left Vertical Navigation Dock -->
-        <aside id="app-sidebar" class="w-56 bg-white border-r border-slate-200/90 shadow-sm flex flex-col justify-between p-3.5 z-40 select-none shrink-0 h-screen overflow-y-auto">
-            <div class="flex flex-col gap-5">
-                <!-- Brand & Standard Badge -->
-                <div onclick="handleLogoClick()" class="flex items-center gap-2.5 cursor-pointer group px-1 py-1">
-                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs shadow-md group-hover:bg-blue-700 transition">
-                        P417
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-xs font-black tracking-wide text-slate-900 group-hover:text-blue-600 transition">Barcode Studio</span>
-                        <span class="text-[9px] font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-1 py-0.2 rounded w-fit">ISO 15438 &bull; 2020</span>
-                    </div>
-                </div>
-
-                <!-- Navigation Menu Group -->
-                <nav class="flex flex-col gap-1.5">
-                    <div class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider px-2 py-0.5">Workspaces</div>
-                    
-                    <button type="button" id="workspace-tab-aamva" onclick="switchWorkspace('aamva')" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 font-bold border border-blue-200 shadow-xs transition text-xs text-left">
-                        <span class="text-sm">🪪</span>
-                        <span class="flex-1">AAMVA PDF417</span>
-                    </button>
-
-                    <button type="button" id="workspace-tab-states" onclick="switchWorkspace('states')" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left">
-                        <span class="text-sm">🗺️</span>
-                        <span class="flex-1">States Directory</span>
-                        <span class="text-[8px] bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded font-extrabold">50+CA</span>
-                    </button>
-
-                    <button type="button" id="workspace-tab-mrz" onclick="switchWorkspace('mrz')" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left">
-                        <span class="text-sm">🛂</span>
-                        <span class="flex-1">MRZ Passport</span>
-                        <span class="text-[8px] bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded font-extrabold">9303</span>
-                    </button>
-
-                    <div class="text-[9.5px] font-bold text-slate-400 uppercase tracking-wider px-2 pt-3 pb-0.5">Production Tools</div>
-
-                    <button type="button" id="btn-scan-barcode" onclick="openBarcodeScannerModal()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left" title="Scan or upload barcode image">
-                        <span class="text-sm">📷</span>
-                        <span class="flex-1">Scan Barcode</span>
-                    </button>
-
-                    <button type="button" id="btn-batch-csv" onclick="openBatchModal()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left" title="Batch generate multiple barcodes from CSV">
-                        <span class="text-sm">📁</span>
-                        <span class="flex-1">Batch CSV</span>
-                    </button>
-
-                    <button type="button" id="btn-import-xml" onclick="openXmlModal()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left" title="Import XML payload">
-                        <span class="text-sm">📥</span>
-                        <span class="flex-1">Import XML</span>
-                    </button>
-
-                    <button type="button" id="user-orders-btn" onclick="openUserOrdersModal()" class="hidden w-full items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left" title="View your order history & receipts">
-                        <span class="text-sm">🧾</span>
-                        <span class="flex-1">My Orders</span>
-                    </button>
-
-                    <button type="button" id="admin-crypto-btn" onclick="openAdminCryptoModal()" class="hidden w-full items-center gap-2.5 px-3 py-2 rounded-xl text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 font-bold transition text-xs text-left" title="View Crypto Payment Orders & Ledger">
-                        <span class="text-sm">🪙</span>
-                        <span class="flex-1">Crypto Ledger</span>
-                    </button>
-
-                    <button type="button" id="admin-clients-btn" onclick="openAdminClientsModal()" class="hidden w-full items-center gap-2.5 px-3 py-2 rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 font-bold transition text-xs text-left" title="View Clients Database & Token Manager">
-                        <span class="text-sm">👥</span>
-                        <span class="flex-1">Clients CRM</span>
-                    </button>
-                </nav>
+    <header class="bg-brand text-white px-6 py-2.5 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-3">
+            <div onclick="handleLogoClick()" title="Barcode Studio Pro" class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-bold text-white text-xs shadow cursor-pointer select-none transition hover:bg-accent-hover">
+                P417
             </div>
-
-            <!-- Bottom System Status -->
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[9px] text-slate-400">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="font-medium text-slate-600">Engine Active</span>
-                </span>
-                <span class="font-mono text-slate-400">v4.3 Pro</span>
-            </div>
-        </aside>
-
-        <!-- Right Main Viewport Area -->
-        <div id="app-main-content" class="flex-1 flex flex-col h-screen overflow-hidden">
-            
-            <!-- Sleek Minimalist Top Header Bar -->
-            <header id="header-top" class="bg-white border-b border-slate-200/90 px-6 py-2.5 flex justify-between items-center shadow-xs shrink-0 z-30">
-                <!-- Breadcrumb / Active Context -->
+            <div>
                 <div class="flex items-center gap-2">
-                    <h1 class="text-xs font-bold text-slate-900 uppercase tracking-wide">AAMVA PDF417 Studio</h1>
-                    <span class="text-slate-300">/</span>
-                    <span id="header-jurisdiction-label" class="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full shadow-xs">
-                        Louisiana (LA)
-                    </span>
-                    <span class="hidden sm:inline text-[10px] text-slate-400 ml-1">Strict Physical Footprint &bull; 100% Scannable</span>
+                    <h1 class="text-sm font-bold tracking-wide text-white">Barcode Studio Pro</h1>
+                    <span class="text-[10px] bg-blue-900/80 text-blue-200 border border-blue-600/60 px-2 py-0.5 rounded font-mono font-semibold">ISO/IEC 15438 &bull; AAMVA 2020 STANDARD</span>
                 </div>
+                <p class="text-[10px] text-slate-400">Strict Dimension Engine &bull; Dual-Subfile DL+ZC &bull; 100% Mobile & Hardware Scannable</p>
+            </div>
+            <!-- Mode Switcher: AAMVA Barcode vs MRZ Passport -->
+            <button type="button" onclick="switchWorkspace('states')" class="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 px-3 py-1.5 rounded-lg transition shadow-xs cursor-pointer" title="Browse full 51-state and Canadian directory">
+                <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span>States</span>
+            </button>
+            <div class="hidden sm:flex bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl text-xs font-bold ml-2 shadow-inner">
+                <button type="button" id="workspace-tab-aamva" onclick="switchWorkspace('aamva')" class="px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition">
+                    <span>🪪 AAMVA Barcode</span>
+                </button>
+                <button type="button" id="workspace-tab-states" onclick="switchWorkspace('states')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+                    <span>🗺️ States Directory</span>
+                    <span class="text-[9px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">50 States + CA</span>
+                </button>
+                <button type="button" id="workspace-tab-mrz" onclick="switchWorkspace('mrz')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+                    <span>🛂 MRZ Passport</span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">ICAO 9303</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2.5">
+            <!-- Barcode Image Scanner / Webcam Reader -->
+            <button onclick="openBarcodeScannerModal()" class="text-xs font-semibold bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-700/60 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Scan or upload barcode image to auto-populate form">
+                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span>Scan Barcode</span>
+            </button>
 
-                <!-- Financial & Account Status Hub -->
-                <div class="flex items-center gap-3">
-                    <!-- Buy Sets Navigation Button -->
-                    <button onclick="openTokenModal()" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>+ Buy Sets</span>
-                    </button>
+            <!-- Batch CSV Bulk Generator -->
+            <button onclick="openBatchModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Batch generate multiple barcodes from CSV spreadsheet">
+                <svg class="w-3.5 h-3.5 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>Batch CSV</span>
+            </button>
 
-                    <!-- User Token Pill -->
-                    <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-50 hover:bg-slate-100 cursor-pointer border border-slate-200 px-3 py-1 rounded-full text-xs font-semibold transition shadow-xs" title="Click to view barcode packages">
-                        <span class="text-slate-500 font-medium">Sets:</span>
-                        <span id="header-token-count" class="text-emerald-600 font-black">0</span>
-                    </div>
+            <button onclick="openXmlModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                Import XML
+            </button>
 
-                    <span id="role-badge" class="bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">Guest</span>
-                    <button id="auth-btn" onclick="openAuthModal()" class="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs">Sign In</button>
-                    <button id="logout-btn" onclick="apiLogout()" class="hidden text-xs font-medium text-slate-500 hover:text-rose-600 transition">Sign Out</button>
-                </div>
-            </header>
+            <!-- Buy Barcode Sets Navigation Button -->
+            <button onclick="openTokenModal()" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Buy Sets</span>
+            </button>
+
+            <!-- Admin Crypto Ledger Button (Visible to elevated Admin) -->
+            <button id="admin-crypto-btn" onclick="openAdminCryptoModal()" class="hidden text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1" title="View Crypto Payment Orders & Ledger">
+                <span>🪙 Orders</span>
+            </button>
+
+            <!-- Admin Clients Database CRM Button (Visible to elevated Admin) -->
+            <button id="admin-clients-btn" onclick="openAdminClientsModal()" class="hidden text-xs font-bold bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 px-2.5 py-1.5 rounded-lg transition items-center gap-1" title="View Clients Database & Token Manager">
+                <span>👥 Clients</span>
+            </button>
+
+            <!-- Customer Order History Button (Visible when logged in) -->
+            <button id="user-orders-btn" onclick="openUserOrdersModal()" class="hidden text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg transition items-center gap-1.5" title="View your order history & payment receipts">
+                <svg class="w-3.5 h-3.5 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span>My Orders</span>
+            </button>
+
+            <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-3 py-1 rounded-full text-xs font-semibold transition" title="Click to view barcode packages">
+                <span class="text-slate-400">Sets:</span>
+                <span id="header-token-count" class="text-emerald-400 font-bold">0</span>
+            </div>
+            <span id="role-badge" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full">Guest</span>
+            <button id="auth-btn" onclick="openAuthModal()" class="text-xs font-bold bg-accent hover:bg-accent-hover text-white px-3 py-1.5 rounded-lg transition-colors shadow">Sign In</button>
+            <button id="logout-btn" onclick="apiLogout()" class="hidden text-xs text-slate-400 hover:text-white transition-colors">Sign Out</button>
+        </div>
+    </header>
 
     <!-- Main Workspace -->
     <main class="flex-1 flex overflow-hidden p-4 gap-4 max-w-[1780px] mx-auto w-full">
@@ -2137,105 +2102,56 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <textarea id="xml-display" rows="10" class="w-full flex-1 bg-white border border-slate-200 rounded p-2.5 code-font text-[11px] text-emerald-700 outline-none resize-none" readonly></textarea>
                 </div>
 
-                <!-- Display Screen 3: Glare-Free Ambient Dark Studio CR-80 Card Inspection Visualizer -->
-                <div id="view-container-card" class="hidden bg-slate-900 rounded-2xl border border-slate-800 min-h-[380px] flex flex-col justify-between p-3.5 relative shadow-2xl overflow-hidden">
-                    <!-- Stage Bar -->
-                    <div class="flex justify-between items-center text-[10px] pb-2 border-b border-slate-800 text-slate-400">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span class="font-mono text-slate-300 font-semibold">CR-80 Physical Footprint: 85.60 &times; 53.98 mm (3.375" &times; 2.125")</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="button" onclick="toggleCardSide()" id="btn-card-flip" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-2.5 py-1 rounded-lg text-[10px] transition shadow-xs flex items-center gap-1">
-                                <span>🔄 Flip: <strong id="card-side-label" class="text-white">Card Back</strong></span>
+                <!-- Display Screen 3: CR-80 Card Visualizer (Front & Back Flip) -->
+                <div id="view-container-card" class="hidden bg-slate-100 rounded-xl border border-slate-200 h-[280px] flex flex-col justify-between p-2.5 relative shadow-inner overflow-hidden">
+                    <div class="flex justify-between items-center text-[10px] pb-1 border-b border-slate-200">
+                        <span class="font-mono text-slate-500 font-semibold">CR-80: 85.60 &times; 53.98 mm (3.375" &times; 2.125")</span>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="toggleCardSide()" id="btn-card-flip" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] transition shadow-sm flex items-center gap-1">
+                                <span>🔄 Flip: <strong id="card-side-label">Card Back</strong></span>
                             </button>
-                            <button type="button" onclick="toggleMagstripeHeight()" id="btn-mag-height" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-2.5 py-1 rounded-lg text-[10px] transition shadow-xs">
-                                Mag: <span id="mag-height-label" class="text-blue-300">0.33"</span>
+                            <button type="button" onclick="toggleMagstripeHeight()" id="btn-mag-height" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] transition shadow-sm">
+                                Mag: <span id="mag-height-label">0.33"</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Ambient Inspection Chamber (Matte Dark Pedestal, Soft Ambient Studio Light, Zero Flare) -->
-                    <div class="flex-1 flex items-center justify-center py-3">
-                        <!-- Card Back Face (Replicating Real Reference Photo Layout) -->
-                        <div id="card-face-back" class="w-[410px] h-[255px] bg-white rounded-xl shadow-2xl p-2.5 flex flex-col justify-between border border-slate-300 text-slate-900 select-none relative overflow-hidden">
+                    <!-- Card Body -->
+                    <div class="flex-1 flex items-center justify-center py-1">
+                        <!-- Card Back Face -->
+                        <div id="card-face-back" class="w-[370px] h-[215px] bg-white rounded-xl shadow-md p-2.5 flex flex-col justify-between border border-slate-300 text-slate-900 select-none relative">
+                            <!-- Magnetic Stripe -->
+                            <div id="card-magstripe" class="w-full h-7 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 rounded-sm shadow-inner transition-all"></div>
                             
-                            <!-- Top Strip: Document / ICN Number (left) & 1D Code 128 (right) for Type A -->
-                            <div id="card-top-strip" class="flex justify-between items-center px-1 text-[8.5px] font-mono font-bold text-slate-800 min-h-[20px]">
-                                <span id="card-back-docnum">0070031972215065</span>
-                                <div id="card-top-code128-container" class="flex items-center">
-                                    <svg id="card-code128-svg" class="max-w-[200px] max-h-[20px]"></svg>
+                            <!-- 1D Companion Barcode under magstripe -->
+                            <div class="flex justify-center items-center py-0.5 relative">
+                                <svg id="card-code128-svg" class="max-w-[280px] max-h-[30px] transition duration-200"></svg>
+                            </div>
+
+                            <div class="text-[7.5px] text-slate-500 text-center font-mono tracking-wider">
+                                OFFICIAL AAMVA COMPLIANT SPECIFICATION TEST ID &bull; NOT FOR GOV IDENTIFICATION
+                            </div>
+                            
+                            <!-- 2D PDF417 Barcode -->
+                            <div class="flex justify-center items-center py-0.5 relative">
+                                <canvas id="card-preview-barcode" class="max-w-[320px] max-h-[68px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                <!-- Anti-Scan Protected Security Watermark Overlay for Card Barcode (Only covers barcode; DL text remains crisp!) -->
+                                <div id="card-barcode-lock-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                                    <span class="text-[8px] font-black tracking-widest text-slate-800 uppercase bg-white/85 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
+                                        ★ PREVIEW ONLY • UNREGISTERED ★
+                                    </span>
                                 </div>
                             </div>
 
-                            <!-- Solid Black 3-Track Magnetic Stripe -->
-                            <div id="card-magstripe" class="w-full h-7 bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 rounded-xs shadow-inner transition-all my-0.5"></div>
-
-                            <!-- Main Card Back Body: Left & Right Demographic & Barcode Zones -->
-                            <div class="flex-1 flex justify-between gap-2 pt-1 pb-0.5">
-                                <!-- Left Column: Class, Endorsements, Restrictions, PDF417, Website URL -->
-                                <div class="flex-1 flex flex-col justify-between">
-                                    <div class="text-[7.5px] font-sans font-bold leading-tight uppercase text-slate-900">
-                                        <div><span id="card-back-class-label">CLASS:</span> <span id="card-back-class" class="font-normal">Driver's license</span></div>
-                                        <div class="text-[7px] font-normal text-slate-600">ENDORSEMENTS: <span id="card-back-endorsements">None</span></div>
-                                        <div class="text-[7px] font-normal text-slate-600">RESTRICTIONS: <span id="card-back-restrictions">None</span></div>
-                                    </div>
-
-                                    <!-- 2D PDF417 Barcode Container -->
-                                    <div class="flex justify-start items-center py-0.5 relative my-auto">
-                                        <canvas id="card-preview-barcode" class="max-w-[235px] max-h-[60px] w-auto h-auto object-contain transition duration-200"></canvas>
-                                        <!-- Anti-Scan Protected Security Watermark Overlay -->
-                                        <div id="card-barcode-lock-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                                            <span class="text-[7.5px] font-black tracking-widest text-slate-900 uppercase bg-white/90 px-1.5 py-0.5 rounded border border-slate-400 shadow-xs">
-                                                ★ PREVIEW ONLY • UNREGISTERED ★
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <!-- State Agency Website URL -->
-                                    <div id="card-back-website" class="text-[7.5px] font-mono font-bold text-slate-800 tracking-tight">
-                                        www.expresslane.org
-                                    </div>
-                                </div>
-
-                                <!-- Right Column: Donor, Watermark, Vertical Date, Disclaimer, Bottom Code 128 for Type B -->
-                                <div class="w-[155px] flex flex-col justify-between items-end text-right">
-                                    <div id="card-back-donor" class="text-[7px] font-bold text-slate-800 leading-tight">
-                                        Donor __Y__N / Living Will __Y__N
-                                    </div>
-
-                                    <!-- State Script Logo / Watermark -->
-                                    <div id="card-back-watermark" class="text-amber-500/80 font-serif italic font-extrabold text-[13px] my-auto pr-1 select-none">
-                                        Louisiana
-                                    </div>
-
-                                    <!-- Disclaimer Text & Vertical Revision -->
-                                    <div class="flex items-end gap-1.5 mt-auto">
-                                        <div id="card-back-disclaimer" class="text-[6px] leading-[1.15] text-slate-600 max-w-[120px]">
-                                            Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11. Renewable 180 days prior to expiration.
-                                        </div>
-                                        <div id="card-back-rev" class="text-[6.5px] font-mono font-bold text-slate-700 [writing-mode:vertical-rl] rotate-180 h-14 flex items-center shrink-0">
-                                            REV 02-10-2015 08-02-1990
-                                        </div>
-                                    </div>
-
-                                    <!-- 1D Code 128 Container for Type B (e.g. TX, CA, NY, FL, Canada) -->
-                                    <div id="card-bottom-code128-container" class="hidden w-full flex justify-end pt-0.5">
-                                        <svg id="card-code128-svg-bottom" class="max-w-[150px] max-h-[22px]"></svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Bottom Demographic Summary Bar -->
-                            <div class="flex justify-between items-center text-[8px] font-mono text-slate-600 border-t border-slate-200 pt-0.5 px-0.5">
-                                <span id="card-id-preview">ID: 188892143</span>
-                                <span id="card-name-preview">GARCIA, JONATHAN</span>
-                                <span id="card-state-preview">STATE: LA</span>
+                            <div class="flex justify-between items-center text-[8.5px] font-mono text-slate-600 border-t border-slate-200 pt-0.5">
+                                <span id="card-id-preview">ID: Y4509481</span>
+                                <span id="card-name-preview">HARRISON, SEAN</span>
+                                <span id="card-state-preview">STATE: CA</span>
                             </div>
                         </div>
 
                         <!-- Card Front Face (Hidden by default) -->
-                        <div id="card-face-front" class="hidden w-[410px] h-[255px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl shadow-2xl p-2.5 flex flex-col justify-between border border-slate-300 text-slate-900 select-none relative overflow-hidden">
+                        <div id="card-face-front" class="hidden w-[370px] h-[215px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl shadow-md p-2.5 flex flex-col justify-between border border-slate-300 text-slate-900 select-none relative overflow-hidden">
                             <!-- Header Banner -->
                             <div class="w-full bg-blue-900 text-white px-2.5 py-1 rounded-t-lg flex justify-between items-center shadow-sm">
                                 <div>
@@ -2243,6 +2159,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <span class="text-[8px] text-blue-200 block -mt-0.5 font-sans">DRIVER LICENSE</span>
                                 </div>
                                 <div class="flex items-center gap-1">
+                                    <!-- Golden REAL ID Star -->
                                     <span class="text-amber-300 text-xs font-bold" title="REAL ID Compliant Star">★</span>
                                     <span class="text-[9px] font-mono font-bold text-blue-100 uppercase">USA</span>
                                 </div>
@@ -2250,27 +2167,29 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             <!-- Front Body: Photo & Demographic Details -->
                             <div class="flex gap-2.5 py-1 flex-1 items-center">
+                                <!-- Photo Box -->
                                 <div class="w-20 h-24 bg-slate-200 rounded border border-slate-300 flex flex-col items-center justify-center text-slate-400 text-center p-1 shrink-0">
                                     <svg class="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                                     <span class="text-[7.5px] font-bold text-slate-500 uppercase mt-1">PHOTO</span>
                                 </div>
 
+                                <!-- Text Fields -->
                                 <div class="flex-1 flex flex-col justify-between h-full text-[9px] font-sans leading-tight">
                                     <div>
                                         <span class="text-[7.5px] text-slate-400 font-bold block uppercase">DL NO.</span>
-                                        <span id="front-dl-num" class="font-mono font-bold text-blue-900 text-[11px]">188892143</span>
+                                        <span id="front-dl-num" class="font-mono font-bold text-blue-900 text-[11px]">Y4509481</span>
                                     </div>
                                     <div>
                                         <span class="text-[7.5px] text-slate-400 font-bold block uppercase">NAME</span>
-                                        <span id="front-name" class="font-bold text-slate-900 uppercase">GARCIA, JONATHAN</span>
+                                        <span id="front-name" class="font-bold text-slate-900 uppercase">HARRISON, SEAN</span>
                                     </div>
                                     <div>
                                         <span class="text-[7.5px] text-slate-400 font-bold block uppercase">ADDRESS</span>
-                                        <span id="front-address" class="text-slate-700 uppercase">30 BEATTY ST, NEW BRITAIN, CT 06051</span>
+                                        <span id="front-address" class="text-slate-700 uppercase">456 MARKET ST, SAN FRANCISCO, CA</span>
                                     </div>
                                     <div class="flex justify-between items-center text-[8px] border-t border-slate-200 pt-0.5 font-mono">
-                                        <span>DOB: <strong id="front-dob" class="text-rose-700">1992-06-21</strong></span>
-                                        <span>EXP: <strong id="front-exp" class="text-emerald-700">2030-06-21</strong></span>
+                                        <span>DOB: <strong id="front-dob" class="text-rose-700">1970-08-12</strong></span>
+                                        <span>EXP: <strong id="front-exp" class="text-emerald-700">2030-08-12</strong></span>
                                         <span>SEX: <strong id="front-sex">M</strong></span>
                                     </div>
                                 </div>
@@ -2396,16 +2315,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span class="text-[8px] text-slate-500">Universal</span>
                     </button>
                     <button onclick="secureExport(downloadSVG)" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center">
-                        <span>SVG 2D</span>
-                        <span class="text-[8px] text-slate-500">PDF417</span>
-                    </button>
-                    <button onclick="secureExport(downloadCode128PNG)" class="bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-800 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center" title="Download 1D Code 128 Barcode as PNG">
-                        <span>1D PNG</span>
-                        <span class="text-[8px] text-blue-600 font-mono">Code 128</span>
-                    </button>
-                    <button onclick="secureExport(downloadCode128SVG)" class="bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-800 font-bold py-1.5 px-1 rounded-xl transition shadow-sm text-xs flex flex-col items-center justify-center" title="Download 1D Code 128 Barcode as Vector SVG">
-                        <span>1D SVG</span>
-                        <span class="text-[8px] text-blue-600 font-mono">Code 128</span>
+                        <span>SVG</span>
+                        <span class="text-[8px] text-slate-500">Vector</span>
                     </button>
                     <button onclick="secureExport(downloadPDF)" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-1.5 px-1 rounded-xl transition shadow text-xs flex flex-col items-center justify-center">
                         <span>PDF Label</span>
@@ -2883,8 +2794,6 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         </div>
 
     </main>
-        </div><!-- /app-main-content -->
-    </div><!-- /Outer App Container -->
 
     <!-- Mobile Sticky Action Bar (Fixed at bottom on phones, hidden on desktop sm:) -->
     <div id="mobile-sticky-bar" class="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 border-t border-slate-800 backdrop-blur-md px-4 py-2 flex items-center justify-between shadow-2xl">
@@ -4304,7 +4213,6 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             updateStateDynamicLabels();
             validateDlNumber();
             compileAAMVA();
-            if (typeof updateCardBackDetails === 'function') updateCardBackDetails();
         }
 
         // Live DL Number Format Validation & Feedback
@@ -5581,153 +5489,17 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (sexEl) sexEl.textContent = sexLabel;
         }
 
-
-        // --- DYNAMIC STATE-AWARE CR80 CARD BACK METADATA & COMPANION ENGINE ---
-        function updateCardBackDetails() {
-            const jurEl = document.getElementById('aamva-jurisdiction');
-            const jurKey = (jurEl && jurEl.value) || 'LA';
-            const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
-            
-            const idVal = (document.getElementById('aamva-id')?.value || '188892143').trim();
-            const ddVal = (document.getElementById('aamva-dcf')?.value || '').trim();
-            const icnVal = (document.getElementById('aamva-dck')?.value || '').trim();
-            const first = (document.getElementById('aamva-first')?.value || 'JONATHAN').trim();
-            const last = (document.getElementById('aamva-last')?.value || 'GARCIA').trim();
-            const classVal = (document.getElementById('aamva-class')?.value || '').trim() || (meta ? meta.class_label : "CLASS: D");
-            const endVal = (document.getElementById('aamva-endorsements')?.value || '').trim() || "None";
-            const restVal = (document.getElementById('aamva-restrictions')?.value || '').trim() || "None";
-            const dobVal = (document.getElementById('aamva-dob')?.value || '1992-06-21').trim();
-            const issVal = (document.getElementById('aamva-issue')?.value || '2024-06-21').trim();
-
-            const docNumEl = document.getElementById('card-back-docnum');
-            if (docNumEl) docNumEl.textContent = icnVal || ddVal || idVal;
-
-            const classEl = document.getElementById('card-back-class');
-            if (classEl) classEl.textContent = classVal.replace(/^CLASS:\s*/i, '');
-            const endEl = document.getElementById('card-back-endorsements');
-            if (endEl) endEl.textContent = endVal;
-            const restEl = document.getElementById('card-back-restrictions');
-            if (restEl) restEl.textContent = restVal;
-
-            const webEl = document.getElementById('card-back-website');
-            if (webEl && meta) webEl.textContent = meta.url;
-
-            const donorEl = document.getElementById('card-back-donor');
-            if (donorEl && meta) donorEl.textContent = meta.donor;
-
-            const wmEl = document.getElementById('card-back-watermark');
-            if (wmEl && meta) wmEl.textContent = meta.watermark;
-
-            const discEl = document.getElementById('card-back-disclaimer');
-            if (discEl && meta) discEl.textContent = meta.disclaimer;
-
-            const revEl = document.getElementById('card-back-rev');
-            if (revEl && meta) {
-                revEl.textContent = meta.rev ? `${meta.rev}  ${dobVal}` : `REV ${issVal}  ${dobVal}`;
-            }
-
-            const topContainer = document.getElementById('card-top-code128-container');
-            const bottomContainer = document.getElementById('card-bottom-code128-container');
-            if (meta && meta.layout === 'type_a') {
-                if (topContainer) topContainer.classList.remove('hidden');
-                if (bottomContainer) bottomContainer.classList.add('hidden');
-            } else {
-                if (topContainer) topContainer.classList.add('hidden');
-                if (bottomContainer) bottomContainer.classList.remove('hidden');
-            }
-
-            const hdrLabel = document.getElementById('header-jurisdiction-label');
-            if (hdrLabel && meta) {
-                hdrLabel.textContent = `${meta.name} (${jurKey})`;
-            }
-
-            const idPreview = document.getElementById('card-id-preview');
-            if (idPreview) idPreview.textContent = `ID: ${idVal}`;
-            const namePreview = document.getElementById('card-name-preview');
-            if (namePreview) namePreview.textContent = `${last}, ${first}`;
-            const statePreview = document.getElementById('card-state-preview');
-            if (statePreview) statePreview.textContent = `STATE: ${jurKey.split('_')[0]}`;
-        }
-
-        function downloadCode128PNG() {
-            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || (document.getElementById('aamva-dcf')?.value || '').trim() || (document.getElementById('aamva-id')?.value || 'DEMO');
-            const jurKey = (document.getElementById('aamva-jurisdiction')?.value || 'CODE128').split('_')[0];
-            const offCanvas = document.createElement('canvas');
-            JsBarcode(offCanvas, code128Val, {
-                format: "CODE128",
-                displayValue: true,
-                height: 60,
-                width: 2.2,
-                margin: 15,
-                fontSize: 16,
-                textMargin: 4,
-                font: "monospace",
-                fontOptions: "bold",
-                lineColor: "#000000",
-                background: "#FFFFFF"
-            });
-            const a = document.createElement('a');
-            a.download = `${jurKey}_Code128_Companion_${code128Val}.png`;
-            a.href = offCanvas.toDataURL('image/png');
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            if (typeof showToast === 'function') showToast(`Downloaded 1D Code 128 PNG!`, 'success');
-        }
-
-        function downloadCode128SVG() {
-            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || (document.getElementById('aamva-dcf')?.value || '').trim() || (document.getElementById('aamva-id')?.value || 'DEMO');
-            const jurKey = (document.getElementById('aamva-jurisdiction')?.value || 'CODE128').split('_')[0];
-            const offSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            JsBarcode(offSvg, code128Val, {
-                format: "CODE128",
-                displayValue: true,
-                height: 60,
-                width: 2.2,
-                margin: 15,
-                fontSize: 16,
-                font: "monospace",
-                fontOptions: "bold",
-                lineColor: "#000000",
-                background: "#FFFFFF"
-            });
-            const serializer = new XMLSerializer();
-            const svgStr = serializer.serializeToString(offSvg);
-            const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.download = `${jurKey}_Code128_Vector_${code128Val}.svg`;
-            a.href = url;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            if (typeof showToast === 'function') showToast(`Downloaded 1D Code 128 SVG Vector!`, 'success');
-        }
-
         function renderCardBackCompanionBarcode() {
-            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || (document.getElementById('aamva-dcf')?.value || '').trim() || (document.getElementById('aamva-id')?.value || 'DEMO');
+            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || (document.getElementById('aamva-id')?.value || 'DEMO');
             try {
-                if (document.getElementById('card-code128-svg')) {
-                    JsBarcode("#card-code128-svg", code128Val, {
-                        format: "CODE128",
-                        displayValue: false,
-                        height: 18,
-                        width: 1.2,
-                        margin: 0,
-                        lineColor: "#0F172A"
-                    });
-                }
-                if (document.getElementById('card-code128-svg-bottom')) {
-                    JsBarcode("#card-code128-svg-bottom", code128Val, {
-                        format: "CODE128",
-                        displayValue: false,
-                        height: 18,
-                        width: 1.1,
-                        margin: 0,
-                        lineColor: "#0F172A"
-                    });
-                }
+                JsBarcode("#card-code128-svg", code128Val, {
+                    format: "CODE128",
+                    displayValue: false,
+                    height: 22,
+                    width: 1.4,
+                    margin: 0,
+                    lineColor: "#0F172A"
+                });
             } catch (e) {
                 console.error("Card back 1D barcode error:", e);
             }
@@ -5743,7 +5515,6 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 ctx.drawImage(srcCanvas, 0, 0);
             }
             renderCardBackCompanionBarcode();
-            updateCardBackDetails();
             updateCardFrontDetails();
             if (typeof applyBarcodeBlurState === 'function') applyBarcodeBlurState();
         }
@@ -7152,7 +6923,6 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const svg128 = document.getElementById('output-code128');
             const cardPreviewBarcode = document.getElementById('card-preview-barcode');
             const cardCode128Svg = document.getElementById('card-code128-svg');
-            const cardCode128SvgBottom = document.getElementById('card-code128-svg-bottom');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -7180,7 +6950,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (cardCode128Svg) {
                     cardCode128Svg.style.filter = 'none';
                     cardCode128Svg.style.pointerEvents = 'auto';
-                    cardCode128Svg.style.userSelect = 'auto'; if (cardCode128SvgBottom) { cardCode128SvgBottom.style.filter = 'none'; cardCode128SvgBottom.style.pointerEvents = 'auto'; }
+                    cardCode128Svg.style.userSelect = 'auto';
                     cardCode128Svg.oncontextmenu = null;
                 }
             } else {
@@ -7211,7 +6981,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (cardCode128Svg) {
                     cardCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
                     cardCode128Svg.style.pointerEvents = 'none';
-                    cardCode128Svg.style.userSelect = 'none'; if (cardCode128SvgBottom) { cardCode128SvgBottom.style.filter = 'blur(1.8px) contrast(90%)'; cardCode128SvgBottom.style.pointerEvents = 'none'; }
+                    cardCode128Svg.style.userSelect = 'none';
                     cardCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
@@ -8559,8 +8329,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const statesTab = document.getElementById('workspace-tab-states');
             const mrzTab = document.getElementById('workspace-tab-mrz');
 
-            const activeHeaderBtn = 'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 font-bold border border-blue-200 shadow-xs transition text-xs text-left';
-            const inactiveHeaderBtn = 'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium transition text-xs text-left';
+            const activeHeaderBtn = 'px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition';
+            const inactiveHeaderBtn = 'px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition';
 
             // Hide all views first
             if (aamvaView) aamvaView.classList.add('hidden');
@@ -9808,9 +9578,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (typeof updateWeightMetric === 'function') updateWeightMetric();
                 if (typeof validateDlNumber === 'function') validateDlNumber();
 
-                const initialMode = urlParams.get('mode') || 'card';
-                if (typeof switchPreviewMode === 'function') {
-                    switchPreviewMode(initialMode);
+                if (urlParams.get('mode') === 'card' && typeof switchPreviewMode === 'function') {
+                    switchPreviewMode('card');
                 }
 
                 if (typeof compileAAMVA === 'function') compileAAMVA();
