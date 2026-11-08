@@ -1230,24 +1230,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 <div class="bg-slate-50 p-2.5 rounded-xl border border-bordercol flex flex-col gap-2">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2 flex-1 min-w-[280px]">
-                            <div class="flex-1">
+                            <div class="flex-1 w-full">
                                 <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Jurisdiction Profile &amp; Revision</label>
                                 <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
                             </div>
-                            <div class="w-48">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5 flex items-center justify-between">
-                                    <span>AAMVA Standard</span>
-                                    <span id="aamva-resolved-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Auto: v09</span>
-                                </label>
-                                <select id="aamva-version" onchange="compileAAMVA()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer">
-                                    <option value="AUTO" selected>Auto (State & Issue Date)</option>
-                                    <option value="09">v09 (Format 11 - 2020)</option>
-                                    <option value="08">v08 (Format 16 - 2016)</option>
-                                    <option value="07">v07 (Format 15)</option>
-                                    <option value="05">v05 (Format 13)</option>
-                                    <option value="04">v04 (Format 12)</option>
-                                </select>
-                            </div>
+                            <select id="aamva-version" class="hidden">
+                                <option value="AUTO" selected>Auto</option>
+                            </select>
                         </div>
                         <div class="flex items-center gap-1.5 flex-wrap">
                             <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Load Jonathan Garcia (CT v09 / Format 11) profile">
@@ -1271,6 +1260,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <div class="flex items-center gap-1.5 font-mono text-[11px] font-bold text-slate-800">
                             <span class="text-amber-500 text-xs">★</span>
                             <span id="state-rev-badge">Rev. 26/04/2022 (0403)</span>
+                            <span id="aamva-resolved-badge" class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold">AAMVA Standard</span>
                         </div>
                         <div id="state-scanners-badges" class="flex items-center gap-1.5 flex-wrap">
                             <span class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-300 text-slate-700 font-bold flex items-center gap-1"><span>Scandit</span><span class="text-emerald-600 font-bold">&check;</span></span>
@@ -3401,7 +3391,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         }
 
         function resolveStateAamvaConfig(stateCode, issueDateStr, userSelectedVersion = 'AUTO') {
-            const profile = STATE_PROFILES[stateCode] || STATE_PROFILES.GENERIC;
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(stateCode) : null;
+            const baseCode = revInfo ? revInfo.base_code : (stateCode ? stateCode.split('_')[0] : 'AL');
+            const profile = STATE_PROFILES[stateCode] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
             const formatMap = {
                 '09': '11',
                 '08': '16',
@@ -3421,41 +3413,82 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 };
             }
 
-            // Auto resolution based on State Code + Document Issue Date (DBD)
-            const issueYear = parseIssueYear(issueDateStr);
+            // 1. Revision-Aware Resolution matching the state revision year and header code
+            const revHeader = revInfo ? (revInfo.rev_header || '') : '';
+            const codeMatch = revHeader.match(/\((\d{2})\d{2}\)/);
+            if (codeMatch) {
+                const c = codeMatch[1];
+                let v = '08';
+                if (c === '04') v = '04';
+                else if (c === '05') v = '05';
+                else if (c === '07') v = '07';
+                else if (c === '08') v = '08';
+                else if (c === '09' || c === '10') v = '09';
+                
+                return {
+                    aamva_version: v,
+                    data_format: formatMap[v] || (v === '09' ? '11' : '16'),
+                    uses_offsets: (v === '09'),
+                    drop_empty_tags: (v === '09'),
+                    resolved_by: 'state_revision_spec'
+                };
+            }
+
+            // 2. Year from revision slug or label
+            let revYear = null;
+            const slugMatch = stateCode.match(/_(\d{4})$/);
+            if (slugMatch) revYear = parseInt(slugMatch[1], 10);
+            if (!revYear && revInfo && revInfo.label) {
+                const labelMatch = revInfo.label.match(/\((\d{4})\)/);
+                if (labelMatch) revYear = parseInt(labelMatch[1], 10);
+            }
+            if (!revYear && revHeader) {
+                const headerMatch = revHeader.match(/\b(19\d{2}|20\d{2})\b/);
+                if (headerMatch) revYear = parseInt(headerMatch[1], 10);
+            }
+
+            const effectiveYear = revYear || parseIssueYear(issueDateStr);
             const v9Year = profile.v9_effective_year !== undefined ? profile.v9_effective_year : (profile.version === '09' ? 2020 : null);
 
-            if (v9Year !== null && v9Year !== undefined && issueYear >= v9Year) {
+            if (v9Year !== null && v9Year !== undefined && effectiveYear >= v9Year) {
                 return {
                     aamva_version: '09',
                     data_format: '11',
                     uses_offsets: true,
                     drop_empty_tags: true,
-                    resolved_by: 'auto_v09'
+                    resolved_by: 'state_version_year'
                 };
-            } else if (issueYear >= 2016) {
+            } else if (effectiveYear >= 2016) {
                 return {
                     aamva_version: '08',
                     data_format: '16',
                     uses_offsets: false,
                     drop_empty_tags: false,
-                    resolved_by: 'auto_v08'
+                    resolved_by: 'state_version_year'
                 };
-            } else if (issueYear >= 2013) {
+            } else if (effectiveYear >= 2013) {
                 return {
                     aamva_version: '07',
                     data_format: '15',
                     uses_offsets: false,
                     drop_empty_tags: false,
-                    resolved_by: 'auto_v07'
+                    resolved_by: 'state_version_year'
                 };
-            } else {
+            } else if (effectiveYear >= 2005) {
                 return {
                     aamva_version: '05',
                     data_format: '13',
                     uses_offsets: false,
                     drop_empty_tags: false,
-                    resolved_by: 'auto_v05'
+                    resolved_by: 'state_version_year'
+                };
+            } else {
+                return {
+                    aamva_version: '04',
+                    data_format: '12',
+                    uses_offsets: false,
+                    drop_empty_tags: false,
+                    resolved_by: 'state_version_year'
                 };
             }
         }
@@ -4857,15 +4890,10 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             // Live resolved standard feedback badge
             const badge = document.getElementById('aamva-resolved-badge');
             if (badge) {
-                if (rawVer === 'AUTO') {
-                    badge.textContent = `Auto: v${selectedVersion} (Fmt ${dataFormat})`;
-                    badge.className = selectedVersion === '09'
-                        ? 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800'
-                        : 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800';
-                } else {
-                    badge.textContent = `Manual: v${selectedVersion} (Fmt ${dataFormat})`;
-                    badge.className = 'text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800';
-                }
+                badge.textContent = `AAMVA v${selectedVersion} (Fmt ${dataFormat})`;
+                badge.className = selectedVersion === '09'
+                    ? 'px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold'
+                    : 'px-1.5 py-0.5 rounded text-[10px] bg-slate-100 border border-slate-300 text-slate-700 font-bold';
             }
 
             const includeZC = document.getElementById('include-zc').checked;
