@@ -394,6 +394,40 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Permissions-Policy"] = "camera=(self), microphone=()"
     return response
 
+# ============================================================
+# Core Health Checks & Cloud Deploy Readiness Probes (Render, K8s, Docker)
+# ============================================================
+@app.get("/health", summary="Health Check")
+@app.get("/healthz", summary="Health Check")
+@app.get("/api/health", summary="Health Check")
+@app.get("/ping", summary="Health Check")
+@app.get("/status", summary="Health Check")
+@app.head("/health")
+@app.head("/healthz")
+@app.head("/api/health")
+@app.head("/ping")
+@app.head("/status")
+def health_check():
+    """Instant 200 OK health check probe for cloud host load balancers."""
+    return {
+        "status": "ok",
+        "service": "Barcode Studio Pro",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+@app.get("/", include_in_schema=False)
+def get_root():
+    """Serves the primary Single Page Application interface."""
+    index_file = BASE_DIR / "static" / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return Response(content="Barcode Studio Pro", media_type="text/plain")
+
+@app.head("/", include_in_schema=False)
+def head_root():
+    """Instant 200 OK for root HEAD probes."""
+    return Response(status_code=200)
+
 @app.on_event("startup")
 def on_startup():
     db = SessionLocal()
