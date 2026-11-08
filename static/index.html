@@ -1218,14 +1218,16 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>+ Buy Sets</span>
                     </button>
 
-                    <!-- User Profile & Sign Out -->
+                    <!-- User Profile & Sign Out / Sign In -->
                     <div class="flex items-center gap-2 pl-1 border-l border-slate-200">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-2xs" alt="User Avatar">
-                        <button id="logout-btn" onclick="apiLogout()" class="text-xs font-bold text-slate-700 hover:text-slate-900 transition flex items-center gap-1">
-                            <span>Sign Out</span>
-                            <span class="text-[9px] text-slate-400">▾</span>
-                        </button>
-                        <button id="auth-btn" onclick="openAuthModal()" class="hidden text-xs font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg">Sign In</button>
+                        <div id="user-profile-menu" class="hidden flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" class="w-8 h-8 rounded-full object-cover border border-slate-300 shadow-2xs" alt="User Avatar">
+                            <button id="logout-btn" onclick="apiLogout()" class="text-xs font-bold text-slate-700 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">
+                                <span>Sign Out</span>
+                                <span class="text-[9px] text-slate-400">▾</span>
+                            </button>
+                        </div>
+                        <button id="auth-btn" onclick="openAuthModal()" class="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl transition shadow-xs flex items-center gap-1 cursor-pointer">Sign In</button>
                         <span id="role-badge" class="hidden">Admin</span>
                     </div>
                 </div>
@@ -1235,49 +1237,168 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
     <main class="flex-1 flex overflow-hidden p-4 gap-4 max-w-[1780px] mx-auto w-full">
         <!-- Mode 1: AAMVA DL / ID & Code 128 Workspace -->
         <div id="workspace-view-aamva" class="flex-1 flex overflow-hidden gap-4 w-full">
-        <!-- Left Column: Generator Form (Exact Match to media_1794112827744.png & PDF417.pro) -->
+        <!-- Left Column: Generator Form (V2 Layout Matching barcode_studio_v2_dashboard_1794117454785.jpg) -->
         <section class="w-[52%] flex flex-col gap-3.5 overflow-y-auto pr-1 select-none">
             
-            <!-- Sub-Navigation Toolbar (Exact Match to Master Prompt Specification 4) -->
-            <div class="flex items-center justify-between px-1 py-1 gap-2 flex-wrap text-xs bg-white/70 backdrop-blur-xs p-2 rounded-xl border border-slate-200/80 shadow-2xs">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-bold text-slate-800">Profile:</span>
-                    <span id="state-rev-badge" class="font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg shadow-2xs">Standard Revision</span>
-                    <div id="state-scanners-badges" class="flex items-center gap-1.5 flex-wrap">
-                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
-                            <span>Scandit</span><span class="text-emerald-600 font-bold">&check;</span>
-                        </span>
-                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
-                            <span>Show-Me ID</span>
-                        </span>
-                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
-                            <span>FIDScan</span><span class="text-emerald-600 font-bold">&check;</span>
-                        </span>
-                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
-                            <span>Veriscan</span><span class="text-emerald-600 font-bold">&check;</span>
-                        </span>
+            <!-- Dedicated Top State / Jurisdiction Selector Bar (V2 Feature) -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between gap-3 flex-wrap">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div>
+                        <label class="block text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">Select Jurisdiction / State</label>
+                        <div class="relative min-w-[230px]">
+                            <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-bold rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition appearance-none cursor-pointer shadow-2xs font-medium"></select>
+                            <span class="absolute right-3 top-2.5 text-slate-400 text-xs pointer-events-none">▾</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-end pt-4">
+                        <span id="state-rev-badge" class="font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs shadow-2xs">Standard Revision (v09 Format 11)</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <select id="aamva-version" onchange="compileAAMVA()" class="bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold py-1 px-2.5 shadow-2xs outline-none cursor-pointer">
-                        <option value="AUTO" selected>Auto: Standard</option>
-                        <option value="09">v09 (2020)</option>
-                        <option value="08">v08 (2016)</option>
-                        <option value="07">v07 (2015)</option>
-                        <option value="05">v05</option>
-                        <option value="04">v04</option>
-                    </select>
-                    <span id="aamva-resolved-badge" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-2xs">Auto: v09 (Fmt 11)</span>
-                    <button type="button" onclick="generateRandomAAMVA()" class="text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-1 px-2.5 rounded-lg transition shadow-2xs flex items-center gap-1" title="Randomize data">
-                        <span>🎲</span>
+                
+                <div class="flex items-center gap-2 pt-4">
+                    <!-- Hidden Compatibility Anchors for Automated Suites & Engine -->
+                    <div class="hidden">
+                        <select id="aamva-version" onchange="compileAAMVA()"><option value="AUTO" selected>Auto: Standard</option></select>
+                        <span id="aamva-resolved-badge">Auto: v09 (Fmt 11)</span>
+                        <div id="state-scanners-badges"></div>
+                    </div>
+                    <button type="button" onclick="generateRandomAAMVA()" class="text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-2 px-3 rounded-xl transition shadow-2xs flex items-center gap-1.5 cursor-pointer" title="Randomize data">
+                        <span>🎲</span><span>Randomize</span>
                     </button>
-                    <button type="button" onclick="clearAllInputs()" class="text-xs bg-white hover:bg-rose-50 border border-slate-200 text-rose-600 font-bold py-1 px-2 rounded-lg transition shadow-2xs" title="Clear inputs">
+                    <button type="button" onclick="clearAllInputs()" class="text-xs bg-slate-50 hover:bg-rose-50 border border-slate-200 text-rose-600 font-bold py-2 px-2.5 rounded-xl transition shadow-2xs cursor-pointer" title="Clear inputs">
                         🗑️
                     </button>
                 </div>
             </div>
 
-            <!-- CARD 1: LEGAL IDENTITY (Exact visual duplicate of Mockup & PDF417.pro sequence) -->
+            <!-- CARD 1: LICENSE DATA (Placed First per user directive) -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col gap-3.5 transition-all">
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleCardSection('license')">
+                    <h3 class="text-sm font-bold text-slate-800 tracking-tight">License Data</h3>
+                    <button type="button" class="text-slate-400 hover:text-slate-600 transition" aria-label="Toggle License Data section">
+                        <svg id="chevron-license" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+                    </button>
+                </div>
+
+                <div id="section-body-license" class="flex flex-col gap-3">
+                    <!-- Row 1: ID Number | Issue Date | Expiry Date -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-semibold text-slate-700">ID Number / DL Number</label>
+                                <button type="button" onclick="calcField('id')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate DL Number">🧮</button>
+                            </div>
+                            <input type="text" id="aamva-id" placeholder="1233455667990" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
+                            <div id="dl-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-semibold text-slate-700">Issue Date</label>
+                                <button type="button" onclick="calcField('issued')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Issue Date">🧮</button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="aamva-issued" placeholder="2024--23" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 pr-8 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="autoSyncExpiryDate(); compileAAMVA()">
+                                <span class="absolute right-2.5 top-2 text-slate-400 text-xs pointer-events-none">📅</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-semibold text-slate-700">Expiry Date</label>
+                                <button type="button" onclick="calcField('exp')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Expiry Date">🧮</button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="aamva-exp" placeholder="097/2024" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 pr-8 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
+                                <span class="absolute right-2.5 top-2 text-slate-400 text-xs pointer-events-none">📅</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Class | Restrictions -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Class</label>
+                            <div class="relative">
+                                <select id="aamva-class" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition appearance-none cursor-pointer shadow-2xs font-medium" onchange="compileAAMVA()">
+                                    <option value="D" selected>Class D (Standard)</option>
+                                    <option value="C">Class C (Commercial)</option>
+                                    <option value="B">Class B (Heavy)</option>
+                                    <option value="A">Class A (Combination)</option>
+                                    <option value="M">Class M (Motorcycle)</option>
+                                </select>
+                                <span class="absolute right-3 top-2.5 text-slate-400 text-[10px] pointer-events-none">▾</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Restrictions</label>
+                            <input type="text" id="aamva-restrictions" placeholder="Restrictions" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
+                        </div>
+                    </div>
+
+                    <!-- Hidden endorsements input for data consistency -->
+                    <input type="hidden" id="aamva-endorsements" value="NONE">
+
+                    <!-- Row 3: DD & REAL ID (Dynamically controlled by state_engine) -->
+                    <div id="row-dd-realid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+                        <div id="container-dd">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                    <span id="label-dcf-text">Document Discriminator (DD)</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span id="tooltip-dcf-text" class="tooltip-box">Document Discriminator (DCF)</span></span>
+                                </label>
+                                <button type="button" onclick="calcField('dcf')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate DD">🧮</button>
+                            </div>
+                            <input type="text" id="aamva-dcf" placeholder="Document Discriminator (DD)" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
+                            <div id="dd-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
+                        </div>
+
+                        <div id="container-realid">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-semibold text-slate-700">REAL ID</label>
+                                <button type="button" onclick="calcField('real_id')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate REAL ID">🧮</button>
+                            </div>
+                            <div class="relative">
+                                <select id="aamva-realid" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition appearance-none cursor-pointer shadow-2xs font-medium" onchange="compileAAMVA()">
+                                    <option value="Yes" selected>Yes (Gold Star)</option>
+                                    <option value="No">No (Standard)</option>
+                                </select>
+                                <span class="absolute right-3 top-2.5 text-slate-400 text-[10px] pointer-events-none">▾</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: ICN (Inventory Control Number) & Audit Information (Dynamically controlled) -->
+                    <div id="container-icn" class="pt-1 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <div class="flex items-center gap-1.5">
+                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                    <span id="label-dck-text">Inventory Control Number (ICN)</span>
+                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span id="tooltip-dck-text" class="tooltip-box">Inventory Control Number (DCK)</span></span>
+                                </label>
+                                <span id="dck-status-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">Optional</span>
+                            </div>
+                            <button type="button" onclick="calcField('dck')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate ICN">🧮</button>
+                        </div>
+                        <input type="text" id="aamva-dck" placeholder="Inventory Control Number (ICN)" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
+                        <div id="icn-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
+                    </div>
+
+                    <div id="container-audit" class="hidden pt-1 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                <span>Audit Information</span>
+                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">Audit Information (DCJ)</span></span>
+                            </label>
+                            <button type="button" onclick="calcField('audit')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Audit Info">🧮</button>
+                        </div>
+                        <input type="text" id="aamva-audit" placeholder="Audit Information (DCJ)" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 2: LEGAL IDENTITY (Placed Second per user directive) -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col gap-3.5 transition-all">
                 <div class="flex items-center justify-between cursor-pointer" onclick="toggleCardSection('identity')">
                     <h3 class="text-sm font-bold text-slate-800 tracking-tight">Legal Identity</h3>
@@ -1381,7 +1502,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 </div>
             </div>
 
-            <!-- CARD 2: ADDRESS DETAILS (Exact visual duplicate of Mockup) -->
+            <!-- CARD 3: ADDRESS DETAILS (Placed Third per user directive) -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col gap-3.5 transition-all">
                 <div class="flex items-center justify-between cursor-pointer" onclick="toggleCardSection('address')">
                     <h3 class="text-sm font-bold text-slate-800 tracking-tight">Address Details</h3>
@@ -1393,7 +1514,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 <div id="section-body-address" class="flex flex-col gap-3">
                     <!-- Street Address (Full Width) -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Street</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Full-width Street address</label>
                         <input type="text" id="aamva-street" placeholder="Street Address Street" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
                     </div>
 
@@ -1402,7 +1523,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <input type="text" id="aamva-street2" value="" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" placeholder="Apt, Suite, Unit, etc." oninput="compileAAMVA()">
                     </div>
 
-                    <!-- 3-Column Row: City | State (Jurisdiction) | ZIP -->
+                    <!-- 3-Column Row: City | State (Synced with top) | ZIP -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">City</label>
@@ -1411,147 +1532,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">State</label>
-                            <div class="relative">
-                                <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition appearance-none cursor-pointer shadow-2xs font-medium"></select>
-                                <span class="absolute right-3 top-2.5 text-slate-400 text-[10px] pointer-events-none">▾</span>
+                            <div class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-slate-50 font-bold flex items-center justify-between shadow-2xs">
+                                <span id="badge-state-display" class="font-mono text-teal-800">CT</span>
+                                <span class="text-[9.5px] text-slate-400 font-normal">Auto-synced</span>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">ZIP</label>
-                            <input type="text" id="aamva-zip" placeholder="County" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium code-font" oninput="compileAAMVA()">
+                            <input type="text" id="aamva-zip" placeholder="ZIP / Postal Code" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium code-font" oninput="compileAAMVA()">
                         </div>
                     </div>
                     <input type="hidden" id="aamva-state" value="CT">
-                </div>
-            </div>
-
-            <!-- CARD 3: LICENSE DATA (Exact visual duplicate of Mockup) -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col gap-3.5 transition-all">
-                <div class="flex items-center justify-between cursor-pointer" onclick="toggleCardSection('license')">
-                    <h3 class="text-sm font-bold text-slate-800 tracking-tight">License Data</h3>
-                    <button type="button" class="text-slate-400 hover:text-slate-600 transition" aria-label="Toggle License Data section">
-                        <svg id="chevron-license" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
-                    </button>
-                </div>
-
-                <div id="section-body-license" class="flex flex-col gap-3">
-                    <!-- Row 1: ID Number | Issue Date | Expiry Date -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-semibold text-slate-700">ID Number</label>
-                                <button type="button" onclick="calcField('id')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate DL Number">🧮</button>
-                            </div>
-                            <input type="text" id="aamva-id" placeholder="1233455667990" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
-                            <div id="dl-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-semibold text-slate-700">Issue Date</label>
-                                <button type="button" onclick="calcField('issued')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Issue Date">🧮</button>
-                            </div>
-                            <div class="relative">
-                                <input type="text" id="aamva-issued" placeholder="2024--23" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 pr-8 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="autoSyncExpiryDate(); compileAAMVA()">
-                                <span class="absolute right-2.5 top-2 text-slate-400 text-xs pointer-events-none">📅</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-semibold text-slate-700">Expiry Date</label>
-                                <button type="button" onclick="calcField('exp')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Expiry Date">🧮</button>
-                            </div>
-                            <div class="relative">
-                                <input type="text" id="aamva-exp" placeholder="097/2024" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 pr-8 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
-                                <span class="absolute right-2.5 top-2 text-slate-400 text-xs pointer-events-none">📅</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Class | Restrictions | Endorsements -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 border-t border-slate-100">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Class</label>
-                            <div class="relative">
-                                <select id="aamva-class" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition appearance-none cursor-pointer shadow-2xs font-medium" onchange="compileAAMVA()">
-                                    <option value="D" selected>Class</option>
-                                    <option value="C">Class C (Commercial)</option>
-                                    <option value="B">Class B (Heavy)</option>
-                                    <option value="A">Class A (Combination)</option>
-                                    <option value="M">Class M (Motorcycle)</option>
-                                </select>
-                                <span class="absolute right-3 top-2.5 text-slate-400 text-[10px] pointer-events-none">▾</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Restrictions</label>
-                            <input type="text" id="aamva-restrictions" placeholder="Restrictions" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Endorsements</label>
-                            <input type="text" id="aamva-endorsements" placeholder="NONE" value="NONE" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
-                        </div>
-                    </div>
-
-                    <!-- Row 3: DD & REAL ID (Dynamically controlled by state_engine) -->
-                    <div id="row-dd-realid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
-                        <div id="container-dd">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                                    <span id="label-dcf-text">Document Discriminator (DD)</span>
-                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span id="tooltip-dcf-text" class="tooltip-box">Document Discriminator (DCF)</span></span>
-                                </label>
-                                <button type="button" onclick="calcField('dcf')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate DD">🧮</button>
-                            </div>
-                            <input type="text" id="aamva-dcf" placeholder="DD" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
-                            <div id="dd-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
-                        </div>
-
-                        <div id="container-realid">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs font-semibold text-slate-700">REAL ID</label>
-                                <button type="button" onclick="calcField('real_id')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate REAL ID">🧮</button>
-                            </div>
-                            <div class="relative">
-                                <select id="aamva-realid" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition appearance-none cursor-pointer shadow-2xs font-medium" onchange="compileAAMVA()">
-                                    <option value="Yes" selected>Yes (Gold Star)</option>
-                                    <option value="No">No (Standard)</option>
-                                </select>
-                                <span class="absolute right-3 top-2.5 text-slate-400 text-[10px] pointer-events-none">▾</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row 4: ICN (Inventory Control Number) & Audit Information (Dynamically controlled) -->
-                    <div id="container-icn" class="pt-1 border-t border-slate-100">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <div class="flex items-center gap-1.5">
-                                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                                    <span id="label-dck-text">Inventory Control Number (ICN)</span>
-                                    <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span id="tooltip-dck-text" class="tooltip-box">Inventory Control Number (DCK)</span></span>
-                                </label>
-                                <span id="dck-status-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">Optional</span>
-                            </div>
-                            <button type="button" onclick="calcField('dck')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate ICN">🧮</button>
-                        </div>
-                        <input type="text" id="aamva-dck" placeholder="ICN" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
-                        <div id="icn-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
-                    </div>
-
-                    <div id="container-audit" class="hidden pt-1 border-t border-slate-100">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                                <span>Audit Information</span>
-                                <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">ⓘ<span class="tooltip-box">Audit Information (DCJ)</span></span>
-                            </label>
-                            <button type="button" onclick="calcField('audit')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Audit Info">🧮</button>
-                        </div>
-                        <input type="text" id="aamva-audit" placeholder="Audit" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs code-font font-medium" oninput="compileAAMVA()">
-                    </div>
                 </div>
             </div>
 
@@ -6143,10 +6135,15 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             const adminClientsBtn = document.getElementById('admin-clients-btn');
             const userOrdersBtn = document.getElementById('user-orders-btn');
 
+            const userProfileMenu = document.getElementById('user-profile-menu');
             if (currentUser) {
-                authBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                userTokenPill.classList.remove('hidden');
+                if (authBtn) authBtn.classList.add('hidden');
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
+                if (userProfileMenu) userProfileMenu.classList.remove('hidden');
+                if (userTokenPill) {
+                    userTokenPill.classList.remove('hidden');
+                    userTokenPill.classList.add('flex');
+                }
                 userTokenPill.classList.add('flex');
                 if (userOrdersBtn) {
                     userOrdersBtn.classList.remove('hidden');
@@ -6214,11 +6211,15 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 }
                 roleBadge.textContent = 'Guest';
                 roleBadge.className = 'bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full';
-                authBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
+                if (authBtn) authBtn.classList.remove('hidden');
+                if (logoutBtn) logoutBtn.classList.add('hidden');
+                if (userProfileMenu) userProfileMenu.classList.add('hidden');
                 tokenCounter.textContent = 'Barcode Sets: 0';
-                userTokenPill.classList.add('hidden');
-                userTokenPill.classList.remove('flex');
+                if (headerTokenCount) headerTokenCount.textContent = '0';
+                if (userTokenPill) {
+                    userTokenPill.classList.remove('hidden');
+                    userTokenPill.classList.add('flex');
+                }
                 paywallOverlay.classList.remove('hidden');
                 if (paywallGuest) paywallGuest.classList.remove('hidden');
                 if (paywallDepleted) paywallDepleted.classList.add('hidden');
