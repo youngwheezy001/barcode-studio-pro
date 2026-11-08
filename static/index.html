@@ -1192,15 +1192,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             
             <!-- Sleek Minimalist Top Header Bar -->
             <header id="header-top" class="bg-white border-b border-slate-200/90 px-8 py-3 flex justify-between items-center shadow-xs shrink-0 z-30">
-                <!-- Brand: Barcode Studio Pro with cyan/teal stylized icon -->
+                <!-- Brand: Barcode Studio Pro with teal hexagon icon -->
                 <div class="flex items-center gap-3 cursor-pointer" onclick="handleLogoClick()">
-                    <div class="w-7 h-7 flex items-center justify-center shrink-0">
-                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L14.8 8.8L12 11.2L9.2 8.8Z" fill="#1e293b"/>
-                            <path d="M12 22L9.2 15.2L12 12.8L14.8 15.2Z" fill="#1e293b"/>
-                            <path d="M2 12L8.8 9.2L11.2 12L8.8 14.8Z" fill="#0d9488"/>
-                            <path d="M22 12L15.2 14.8L12.8 12L15.2 9.2Z" fill="#0d9488"/>
-                        </svg>
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center shadow-xs text-white">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 12l8-4.5M12 12v9M12 12L4 7.5"></path></svg>
                     </div>
                     <div class="flex items-baseline gap-1.5">
                         <span class="text-base font-black text-slate-900 tracking-tight">Barcode</span>
@@ -1243,18 +1238,28 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         <!-- Left Column: Generator Form (Exact Match to media_1794112827744.png & PDF417.pro) -->
         <section class="w-[52%] flex flex-col gap-3.5 overflow-y-auto pr-1 select-none">
             
-            <!-- Hidden Support Row for Automated Tests & Fast Presets -->
-            <div class="hidden items-center justify-between px-1 py-0.5">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-800">Profile:</span>
-                    <span id="state-rev-badge" class="text-xs font-mono font-bold text-teal-700 bg-teal-50 border border-teal-200/80 px-2 py-0.5 rounded-lg shadow-2xs">Rev. 26/04/2022 (0403)</span>
-                    <div id="state-scanners-badges" class="flex items-center gap-1">
-                        <span class="px-1.5 py-0.5 rounded text-[9.5px] bg-white border border-slate-200 text-slate-600 font-bold flex items-center gap-1"><span>Scandit</span><span class="text-emerald-600">&check;</span></span>
-                        <span class="px-1.5 py-0.5 rounded text-[9.5px] bg-white border border-slate-200 text-slate-600 font-bold flex items-center gap-1"><span>Veriscan</span><span class="text-emerald-600">&check;</span></span>
+            <!-- Sub-Navigation Toolbar (Exact Match to Master Prompt Specification 4) -->
+            <div class="flex items-center justify-between px-1 py-1 gap-2 flex-wrap text-xs bg-white/70 backdrop-blur-xs p-2 rounded-xl border border-slate-200/80 shadow-2xs">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-slate-800">Profile:</span>
+                    <span id="state-rev-badge" class="font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg shadow-2xs">Standard Revision</span>
+                    <div id="state-scanners-badges" class="flex items-center gap-1.5 flex-wrap">
+                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
+                            <span>Scandit</span><span class="text-emerald-600 font-bold">&check;</span>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
+                            <span>Show-Me ID</span>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
+                            <span>FIDScan</span><span class="text-emerald-600 font-bold">&check;</span>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg text-xs bg-white border border-slate-200 text-slate-700 font-semibold flex items-center gap-1 shadow-2xs">
+                            <span>Veriscan</span><span class="text-emerald-600 font-bold">&check;</span>
+                        </span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <select id="aamva-version" onchange="compileAAMVA()" class="bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold py-1 px-2 shadow-2xs outline-none cursor-pointer">
+                    <select id="aamva-version" onchange="compileAAMVA()" class="bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold py-1 px-2.5 shadow-2xs outline-none cursor-pointer">
                         <option value="AUTO" selected>Auto: Standard</option>
                         <option value="09">v09 (2020)</option>
                         <option value="08">v08 (2016)</option>
@@ -1262,62 +1267,50 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <option value="05">v05</option>
                         <option value="04">v04</option>
                     </select>
-                    <span id="aamva-resolved-badge" class="hidden">Auto: v09</span>
+                    <span id="aamva-resolved-badge" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-2xs">Auto: v09 (Fmt 11)</span>
+                    <button type="button" onclick="generateRandomAAMVA()" class="text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-1 px-2.5 rounded-lg transition shadow-2xs flex items-center gap-1" title="Randomize data">
+                        <span>🎲</span>
+                    </button>
+                    <button type="button" onclick="clearAllInputs()" class="text-xs bg-white hover:bg-rose-50 border border-slate-200 text-rose-600 font-bold py-1 px-2 rounded-lg transition shadow-2xs" title="Clear inputs">
+                        🗑️
+                    </button>
                 </div>
             </div>
 
             <!-- CARD 1: LEGAL IDENTITY (Exact visual duplicate of Mockup & PDF417.pro sequence) -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col gap-3.5 transition-all">
                 <div class="flex items-center justify-between cursor-pointer" onclick="toggleCardSection('identity')">
-                    <div class="flex items-center gap-2">
-                        <h3 class="text-sm font-bold text-slate-800 tracking-tight">Legal Identity</h3>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="event.stopPropagation(); generateRandomAAMVA()" class="text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold py-1 px-2 rounded-lg transition shadow-2xs flex items-center gap-1" title="Randomize data">
-                            <span>🎲</span><span class="hidden sm:inline">Randomize</span>
-                        </button>
-                        <button type="button" onclick="event.stopPropagation(); clearAllInputs()" class="text-xs bg-slate-50 hover:bg-rose-50 border border-slate-200 text-rose-600 font-bold py-1 px-2 rounded-lg transition shadow-2xs" title="Clear inputs">
-                            🗑️
-                        </button>
-                        <button type="button" class="text-slate-400 hover:text-slate-600 transition" aria-label="Toggle Legal Identity section">
-                            <svg id="chevron-identity" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
-                        </button>
-                    </div>
+                    <h3 class="text-sm font-bold text-slate-800 tracking-tight">Legal Identity</h3>
+                    <button type="button" class="text-slate-400 hover:text-slate-600 transition" aria-label="Toggle Legal Identity section">
+                        <svg id="chevron-identity" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+                    </button>
                 </div>
 
                 <div id="section-body-identity" class="flex flex-col gap-3">
-                    <!-- Row 1: Last Name | First Name | Middle Name (PDF417.pro standard sequence) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                        <div class="sm:col-span-5">
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Last Name</span>
-                                <button type="button" onclick="calcField('last')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Last Name">🧮</button>
-                            </label>
-                            <input type="text" id="aamva-last" placeholder="Last Name (e.g. Garcia)" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
-                        </div>
-
-                        <div class="sm:col-span-5">
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>First Name</span>
-                                <button type="button" onclick="calcField('first')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate First Name">🧮</button>
-                            </label>
-                            <input type="text" id="aamva-first" placeholder="First Name (e.g. Jonathan)" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
-                        </div>
-
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Mid</span>
-                                <button type="button" onclick="calcField('mid')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Middle Name">🧮</button>
-                            </label>
-                            <input type="text" id="aamva-mid" placeholder="M" class="aamva-field w-full border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium text-center" oninput="compileAAMVA()">
-                        </div>
-                    </div>
-
-                    <!-- Row 2: DOB | Sex | Donor | Suffix -->
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1 border-t border-slate-100">
+                    <!-- Row 1: Legal First, Middle | DOB | Sex (With pink/red credential icons) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Legal First, Middle with pink/red credential icon -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>DOB</span>
+                                <span class="flex items-center gap-1">
+                                    <span>Legal First, Middle</span>
+                                    <span class="text-rose-500 text-xs" title="Identity document credential">🪪</span>
+                                </span>
+                                <button type="button" onclick="calcField('first'); calcField('mid');" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate First & Middle Name">🧮</button>
+                            </label>
+                            <div class="flex gap-1.5">
+                                <input type="text" id="aamva-first" placeholder="Legal First" class="aamva-field flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
+                                <input type="text" id="aamva-mid" placeholder="Mid" class="aamva-field w-14 border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium text-center" oninput="compileAAMVA()">
+                            </div>
+                        </div>
+
+                        <!-- DOB with pink/red credential icon -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                                <span class="flex items-center gap-1">
+                                    <span>DOB</span>
+                                    <span class="text-rose-500 text-xs" title="Date of Birth credential">🪪</span>
+                                </span>
                                 <button type="button" onclick="calcField('dob')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Birth Date">🧮</button>
                             </label>
                             <div class="relative">
@@ -1326,6 +1319,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
                         </div>
 
+                        <!-- Sex -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Sex</label>
                             <div class="relative">
@@ -1336,6 +1330,21 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </select>
                                 <span class="absolute right-3 top-2.5 text-slate-400 text-[10px] pointer-events-none">▾</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Last Name | Donor | Suffix -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 border-t border-slate-100">
+                        <!-- Last Name with pink/red credential icon -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                                <span class="flex items-center gap-1">
+                                    <span>Last Name</span>
+                                    <span class="text-rose-500 text-xs" title="Family Name credential">🪪</span>
+                                </span>
+                                <button type="button" onclick="calcField('last')" class="calc-btn text-xs text-slate-400 hover:text-teal-600 font-mono" title="Calculate Last Name">🧮</button>
+                            </label>
+                            <input type="text" id="aamva-last" placeholder="Last Name (e.g. Garcia)" class="aamva-field w-full border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 bg-white outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition shadow-2xs font-medium" oninput="compileAAMVA()">
                         </div>
 
                         <div>
@@ -1734,16 +1743,25 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         <!-- Right Column: Real-Time Preview Studio (Exact Duplicate of media_1794112827744.png) -->
         <section id="studio-right-column" class="w-[48%] bg-[#0B111E] rounded-3xl p-5 shadow-2xl flex flex-col justify-between border border-slate-800 text-white max-h-[calc(100vh-80px)] overflow-hidden">
             
-            <!-- Studio Header: Clean, executive typography matching media_1794112827744.png -->
+            <!-- Studio Header: Card Inspection Studio (left) & Flip / Mag Buttons (right) -->
             <div class="flex justify-between items-center pb-1">
-                <h2 class="text-base font-bold text-white tracking-wide">Card Inspection Studio</h2>
-                <!-- Hidden Controls preserved for tests -->
-                <div class="hidden">
-                    <button type="button" onclick="toggleCardSide()" id="btn-card-flip">
-                        <span>🔄 Flip: <strong id="card-side-label">Card Back</strong></span>
+                <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L14.8 8.8L12 11.2L9.2 8.8Z" fill="#94a3b8"/>
+                            <path d="M12 22L9.2 15.2L12 12.8L14.8 15.2Z" fill="#94a3b8"/>
+                            <path d="M2 12L8.8 9.2L11.2 12L8.8 14.8Z" fill="#0d9488"/>
+                            <path d="M22 12L15.2 14.8L12.8 12L15.2 9.2Z" fill="#0d9488"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-base font-bold text-white tracking-wide">Card Inspection Studio</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleCardSide()" id="btn-card-flip" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-2.5 py-1 rounded-lg text-[10.5px] transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+                        <span>🔄 Flip: <strong id="card-side-label" class="text-white">Card Back</strong></span>
                     </button>
-                    <button type="button" onclick="toggleMagstripeHeight()" id="btn-mag-height">
-                        Mag: <span id="mag-height-label">0.33"</span>
+                    <button type="button" onclick="toggleMagstripeHeight()" id="btn-mag-height" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold px-2 py-1 rounded-lg text-[10.5px] transition shadow-xs cursor-pointer">
+                        Mag: <span id="mag-height-label" class="text-blue-300">0.33"</span>
                     </button>
                 </div>
             </div>
