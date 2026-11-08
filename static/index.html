@@ -3499,20 +3499,16 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 let caHtml = '';
 
                 for (const [stateName, group] of Object.entries(window.STATE_HIERARCHY)) {
-                    let groupOptions = '';
                     for (const rev of group.revisions) {
                         const verifiedBadge = rev.verified ? ' ✔' : '';
                         const newBadge = rev.is_new ? ' [NEW]' : '';
-                        groupOptions += `<option value="${rev.slug}">${rev.label}${newBadge}${verifiedBadge}</option>`;
-                    }
-                    const block = group.revisions.length > 1
-                        ? `<optgroup label="${stateName}">${groupOptions}</optgroup>`
-                        : groupOptions;
-
-                    if (group.is_canada) {
-                        caHtml += block;
-                    } else {
-                        usHtml += block;
+                        const cleanLabel = (rev.label || stateName).replace('Kentucy', 'Kentucky');
+                        const optionHtml = `<option value="${rev.slug}">${cleanLabel}${newBadge}${verifiedBadge}</option>`;
+                        if (group.is_canada) {
+                            caHtml += optionHtml;
+                        } else {
+                            usHtml += optionHtml;
+                        }
                     }
                 }
                 select.innerHTML = `<optgroup label="🇺🇸 United States">${usHtml}</optgroup><optgroup label="🇨🇦 Canada">${caHtml}</optgroup>`;
