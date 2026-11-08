@@ -1970,9 +1970,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <div id="studio-cr80-card" class="relative z-10 w-[410px] max-w-[95%] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             
                             <!-- Top Section (Above Magnetic Stripe) -->
-                            <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white">
+                            <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white min-h-[24px]">
                                 <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
-                                <div class="flex items-center justify-end overflow-hidden">
+                                <div id="card-top-code128-container" class="flex items-center justify-end overflow-hidden">
                                     <svg id="card-code128-svg" class="max-h-[22px] max-w-[190px]"></svg>
                                 </div>
                             </div>
@@ -1994,7 +1994,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                     <!-- Right: Donor & Living Will -->
                                     <div class="text-right">
-                                        <div class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 tracking-tight">
+                                        <div id="studio-card-donor" class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 tracking-tight">
                                             Donor <span id="studio-donor-y" class="underline font-black text-slate-900">_Y</span> <span id="studio-donor-n" class="text-slate-600">_N</span> / Living Will <span id="studio-will-y" class="text-slate-600">_Y</span> <span id="studio-will-n" class="underline font-black text-slate-900">_N</span>
                                         </div>
                                     </div>
@@ -2004,8 +2004,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <div class="flex justify-between items-end mt-2 relative">
                                     
                                     <!-- Left: 2D Barcode & DMV URL -->
-                                    <div class="flex flex-col items-start max-w-[260px] relative">
-                                        <canvas id="output-pdf417" class="max-w-[245px] sm:max-w-[260px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                    <div class="flex flex-col items-start max-w-[250px] relative">
+                                        <canvas id="output-pdf417" class="max-w-[240px] sm:max-w-[250px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
                                         <canvas id="card-preview-barcode" class="hidden"></canvas>
                                         <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
 
@@ -2019,25 +2019,32 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </div>
 
                                     <!-- Right: State Cursive Watermark, Federal Notice, and Vertical Revision Stamp -->
-                                    <div class="flex items-center gap-1.5 pl-2 max-w-[195px] relative">
-                                        <div class="flex flex-col items-end text-right flex-1">
-                                            <!-- Gold Cursive State Watermark -->
-                                            <div class="flex items-center justify-end gap-1.5 my-0.5">
-                                                <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
-                                                <span id="studio-state-watermark" class="text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none" style="font-family: 'Dancing Script', 'Brush Script MT', 'Caveat', cursive; font-weight: 700;">Louisiana</span>
-                                                <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                    <div class="flex flex-col items-end text-right pl-2 max-w-[200px] relative flex-1">
+                                        <div class="flex items-center gap-1.5 w-full justify-end">
+                                            <div class="flex flex-col items-end text-right flex-1">
+                                                <!-- Gold Cursive State Watermark -->
+                                                <div class="flex items-center justify-end gap-1.5 my-0.5">
+                                                    <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                    <span id="studio-state-watermark" class="text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none" style="font-family: 'Dancing Script', 'Brush Script MT', 'Caveat', cursive; font-weight: 700;">Louisiana</span>
+                                                    <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                </div>
+
+                                                <!-- Federal / State Regulatory Disclaimer -->
+                                                <div id="studio-card-disclaimer" class="text-[6px] sm:text-[6.5px] text-slate-800 font-sans leading-[1.2] text-right font-medium max-w-[170px] mt-0.5">
+                                                    Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br>
+                                                    <span class="italic font-bold">Renewable 180 days prior to expiration.</span>
+                                                </div>
                                             </div>
 
-                                            <!-- Federal Regulations Disclaimer -->
-                                            <div class="text-[6px] sm:text-[6.5px] text-slate-800 font-sans leading-[1.2] text-right font-medium max-w-[170px] mt-0.5">
-                                                Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br>
-                                                <span class="italic font-bold">Renewable 180 days prior to expiration.</span>
+                                            <!-- Vertical Revision Stamp -->
+                                            <div class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg); height: 75px; text-align: center;" id="studio-rev-stamp">
+                                                REV 03-12-2015 &nbsp; 10-02-1990
                                             </div>
                                         </div>
 
-                                        <!-- Vertical Revision Stamp -->
-                                        <div class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg); height: 75px; text-align: center;" id="studio-rev-stamp">
-                                            REV 03-12-2015 &nbsp; 10-02-1990
+                                        <!-- 1D Code 128 Container for Type B, Canadian, and other jurisdictions with bottom companion barcode -->
+                                        <div id="card-bottom-code128-container" class="hidden w-full flex justify-end pt-1">
+                                            <svg id="card-code128-svg-bottom" class="max-h-[20px] max-w-[175px]"></svg>
                                         </div>
                                     </div>
 
@@ -5474,6 +5481,19 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             const jurKey = jurEl ? jurEl.value : stateCode;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+            const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
+            const isTypeA = meta ? (meta.layout === 'type_a') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
+
+            // Dynamic Spatial Layout Switching: Type A vs Type B / Canadian
+            const topBarcodeContainer = document.getElementById('card-top-code128-container');
+            const bottomBarcodeContainer = document.getElementById('card-bottom-code128-container');
+            if (isTypeA) {
+                if (topBarcodeContainer) topBarcodeContainer.classList.remove('hidden');
+                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.add('hidden');
+            } else {
+                if (topBarcodeContainer) topBarcodeContainer.classList.add('hidden');
+                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.remove('hidden');
+            }
 
             // 2. Sequence / Audit / Document Discriminator number
             const seqEl = document.getElementById('studio-seq-num');
@@ -5513,10 +5533,15 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 let classLabel = '';
                 if (rawC && rawC !== 'D' && rawC !== 'Operator') {
                     classLabel = rawC.startsWith('Class') ? rawC : `Class ${rawC}`;
+                } else if (meta && meta.class_label) {
+                    classLabel = meta.class_label.replace(/^CLASS:\s*/i, '');
+                    if (!classLabel.toLowerCase().startsWith('class') && !classLabel.toLowerCase().startsWith('driver') && !classLabel.toLowerCase().startsWith('operator')) {
+                        classLabel = `Class ${classLabel}`;
+                    }
                 } else {
                     classLabel = STATE_STANDARD_CLASSES[stateCode] || 'Class D';
                 }
-                classEl.textContent = `Driver's license (${classLabel})`;
+                classEl.textContent = classLabel.toLowerCase().includes('driver') ? classLabel : `Driver's license (${classLabel})`;
             }
             const endEl = document.getElementById('studio-card-endorsements');
             if (endEl) {
@@ -5529,7 +5554,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 restEl.textContent = rVal;
             }
 
-            // 4. State & Official Portal URL
+            // 4. State Watermark, Portal URL, and Regulatory Disclaimer
             const STATE_NAMES = {
                 'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
                 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'DC': 'District of Columbia',
@@ -5568,34 +5593,46 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             const stateWatermark = document.getElementById('studio-state-watermark');
             if (stateWatermark) {
-                stateWatermark.textContent = STATE_NAMES[stateCode] || stateCode;
+                stateWatermark.textContent = (meta && meta.watermark) ? meta.watermark : (STATE_NAMES[stateCode] || stateCode);
             }
             const portalUrl = document.getElementById('studio-portal-url');
             if (portalUrl) {
-                portalUrl.textContent = STATE_URLS[stateCode] || `www.dmv.${stateCode.toLowerCase()}.gov`;
+                portalUrl.textContent = (meta && meta.url) ? meta.url : (STATE_URLS[stateCode] || `www.dmv.${stateCode.toLowerCase()}.gov`);
             }
 
-            // 5. Organ Donor
-            const donorVal = (document.getElementById('aamva-donor')?.value || 'N').toUpperCase();
-            const donorY = document.getElementById('studio-donor-y');
-            const donorN = document.getElementById('studio-donor-n');
-            if (donorY && donorN) {
-                if (donorVal === '1' || donorVal === 'Y' || donorVal === 'YES') {
-                    donorY.className = 'underline font-black text-slate-900';
-                    donorN.className = 'font-normal text-slate-600';
+            // Legal & Regulatory Disclaimer
+            const discEl = document.getElementById('studio-card-disclaimer');
+            if (discEl) {
+                if (meta && meta.disclaimer) {
+                    discEl.innerHTML = meta.disclaimer.replace(/ \u2022 /g, ' &bull; ').replace(/(Renewable \d+ days.*$)/i, '<br><span class="italic font-bold">$1</span>');
                 } else {
-                    donorY.className = 'font-normal text-slate-600';
-                    donorN.className = 'underline font-black text-slate-900';
+                    discEl.innerHTML = `Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br><span class="italic font-bold">Renewable 180 days prior to expiration.</span>`;
+                }
+            }
+
+            // 5. Organ Donor Designation
+            const donorEl = document.getElementById('studio-card-donor');
+            const donorVal = (document.getElementById('aamva-donor')?.value || 'N').toUpperCase();
+            const isDonor = (donorVal === '1' || donorVal === 'Y' || donorVal === 'YES');
+
+            if (donorEl) {
+                const donorPattern = (meta && meta.donor) ? meta.donor : 'Donor __Y__N / Living Will __Y__N';
+                if (donorPattern.includes('Living Will') || isTypeA) {
+                    donorEl.innerHTML = `Donor <span id="studio-donor-y" class="${isDonor ? 'underline font-black text-slate-900' : 'text-slate-600 font-normal'}">_Y</span> <span id="studio-donor-n" class="${!isDonor ? 'underline font-black text-slate-900' : 'text-slate-600 font-normal'}">_N</span> / Living Will <span id="studio-will-y" class="text-slate-600 font-normal">_Y</span> <span id="studio-will-n" class="underline font-black text-slate-900 font-normal">_N</span>`;
+                } else {
+                    donorEl.innerHTML = `<span class="text-[8px] sm:text-[8.5px] font-bold tracking-tight ${isDonor ? 'text-rose-700' : 'text-slate-700'}">${donorPattern}: <span class="${isDonor ? 'underline font-black text-slate-900' : 'font-semibold text-slate-600'}">${isDonor ? 'YES \u2665' : 'NO'}</span></span>`;
                 }
             }
 
             // 6. Dynamic State Revision & Expiration Stamp
             const revStamp = document.getElementById('studio-rev-stamp');
             if (revStamp) {
-                let revDateStr = '03-12-2015';
-                if (revInfo && revInfo.rev_header) {
-                    const match = revInfo.rev_header.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-                    if (match) revDateStr = `${match[1]}-${match[2]}-${match[3]}`;
+                let revDateStr = (meta && meta.rev) ? meta.rev : 'REV 03-12-2015';
+                if (!meta || !meta.rev) {
+                    if (revInfo && revInfo.rev_header) {
+                        const match = revInfo.rev_header.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+                        if (match) revDateStr = `REV ${match[1]}-${match[2]}-${match[3]}`;
+                    }
                 }
                 const dobVal = (document.getElementById('aamva-dob')?.value || '1990-10-02');
                 const parts = dobVal.includes('-') ? dobVal.split('-') : [];
@@ -5605,13 +5642,25 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 } else if (dobVal.length === 8) {
                     dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
                 }
-                revStamp.textContent = `REV ${revDateStr}   ${dobFmt}`;
+                let revClean = revDateStr.toUpperCase().replace(/^REV\.\s*/i, 'REV ').trim();
+                if (!revClean.startsWith('REV')) revClean = `REV ${revClean}`;
+                revStamp.textContent = `${revClean}   ${dobFmt}`;
             }
 
             renderCardBackCompanionBarcode();
         }
 
         function renderCardBackCompanionBarcode() {
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
+            if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
+            if (!stateCode) stateCode = 'LA';
+
+            const jurKey = jurEl ? jurEl.value : stateCode;
+            const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
+            const isTypeA = meta ? (meta.layout === 'type_a') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
+
             const seqEl = document.getElementById('studio-seq-num');
             const seqVal = (seqEl ? seqEl.textContent : '').trim();
             const manualVal = (document.getElementById('input-code128')?.value || '').trim();
@@ -5622,16 +5671,32 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (!targetVal) targetVal = idVal || '0070051972513905';
 
             try {
-                const svgEl = document.getElementById('card-code128-svg');
-                if (svgEl) {
-                    JsBarcode("#card-code128-svg", targetVal, {
-                        format: "CODE128",
-                        displayValue: false,
-                        height: 22,
-                        width: 1.25,
-                        margin: 0,
-                        lineColor: "#0a0a0a"
-                    });
+                if (typeof JsBarcode === 'function') {
+                    if (isTypeA) {
+                        const svgTop = document.getElementById('card-code128-svg');
+                        if (svgTop) {
+                            JsBarcode("#card-code128-svg", targetVal, {
+                                format: "CODE128",
+                                displayValue: false,
+                                height: 22,
+                                width: 1.25,
+                                margin: 0,
+                                lineColor: "#0a0a0a"
+                            });
+                        }
+                    } else {
+                        const svgBottom = document.getElementById('card-code128-svg-bottom');
+                        if (svgBottom) {
+                            JsBarcode("#card-code128-svg-bottom", targetVal, {
+                                format: "CODE128",
+                                displayValue: false,
+                                height: 20,
+                                width: 1.15,
+                                margin: 0,
+                                lineColor: "#0a0a0a"
+                            });
+                        }
+                    }
                 }
             } catch (e) {
                 console.error("Card back 1D barcode error:", e);
