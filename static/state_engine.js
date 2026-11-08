@@ -10823,7 +10823,726 @@ function QC_calculate_ICN() {
     }
 }
 
-window.STATE_HIERARCHY = STATE_HIERARCHY;
+
+    // --- AUTHENTIC STATE CARD BACK METADATA (50 STATES + DC + 13 CANADIAN PROVINCES) ---
+    const STATE_CARDBACK_METADATA = {
+    "AL": {
+        "name": "Alabama",
+        "agency": "Alabama Law Enforcement Agency",
+        "url": "www.alea.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Alabama \u2022 If found drop in any US mailbox \u2022 Return postage guaranteed",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "ALABAMA",
+        "rev": "Rev. 11/01/2014"
+    },
+    "AK": {
+        "name": "Alaska",
+        "agency": "Alaska Division of Motor Vehicles",
+        "url": "doa.alaska.gov/dmv",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Alaska \u2022 Must be carried when operating a motor vehicle",
+        "donor": "ANATOMICAL GIFT",
+        "layout": "type_b",
+        "watermark": "ALASKA",
+        "rev": "Rev. 09/2018"
+    },
+    "AZ": {
+        "name": "Arizona",
+        "agency": "Arizona Department of Transportation (ADOT)",
+        "url": "azdot.gov/mvd",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Arizona \u2022 Operating motor vehicle constitutes consent to alcohol test",
+        "donor": "DONATE LIFE AZ",
+        "layout": "type_b",
+        "watermark": "ARIZONA",
+        "rev": "Rev. 03/2014"
+    },
+    "AR": {
+        "name": "Arkansas",
+        "agency": "Arkansas Department of Finance and Administration",
+        "url": "www.dfa.arkansas.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Arkansas \u2022 If found drop in any US mailbox",
+        "donor": "ORGAN DONOR",
+        "layout": "type_a",
+        "watermark": "ARKANSAS",
+        "rev": "Rev. 07/2017"
+    },
+    "CA": {
+        "name": "California",
+        "agency": "California Department of Motor Vehicles",
+        "url": "www.dmv.ca.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "This license is issued as a license to drive a motor vehicle; it does not establish eligibility for employment, voter registration, or public benefits.",
+        "donor": "DONATE LIFE CA",
+        "layout": "type_b",
+        "watermark": "CALIFORNIA",
+        "rev": "Rev. 01/2018"
+    },
+    "CO": {
+        "name": "Colorado",
+        "agency": "Colorado Department of Revenue - DMV",
+        "url": "dmv.colorado.gov",
+        "class_label": "CLASS: R",
+        "disclaimer": "Property of State of Colorado \u2022 Surrender upon demand of peace officer",
+        "donor": "DONOR ALLIANCE",
+        "layout": "type_b",
+        "watermark": "COLORADO",
+        "rev": "Rev. 11/2015"
+    },
+    "CT": {
+        "name": "Connecticut",
+        "agency": "Connecticut Department of Motor Vehicles",
+        "url": "portal.ct.gov/dmv",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Connecticut \u2022 Return if found to nearest DMV branch",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "CONNECTICUT",
+        "rev": "Rev. 06/2017"
+    },
+    "DE": {
+        "name": "Delaware",
+        "agency": "Delaware Division of Motor Vehicles",
+        "url": "dmv.de.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Delaware \u2022 Notice of change of address required within 30 days",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "DELAWARE",
+        "rev": "Rev. 05/2015"
+    },
+    "DC": {
+        "name": "District of Columbia",
+        "agency": "DC Department of Motor Vehicles",
+        "url": "dmv.dc.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of District of Columbia Government \u2022 Return postage guaranteed",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "DISTRICT OF COLUMBIA",
+        "rev": "Rev. 08/2018"
+    },
+    "FL": {
+        "name": "Florida",
+        "agency": "Florida Highway Safety and Motor Vehicles",
+        "url": "www.flhsmv.gov",
+        "class_label": "CLASS: E",
+        "disclaimer": "Operation of motor vehicle constitutes consent to digital verification & testing under Florida Statute 322.2615 \u2022 Emergency Contact Information System registered.",
+        "donor": "DONATE LIFE FLORIDA",
+        "layout": "type_b",
+        "watermark": "FLORIDA",
+        "rev": "Rev. 08/2017"
+    },
+    "GA": {
+        "name": "Georgia",
+        "agency": "Georgia Department of Driver Services",
+        "url": "dds.georgia.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of Georgia \u2022 Surrender upon suspension, revocation or cancellation",
+        "donor": "DONATE LIFE GEORGIA",
+        "layout": "type_b",
+        "watermark": "GEORGIA",
+        "rev": "Rev. 07/2012"
+    },
+    "HI": {
+        "name": "Hawaii",
+        "agency": "Hawaii Department of Transportation",
+        "url": "hidot.hawaii.gov",
+        "class_label": "CLASS: 3",
+        "disclaimer": "Property of State of Hawaii \u2022 Must be carried in personal possession when operating vehicle",
+        "donor": "LEGACY OF LIFE HI",
+        "layout": "type_b",
+        "watermark": "HAWAII",
+        "rev": "Rev. 03/2018"
+    },
+    "ID": {
+        "name": "Idaho",
+        "agency": "Idaho Transportation Department",
+        "url": "itd.idaho.gov/itddmv",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Idaho \u2022 Return if found to PO Box 7129 Boise ID 83707",
+        "donor": "YES IDAHO DONOR",
+        "layout": "type_b",
+        "watermark": "IDAHO",
+        "rev": "Rev. 04/2018"
+    },
+    "IL": {
+        "name": "Illinois",
+        "agency": "Illinois Secretary of State",
+        "url": "www.ilsos.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Safe Driver Renewal Notice \u2022 Property of State of Illinois \u2022 Drop in any US mailbox",
+        "donor": "LIFE GOES ON ILLINOIS",
+        "layout": "type_b",
+        "watermark": "ILLINOIS",
+        "rev": "Rev. 05/2016"
+    },
+    "IN": {
+        "name": "Indiana",
+        "agency": "Indiana Bureau of Motor Vehicles",
+        "url": "www.in.gov/bmv",
+        "class_label": "CLASS: OPERATOR",
+        "disclaimer": "Property of State of Indiana \u2022 Report address change within 30 days",
+        "donor": "DONATE LIFE INDIANA",
+        "layout": "type_b",
+        "watermark": "INDIANA",
+        "rev": "Rev. 06/2019"
+    },
+    "IA": {
+        "name": "Iowa",
+        "agency": "Iowa Department of Transportation",
+        "url": "iowadot.gov/mvd",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of Iowa \u2022 Return postage guaranteed",
+        "donor": "IOWA DONOR NETWORK",
+        "layout": "type_b",
+        "watermark": "IOWA",
+        "rev": "Rev. 01/2018"
+    },
+    "KS": {
+        "name": "Kansas",
+        "agency": "Kansas Department of Revenue",
+        "url": "www.ksrevenue.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of Kansas \u2022 Drop in any mailbox return to Topeka KS 66612",
+        "donor": "DONATE LIFE KANSAS",
+        "layout": "type_b",
+        "watermark": "KANSAS",
+        "rev": "Rev. 08/2017"
+    },
+    "KY": {
+        "name": "Kentucky",
+        "agency": "Kentucky Transportation Cabinet",
+        "url": "drive.ky.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Commonwealth of Kentucky \u2022 Notice of change of address required within 10 days",
+        "donor": "TRUST FOR LIFE KY",
+        "layout": "type_b",
+        "watermark": "KENTUCKY",
+        "rev": "Rev. 04/2019"
+    },
+    "LA": {
+        "name": "Louisiana",
+        "agency": "Louisiana Office of Motor Vehicles",
+        "url": "www.expresslane.org",
+        "class_label": "CLASS: Driver's license",
+        "disclaimer": "Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11. Renewable 180 days prior to expiration.",
+        "donor": "Donor __Y__N / Living Will __Y__N",
+        "layout": "type_a",
+        "watermark": "Louisiana",
+        "rev": "REV 02-10-2015 08-02-1990"
+    },
+    "ME": {
+        "name": "Maine",
+        "agency": "Maine Bureau of Motor Vehicles",
+        "url": "www.maine.gov/sos/bmv",
+        "class_label": "CLASS: C",
+        "disclaimer": "State of Maine \u2022 Drop in any mailbox return to Station 29 Augusta ME 04333",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "MAINE",
+        "rev": "Rev. 05/2018"
+    },
+    "MD": {
+        "name": "Maryland",
+        "agency": "Maryland Motor Vehicle Administration",
+        "url": "mva.maryland.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of Maryland \u2022 Not valid unless signed by licensee",
+        "donor": "DONATE LIFE MARYLAND",
+        "layout": "type_b",
+        "watermark": "MARYLAND",
+        "rev": "Rev. 06/2016"
+    },
+    "MA": {
+        "name": "Massachusetts",
+        "agency": "Massachusetts Registry of Motor Vehicles",
+        "url": "mass.gov/rmv",
+        "class_label": "CLASS: D",
+        "disclaimer": "Commonwealth of Massachusetts \u2022 Return postage guaranteed Boston MA 02111",
+        "donor": "NEW ENGLAND DONOR SERVICES",
+        "layout": "type_b",
+        "watermark": "MASSACHUSETTS",
+        "rev": "Rev. 03/2018"
+    },
+    "MI": {
+        "name": "Michigan",
+        "agency": "Michigan Secretary of State",
+        "url": "www.michigan.gov/sos",
+        "class_label": "CLASS: OPERATOR",
+        "disclaimer": "Property of State of Michigan \u2022 Report change of address within 10 days",
+        "donor": "DONATE LIFE MICHIGAN",
+        "layout": "type_b",
+        "watermark": "MICHIGAN",
+        "rev": "Rev. 04/2017"
+    },
+    "MN": {
+        "name": "Minnesota",
+        "agency": "Minnesota Department of Public Safety",
+        "url": "dps.mn.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Minnesota Driver and Vehicle Services \u2022 Property of State of Minnesota",
+        "donor": "DONATE LIFE MINNESOTA",
+        "layout": "type_b",
+        "watermark": "MINNESOTA",
+        "rev": "Rev. 10/2018"
+    },
+    "MS": {
+        "name": "Mississippi",
+        "agency": "Mississippi Department of Public Safety",
+        "url": "www.driverservicebureau.dps.ms.gov",
+        "class_label": "CLASS: R",
+        "disclaimer": "Property of State of Mississippi \u2022 Drop in any US mailbox return to Jackson MS",
+        "donor": "ORGAN DONOR",
+        "layout": "type_a",
+        "watermark": "MISSISSIPPI",
+        "rev": "Rev. 09/2016"
+    },
+    "MO": {
+        "name": "Missouri",
+        "agency": "Missouri Department of Revenue",
+        "url": "dor.mo.gov",
+        "class_label": "CLASS: F",
+        "disclaimer": "Property of State of Missouri \u2022 Return postage guaranteed Jefferson City MO 65105",
+        "donor": "DONATE LIFE MISSOURI",
+        "layout": "type_a",
+        "watermark": "MISSOURI",
+        "rev": "Rev. 12/2019"
+    },
+    "MT": {
+        "name": "Montana",
+        "agency": "Montana Motor Vehicle Division",
+        "url": "mvdmt.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Montana Department of Justice \u2022 Property of State of Montana",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "MONTANA",
+        "rev": "Rev. 01/2017"
+    },
+    "NE": {
+        "name": "Nebraska",
+        "agency": "Nebraska Department of Motor Vehicles",
+        "url": "dmv.nebraska.gov",
+        "class_label": "CLASS: O",
+        "disclaimer": "Property of State of Nebraska \u2022 Report address change within 60 days",
+        "donor": "DONATE LIFE NEBRASKA",
+        "layout": "type_b",
+        "watermark": "NEBRASKA",
+        "rev": "Rev. 06/2017"
+    },
+    "NV": {
+        "name": "Nevada",
+        "agency": "Nevada Department of Motor Vehicles",
+        "url": "dmv.nv.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "State of Nevada \u2022 Licensee must notify DMV in writing within 30 days of address change",
+        "donor": "DONATE LIFE NEVADA",
+        "layout": "type_b",
+        "watermark": "NEVADA",
+        "rev": "Rev. 09/2014"
+    },
+    "NH": {
+        "name": "New Hampshire",
+        "agency": "New Hampshire Division of Motor Vehicles",
+        "url": "www.dmv.nh.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of New Hampshire \u2022 Return to 23 Hazen Dr Concord NH 03305",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "NEW HAMPSHIRE",
+        "rev": "Rev. 07/2017"
+    },
+    "NJ": {
+        "name": "New Jersey",
+        "agency": "New Jersey Motor Vehicle Commission",
+        "url": "www.state.nj.us/mvc",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of New Jersey \u2022 Notice of change of address required within 7 days",
+        "donor": "SHARE LIFE NJ",
+        "layout": "type_b",
+        "watermark": "NEW JERSEY",
+        "rev": "Rev. 03/2014"
+    },
+    "NM": {
+        "name": "New Mexico",
+        "agency": "New Mexico Motor Vehicle Division",
+        "url": "www.mvd.newmexico.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of New Mexico Taxation and Revenue Department \u2022 Property of State of NM",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "NEW MEXICO",
+        "rev": "Rev. 11/2016"
+    },
+    "NY": {
+        "name": "New York",
+        "agency": "NYS Department of Motor Vehicles",
+        "url": "dmv.ny.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "NYS Donate Life Registry \u2022 Property of NY State \u2022 If found return to NYS DMV Albany NY 12228",
+        "donor": "DONATE LIFE NY",
+        "layout": "type_b",
+        "watermark": "EXCELSIOR",
+        "rev": "Rev. 03/2017"
+    },
+    "NC": {
+        "name": "North Carolina",
+        "agency": "North Carolina Division of Motor Vehicles",
+        "url": "www.ncdot.gov/dmv",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of North Carolina \u2022 Return postage guaranteed Raleigh NC 27697",
+        "donor": "DONATE LIFE NC",
+        "layout": "type_b",
+        "watermark": "NORTH CAROLINA",
+        "rev": "Rev. 05/2016"
+    },
+    "ND": {
+        "name": "North Dakota",
+        "agency": "North Dakota Department of Transportation",
+        "url": "www.dot.nd.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of North Dakota \u2022 Report address change within 10 days",
+        "donor": "DONATE LIFE ND",
+        "layout": "type_b",
+        "watermark": "NORTH DAKOTA",
+        "rev": "Rev. 12/2017"
+    },
+    "OH": {
+        "name": "Ohio",
+        "agency": "Ohio Bureau of Motor Vehicles",
+        "url": "bmv.ohio.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Next-of-Kin Emergency Registry \u2022 Property of State of Ohio \u2022 Return to PO Box 16520 Columbus OH",
+        "donor": "DONATE LIFE OHIO",
+        "layout": "type_b",
+        "watermark": "OHIO",
+        "rev": "Rev. 07/2018"
+    },
+    "OK": {
+        "name": "Oklahoma",
+        "agency": "Oklahoma Department of Public Safety",
+        "url": "oklahoma.gov/dps",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Oklahoma \u2022 Drop in any US mailbox Oklahoma City OK 73136",
+        "donor": "LIFESHARE OK",
+        "layout": "type_b",
+        "watermark": "OKLAHOMA",
+        "rev": "Rev. 04/2018"
+    },
+    "OR": {
+        "name": "Oregon",
+        "agency": "Oregon Department of Transportation DMV",
+        "url": "www.oregon.gov/odot/dmv",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of Oregon \u2022 Return postage guaranteed Salem OR 97314",
+        "donor": "DONATE LIFE NW",
+        "layout": "type_b",
+        "watermark": "OREGON",
+        "rev": "Rev. 01/2019"
+    },
+    "PA": {
+        "name": "Pennsylvania",
+        "agency": "Pennsylvania Department of Transportation",
+        "url": "www.dmv.pa.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of Commonwealth of Pennsylvania \u2022 Drop in any mailbox return to Harrisburg PA 17106",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "PENNSYLVANIA",
+        "rev": "Rev. 09/2017"
+    },
+    "RI": {
+        "name": "Rhode Island",
+        "agency": "Rhode Island Division of Motor Vehicles",
+        "url": "www.dmv.ri.gov",
+        "class_label": "CLASS: 10",
+        "disclaimer": "State of Rhode Island \u2022 Report change of address within 10 days",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "RHODE ISLAND",
+        "rev": "Rev. 02/2018"
+    },
+    "SC": {
+        "name": "South Carolina",
+        "agency": "South Carolina Department of Motor Vehicles",
+        "url": "www.scdmvonline.com",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of South Carolina \u2022 Return postage guaranteed Blythewood SC 29016",
+        "donor": "DONATE LIFE SC",
+        "layout": "type_b",
+        "watermark": "SOUTH CAROLINA",
+        "rev": "Rev. 02/2018"
+    },
+    "SD": {
+        "name": "South Dakota",
+        "agency": "South Dakota Department of Public Safety",
+        "url": "dps.sd.gov",
+        "class_label": "CLASS: 1",
+        "disclaimer": "State of South Dakota \u2022 Return if found to 118 W Capitol Ave Pierre SD 57501",
+        "donor": "DONATE LIFE SD",
+        "layout": "type_b",
+        "watermark": "SOUTH DAKOTA",
+        "rev": "Rev. 05/2016"
+    },
+    "TN": {
+        "name": "Tennessee",
+        "agency": "Tennessee Department of Safety",
+        "url": "www.tn.gov/safety",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Tennessee \u2022 Notice of address change required within 10 days",
+        "donor": "DONATE LIFE TN",
+        "layout": "type_b",
+        "watermark": "TENNESSEE",
+        "rev": "Rev. 01/2018"
+    },
+    "TX": {
+        "name": "Texas",
+        "agency": "Texas Department of Public Safety",
+        "url": "www.dps.texas.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "TEXAS TRANSPORTATION CODE \u2022 Property of State of Texas \u2022 Return postage guaranteed Austin TX 78773",
+        "donor": "DONATE LIFE TEXAS",
+        "layout": "type_b",
+        "watermark": "TEXAS",
+        "rev": "Rev. 09/2016"
+    },
+    "UT": {
+        "name": "Utah",
+        "agency": "Utah Department of Public Safety",
+        "url": "dps.utah.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Utah Driver License Division \u2022 Property of State of Utah",
+        "donor": "YES UTAH DONOR",
+        "layout": "type_b",
+        "watermark": "UTAH",
+        "rev": "Rev. 06/2016"
+    },
+    "VT": {
+        "name": "Vermont",
+        "agency": "Vermont Department of Motor Vehicles",
+        "url": "dmv.vermont.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Vermont \u2022 Return if found to 120 State St Montpelier VT 05603",
+        "donor": "DONATE LIFE VERMONT",
+        "layout": "type_b",
+        "watermark": "VERMONT",
+        "rev": "Rev. 04/2019"
+    },
+    "VA": {
+        "name": "Virginia",
+        "agency": "Virginia Department of Motor Vehicles",
+        "url": "www.dmv.virginia.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Commonwealth of Virginia \u2022 Return postage guaranteed Richmond VA 23269",
+        "donor": "DONATE LIFE VIRGINIA",
+        "layout": "type_b",
+        "watermark": "VIRGINIA",
+        "rev": "Rev. 05/2018"
+    },
+    "WA": {
+        "name": "Washington",
+        "agency": "Washington State Department of Licensing",
+        "url": "www.dol.wa.gov",
+        "class_label": "CLASS: DRIVER",
+        "disclaimer": "Property of State of Washington \u2022 Return postage guaranteed Olympia WA 98507",
+        "donor": "LIFECENTER NW",
+        "layout": "type_b",
+        "watermark": "WASHINGTON",
+        "rev": "Rev. 09/2018"
+    },
+    "WV": {
+        "name": "West Virginia",
+        "agency": "West Virginia Division of Motor Vehicles",
+        "url": "transportation.wv.gov/dmv",
+        "class_label": "CLASS: E",
+        "disclaimer": "State of West Virginia \u2022 Report change of address within 20 days",
+        "donor": "DONATE LIFE WV",
+        "layout": "type_b",
+        "watermark": "WEST VIRGINIA",
+        "rev": "Rev. 03/2017"
+    },
+    "WI": {
+        "name": "Wisconsin",
+        "agency": "Wisconsin Department of Transportation",
+        "url": "wisconsindot.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Wisconsin \u2022 Drop in any US mailbox Madison WI 53707",
+        "donor": "DONATE LIFE WISCONSIN",
+        "layout": "type_b",
+        "watermark": "WISCONSIN",
+        "rev": "Rev. 09/2015"
+    },
+    "WY": {
+        "name": "Wyoming",
+        "agency": "Wyoming Department of Transportation",
+        "url": "dot.state.wy.us",
+        "class_label": "CLASS: C",
+        "disclaimer": "Property of State of Wyoming \u2022 Return to 5300 Bishop Blvd Cheyenne WY 82009",
+        "donor": "DONOR ALLIANCE WY",
+        "layout": "type_b",
+        "watermark": "WYOMING",
+        "rev": "Rev. 08/2018"
+    },
+    "AB": {
+        "name": "Alberta",
+        "agency": "Government of Alberta \u2022 Service Alberta",
+        "url": "alberta.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Property of the Province of Alberta \u2022 Must be surrendered upon request of a peace officer \u2022 Traffic Safety Act",
+        "donor": "ALBERTA DONOR REGISTRY",
+        "layout": "canadian",
+        "watermark": "ALBERTA",
+        "rev": "Rev. 2018"
+    },
+    "BC": {
+        "name": "British Columbia",
+        "agency": "Insurance Corporation of British Columbia (ICBC)",
+        "url": "icbc.com",
+        "class_label": "CLASS: 5",
+        "disclaimer": "BC Services Card \u2022 Property of the Province of British Columbia \u2022 Motor Vehicle Act",
+        "donor": "BC TRANSPLANT",
+        "layout": "canadian",
+        "watermark": "BRITISH COLUMBIA",
+        "rev": "Rev. 2020"
+    },
+    "MB": {
+        "name": "Manitoba",
+        "agency": "Manitoba Public Insurance (MPI)",
+        "url": "mpi.mb.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Property of the Province of Manitoba \u2022 Return if found to PO Box 6300 Winnipeg MB",
+        "donor": "SIGN UP FOR LIFE MB",
+        "layout": "canadian",
+        "watermark": "MANITOBA",
+        "rev": "Rev. 2017"
+    },
+    "NB": {
+        "name": "New Brunswick",
+        "agency": "Service New Brunswick / Services Nouveau-Brunswick",
+        "url": "snb.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Permis de conduire / Driver's Licence \u2022 Motor Vehicle Act / Loi sur les v\u00e9hicules \u00e0 moteur",
+        "donor": "DON D'ORGANES / DONOR",
+        "layout": "canadian",
+        "watermark": "NEW BRUNSWICK",
+        "rev": "Rev. 2017"
+    },
+    "NL": {
+        "name": "Newfoundland and Labrador",
+        "agency": "Digital Government and Service NL",
+        "url": "gov.nl.ca/dgsnl",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Motor Registration Division \u2022 Province of Newfoundland and Labrador \u2022 Highway Traffic Act",
+        "donor": "ORGAN DONOR",
+        "layout": "canadian",
+        "watermark": "NEWFOUNDLAND",
+        "rev": "Rev. 2017"
+    },
+    "NS": {
+        "name": "Nova Scotia",
+        "agency": "Access Nova Scotia \u2022 Registry of Motor Vehicles",
+        "url": "novascotia.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Province of Nova Scotia \u2022 Return if found to PO Box 1652 Halifax NS \u2022 Motor Vehicle Act",
+        "donor": "LEGACY OF LIFE NS",
+        "layout": "canadian",
+        "watermark": "NOVA SCOTIA",
+        "rev": "Rev. 2017"
+    },
+    "NT": {
+        "name": "Northwest Territories",
+        "agency": "Government of Northwest Territories \u2022 Infrastructure",
+        "url": "inf.gov.nt.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Department of Infrastructure \u2022 Motor Vehicles Act \u2022 Property of Government of NWT",
+        "donor": "ORGAN DONOR",
+        "layout": "canadian",
+        "watermark": "NWT",
+        "rev": "Rev. 2017"
+    },
+    "NU": {
+        "name": "Nunavut",
+        "agency": "Government of Nunavut \u2022 Community and Government Services",
+        "url": "gov.nu.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Motor Vehicles Division \u2022 Nunavut Motor Vehicles Act \u2022 Property of Government of Nunavut",
+        "donor": "ORGAN DONOR",
+        "layout": "canadian",
+        "watermark": "NUNAVUT",
+        "rev": "Rev. 2017"
+    },
+    "ON": {
+        "name": "Ontario",
+        "agency": "Minist\u00e8re des Transports de l'Ontario / MTO",
+        "url": "ontario.ca/transportation",
+        "class_label": "CLASS: G",
+        "disclaimer": "Highway Traffic Act \u2022 Loi sur la circulation routi\u00e8re \u2022 Property of the Province of Ontario \u2022 Return postage guaranteed",
+        "donor": "TRILLIUM GIFT OF LIFE",
+        "layout": "canadian",
+        "watermark": "ONTARIO",
+        "rev": "Rev. 2018"
+    },
+    "PE": {
+        "name": "Prince Edward Island",
+        "agency": "Access PEI \u2022 Highway Safety Division",
+        "url": "princeedwardisland.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Province of Prince Edward Island \u2022 Highway Traffic Act \u2022 Return to Charlottetown PE",
+        "donor": "ORGAN DONOR",
+        "layout": "canadian",
+        "watermark": "PEI",
+        "rev": "Rev. 2017"
+    },
+    "QC": {
+        "name": "Quebec",
+        "agency": "Soci\u00e9t\u00e9 de l'assurance automobile du Qu\u00e9bec (SAAQ)",
+        "url": "saaq.gouv.qc.ca",
+        "class_label": "CLASSE : 5",
+        "disclaimer": "Code de la s\u00e9curit\u00e9 routi\u00e8re du Qu\u00e9bec \u2022 Propri\u00e9t\u00e9 exclusive de la SAAQ \u2022 Remettre \u00e0 la SAAQ si trouv\u00e9",
+        "donor": "DON D'ORGANES QU\u00c9BEC",
+        "layout": "canadian_fr",
+        "watermark": "QU\u00c9BEC",
+        "rev": "Rev. 2015"
+    },
+    "SK": {
+        "name": "Saskatchewan",
+        "agency": "SGI \u2022 Saskatchewan Government Insurance",
+        "url": "sgi.sk.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Driver and Vehicle Licensing \u2022 Province of Saskatchewan \u2022 The Traffic Safety Act",
+        "donor": "SGI ORGAN DONOR",
+        "layout": "canadian",
+        "watermark": "SASKATCHEWAN",
+        "rev": "Rev. 2016"
+    },
+    "YT": {
+        "name": "Yukon",
+        "agency": "Government of Yukon \u2022 Motor Vehicles Branch",
+        "url": "yukon.ca",
+        "class_label": "CLASS: 5",
+        "disclaimer": "Department of Highways and Public Works \u2022 Motor Vehicles Act \u2022 Property of Government of Yukon",
+        "donor": "YUKON DONOR",
+        "layout": "canadian",
+        "watermark": "YUKON",
+        "rev": "Rev. 2017"
+    }
+};
+
+    function getCardBackMetadata(slugOrCode) {
+        if (!slugOrCode) return STATE_CARDBACK_METADATA["LA"];
+        const s = slugOrCode.toUpperCase().trim();
+        const base = s.split('_')[0];
+        return STATE_CARDBACK_METADATA[s] || STATE_CARDBACK_METADATA[base] || STATE_CARDBACK_METADATA["LA"];
+    }
+
+    window.STATE_CARDBACK_METADATA = STATE_CARDBACK_METADATA;
+    window.getCardBackMetadata = getCardBackMetadata;
+
+    window.STATE_HIERARCHY = STATE_HIERARCHY;
     window.runStateCalculation = runStateCalculation;
     window.getTargetElement = getTargetElement;
 
