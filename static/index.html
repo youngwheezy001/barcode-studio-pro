@@ -1927,7 +1927,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         </section>
 
         <!-- Right Column: Real-Time Card Inspection Studio & Exact Screenshot Dimensions Monitor -->
-        <section class="w-[48%] bg-[#0c121e] rounded-2xl border border-slate-800 p-4 sm:p-5 flex flex-col overflow-y-auto shadow-2xl gap-3 text-slate-100">
+        <section class="w-[48%] bg-[#0a0e19] rounded-2xl border border-slate-800/80 p-4 sm:p-5 flex flex-col overflow-y-auto shadow-2xl gap-3 text-slate-100">
             
             <div class="flex flex-col gap-2.5">
                 <!-- Monitor Header -->
@@ -1935,7 +1935,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <h3 class="text-base font-semibold text-slate-100 tracking-wide flex items-center gap-2">
                         Card Inspection Studio
                     </h3>
-                    <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-lg border border-slate-800 text-[10px]">
+                    <div class="flex items-center gap-1.5 bg-[#070b13] p-1 rounded-lg border border-slate-800/80 text-[10px]">
                         <button type="button" onclick="switchPreviewMode('card')" id="btn-view-card" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-accent text-white shadow transition">
                             Studio Card
                         </button>
@@ -1962,12 +1962,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 <!-- Display Screen 1: Primary 3D Card Inspection Studio Chamber & Pedestal -->
                 <div id="view-container-card" class="w-full flex flex-col items-center justify-center">
                     
-                    <!-- Inner Studio Spotlight Chamber -->
-                    <div id="studio-spotlight-chamber" class="relative w-full rounded-2xl border border-slate-700/50 pt-7 pb-0 px-3 sm:px-6 flex flex-col items-center justify-end overflow-hidden shadow-2xl min-h-[385px]"
-                         style="background: radial-gradient(ellipse at 50% 36%, #3d4c60 0%, #202b3b 45%, #101622 75%, #0a0e16 100%);">
+                    <!-- Inner Studio Spotlight Chamber (Refined Cyclorama Lighting Blended with Pedestal) -->
+                    <div id="studio-spotlight-chamber" class="relative w-full rounded-2xl border border-slate-700/30 pt-7 pb-4 px-3 sm:px-6 flex flex-col items-center justify-end overflow-hidden shadow-2xl min-h-[385px]"
+                         style="background: radial-gradient(ellipse 110% 95% at 50% 30%, #b2bdcc 0%, #8b97a6 32%, #687483 62%, #4f5b69 86%, #424d5a 100%);">
                         
                         <!-- Authentic CR80 Physical Card Sitting on Stage -->
-                        <div id="studio-cr80-card" class="relative z-10 w-[420px] max-w-[96%] bg-white rounded-[14px] shadow-[0_22px_45px_-10px_rgba(0,0,0,0.85),0_0_0_1px_rgba(0,0,0,0.06)] overflow-hidden text-slate-900 select-none flex flex-col justify-between">
+                        <div id="studio-cr80-card" class="relative z-10 w-[410px] max-w-[95%] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             
                             <!-- Top Section (Above Magnetic Stripe) -->
                             <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white">
@@ -2048,18 +2048,22 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
-                        <div class="relative w-full max-w-[470px] flex flex-col items-center mt-[-10px] z-0">
-                            <!-- Top Pedestal Plane with 3D Perspective Bevel -->
-                            <div class="w-full h-7 sm:h-8 bg-gradient-to-b from-[#243042] via-[#1c2635] to-[#131b27] rounded-t-md border-t border-slate-400/40 relative shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]"
-                                 style="clip-path: polygon(3% 0%, 97% 0%, 100% 100%, 0% 100%);">
-                                <!-- Specular Highlight Line -->
-                                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-slate-300/50 to-transparent"></div>
-                                <!-- Contact Drop Shadow under card -->
-                                <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/30"></div>
+                        <div class="relative w-[86%] max-w-[430px] flex flex-col items-center mt-[-10px] z-0">
+                            <!-- Top Pedestal Plane with 3D Perspective Bevel Shelf -->
+                            <div class="w-full h-6 sm:h-7 rounded-t-sm border-t border-slate-300/40 relative"
+                                 style="clip-path: polygon(3% 0%, 97% 0%, 100% 100%, 0% 100%); background: linear-gradient(180deg, #35414f 0%, #29333d 60%, #1e2630 100%); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
+                                <!-- Specular Highlight Line at rear -->
+                                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-slate-200/50 to-transparent"></div>
+                                <!-- Ambient Contact Shadow under card -->
+                                <div class="absolute inset-x-4 top-0 h-3 bg-gradient-to-b from-black/50 to-transparent blur-[1px]"></div>
                             </div>
-                            <!-- Vertical Front Face of Pedestal -->
-                            <div class="w-full h-9 sm:h-11 bg-gradient-to-b from-[#111722] via-[#0d121b] to-[#070b12] rounded-b-lg border-t border-slate-700/60 shadow-[0_15px_35px_rgba(0,0,0,0.9)] flex items-center justify-between px-4">
-                                <div class="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-700/40 to-transparent"></div>
+                            <!-- Front Bevel Highlight Junction Line (Sampled #8794a4) -->
+                            <div class="w-full h-[1.5px] bg-gradient-to-r from-[#637284]/40 via-[#8b99aa] to-[#637284]/40 shadow-[0_1px_2px_rgba(255,255,255,0.15)]"></div>
+                            <!-- Vertical Front Face of Pedestal (3D Shadow Falloff) -->
+                            <div class="w-full h-10 sm:h-12 rounded-b-md border-x border-b border-black/40 shadow-[0_16px_30px_-4px_rgba(0,0,0,0.65),0_6px_12px_-2px_rgba(0,0,0,0.45)] relative overflow-hidden"
+                                 style="background: linear-gradient(145deg, #2f3844 0%, #1c232c 45%, #10151e 100%);">
+                                <!-- Subtle vertical highlight sheen on left front edge -->
+                                <div class="absolute inset-y-0 left-2 w-8 bg-gradient-to-r from-white/5 to-transparent pointer-events-none"></div>
                             </div>
                         </div>
 
@@ -4741,6 +4745,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseState = revInfo ? revInfo.base_code : jKey.split('_')[0];
+            const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
 
             const fields = {
                 first: getVal('aamva-first', 'JONATHAN').toUpperCase(),
@@ -4751,7 +4756,6 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 exp: getVal('aamva-exp', '06212030'),
                 id: getVal('aamva-id', '188892143').toUpperCase(),
                 dcf: (function() {
-                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
                     const hasDd = revInfo ? revInfo.has_dd : (defs ? defs.has_dd : profile.usesDd);
                     if (hasDd === false) return '';
                     const el = document.getElementById('aamva-dcf');
@@ -4936,9 +4940,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 else byteCounter.className = "text-xs code-font font-bold text-red-600";
             }
 
-            document.getElementById('card-id-preview').textContent = `ID: ${fields.id || 'N/A'}`;
-            document.getElementById('card-name-preview').textContent = `${fields.last || ''}, ${fields.first || ''}`;
-            document.getElementById('card-state-preview').textContent = `STATE: ${fields.state || 'CA'}`;
+            const cardIdEl = document.getElementById('card-id-preview');
+            if (cardIdEl) cardIdEl.textContent = `ID: ${fields.id || 'N/A'}`;
+            const cardNameEl = document.getElementById('card-name-preview');
+            if (cardNameEl) cardNameEl.textContent = `${fields.last || ''}, ${fields.first || ''}`;
+            const cardStateEl = document.getElementById('card-state-preview');
+            if (cardStateEl) cardStateEl.textContent = `STATE: ${fields.state || 'CA'}`;
 
             // Update Scanner XML Output
             generateScannerXml(fields, profile, resolvedConfig, numEntries, dlOffset, dlLen, includeZC, zcOffset, zcLen, zcFieldA, zcFieldB);
@@ -5458,22 +5465,58 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         }
 
         function updateStudioCardDetails() {
-            // 1. Sequence / Audit / Document number
+            // 1. Identify Active Jurisdiction & Base State Code
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
+            if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
+            if (!stateCode) stateCode = 'LA';
+
+            const jurKey = jurEl ? jurEl.value : stateCode;
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+
+            // 2. Sequence / Audit / Document Discriminator number
             const seqEl = document.getElementById('studio-seq-num');
             if (seqEl) {
-                const docVal = (document.getElementById('aamva-dcf')?.value || '').trim() ||
-                               (document.getElementById('aamva-dck')?.value || '').trim() ||
-                               (document.getElementById('aamva-audit')?.value || '').trim() ||
-                               (document.getElementById('aamva-id')?.value || '').trim() ||
-                               '0070051972513905';
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                
+                let docVal = '';
+                if (stateCode === 'CT') {
+                    docVal = dcfVal || dckVal || idVal || '24072614422001MVI6';
+                } else if (stateCode === 'LA') {
+                    docVal = auditVal || dcfVal || idVal || '0070051972513905';
+                } else if (stateCode === 'TX') {
+                    docVal = dcfVal || auditVal || dckVal || idVal || '2407261442200188';
+                } else if (stateCode === 'CA') {
+                    docVal = dcfVal || idVal || '08/25/202165508/AAFD/26';
+                } else if (stateCode === 'FL') {
+                    docVal = dcfVal || auditVal || idVal || '24072614422001M1';
+                } else {
+                    docVal = dcfVal || dckVal || auditVal || idVal || '0070051972513905';
+                }
                 seqEl.textContent = docVal;
             }
 
-            // 2. Class, Endorsements, Restrictions
+            // 3. Class, Endorsements, Restrictions
+            const STATE_STANDARD_CLASSES = {
+                'CA': 'Class C', 'TX': 'Class C', 'GA': 'Class C', 'NC': 'Class C', 'NV': 'Class C',
+                'FL': 'Class E', 'LA': 'Class E', 'MO': 'Class F', 'CO': 'Class R', 'MI': 'Operator',
+                'CT': 'Class D', 'NY': 'Class D', 'NJ': 'Class D', 'OH': 'Class D', 'PA': 'Class D',
+                'IL': 'Class D', 'MA': 'Class D', 'VA': 'Class D', 'WA': 'Class D', 'WI': 'Class D'
+            };
             const classEl = document.getElementById('studio-card-class');
             if (classEl) {
-                const cVal = (document.getElementById('aamva-class')?.value || '').trim() || "Driver's license";
-                classEl.textContent = cVal.startsWith('Class') ? cVal : (cVal === 'D' ? "Driver's license (Class D)" : cVal);
+                const rawC = (document.getElementById('aamva-class')?.value || '').trim();
+                let classLabel = '';
+                if (rawC && rawC !== 'D' && rawC !== 'Operator') {
+                    classLabel = rawC.startsWith('Class') ? rawC : `Class ${rawC}`;
+                } else {
+                    classLabel = STATE_STANDARD_CLASSES[stateCode] || 'Class D';
+                }
+                classEl.textContent = `Driver's license (${classLabel})`;
             }
             const endEl = document.getElementById('studio-card-endorsements');
             if (endEl) {
@@ -5486,16 +5529,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 restEl.textContent = rVal;
             }
 
-            // 3. State & Portal URL
-            const stateEl = document.getElementById('aamva-state');
-            const jurEl = document.getElementById('jurisdiction-profile');
-            let stateCode = (stateEl ? stateEl.value : '').trim().toUpperCase();
-            if (!stateCode && jurEl) {
-                const jurVal = jurEl.value.split('_')[0].trim().toUpperCase();
-                stateCode = jurVal;
-            }
-            if (!stateCode) stateCode = 'LA';
-
+            // 4. State & Official Portal URL
             const STATE_NAMES = {
                 'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
                 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'DC': 'District of Columbia',
@@ -5507,27 +5541,29 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma', 'OR': 'Oregon',
                 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota',
                 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 'VA': 'Virginia',
-                'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming'
+                'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+                'AB': 'Alberta', 'BC': 'British Columbia', 'MB': 'Manitoba', 'NB': 'New Brunswick',
+                'NL': 'Newfoundland and Labrador', 'NS': 'Nova Scotia', 'NT': 'Northwest Territories',
+                'NU': 'Nunavut', 'ON': 'Ontario', 'PE': 'Prince Edward Island', 'QC': 'Québec',
+                'SK': 'Saskatchewan', 'YT': 'Yukon'
             };
             const STATE_URLS = {
-                'LA': 'www.expresslane.org',
-                'CA': 'www.dmv.ca.gov',
-                'TX': 'www.txdps.state.tx.us',
-                'FL': 'www.flhsmv.gov',
-                'NY': 'dmv.ny.gov',
-                'CT': 'portal.ct.gov/dmv',
-                'AL': 'www.alea.gov',
-                'OH': 'www.bmv.ohio.gov',
-                'PA': 'www.dmv.pa.gov',
-                'IL': 'www.ilsos.gov',
-                'GA': 'dds.georgia.gov',
-                'NC': 'www.ncdot.gov/dmv',
-                'NJ': 'www.njmvc.gov',
-                'VA': 'www.dmvnow.com',
-                'WA': 'www.dol.wa.gov',
-                'CO': 'dmv.colorado.gov',
-                'AZ': 'azdot.gov/mvd',
-                'MI': 'www.michigan.gov/sos'
+                'AL': 'www.alea.gov', 'AK': 'doa.alaska.gov/dmv', 'AZ': 'azdot.gov/mvd', 'AR': 'mydmv.arkansas.gov',
+                'CA': 'www.dmv.ca.gov', 'CO': 'dmv.colorado.gov', 'CT': 'portal.ct.gov/dmv', 'DE': 'dmv.de.gov',
+                'DC': 'dmv.dc.gov', 'FL': 'www.flhsmv.gov', 'GA': 'dds.georgia.gov', 'HI': 'hidot.hawaii.gov',
+                'ID': 'itd.idaho.gov/itddmv', 'IL': 'www.ilsos.gov', 'IN': 'www.in.gov/bmv', 'IA': 'iowadot.gov/mvd',
+                'KS': 'www.ksrevenue.gov', 'KY': 'drive.ky.gov', 'LA': 'www.expresslane.org', 'ME': 'www.maine.gov/sos/bmv',
+                'MD': 'mva.maryland.gov', 'MA': 'www.mass.gov/rmv', 'MI': 'www.michigan.gov/sos', 'MN': 'dps.mn.gov/divisions/dvs',
+                'MS': 'www.driverservicebureau.dps.ms.gov', 'MO': 'dor.mo.gov/driver-license', 'MT': 'dojmt.gov/mvd', 'NE': 'dmv.nebraska.gov',
+                'NV': 'dmv.nv.gov', 'NH': 'www.dmv.nh.gov', 'NJ': 'www.njmvc.gov', 'NM': 'www.mvd.newmexico.gov',
+                'NY': 'dmv.ny.gov', 'NC': 'www.ncdot.gov/dmv', 'ND': 'www.dot.nd.gov', 'OH': 'www.bmv.ohio.gov',
+                'OK': 'oklahoma.gov/dps', 'OR': 'www.oregon.gov/odot/dmv', 'PA': 'www.dmv.pa.gov', 'RI': 'dmv.ri.gov',
+                'SC': 'www.scdmvonline.com', 'SD': 'dps.sd.gov', 'TN': 'www.tn.gov/safety/driver-services.html', 'TX': 'www.txdps.state.tx.us',
+                'UT': 'dld.utah.gov', 'VT': 'dmv.vermont.gov', 'VA': 'www.dmvnow.com', 'WA': 'www.dol.wa.gov',
+                'WV': 'transportation.wv.gov/dmv', 'WI': 'wisconsindot.gov', 'WY': 'dot.state.wy.us',
+                'AB': 'www.alberta.ca', 'BC': 'www.icbc.com', 'MB': 'www.mpi.mb.ca', 'NB': 'www.snb.ca',
+                'NL': 'www.gov.nl.ca', 'NS': 'novascotia.ca/sns/access', 'ON': 'www.ontario.ca/page/drivers-licence',
+                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca'
             };
 
             const stateWatermark = document.getElementById('studio-state-watermark');
@@ -5539,7 +5575,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 portalUrl.textContent = STATE_URLS[stateCode] || `www.dmv.${stateCode.toLowerCase()}.gov`;
             }
 
-            // 4. Organ Donor
+            // 5. Organ Donor
             const donorVal = (document.getElementById('aamva-donor')?.value || 'N').toUpperCase();
             const donorY = document.getElementById('studio-donor-y');
             const donorN = document.getElementById('studio-donor-n');
@@ -5553,9 +5589,14 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
-            // 5. Revision Stamp
+            // 6. Dynamic State Revision & Expiration Stamp
             const revStamp = document.getElementById('studio-rev-stamp');
             if (revStamp) {
+                let revDateStr = '03-12-2015';
+                if (revInfo && revInfo.rev_header) {
+                    const match = revInfo.rev_header.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+                    if (match) revDateStr = `${match[1]}-${match[2]}-${match[3]}`;
+                }
                 const dobVal = (document.getElementById('aamva-dob')?.value || '1990-10-02');
                 const parts = dobVal.includes('-') ? dobVal.split('-') : [];
                 let dobFmt = '10-02-1990';
@@ -5564,19 +5605,26 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 } else if (dobVal.length === 8) {
                     dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
                 }
-                revStamp.textContent = `REV 03-12-2015   ${dobFmt}`;
+                revStamp.textContent = `REV ${revDateStr}   ${dobFmt}`;
             }
 
             renderCardBackCompanionBarcode();
         }
 
         function renderCardBackCompanionBarcode() {
-            const code128Val = (document.getElementById('input-code128')?.value || '').trim() || 
-                               (document.getElementById('aamva-id')?.value || '').trim() || 
-                               '0070051972513905';
+            const seqEl = document.getElementById('studio-seq-num');
+            const seqVal = (seqEl ? seqEl.textContent : '').trim();
+            const manualVal = (document.getElementById('input-code128')?.value || '').trim();
+            const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+
+            let targetVal = seqVal || idVal || manualVal || '0070051972513905';
+            targetVal = targetVal.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '');
+            if (!targetVal) targetVal = idVal || '0070051972513905';
+
             try {
-                if (document.getElementById('card-code128-svg')) {
-                    JsBarcode("#card-code128-svg", code128Val, {
+                const svgEl = document.getElementById('card-code128-svg');
+                if (svgEl) {
+                    JsBarcode("#card-code128-svg", targetVal, {
                         format: "CODE128",
                         displayValue: false,
                         height: 22,
@@ -5593,6 +5641,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         function renderCardPreview() {
             updateStudioCardDetails();
             updateCardFrontDetails();
+            if (typeof renderPDF417 === 'function') renderPDF417();
             if (typeof applyBarcodeBlurState === 'function') applyBarcodeBlurState();
         }
 
