@@ -1972,91 +1972,189 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <!-- Authentic Physical CR80 Guilloche Security Microprint Overlay -->
                             <div class="absolute inset-0 pointer-events-none opacity-[0.035] z-0 overflow-hidden" style="background-image: radial-gradient(#1e293b 1px, transparent 1px), radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px; background-position: 0 0, 4px 4px;"></div>
 
-                            <!-- Top Section (Above Magnetic Stripe / Top Security Band) -->
-                            <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white min-h-[24px] relative z-10">
-                                <div class="flex items-center gap-1.5 overflow-hidden">
-                                    <span id="studio-seq-prefix" class="hidden text-[7px] font-mono font-bold text-slate-500 uppercase tracking-wider"></span>
-                                    <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
+                            <!-- Standard CR80 Card-Back View (Standard / Southern / Canadian Jurisdictions) -->
+                            <div id="card-back-standard-view" class="w-full flex-1 flex flex-col justify-between relative z-10">
+                                <!-- Top Section (Above Magnetic Stripe / Top Security Band) -->
+                                <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white min-h-[24px] relative z-10">
+                                    <div class="flex items-center gap-1.5 overflow-hidden">
+                                        <span id="studio-seq-prefix" class="hidden text-[7px] font-mono font-bold text-slate-500 uppercase tracking-wider"></span>
+                                        <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
+                                    </div>
+                                    <div id="card-top-code128-container" class="flex items-center justify-end overflow-hidden">
+                                        <svg id="card-code128-svg" class="max-h-[22px] max-w-[190px]"></svg>
+                                    </div>
+                                    <span id="card-top-agency-tag" class="hidden text-[7px] font-mono font-bold text-slate-400 tracking-wider uppercase select-none"></span>
                                 </div>
-                                <div id="card-top-code128-container" class="flex items-center justify-end overflow-hidden">
-                                    <svg id="card-code128-svg" class="max-h-[22px] max-w-[190px]"></svg>
+
+                                <!-- Full-Bleed Magnetic Stripe (Displayed for Magstripe Standard & Type A Southern) -->
+                                <div id="card-magstripe" class="w-full h-9 sm:h-10 bg-[#0a0a0a] shadow-inner relative z-10"></div>
+                                
+                                <!-- Alternative Clean Microprint Divider for Modern Optical Cards without Magnetic Stripe -->
+                                <div id="card-top-separator" class="hidden w-full h-[2px] bg-gradient-to-r from-slate-200 via-slate-400 to-slate-200 relative z-10"></div>
+
+                                <!-- Card Body Content -->
+                                <div class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-white z-10">
+                                    
+                                    <!-- Middle Metadata Row -->
+                                    <div class="flex justify-between items-start">
+                                        <!-- Left: Class, Endorsements, Restrictions -->
+                                        <div class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5">
+                                            <div><span id="studio-lbl-class">CLASS:</span> <span id="studio-card-class" class="font-semibold text-slate-800">Driver's license</span></div>
+                                            <div><span id="studio-lbl-end">ENDORSEMENTS:</span> <span id="studio-card-endorsements" class="font-semibold text-slate-800">None</span></div>
+                                            <div><span id="studio-lbl-rest">RESTRICTIONS:</span> <span id="studio-card-restrictions" class="font-semibold text-slate-800">None</span></div>
+                                        </div>
+
+                                        <!-- Right: Donor & Living Will -->
+                                        <div class="text-right">
+                                            <div id="studio-card-donor" class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 tracking-tight">
+                                                Donor <span id="studio-donor-y" class="underline font-black text-slate-900">_Y</span> <span id="studio-donor-n" class="text-slate-600">_N</span> / Living Will <span id="studio-will-y" class="text-slate-600">_Y</span> <span id="studio-will-n" class="underline font-black text-slate-900">_N</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Lower Section: Barcode on Left, Gold Watermark & Federal Notice on Right -->
+                                    <div class="flex justify-between items-end mt-2 relative">
+                                        
+                                        <!-- Left: 2D Barcode & DMV URL -->
+                                        <div class="flex flex-col items-start max-w-[260px] relative">
+                                            <canvas id="output-pdf417" class="max-w-[250px] sm:max-w-[260px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                            <canvas id="card-preview-barcode" class="hidden"></canvas>
+                                            <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
+
+                                            <!-- See-Through Anti-Scan Security Overlay for Unregistered/Zero Tokens -->
+                                            <div id="barcode-blur-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                                                <span class="text-[8px] font-black tracking-widest text-slate-800 uppercase bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
+                                                    ★ PREVIEW ONLY • UNREGISTERED ★
+                                                </span>
+                                            </div>
+                                            <div id="card-barcode-lock-overlay" class="hidden"></div>
+                                        </div>
+
+                                        <!-- Right: State Cursive Watermark, Federal Notice, and Vertical Revision Stamp -->
+                                        <div class="flex flex-col items-end text-right pl-2 max-w-[200px] relative flex-1">
+                                            <div class="flex items-center gap-1.5 w-full justify-end">
+                                                <div class="flex flex-col items-end text-right flex-1">
+                                                    <!-- State Watermark (Cursive for Type A / Clean Official Seal Typography for Others) -->
+                                                    <div id="studio-watermark-container" class="flex items-center justify-end gap-1.5 my-0.5">
+                                                        <div id="studio-wm-line-left" class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                        <span id="studio-state-watermark" class="text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none" style="font-family: 'Dancing Script', 'Brush Script MT', 'Caveat', cursive; font-weight: 700;">Louisiana</span>
+                                                        <div id="studio-wm-line-right" class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                    </div>
+
+                                                    <!-- Federal / State Regulatory Disclaimer -->
+                                                    <div id="studio-card-disclaimer" class="text-[6px] sm:text-[6.5px] text-slate-800 font-sans leading-[1.2] text-right font-medium max-w-[170px] mt-0.5">
+                                                        Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br>
+                                                        <span class="italic font-bold">Renewable 180 days prior to expiration.</span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Vertical Revision Stamp -->
+                                                <div class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg); height: 75px; text-align: center;" id="studio-rev-stamp">
+                                                    REV 03-12-2015 &nbsp; 10-02-1990
+                                                </div>
+                                            </div>
+
+                                            <!-- 1D Code 128 Container for Type B, Canadian, and other jurisdictions with bottom companion barcode -->
+                                            <div id="card-bottom-code128-container" class="hidden w-full flex flex-col items-end pt-1">
+                                                <svg id="card-code128-svg-bottom" class="max-h-[20px] max-w-[175px]"></svg>
+                                                <div id="card-bottom-code128-text" class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pr-0.5 mt-0.5"></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
                                 </div>
-                                <span id="card-top-agency-tag" class="hidden text-[7px] font-mono font-bold text-slate-400 tracking-wider uppercase select-none"></span>
                             </div>
 
-                            <!-- Full-Bleed Magnetic Stripe (Displayed for Magstripe Standard & Type A Southern) -->
-                            <div id="card-magstripe" class="w-full h-9 sm:h-10 bg-[#0a0a0a] shadow-inner relative z-10"></div>
-                            
-                            <!-- Alternative Clean Microprint Divider for Modern Optical Cards without Magnetic Stripe -->
-                            <div id="card-top-separator" class="hidden w-full h-[2px] bg-gradient-to-r from-slate-200 via-slate-400 to-slate-200 relative z-10"></div>
+                            <!-- Alaska Authentic Physical CR80 Card-Back View (Notch Cutout, Vertical Code 128, Forget-Me-Not Emblem) -->
+                            <div id="card-back-alaska-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10">
+                                <!-- Fine Constellation / Microprint Mesh Pattern -->
+                                <div class="absolute inset-0 pointer-events-none opacity-[0.06]" style="background-image: radial-gradient(#0369a1 1px, transparent 1px), radial-gradient(#0369a1 1px, transparent 1px); background-size: 10px 10px; background-position: 0 0, 5px 5px;"></div>
 
-                            <!-- Card Body Content -->
-                            <div class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-white z-10">
-                                
-                                <!-- Middle Metadata Row -->
-                                <div class="flex justify-between items-start">
-                                    <!-- Left: Class, Endorsements, Restrictions -->
-                                    <div class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5">
-                                        <div><span id="studio-lbl-class">CLASS:</span> <span id="studio-card-class" class="font-semibold text-slate-800">Driver's license</span></div>
-                                        <div><span id="studio-lbl-end">ENDORSEMENTS:</span> <span id="studio-card-endorsements" class="font-semibold text-slate-800">None</span></div>
-                                        <div><span id="studio-lbl-rest">RESTRICTIONS:</span> <span id="studio-card-restrictions" class="font-semibold text-slate-800">None</span></div>
-                                    </div>
-
-                                    <!-- Right: Donor & Living Will -->
-                                    <div class="text-right">
-                                        <div id="studio-card-donor" class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 tracking-tight">
-                                            Donor <span id="studio-donor-y" class="underline font-black text-slate-900">_Y</span> <span id="studio-donor-n" class="text-slate-600">_N</span> / Living Will <span id="studio-will-y" class="text-slate-600">_Y</span> <span id="studio-will-n" class="underline font-black text-slate-900">_N</span>
-                                        </div>
+                                <!-- Top Left White Cutout Notch for Vertical 1D Barcode -->
+                                <div class="absolute top-0 left-0 w-[80px] h-[116px] bg-white rounded-br-[12px] shadow-[1px_1px_3px_rgba(0,0,0,0.06)] flex items-center justify-between px-1.5 py-2 z-20">
+                                    <!-- Vertical Alphanumeric Sequence Number -->
+                                    <span id="alaska-seq-num" class="font-mono text-[8px] font-bold text-slate-800 select-none tracking-wider pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg);">2000002340</span>
+                                    <!-- Vertical Code 128 Barcode (Horizontal Bars) -->
+                                    <div class="w-[45px] h-[95px] flex items-center justify-center overflow-hidden">
+                                        <svg id="alaska-code128-svg" style="transform: rotate(-90deg); transform-origin: center center;"></svg>
                                     </div>
                                 </div>
 
-                                <!-- Lower Section: Barcode on Left, Gold Watermark & Federal Notice on Right -->
-                                <div class="flex justify-between items-end mt-2 relative">
-                                    
-                                    <!-- Left: 2D Barcode & DMV URL -->
-                                    <div class="flex flex-col items-start max-w-[260px] relative">
-                                        <canvas id="output-pdf417" class="max-w-[250px] sm:max-w-[260px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
-                                        <canvas id="card-preview-barcode" class="hidden"></canvas>
-                                        <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
+                                <!-- Top Center: 2D PDF417 Machine-Readable Zone in Quiet Zone Box -->
+                                <div class="absolute top-2.5 left-[88px] right-[46px] flex flex-col items-center z-10">
+                                    <div class="bg-white rounded-[6px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2 py-1 flex items-center justify-center border border-white w-full max-w-[245px] min-h-[56px]">
+                                        <canvas id="alaska-pdf417" class="max-w-[230px] max-h-[50px] w-auto h-auto object-contain"></canvas>
+                                    </div>
+                                    <!-- DMV Change of Address Warning -->
+                                    <div class="text-[7px] text-slate-800 font-sans font-medium text-center tracking-tight mt-1">
+                                        You must notify DMV of name or address change within 30 days.
+                                    </div>
+                                    <!-- DMV Portal URL -->
+                                    <div class="text-[7.5px] text-slate-900 font-sans font-bold text-right w-full max-w-[245px] pr-1">
+                                        http://doa.alaska.gov/dmv/
+                                    </div>
+                                </div>
 
-                                        <!-- See-Through Anti-Scan Security Overlay for Unregistered/Zero Tokens -->
-                                        <div id="barcode-blur-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                                            <span class="text-[8px] font-black tracking-widest text-slate-800 uppercase bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded border border-slate-300 shadow-xs">
-                                                ★ PREVIEW ONLY • UNREGISTERED ★
-                                            </span>
+                                <!-- Top Right: Alaska State Flower (Forget-Me-Not) -->
+                                <div class="absolute top-2.5 right-2.5 z-20">
+                                    <svg width="34" height="34" viewBox="0 0 100 100" class="select-none filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.15)]">
+                                        <!-- 5 Green Radial Petals -->
+                                        <g fill="#2e8b4e" stroke="#226b3c" stroke-width="2">
+                                            <circle cx="50" cy="22" r="16" />
+                                            <circle cx="76.6" cy="41.3" r="16" />
+                                            <circle cx="66.5" cy="72.7" r="16" />
+                                            <circle cx="33.5" cy="72.7" r="16" />
+                                            <circle cx="23.4" cy="41.3" r="16" />
+                                        </g>
+                                        <!-- Center Ring -->
+                                        <circle cx="50" cy="50" r="10" fill="#ffffff" stroke="#226b3c" stroke-width="2" />
+                                        <circle cx="50" cy="50" r="4.5" fill="#f0fdf4" />
+                                    </svg>
+                                </div>
+
+                                <!-- Far Left: Vertical DOB below Notch -->
+                                <div class="absolute bottom-4 left-1.5 z-10">
+                                    <span id="alaska-dob-val" class="font-mono text-[7px] font-bold text-slate-700 tracking-wider select-none" style="writing-mode: vertical-rl; transform: rotate(180deg);">
+                                        DOB: 07/11/1988
+                                    </span>
+                                </div>
+
+                                <!-- Giant ALASKA Watermark & Microprint Arch -->
+                                <div class="absolute bottom-5 left-[30px] right-[10px] flex flex-col items-center justify-center pointer-events-none select-none z-0">
+                                    <div class="text-[5.5px] font-sans font-extrabold text-[#74a6c4] tracking-[0.25em] uppercase mb-[-4px]">
+                                        ••• ALASKA • NORTH • TO • THE • FUTURE • STATE •••
+                                    </div>
+                                    <div class="text-[46px] font-black font-sans tracking-[0.32em] text-[#9ac4dd]/35 select-none pl-3">
+                                        ALASKA
+                                    </div>
+                                </div>
+
+                                <!-- Lower Section: Structured Bracket Grid -->
+                                <div class="absolute bottom-3 left-[46px] right-3 z-10 flex flex-col gap-2">
+                                    
+                                    <!-- Upper Bracket: 9a. Endorsements & 12. Restrictions -->
+                                    <div class="relative border-t-2 border-slate-700/80 pt-0.5 px-1.5 flex justify-between before:content-[''] before:absolute before:top-0 before:left-0 before:w-[2px] before:h-[6px] before:bg-slate-700/80 after:content-[''] after:absolute after:top-0 after:right-0 after:w-[2px] after:h-[6px] after:bg-slate-700/80">
+                                        <!-- 9a. Endorsements -->
+                                        <div class="flex-1 pr-2">
+                                            <div class="text-[6.5px] font-sans font-bold text-slate-800">9a. Endorsements</div>
+                                            <div id="alaska-endorsements-val" class="text-[7.5px] font-sans font-semibold text-slate-900 pl-0.5 min-h-[12px]"></div>
                                         </div>
-                                        <div id="card-barcode-lock-overlay" class="hidden"></div>
+
+                                        <!-- Vertical Middle Divider -->
+                                        <div class="w-[1.5px] h-7 bg-slate-700/80 mx-1"></div>
+
+                                        <!-- 12. Restrictions -->
+                                        <div class="flex-[1.8] pl-2">
+                                            <div class="text-[6.5px] font-sans font-bold text-slate-800">12. Restrictions</div>
+                                            <div id="alaska-restrictions-val" class="text-[7.5px] font-sans font-bold text-slate-900 pl-0.5">6 - OFF HWY VALID AK ONLY</div>
+                                        </div>
                                     </div>
 
-                                    <!-- Right: State Cursive Watermark, Federal Notice, and Vertical Revision Stamp -->
-                                    <div class="flex flex-col items-end text-right pl-2 max-w-[200px] relative flex-1">
-                                        <div class="flex items-center gap-1.5 w-full justify-end">
-                                            <div class="flex flex-col items-end text-right flex-1">
-                                                <!-- State Watermark (Cursive for Type A / Clean Official Seal Typography for Others) -->
-                                                <div id="studio-watermark-container" class="flex items-center justify-end gap-1.5 my-0.5">
-                                                    <div id="studio-wm-line-left" class="w-7 h-[1px] bg-[#c5a059]/70"></div>
-                                                    <span id="studio-state-watermark" class="text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none" style="font-family: 'Dancing Script', 'Brush Script MT', 'Caveat', cursive; font-weight: 700;">Louisiana</span>
-                                                    <div id="studio-wm-line-right" class="w-7 h-[1px] bg-[#c5a059]/70"></div>
-                                                </div>
-
-                                                <!-- Federal / State Regulatory Disclaimer -->
-                                                <div id="studio-card-disclaimer" class="text-[6px] sm:text-[6.5px] text-slate-800 font-sans leading-[1.2] text-right font-medium max-w-[170px] mt-0.5">
-                                                    Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br>
-                                                    <span class="italic font-bold">Renewable 180 days prior to expiration.</span>
-                                                </div>
-                                            </div>
-
-                                            <!-- Vertical Revision Stamp -->
-                                            <div class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg); height: 75px; text-align: center;" id="studio-rev-stamp">
-                                                REV 03-12-2015 &nbsp; 10-02-1990
-                                            </div>
-                                        </div>
-
-                                        <!-- 1D Code 128 Container for Type B, Canadian, and other jurisdictions with bottom companion barcode -->
-                                        <div id="card-bottom-code128-container" class="hidden w-full flex flex-col items-end pt-1">
-                                            <svg id="card-code128-svg-bottom" class="max-h-[20px] max-w-[175px]"></svg>
-                                            <div id="card-bottom-code128-text" class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pr-0.5 mt-0.5"></div>
-                                        </div>
+                                    <!-- Lower Bracket: 9. Classifications with L-bracket -->
+                                    <div class="relative border-l-2 border-b-2 border-slate-700/80 pl-1.5 pb-0.5 ml-[60px] mr-1">
+                                        <div class="text-[6.5px] font-sans font-bold text-slate-800">9. Classifications</div>
+                                        <div id="alaska-class-val" class="text-[7.5px] font-sans font-bold text-slate-900">D - BASIC DRIVER, M1 - MOTORCYCLE</div>
                                     </div>
 
                                 </div>
@@ -5495,6 +5593,96 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
             const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
 
+            // View Mode Switching: Alaska Authentic Custom Layout vs Standard CR80 Layout
+            const standardView = document.getElementById('card-back-standard-view');
+            const alaskaView = document.getElementById('card-back-alaska-view');
+            const cardEl = document.getElementById('studio-cr80-card');
+
+            if (stateCode === 'AK') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
+                }
+
+                // Populate Alaska Sequence Number (ICN/Audit)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                const akSeq = dcfVal || auditVal || dckVal || idVal || '2000002340';
+
+                const akSeqEl = document.getElementById('alaska-seq-num');
+                if (akSeqEl) akSeqEl.textContent = akSeq;
+
+                // Alaska DOB (Vertical on bottom-left)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1988-07-11').trim();
+                let akDobFmt = '07/11/1988';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) akDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        akDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        akDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const akDobEl = document.getElementById('alaska-dob-val');
+                if (akDobEl) akDobEl.textContent = `DOB: ${akDobFmt}`;
+
+                // Alaska Endorsements
+                const akEndEl = document.getElementById('alaska-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (akEndEl) akEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : '';
+
+                // Alaska Restrictions
+                const akRestEl = document.getElementById('alaska-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (akRestEl) {
+                    if (rawRest && rawRest.toUpperCase() !== 'NONE') {
+                        akRestEl.textContent = rawRest;
+                    } else {
+                        akRestEl.textContent = '6 - OFF HWY VALID AK ONLY';
+                    }
+                }
+
+                // Alaska Classifications
+                const akClassEl = document.getElementById('alaska-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (akClassEl) {
+                    if (rawClass && rawClass !== 'D' && rawClass !== 'Operator') {
+                        akClassEl.textContent = rawClass.startsWith('Class') ? rawClass : `Class ${rawClass}`;
+                    } else {
+                        akClassEl.textContent = (meta && meta.class_label) ? meta.class_label : 'D - BASIC DRIVER, M1 - MOTORCYCLE';
+                    }
+                }
+
+                // Render Alaska vertical Code 128 barcode in top-left notch
+                try {
+                    if (typeof JsBarcode === 'function' && document.getElementById('alaska-code128-svg')) {
+                        const cleanSeq = akSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '2000002340';
+                        JsBarcode("#alaska-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 38,
+                            width: 1.1,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Alaska 1D barcode error:", e);
+                }
+
+            } else {
+                if (standardView) standardView.classList.remove('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff';
+                }
+            }
+
             // 2. Magnetic Stripe vs Modern Optical Top Separator
             const magstripeEl = document.getElementById('card-magstripe');
             const topSepEl = document.getElementById('card-top-separator');
@@ -5850,6 +6038,19 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         paddingheight: 10
                     });
 
+                    const alaskaCanvas = document.getElementById('alaska-pdf417');
+                    if (alaskaCanvas) {
+                        try {
+                            bwipjs.toCanvas(alaskaCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errAk) {}
+                    }
+
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
                     const dimsEl = document.getElementById('barcode-physical-dims');
@@ -5868,6 +6069,23 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         paddingwidth: 10,   // Standard quiet zone
                         paddingheight: 10
                     });
+
+                    const alaskaCanvas = document.getElementById('alaska-pdf417');
+                    if (alaskaCanvas) {
+                        try {
+                            bwipjs.toCanvas(alaskaCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errAk) {}
+                    }
 
                     // Update Dynamic Physical Dimensions Pill
                     const totalModules = (cols * 17) + 69;
@@ -7219,6 +7437,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const svg128 = document.getElementById('output-code128');
             const cardPreviewBarcode = document.getElementById('card-preview-barcode');
             const cardCode128Svg = document.getElementById('card-code128-svg');
+            const alaskaCanvas = document.getElementById('alaska-pdf417');
+            const alaskaCode128Svg = document.getElementById('alaska-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -7248,6 +7468,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     cardCode128Svg.style.pointerEvents = 'auto';
                     cardCode128Svg.style.userSelect = 'auto';
                     cardCode128Svg.oncontextmenu = null;
+                }
+                if (alaskaCanvas) {
+                    alaskaCanvas.style.filter = 'none';
+                    alaskaCanvas.style.pointerEvents = 'auto';
+                    alaskaCanvas.style.userSelect = 'auto';
+                    alaskaCanvas.oncontextmenu = null;
+                }
+                if (alaskaCode128Svg) {
+                    alaskaCode128Svg.style.filter = 'none';
+                    alaskaCode128Svg.style.pointerEvents = 'auto';
+                    alaskaCode128Svg.style.userSelect = 'auto';
+                    alaskaCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -7279,6 +7511,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     cardCode128Svg.style.pointerEvents = 'none';
                     cardCode128Svg.style.userSelect = 'none';
                     cardCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (alaskaCanvas) {
+                    alaskaCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    alaskaCanvas.style.pointerEvents = 'none';
+                    alaskaCanvas.style.userSelect = 'none';
+                    alaskaCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (alaskaCode128Svg) {
+                    alaskaCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    alaskaCode128Svg.style.pointerEvents = 'none';
+                    alaskaCode128Svg.style.userSelect = 'none';
+                    alaskaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }

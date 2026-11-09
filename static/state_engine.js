@@ -10845,16 +10845,16 @@ function QC_calculate_ICN() {
         "name": "Alaska",
         "agency": "Alaska Division of Motor Vehicles",
         "url": "doa.alaska.gov/dmv",
-        "class_label": "CLASS: D",
-        "disclaimer": "Property of State of Alaska • Must be carried when operating a motor vehicle",
+        "class_label": "D - BASIC DRIVER, M1 - MOTORCYCLE",
+        "disclaimer": "You must notify DMV of name or address change within 30 days.",
         "donor": "ANATOMICAL GIFT",
-        "layout": "type_b",
+        "layout": "alaska_modern",
         "watermark": "ALASKA",
         "rev": "Rev. 09/2018",
-        "archetype": "magstripe_standard",
-        "has_magstripe": true,
-        "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "archetype": "alaska_modern",
+        "has_magstripe": false,
+        "watermark_style": "alaska",
+        "barcode_1d_pos": "top_left"
     },
     "AZ": {
         "name": "Arizona",
