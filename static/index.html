@@ -2166,6 +2166,66 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Arkansas Authentic Physical CR80 Card-Back View (Capitol Line Art, Top PDF417, Stacked Numbers, Right Vertical Code 128, Circular Ghost Portrait) -->
+                            <div id="card-back-arkansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('arkansas_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top PDF417 Barcode Container (Quiet Zone White Box across the top) -->
+                                <div class="absolute top-2.5 left-3 right-[66px] flex items-center justify-center z-10">
+                                    <div class="bg-white rounded-[4px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2 py-0.5 flex items-center justify-center border border-white/90 w-full max-w-[342px] min-h-[62px]">
+                                        <canvas id="arkansas-pdf417" class="max-w-[334px] max-h-[58px] w-auto h-auto object-contain"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Stacked Numbers between PDF417 and Vertical 1D Barcode (21 / 02101124843 / 31308) -->
+                                <div class="absolute top-2.5 right-[38px] flex flex-row items-start gap-1 select-none pointer-events-none z-20" style="writing-mode: vertical-rl; transform: rotate(180deg);">
+                                    <span class="font-mono text-[7px] font-black text-slate-900 tracking-wider">21</span>
+                                    <span id="arkansas-icn-val" class="font-mono text-[7px] font-black text-slate-900 tracking-wider">02101124843</span>
+                                    <span id="arkansas-batch-val" class="font-mono text-[7px] font-black text-slate-900 tracking-wider">31308</span>
+                                </div>
+
+                                <!-- Right Vertical 1D Code 128 Barcode (Horizontal Bars running down right edge) -->
+                                <div class="absolute top-[42px] right-2 w-[28px] h-[168px] bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex items-center justify-center px-0.5 py-1 z-20 overflow-hidden">
+                                    <canvas id="arkansas-code128-canvas" class="w-[24px] h-[162px] object-contain select-none"></canvas>
+                                    <svg id="arkansas-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Circular Metallic Ghost Portrait Window on Left -->
+                                <div class="absolute top-[118px] left-[18px] w-[62px] h-[62px] sm:w-[66px] sm:h-[66px] rounded-full overflow-hidden border border-slate-400/80 shadow-inner bg-slate-300 relative flex items-center justify-center z-20">
+                                    <!-- Metallic circular vignette sheen -->
+                                    <div class="absolute inset-0 bg-radial from-transparent via-slate-400/20 to-slate-800/40 pointer-events-none"></div>
+                                    <!-- Grayscale Ghost Silhouette / Avatar -->
+                                    <svg class="w-full h-full object-cover text-slate-600 opacity-60" viewBox="0 0 100 100" fill="currentColor">
+                                        <circle cx="50" cy="38" r="20"/>
+                                        <path d="M18,92 C18,68 34,62 50,62 C66,62 82,68 82,92 Z"/>
+                                    </svg>
+                                </div>
+
+                                <!-- Bottom-Left DOB & Rev Information -->
+                                <div class="absolute bottom-2.5 left-4 flex flex-col items-start select-none z-20">
+                                    <span id="arkansas-dob-val" class="font-sans text-[10px] sm:text-[10.5px] font-bold text-slate-950 tracking-tight leading-none mb-1">09/02/1964</span>
+                                    <span id="arkansas-rev-val" class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-800 tracking-tight leading-none">Rev: 03/01/2018</span>
+                                </div>
+
+                                <!-- Center Structured Demographics & Licensing Typography -->
+                                <div class="absolute top-[120px] left-[96px] right-[44px] flex flex-col gap-1 select-none z-20">
+                                    <div class="text-[8px] sm:text-[8.5px] font-sans font-bold text-slate-950 tracking-tight leading-tight">
+                                        CLASS: <span id="arkansas-class-val" class="font-semibold text-slate-900">D - Non-Commercial; &lt;15 PASGR, including driver</span>
+                                    </div>
+                                    <div class="text-[8px] sm:text-[8.5px] font-sans font-bold text-slate-950 tracking-tight leading-tight">
+                                        RESTRICTIONS: <span id="arkansas-restrictions-val" class="font-semibold text-slate-900">None</span>
+                                    </div>
+                                    <div class="h-[3px]"></div>
+                                    <div class="text-[8px] sm:text-[8.5px] font-sans font-bold text-slate-950 tracking-tight leading-tight">
+                                        ENDORSEMENTS: <span id="arkansas-endorsements-val" class="font-semibold text-slate-900">None</span>
+                                    </div>
+                                    <div class="h-[3px]"></div>
+                                    <div class="text-[8px] sm:text-[8.5px] font-sans font-bold text-slate-950 tracking-tight leading-tight">
+                                        MEDICAL CODES: <span id="arkansas-medical-val" class="font-semibold text-slate-900">None</span>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5078,6 +5138,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             // Auto-sync companion 1D Code 128 barcode with card sequence/inventory number
             const companionVal = (baseState === 'AK') 
                 ? (fields.dck || fields.audit || (fields.dcf && !fields.dcf.includes(' ') && fields.dcf.length <= 12 ? fields.dcf : '') || fields.id || '2000002340')
+                : (baseState === 'AR')
+                ? (fields.dck || (fields.dcf && !fields.dcf.includes(' ') ? fields.dcf : '') || '02101124843')
                 : (baseState === 'TX')
                 ? (fields.dcf || fields.audit || fields.dck || fields.id || '2407261442200188')
                 : (baseState === 'CT')
@@ -5609,14 +5671,16 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
             const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
 
-            // View Mode Switching: Alaska Authentic Custom Layout vs Standard CR80 Layout
+            // View Mode Switching: Alaska Authentic Custom Layout vs Arkansas vs Standard CR80 Layout
             const standardView = document.getElementById('card-back-standard-view');
             const alaskaView = document.getElementById('card-back-alaska-view');
+            const arkansasView = document.getElementById('card-back-arkansas-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
                 if (standardView) standardView.classList.add('hidden');
                 if (alaskaView) alaskaView.classList.remove('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -5704,9 +5768,99 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Alaska 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'AR') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Populate Arkansas DOB (Formatted MM/DD/YYYY)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1964-09-02').trim();
+                let arDobFmt = '09/02/1964';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) arDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        arDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        arDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const arDobEl = document.getElementById('arkansas-dob-val');
+                if (arDobEl) arDobEl.textContent = arDobFmt;
+
+                // Arkansas Classifications
+                const arClassEl = document.getElementById('arkansas-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (arClassEl) {
+                    if (rawClass && rawClass !== 'D' && rawClass !== 'Operator') {
+                        arClassEl.textContent = rawClass.startsWith('Class') ? rawClass : `Class ${rawClass}`;
+                    } else {
+                        arClassEl.textContent = 'D - Non-Commercial; <15 PASGR, including driver';
+                    }
+                }
+
+                // Arkansas Restrictions
+                const arRestEl = document.getElementById('arkansas-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (arRestEl) arRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'None';
+
+                // Arkansas Endorsements
+                const arEndEl = document.getElementById('arkansas-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (arEndEl) arEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
+
+                // Arkansas Medical Codes
+                const arMedEl = document.getElementById('arkansas-medical-val');
+                if (arMedEl) arMedEl.textContent = 'None';
+
+                // Arkansas ICN & Stacked Numbers (021011... and 31308)
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                const arIcn = dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 14 ? dcfVal : '') || '02101124843';
+
+                const arIcnEl = document.getElementById('arkansas-icn-val');
+                if (arIcnEl) arIcnEl.textContent = arIcn;
+
+                // Render Arkansas vertical Code 128 barcode in right margin
+                try {
+                    const cleanSeq = arIcn.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '02101124843';
+                    const arCanvas = document.getElementById('arkansas-code128-canvas');
+                    if (arCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(arCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 22,
+                            rotate: 'R',
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('arkansas-code128-svg')) {
+                        JsBarcode("#arkansas-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 44,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Arkansas 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -6019,6 +6173,28 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'AR') {
+                const arIcnEl = document.getElementById('arkansas-icn-val');
+                if (arIcnEl && activeTab === 'code128' && manualVal) {
+                    arIcnEl.textContent = targetVal;
+                }
+                const arCanvas = document.getElementById('arkansas-code128-canvas');
+                if (arCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(arCanvas, {
+                            bcid: 'code128',
+                            text: targetVal,
+                            scale: 2,
+                            height: 22,
+                            rotate: 'R',
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -6116,6 +6292,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errAk) {}
                     }
+                    const arkansasCanvas = document.getElementById('arkansas-pdf417');
+                    if (arkansasCanvas) {
+                        try {
+                            bwipjs.toCanvas(arkansasCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errAr) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -6151,6 +6339,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 6
                             });
                         } catch (errAk) {}
+                    }
+                    const arkansasCanvas = document.getElementById('arkansas-pdf417');
+                    if (arkansasCanvas) {
+                        try {
+                            bwipjs.toCanvas(arkansasCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errAr) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -7503,6 +7707,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const alaskaCanvas = document.getElementById('alaska-pdf417');
             const alaskaCode128Canvas = document.getElementById('alaska-code128-canvas');
             const alaskaCode128Svg = document.getElementById('alaska-code128-svg');
+            const arkansasCanvas = document.getElementById('arkansas-pdf417');
+            const arkansasCode128Canvas = document.getElementById('arkansas-code128-canvas');
+            const arkansasCode128Svg = document.getElementById('arkansas-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -7556,6 +7763,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     alaskaCode128Svg.style.pointerEvents = 'auto';
                     alaskaCode128Svg.style.userSelect = 'auto';
                     alaskaCode128Svg.oncontextmenu = null;
+                }
+                if (arkansasCanvas) {
+                    arkansasCanvas.style.filter = 'none';
+                    arkansasCanvas.style.pointerEvents = 'auto';
+                    arkansasCanvas.style.userSelect = 'auto';
+                    arkansasCanvas.oncontextmenu = null;
+                }
+                if (arkansasCode128Canvas) {
+                    arkansasCode128Canvas.style.filter = 'none';
+                    arkansasCode128Canvas.style.pointerEvents = 'auto';
+                    arkansasCode128Canvas.style.userSelect = 'auto';
+                    arkansasCode128Canvas.oncontextmenu = null;
+                }
+                if (arkansasCode128Svg) {
+                    arkansasCode128Svg.style.filter = 'none';
+                    arkansasCode128Svg.style.pointerEvents = 'auto';
+                    arkansasCode128Svg.style.userSelect = 'auto';
+                    arkansasCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -7611,6 +7836,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     alaskaCode128Svg.style.pointerEvents = 'none';
                     alaskaCode128Svg.style.userSelect = 'none';
                     alaskaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (arkansasCanvas) {
+                    arkansasCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    arkansasCanvas.style.pointerEvents = 'none';
+                    arkansasCanvas.style.userSelect = 'none';
+                    arkansasCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (arkansasCode128Canvas) {
+                    arkansasCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    arkansasCode128Canvas.style.pointerEvents = 'none';
+                    arkansasCode128Canvas.style.userSelect = 'none';
+                    arkansasCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (arkansasCode128Svg) {
+                    arkansasCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    arkansasCode128Svg.style.pointerEvents = 'none';
+                    arkansasCode128Svg.style.userSelect = 'none';
+                    arkansasCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
