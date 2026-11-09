@@ -2397,6 +2397,66 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Colorado Custom Card Back View (Authentic State Capitol Substrate Replica) -->
+                            <div id="card-back-colorado-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('colorado_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Magnetic Stripe (Solid Black Hi-Co Stripe across 100% width) -->
+                                <div id="colorado-magstripe" class="absolute top-[8.9%] left-0 w-full h-[23.1%] bg-black/90 z-10 shadow-inner"></div>
+
+                                <!-- Left White Cutout Notch: Vertical Sequence Number & Vertical Code 128 Barcode -->
+                                <div class="absolute top-[34.8%] left-0 w-[16.2%] h-[35.0%] bg-white flex items-center justify-between px-1 py-1 z-20 overflow-hidden shadow-[1px_1px_2px_rgba(0,0,0,0.06)]">
+                                    <!-- Vertical 10-digit Sequence Number (e.g., 0005427101) oriented bottom-to-top -->
+                                    <span id="colorado-seq-num" class="font-mono text-[7px] sm:text-[7.5px] font-black text-slate-900 tracking-wider whitespace-nowrap pl-0.5 select-none" style="writing-mode: vertical-rl; transform: rotate(180deg);">0005427101</span>
+                                    
+                                    <!-- Vertical Code 128 Barcode with Horizontal Bars -->
+                                    <div class="flex-1 h-full flex items-center justify-center overflow-hidden pl-0.5">
+                                        <canvas id="colorado-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                        <svg id="colorado-code128-svg" class="hidden"></svg>
+                                    </div>
+                                </div>
+
+                                <!-- Middle Demographics Typography (CLASS, ENDORSEMENTS, RESTRICTIONS) -->
+                                <div class="absolute top-[33.2%] left-[17.2%] right-[18%] flex flex-col gap-0.5 select-none z-20 pointer-events-none">
+                                    <!-- CLASS line & description -->
+                                    <div class="font-sans text-[6.5px] sm:text-[7px] font-bold text-slate-900 leading-[1.15]">
+                                        CLASS: <span id="colorado-class-val" class="font-medium text-slate-900">R - Any motor vehicle with a GVWR of less than 26,001 lbs. as a single unit or in combination, designed to carry 15 or fewer passengers, including the driver, and does not carry hazardous material.</span>
+                                    </div>
+                                    
+                                    <!-- Endorsements & Restrictions Columns -->
+                                    <div class="flex justify-between items-start mt-0.5 w-[85%]">
+                                        <!-- Endorsements Column -->
+                                        <div class="flex flex-col">
+                                            <span class="font-sans text-[6.5px] sm:text-[7px] font-bold text-slate-900 leading-tight">ENDORSEMENTS:</span>
+                                            <span id="colorado-endorsements-val" class="font-sans text-[6.5px] sm:text-[7px] font-medium text-slate-900 leading-tight">M - Motorcycle</span>
+                                        </div>
+                                        
+                                        <!-- Restrictions Column -->
+                                        <div class="flex flex-col">
+                                            <span class="font-sans text-[6.5px] sm:text-[7px] font-bold text-slate-900 leading-tight">RESTRICTIONS:</span>
+                                            <span id="colorado-restrictions-val" class="font-sans text-[6.5px] sm:text-[7px] font-medium text-slate-900 leading-tight">NONE</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Lower-Left: Previous Type text (Directly to the left of ghost portrait) -->
+                                <div class="absolute top-[83.5%] left-[2.4%] flex items-center select-none z-20">
+                                    <span class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 whitespace-nowrap">
+                                        Previous Type: <span id="colorado-previous-type-val" class="font-black text-slate-950">A</span>
+                                    </span>
+                                </div>
+
+                                <!-- Lower-Left Ghost Portrait Vignette Window -->
+                                <div id="colorado-ghost-portrait" class="absolute left-[17.5%] top-[64.1%] w-[13.2%] h-[28.6%] rounded-[6px] overflow-hidden z-20 pointer-events-none">
+                                </div>
+
+                                <!-- Bottom 2D PDF417 Barcode Container (Spanning from right of ghost portrait to right edge) -->
+                                <div id="colorado-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                     style="left: 33.5%; top: 68.0%; width: 65.4%; height: 22.8%; padding: 2px 2px;">
+                                    <canvas id="colorado-pdf417" class="w-full h-full object-contain"></canvas>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5842,13 +5902,14 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
             const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
 
-            // View Mode Switching: Alaska vs Arkansas vs Arizona vs Alabama vs California vs Standard CR80 Layout
+            // View Mode Switching: Alaska vs Arkansas vs Arizona vs Alabama vs California vs Colorado vs Standard CR80 Layout
             const standardView = document.getElementById('card-back-standard-view');
             const alaskaView = document.getElementById('card-back-alaska-view');
             const arkansasView = document.getElementById('card-back-arkansas-view');
             const arizonaView = document.getElementById('card-back-arizona-view');
             const alabamaView = document.getElementById('card-back-alabama-view');
             const californiaView = document.getElementById('card-back-california-view');
+            const coloradoView = document.getElementById('card-back-colorado-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -5858,6 +5919,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -5952,6 +6014,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -6044,6 +6107,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arizonaView) arizonaView.classList.remove('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
                 }
@@ -6149,6 +6213,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.remove('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
                 }
@@ -6257,6 +6322,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.remove('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
                 }
@@ -6346,6 +6412,93 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("California 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'CO') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff url("colorado_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Colorado Classifications
+                const coClassEl = document.getElementById('colorado-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (coClassEl) {
+                    if (rawClass && rawClass !== 'R' && rawClass !== 'Operator' && rawClass !== 'C') {
+                        coClassEl.textContent = `${rawClass} - Any motor vehicle with a GVWR of less than 26,001 lbs. as a single unit or in combination, designed to carry 15 or fewer passengers, including the driver, and does not carry hazardous material.`;
+                    } else {
+                        coClassEl.textContent = 'R - Any motor vehicle with a GVWR of less than 26,001 lbs. as a single unit or in combination, designed to carry 15 or fewer passengers, including the driver, and does not carry hazardous material.';
+                    }
+                }
+
+                // Colorado Restrictions
+                const coRestEl = document.getElementById('colorado-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (coRestEl) coRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'NONE';
+
+                // Colorado Endorsements
+                const coEndEl = document.getElementById('colorado-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (coEndEl) {
+                    if (rawEnd && rawEnd.toUpperCase() !== 'NONE') {
+                        coEndEl.textContent = rawEnd === 'M' ? 'M - Motorcycle' : rawEnd;
+                    } else {
+                        coEndEl.textContent = 'M - Motorcycle';
+                    }
+                }
+
+                // Colorado Previous Type
+                const coPrevEl = document.getElementById('colorado-previous-type-val');
+                if (coPrevEl) coPrevEl.textContent = 'A';
+
+                // Colorado Sequence Number (10-digit number like 0005427101)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                const coSeq = (auditVal && auditVal.length <= 12 ? auditVal : '') || 
+                              (dckVal && dckVal.length <= 12 ? dckVal : '') || 
+                              (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 12 ? dcfVal : '') || 
+                              (idVal ? idVal.padStart(10, '0') : '') || 
+                              '0005427101';
+
+                const coSeqEl = document.getElementById('colorado-seq-num');
+                if (coSeqEl) coSeqEl.textContent = coSeq;
+
+                // Render Colorado vertical Code 128 barcode in left notch
+                try {
+                    const cleanSeq = coSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '0005427101';
+                    const coCanvas = document.getElementById('colorado-code128-canvas');
+                    if (coCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(coCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 18,
+                            rotate: 'R',
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('colorado-code128-svg')) {
+                        JsBarcode("#colorado-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 36,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Colorado 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
@@ -6353,6 +6506,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -6750,6 +6904,28 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'CO') {
+                const coSeqEl = document.getElementById('colorado-seq-num');
+                if (coSeqEl && activeTab === 'code128' && manualVal) {
+                    coSeqEl.textContent = targetVal;
+                }
+                const coCanvas = document.getElementById('colorado-code128-canvas');
+                if (coCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(coCanvas, {
+                            bcid: 'code128',
+                            text: targetVal,
+                            scale: 2,
+                            height: 18,
+                            rotate: 'R',
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -6895,6 +7071,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errCa) {}
                     }
+                    const coloradoCanvas = document.getElementById('colorado-pdf417');
+                    if (coloradoCanvas) {
+                        try {
+                            bwipjs.toCanvas(coloradoCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errCo) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -6994,6 +7182,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 4
                             });
                         } catch (errCa) {}
+                    }
+                    const coloradoCanvas = document.getElementById('colorado-pdf417');
+                    if (coloradoCanvas) {
+                        try {
+                            bwipjs.toCanvas(coloradoCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errCo) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -8358,6 +8562,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const californiaCanvas = document.getElementById('california-pdf417');
             const californiaCode128Canvas = document.getElementById('california-code128-canvas');
             const californiaCode128Svg = document.getElementById('california-code128-svg');
+            const coloradoCanvas = document.getElementById('colorado-pdf417');
+            const coloradoCode128Canvas = document.getElementById('colorado-code128-canvas');
+            const coloradoCode128Svg = document.getElementById('colorado-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -8483,6 +8690,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     californiaCode128Svg.style.pointerEvents = 'auto';
                     californiaCode128Svg.style.userSelect = 'auto';
                     californiaCode128Svg.oncontextmenu = null;
+                }
+                if (coloradoCanvas) {
+                    coloradoCanvas.style.filter = 'none';
+                    coloradoCanvas.style.pointerEvents = 'auto';
+                    coloradoCanvas.style.userSelect = 'auto';
+                    coloradoCanvas.oncontextmenu = null;
+                }
+                if (coloradoCode128Canvas) {
+                    coloradoCode128Canvas.style.filter = 'none';
+                    coloradoCode128Canvas.style.pointerEvents = 'auto';
+                    coloradoCode128Canvas.style.userSelect = 'auto';
+                    coloradoCode128Canvas.oncontextmenu = null;
+                }
+                if (coloradoCode128Svg) {
+                    coloradoCode128Svg.style.filter = 'none';
+                    coloradoCode128Svg.style.pointerEvents = 'auto';
+                    coloradoCode128Svg.style.userSelect = 'auto';
+                    coloradoCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -8610,6 +8835,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     californiaCode128Svg.style.pointerEvents = 'none';
                     californiaCode128Svg.style.userSelect = 'none';
                     californiaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (coloradoCanvas) {
+                    coloradoCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    coloradoCanvas.style.pointerEvents = 'none';
+                    coloradoCanvas.style.userSelect = 'none';
+                    coloradoCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (coloradoCode128Canvas) {
+                    coloradoCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    coloradoCode128Canvas.style.pointerEvents = 'none';
+                    coloradoCode128Canvas.style.userSelect = 'none';
+                    coloradoCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (coloradoCode128Svg) {
+                    coloradoCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    coloradoCode128Svg.style.pointerEvents = 'none';
+                    coloradoCode128Svg.style.userSelect = 'none';
+                    coloradoCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
