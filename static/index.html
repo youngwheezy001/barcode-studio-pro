@@ -2344,6 +2344,59 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- California Custom Card Back View (Authentic Pier Substrate Replica) -->
+                            <div id="card-back-california-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('california_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right/Center) -->
+                                <div class="absolute top-0 left-[34.15%] w-[55.91%] h-[6.68%] flex items-center justify-center z-20 overflow-hidden">
+                                    <canvas id="california-code128-canvas" class="h-full w-full object-contain select-none"></canvas>
+                                    <svg id="california-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Magnetic Stripe (Solid Black 0.5" Hi-Co Stripe across 100% width) -->
+                                <div id="california-magstripe" class="absolute top-[6.68%] left-0 w-full h-[23.92%] bg-black z-10 shadow-inner"></div>
+
+                                <!-- Middle Demographics Typography (Class, Endorsements, Restrictions) -->
+                                <div class="absolute top-[33.5%] left-[5%] flex flex-col gap-0.5 select-none z-20">
+                                    <div class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">
+                                        CLASS: <span id="california-class-val" class="font-medium text-slate-900">C - Veh w/GVWR ≤26000, No M/C</span>
+                                    </div>
+                                    <div class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">
+                                        ENDORSEMENTS: <span id="california-endorsements-val" class="font-medium text-slate-900">None</span>
+                                    </div>
+                                    <div class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">
+                                        RESTRICTIONS: <span id="california-restrictions-val" class="font-medium text-slate-900">None</span>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Left: 2D PDF417 Barcode Container (Precision Fit in White Cutout Box) -->
+                                <div id="california-pdf417-container" class="absolute flex items-center justify-center bg-white z-20 overflow-hidden" 
+                                     style="left: 3.86%; top: 60.45%; width: 58.13%; height: 22.32%; padding: 2px 4px;">
+                                    <canvas id="california-pdf417" class="w-full h-full object-contain"></canvas>
+                                </div>
+
+                                <!-- Vertical Sequence Number directly to the right of the PDF417 box -->
+                                <div class="absolute top-[75%] left-[63.2%] flex items-center justify-center select-none z-20">
+                                    <span id="california-seq-val" class="font-mono text-[7px] sm:text-[7.5px] font-bold text-slate-900 tracking-wider" style="writing-mode: vertical-rl; transform: rotate(180deg);">24121998</span>
+                                </div>
+
+                                <!-- Middle Right: Statutory Non-Commercial / Real ID Disclaimer -->
+                                <div class="absolute top-[63.5%] left-[67.5%] w-[30%] font-serif text-[6px] sm:text-[6.5px] text-slate-800 leading-[1.18] text-center select-none z-20">
+                                    This license is issued as a license to drive a motor vehicle; it does not establish eligibility for employment, voter registration, or public benefits.
+                                </div>
+
+                                <!-- Bottom Right: Revision Date & Audit / Sequence Number -->
+                                <div class="absolute bottom-2 right-3 sm:right-4 flex flex-col items-end select-none z-20 text-right">
+                                    <div id="california-rev-val" class="font-sans text-[7px] sm:text-[7.5px] font-medium text-slate-900 tracking-tight leading-tight">
+                                        Rev 08/29/2017
+                                    </div>
+                                    <div id="california-audit-val" class="font-mono text-[7.5px] sm:text-[8px] font-bold text-slate-950 tracking-wider leading-tight mt-0.5">
+                                        19357D32472610401
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5789,12 +5842,13 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
             const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
 
-            // View Mode Switching: Alaska Authentic Custom Layout vs Arkansas vs Arizona vs Alabama vs Standard CR80 Layout
+            // View Mode Switching: Alaska vs Arkansas vs Arizona vs Alabama vs California vs Standard CR80 Layout
             const standardView = document.getElementById('card-back-standard-view');
             const alaskaView = document.getElementById('card-back-alaska-view');
             const arkansasView = document.getElementById('card-back-arkansas-view');
             const arizonaView = document.getElementById('card-back-arizona-view');
             const alabamaView = document.getElementById('card-back-alabama-view');
+            const californiaView = document.getElementById('card-back-california-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -5803,6 +5857,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arkansasView) arkansasView.classList.add('hidden');
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -5896,6 +5951,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arkansasView) arkansasView.classList.remove('hidden');
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -5987,6 +6043,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arkansasView) arkansasView.classList.add('hidden');
                 if (arizonaView) arizonaView.classList.remove('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
                 }
@@ -6091,6 +6148,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (arkansasView) arkansasView.classList.add('hidden');
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.remove('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
                 }
@@ -6192,12 +6250,109 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Alabama 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'CA') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
+                }
+
+                // California Classifications
+                const caClassEl = document.getElementById('california-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (caClassEl) {
+                    if (rawClass && rawClass !== 'C' && rawClass !== 'Operator') {
+                        caClassEl.textContent = rawClass.startsWith('Class') ? rawClass : `Class ${rawClass}`;
+                    } else {
+                        caClassEl.textContent = 'C - Veh w/GVWR ≤26000, No M/C';
+                    }
+                }
+
+                // California Restrictions
+                const caRestEl = document.getElementById('california-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (caRestEl) caRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'None';
+
+                // California Endorsements
+                const caEndEl = document.getElementById('california-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (caEndEl) caEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
+
+                // California Revision Date
+                const rawIss = (document.getElementById('aamva-iss')?.value || '').trim();
+                let caRevFmt = 'Rev 08/29/2017';
+                if (rawIss.includes('-')) {
+                    const p = rawIss.split('-');
+                    if (p.length === 3) caRevFmt = `Rev ${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawIss.length === 8) {
+                    if (parseInt(rawIss.substring(0, 4), 10) > 1900) {
+                        caRevFmt = `Rev ${rawIss.substring(4, 6)}/${rawIss.substring(6, 8)}/${rawIss.substring(0, 4)}`;
+                    } else {
+                        caRevFmt = `Rev ${rawIss.substring(0, 2)}/${rawIss.substring(2, 4)}/${rawIss.substring(4, 8)}`;
+                    }
+                } else {
+                    caRevFmt = (meta && meta.rev) ? meta.rev : 'Rev 08/29/2017';
+                }
+                const caRevEl = document.getElementById('california-rev-val');
+                if (caRevEl) caRevEl.textContent = caRevFmt;
+
+                // California Audit Number / Document Discriminator (17-char sequence like 19357D32472610401)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                const caSeq = dcfVal || dckVal || auditVal || (idVal ? `19357${idVal.padStart(12, '0')}` : '') || '19357D32472610401';
+
+                const caAuditEl = document.getElementById('california-audit-val');
+                if (caAuditEl) caAuditEl.textContent = caSeq;
+
+                // Vertical Sequence Number (next to white barcode box)
+                const caSeqEl = document.getElementById('california-seq-val');
+                if (caSeqEl) {
+                    const cleanVertical = (dckVal && dckVal.length >= 8) ? dckVal.substring(0, 8) : '24121998';
+                    caSeqEl.textContent = cleanVertical;
+                }
+
+                // Render California horizontal Code 128 barcode above magstripe
+                try {
+                    const cleanSeq = caSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '19357D32472610401';
+                    const caCanvas = document.getElementById('california-code128-canvas');
+                    if (caCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(caCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('california-code128-svg')) {
+                        JsBarcode("#california-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("California 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
                 if (arkansasView) arkansasView.classList.add('hidden');
                 if (arizonaView) arizonaView.classList.add('hidden');
                 if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -6574,6 +6729,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'CA') {
+                const caAuditEl = document.getElementById('california-audit-val');
+                if (caAuditEl && activeTab === 'code128' && manualVal) {
+                    caAuditEl.textContent = targetVal;
+                }
+                const caCanvas = document.getElementById('california-code128-canvas');
+                if (caCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(caCanvas, {
+                            bcid: 'code128',
+                            text: targetVal,
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -6707,6 +6883,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errAl) {}
                     }
+                    const californiaCanvas = document.getElementById('california-pdf417');
+                    if (californiaCanvas) {
+                        try {
+                            bwipjs.toCanvas(californiaCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errCa) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -6790,6 +6978,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 6
                             });
                         } catch (errAl) {}
+                    }
+                    const californiaCanvas = document.getElementById('california-pdf417');
+                    if (californiaCanvas) {
+                        try {
+                            bwipjs.toCanvas(californiaCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errCa) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -8151,6 +8355,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const alabamaCanvas = document.getElementById('alabama-pdf417');
             const alabamaCode128Canvas = document.getElementById('alabama-code128-canvas');
             const alabamaCode128Svg = document.getElementById('alabama-code128-svg');
+            const californiaCanvas = document.getElementById('california-pdf417');
+            const californiaCode128Canvas = document.getElementById('california-code128-canvas');
+            const californiaCode128Svg = document.getElementById('california-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -8258,6 +8465,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     alabamaCode128Svg.style.pointerEvents = 'auto';
                     alabamaCode128Svg.style.userSelect = 'auto';
                     alabamaCode128Svg.oncontextmenu = null;
+                }
+                if (californiaCanvas) {
+                    californiaCanvas.style.filter = 'none';
+                    californiaCanvas.style.pointerEvents = 'auto';
+                    californiaCanvas.style.userSelect = 'auto';
+                    californiaCanvas.oncontextmenu = null;
+                }
+                if (californiaCode128Canvas) {
+                    californiaCode128Canvas.style.filter = 'none';
+                    californiaCode128Canvas.style.pointerEvents = 'auto';
+                    californiaCode128Canvas.style.userSelect = 'auto';
+                    californiaCode128Canvas.oncontextmenu = null;
+                }
+                if (californiaCode128Svg) {
+                    californiaCode128Svg.style.filter = 'none';
+                    californiaCode128Svg.style.pointerEvents = 'auto';
+                    californiaCode128Svg.style.userSelect = 'auto';
+                    californiaCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -8367,6 +8592,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     alabamaCode128Svg.style.pointerEvents = 'none';
                     alabamaCode128Svg.style.userSelect = 'none';
                     alabamaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (californiaCanvas) {
+                    californiaCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    californiaCanvas.style.pointerEvents = 'none';
+                    californiaCanvas.style.userSelect = 'none';
+                    californiaCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (californiaCode128Canvas) {
+                    californiaCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    californiaCode128Canvas.style.pointerEvents = 'none';
+                    californiaCode128Canvas.style.userSelect = 'none';
+                    californiaCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (californiaCode128Svg) {
+                    californiaCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    californiaCode128Svg.style.pointerEvents = 'none';
+                    californiaCode128Svg.style.userSelect = 'none';
+                    californiaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
