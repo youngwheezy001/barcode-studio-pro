@@ -1970,12 +1970,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <div id="studio-cr80-card" class="relative z-10 w-[410px] max-w-[95%] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             
                             <!-- Authentic Physical CR80 Guilloche Security Microprint Overlay -->
-                            <div class="absolute inset-0 pointer-events-none opacity-[0.035] z-0 overflow-hidden" style="background-image: radial-gradient(#1e293b 1px, transparent 1px), radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px; background-position: 0 0, 4px 4px;"></div>
+                            <div id="card-security-pattern" class="absolute inset-0 pointer-events-none opacity-[0.035] z-0 overflow-hidden" style="background-image: radial-gradient(#1e293b 1px, transparent 1px), radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px; background-position: 0 0, 4px 4px;"></div>
 
                             <!-- Standard CR80 Card-Back View (Standard / Southern / Canadian Jurisdictions) -->
                             <div id="card-back-standard-view" class="w-full flex-1 flex flex-col justify-between relative z-10">
                                 <!-- Top Section (Above Magnetic Stripe / Top Security Band) -->
-                                <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white min-h-[24px] relative z-10">
+                                <div id="card-back-header" class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-transparent min-h-[24px] relative z-10">
                                     <div class="flex items-center gap-1.5 overflow-hidden">
                                         <span id="studio-seq-prefix" class="hidden text-[7px] font-mono font-bold text-slate-500 uppercase tracking-wider"></span>
                                         <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
@@ -1993,7 +1993,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <div id="card-top-separator" class="hidden w-full h-[2px] bg-gradient-to-r from-slate-200 via-slate-400 to-slate-200 relative z-10"></div>
 
                                 <!-- Card Body Content -->
-                                <div class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-white z-10">
+                                <div id="card-back-body" class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-transparent z-10">
                                     
                                     <!-- Middle Metadata Row -->
                                     <div class="flex justify-between items-start">
@@ -5693,7 +5693,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff';
+                    if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
+                        cardEl.style.background = meta.bg_gradient;
+                    } else if (meta && meta.bg_color) {
+                        cardEl.style.background = meta.bg_color;
+                    } else {
+                        cardEl.style.background = '#ffffff';
+                    }
+                }
+                const secPattern = document.getElementById('card-security-pattern');
+                if (secPattern) {
+                    const tint = (meta && meta.security_tint) ? meta.security_tint : '#1e293b';
+                    secPattern.style.backgroundImage = `radial-gradient(${tint} 1px, transparent 1px), radial-gradient(${tint} 1px, transparent 1px)`;
                 }
             }
 

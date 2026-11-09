@@ -10830,7 +10830,7 @@ function QC_calculate_ICN() {
         "name": "Alabama",
         "agency": "Alabama Law Enforcement Agency",
         "url": "www.alea.gov",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS: D-Regular Operators License",
         "disclaimer": "Property of State of Alabama • If found drop in any US mailbox • Return postage guaranteed",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
@@ -10839,7 +10839,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f4f4f4 100%)",
+        "security_tint": "#cfc0b4"
     },
     "AK": {
         "name": "Alaska",
@@ -10854,13 +10857,16 @@ function QC_calculate_ICN() {
         "archetype": "alaska_modern",
         "has_magstripe": false,
         "watermark_style": "alaska",
-        "barcode_1d_pos": "top_left"
+        "barcode_1d_pos": "top_left",
+        "bg_color": "#e4f2fb",
+        "bg_gradient": "linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)",
+        "security_tint": "#b8d6ec"
     },
     "AZ": {
         "name": "Arizona",
         "agency": "Arizona Department of Transportation (ADOT)",
         "url": "azdot.gov/mvd",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS:",
         "disclaimer": "Property of State of Arizona • Operating motor vehicle constitutes consent to alcohol test",
         "donor": "DONATE LIFE AZ",
         "layout": "type_b",
@@ -10869,7 +10875,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #faf8f5 50%, #f4ede4 100%)",
+        "security_tint": "#e8dfd1"
     },
     "AR": {
         "name": "Arkansas",
@@ -10884,7 +10893,10 @@ function QC_calculate_ICN() {
         "archetype": "type_a_southern",
         "has_magstripe": true,
         "watermark_style": "script",
-        "barcode_1d_pos": "top"
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbfbfb 50%, #f5f5f5 100%)",
+        "security_tint": "#d5ccba"
     },
     "CA": {
         "name": "California",
@@ -10895,11 +10907,14 @@ function QC_calculate_ICN() {
         "donor": "DONATE LIFE CA",
         "layout": "type_b",
         "watermark": "CALIFORNIA",
-        "rev": "Rev. 01/2018",
+        "rev": "Rev 08/29/2017",
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "top"
+        "barcode_1d_pos": "top",
+        "bg_color": "#faf7ee",
+        "bg_gradient": "linear-gradient(180deg, #faf7ee 0%, #f4ede1 50%, #ebe4d5 100%)",
+        "security_tint": "#ded4be"
     },
     "CO": {
         "name": "Colorado",
@@ -10914,13 +10929,16 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f2f5f4",
+        "bg_gradient": "linear-gradient(180deg, #f2f5f4 0%, #e5ece9 50%, #d8e2dd 100%)",
+        "security_tint": "#c2d2cb"
     },
     "CT": {
         "name": "Connecticut",
         "agency": "Connecticut Department of Motor Vehicles",
         "url": "portal.ct.gov/dmv",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS D-Any non commercial motor",
         "disclaimer": "Property of State of Connecticut • CGS § 14-36 • Must be carried when operating motor vehicle • Return if found to DMV Wethersfield CT 06161",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
@@ -10929,22 +10947,28 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbfb 50%, #f1f5f6 100%)",
+        "security_tint": "#d0dce0"
     },
     "DE": {
         "name": "Delaware",
         "agency": "Delaware Division of Motor Vehicles",
         "url": "dmv.de.gov",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS:D-Operator’s vechicles <26,001 GVWR. Persons < 16 not HazMat.",
         "disclaimer": "Property of State of Delaware • Notice of change of address required within 30 days",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
         "watermark": "DELAWARE",
-        "rev": "Rev. 05/2015",
+        "rev": "Rev 08/02/2017 www.dmv.de.gov",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#fcfdfe",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fbfd 50%, #edf4f8 100%)",
+        "security_tint": "#cadde8"
     },
     "DC": {
         "name": "District of Columbia",
@@ -10959,13 +10983,16 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8f9fb 50%, #f0f2f7 100%)",
+        "security_tint": "#ccd3e0"
     },
     "FL": {
         "name": "Florida",
         "agency": "Florida Highway Safety and Motor Vehicles",
         "url": "www.flhsmv.gov",
-        "class_label": "CLASS: E",
+        "class_label": "CLASS: E - Any non-commericail van with a GVWR < 26,001 lbs. or any RV",
         "disclaimer": "Property of State of Florida • FS 322 • Address change required within 30 days • If found drop in any US mailbox • Return postage guaranteed",
         "donor": "DONATE LIFE FLORIDA",
         "layout": "type_b",
@@ -10974,7 +11001,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fbfb 50%, #f0f6f7 100%)",
+        "security_tint": "#d0e4e7"
     },
     "GA": {
         "name": "Georgia",
@@ -10989,7 +11019,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fcfbf8 50%, #f7f4ec 100%)",
+        "security_tint": "#e4decb"
     },
     "HI": {
         "name": "Hawaii",
@@ -11004,7 +11037,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7fbfd 50%, #eef5fa 100%)",
+        "security_tint": "#cde1ef"
     },
     "ID": {
         "name": "Idaho",
@@ -11019,7 +11055,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbf9 50%, #f1f6f1 100%)",
+        "security_tint": "#d1dfd1"
     },
     "IL": {
         "name": "Illinois",
@@ -11034,28 +11073,34 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f6f8fb 50%, #edf1f7 100%)",
+        "security_tint": "#cad5e6"
     },
     "IN": {
         "name": "Indiana",
         "agency": "Indiana Bureau of Motor Vehicles",
         "url": "www.in.gov/bmv",
-        "class_label": "CLASS: OPERATOR",
+        "class_label": "RESTRICTIONS: N-No Class A/B Pass Vehicle, E-Auto Transmission CMV, V-Med Variance Doc Req, H-Limit To Employment, Z-No Full Airbrake CMV, K-CDL Intrastate Only, T-Hazmat Prohibited, B- Corrective Lenses, 2-HTV Conditional",
         "disclaimer": "Property of State of Indiana • Report address change within 30 days",
         "donor": "DONATE LIFE INDIANA",
         "layout": "type_b",
         "watermark": "INDIANA",
-        "rev": "Rev. 06/2019",
+        "rev": "Rev. 01/01/2018",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbf9f6 50%, #f5efe7 100%)",
+        "security_tint": "#ded5c7"
     },
     "IA": {
         "name": "Iowa",
         "agency": "Iowa Department of Transportation",
         "url": "iowadot.gov/mvd",
-        "class_label": "CLASS: C",
+        "class_label": "CLASS:",
         "disclaimer": "Property of State of Iowa • Return postage guaranteed",
         "donor": "IOWA DONOR NETWORK",
         "layout": "type_b",
@@ -11064,7 +11109,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#fcfdfd",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbfb 50%, #f2f6f6 100%)",
+        "security_tint": "#d2dede"
     },
     "KS": {
         "name": "Kansas",
@@ -11075,47 +11123,56 @@ function QC_calculate_ICN() {
         "donor": "DONATE LIFE KANSAS",
         "layout": "type_b",
         "watermark": "KANSAS",
-        "rev": "Rev. 08/2017",
+        "rev": "Rev. 06/01/2012 12/04/1989",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f8f6f5",
+        "bg_gradient": "linear-gradient(180deg, #fdfcfb 0%, #f5f1ef 50%, #ebe5e2 100%)",
+        "security_tint": "#d3cfcd"
     },
     "KY": {
         "name": "Kentucky",
         "agency": "Kentucky Transportation Cabinet",
         "url": "drive.ky.gov",
-        "class_label": "CLASS: D",
+        "class_label": "Class: D-OPERATOR",
         "disclaimer": "Commonwealth of Kentucky • Notice of change of address required within 10 days",
-        "donor": "TRUST FOR LIFE KY",
+        "donor": "Organ Donor Yes______ Donor’s Sig_____________________________________________ Witness ______________________________ Witness________________________________",
         "layout": "type_b",
         "watermark": "KENTUCKY",
         "rev": "Rev. 04/2019",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#fefdfd",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafbfb 50%, #f2f4f5 100%)",
+        "security_tint": "#d4dade"
     },
     "LA": {
         "name": "Louisiana",
         "agency": "Louisiana Office of Motor Vehicles",
         "url": "www.expresslane.org",
-        "class_label": "CLASS: Driver's license",
-        "disclaimer": "Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11. Renewable 180 days prior to expiration.",
-        "donor": "Donor __Y__N / Living Will __Y__N",
+        "class_label": "CLASS: Driver’s license",
+        "disclaimer": "in interstate commerce",
+        "donor": "Donor __Y__N / Living Will__Y__N",
         "layout": "type_a",
         "watermark": "Louisiana",
         "rev": "REV 02-10-2015 08-02-1990",
         "archetype": "type_a_southern",
         "has_magstripe": true,
         "watermark_style": "script",
-        "barcode_1d_pos": "top"
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "#ffffff",
+        "security_tint": "#dfd7c2"
     },
     "ME": {
         "name": "Maine",
         "agency": "Maine Bureau of Motor Vehicles",
         "url": "www.maine.gov/sos/bmv",
-        "class_label": "CLASS: C",
+        "class_label": "CLASS: C-Single Vehicle or combination of vehicles that does not meet definition of Class A or Class B license.",
         "disclaimer": "State of Maine • Drop in any mailbox return to Station 29 Augusta ME 04333",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
@@ -11124,7 +11181,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8faf8 50%, #eef3ee 100%)",
+        "security_tint": "#c8d7c8"
     },
     "MD": {
         "name": "Maryland",
@@ -11139,13 +11199,16 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#dad7d0",
+        "bg_gradient": "linear-gradient(180deg, #faf9f7 0%, #f0ece5 50%, #e4ded4 100%)",
+        "security_tint": "#c7bfb1"
     },
     "MA": {
         "name": "Massachusetts",
         "agency": "Massachusetts Registry of Motor Vehicles",
         "url": "mass.gov/rmv",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS -",
         "disclaimer": "Commonwealth of Massachusetts • Return postage guaranteed Boston MA 02111",
         "donor": "NEW ENGLAND DONOR SERVICES",
         "layout": "type_b",
@@ -11154,7 +11217,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fafb 50%, #f0f2f5 100%)",
+        "security_tint": "#cdd3dc"
     },
     "MI": {
         "name": "Michigan",
@@ -11165,11 +11231,14 @@ function QC_calculate_ICN() {
         "donor": "DONATE LIFE MICHIGAN",
         "layout": "type_b",
         "watermark": "MICHIGAN",
-        "rev": "Rev. 04/2017",
+        "rev": "ENCODED DATA: BIRTH, EXPIRATION, REVISION & TRANSACTION DATES; DL/ID CARD #;NAME; ADDRESS;DENDER; ISSUING STATE & INVENTORY CONTROL #.",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fbfd 50%, #eff5fa 100%)",
+        "security_tint": "#cbe0ef"
     },
     "MN": {
         "name": "Minnesota",
@@ -11184,22 +11253,28 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f7f4f0",
+        "bg_gradient": "linear-gradient(180deg, #faf8f5 0%, #efeae3 50%, #e2dcd2 100%)",
+        "security_tint": "#c9beaf"
     },
     "MS": {
         "name": "Mississippi",
         "agency": "Mississippi Department of Public Safety",
         "url": "www.driverservicebureau.dps.ms.gov",
-        "class_label": "CLASS: R",
+        "class_label": "Class: R-Regular Operator’s License",
         "disclaimer": "Property of State of Mississippi • Drop in any US mailbox return to Jackson MS",
         "donor": "ORGAN DONOR",
         "layout": "type_a",
         "watermark": "MISSISSIPPI",
-        "rev": "Rev. 09/2016",
+        "rev": "REV: 00/01/2017",
         "archetype": "type_a_southern",
         "has_magstripe": true,
         "watermark_style": "script",
-        "barcode_1d_pos": "top"
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f3f3f3 100%)",
+        "security_tint": "#d2d2d2"
     },
     "MO": {
         "name": "Missouri",
@@ -11214,37 +11289,46 @@ function QC_calculate_ICN() {
         "archetype": "type_a_southern",
         "has_magstripe": true,
         "watermark_style": "script",
-        "barcode_1d_pos": "top"
+        "barcode_1d_pos": "top",
+        "bg_color": "#f5f5f5",
+        "bg_gradient": "linear-gradient(180deg, #fafafa 0%, #f2f2f2 50%, #e6e6e6 100%)",
+        "security_tint": "#d0d0d0"
     },
     "MT": {
         "name": "Montana",
         "agency": "Montana Motor Vehicle Division",
         "url": "mvdmt.gov",
-        "class_label": "CLASS: D",
+        "class_label": "Class: D - Regular Driver",
         "disclaimer": "State of Montana Department of Justice • Property of State of Montana",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
         "watermark": "MONTANA",
-        "rev": "Rev. 01/2017",
+        "rev": "Rev. 02/14/2016",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fafb 50%, #f0f3f6 100%)",
+        "security_tint": "#ccd5de"
     },
     "NE": {
         "name": "Nebraska",
         "agency": "Nebraska Department of Motor Vehicles",
         "url": "dmv.nebraska.gov",
-        "class_label": "CLASS: O",
+        "class_label": "CLASS CODE:O- Any non-comercial vehicle except motorcycle.",
         "disclaimer": "Property of State of Nebraska • Report address change within 60 days",
         "donor": "DONATE LIFE NEBRASKA",
         "layout": "type_b",
         "watermark": "NEBRASKA",
-        "rev": "Rev. 06/2017",
+        "rev": "Rev. 07-08-2009",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #faf9f6 50%, #f4f0e7 100%)",
+        "security_tint": "#dbd4c4"
     },
     "NV": {
         "name": "Nevada",
@@ -11259,13 +11343,16 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #faf8f5 50%, #f3eee6 100%)",
+        "security_tint": "#dacfc2"
     },
     "NH": {
         "name": "New Hampshire",
         "agency": "New Hampshire Division of Motor Vehicles",
         "url": "www.dmv.nh.gov",
-        "class_label": "CLASS: D",
+        "class_label": "9 CLASS D-NON COMMERCIAL CLASS D",
         "disclaimer": "Property of State of New Hampshire • Return to 23 Hazen Dr Concord NH 03305",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
@@ -11274,7 +11361,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#eef3f6",
+        "bg_gradient": "linear-gradient(180deg, #f7fafc 0%, #eaf0f5 50%, #dbe6ee 100%)",
+        "security_tint": "#99b4c6"
     },
     "NJ": {
         "name": "New Jersey",
@@ -11285,17 +11375,20 @@ function QC_calculate_ICN() {
         "donor": "SHARE LIFE NJ",
         "layout": "type_b",
         "watermark": "NEW JERSEY",
-        "rev": "Rev. 03/2014",
+        "rev": "Rev 07-23-2010",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbfb 50%, #f1f4f5 100%)",
+        "security_tint": "#ced8db"
     },
     "NM": {
         "name": "New Mexico",
         "agency": "New Mexico Motor Vehicle Division",
         "url": "www.mvd.newmexico.gov",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS: D-1 veh less than 26,001 lb. GVWR. May not tow > lbs. than veh except w/class 4 equalizer hitch or 5th wheel",
         "disclaimer": "State of New Mexico Taxation and Revenue Department • Property of State of NM",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
@@ -11304,7 +11397,10 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbf9f6 50%, #f5eee4 100%)",
+        "security_tint": "#dbcebe"
     },
     "NY": {
         "name": "New York",
@@ -11319,22 +11415,28 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f2f5f2",
+        "bg_gradient": "linear-gradient(180deg, #f6f8f6 0%, #e9efe9 50%, #dce4dc 100%)",
+        "security_tint": "#b8ccb9"
     },
     "NC": {
         "name": "North Carolina",
         "agency": "North Carolina Division of Motor Vehicles",
         "url": "www.ncdot.gov/dmv",
-        "class_label": "CLASS: C",
+        "class_label": "CLASS: C-Any noncommercial single vehicle with a GVWR of less than 26,001 lbs. A vehicle towing a vehicle which has a combined GVWR of less than 26,001 lbs operated by a driver 18 yrs or older.",
         "disclaimer": "Property of State of North Carolina • N.C.G.S. 20-7 • Operating a motor vehicle implies consent to chemical tests • Return to Raleigh NC 27697",
         "donor": "DONATE LIFE NC",
         "layout": "type_b",
         "watermark": "NORTH CAROLINA",
-        "rev": "Rev. 05/2016",
+        "rev": "Rev 10/24/2014",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbfbfb 50%, #f5f4f2 100%)",
+        "security_tint": "#d6d2cb"
     },
     "ND": {
         "name": "North Dakota",
@@ -11349,7 +11451,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f3f4f4 100%)",
+        "security_tint": "#d0d4d4"
     },
     "OH": {
         "name": "Ohio",
@@ -11364,14 +11469,17 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9f9fa 50%, #f2f3f5 100%)",
+        "security_tint": "#d2d5dc"
     },
     "OK": {
         "name": "Oklahoma",
         "agency": "Oklahoma Department of Public Safety",
         "url": "oklahoma.gov/dps",
-        "class_label": "CLASS: D",
-        "disclaimer": "Property of State of Oklahoma • Drop in any US mailbox Oklahoma City OK 73136",
+        "class_label": "Class D - All vehicles or combination of vehicles except Class A, B, C",
+        "disclaimer": "Notify in writing, Driver License Services, P.O. Box 11415, Oklahoma City, OK 73136-0145 within 10 days of any name or address change",
         "donor": "LIFESHARE OK",
         "layout": "type_b",
         "watermark": "OKLAHOMA",
@@ -11379,13 +11487,16 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafaf9 50%, #f4f3f0 100%)",
+        "security_tint": "#d8d5cb"
     },
     "OR": {
         "name": "Oregon",
         "agency": "Oregon Department of Transportation DMV",
         "url": "www.oregon.gov/odot/dmv",
-        "class_label": "CLASS: C",
+        "class_label": "Class: C - Any single vechicle with a GVWR of not more than 26,000 pounds with propper endorsements. Any emergency vechicle operated by a firefighter.",
         "disclaimer": "Property of State of Oregon • Return postage guaranteed Salem OR 97314",
         "donor": "DONATE LIFE NW",
         "layout": "type_b",
@@ -11394,37 +11505,46 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f0f4f5",
+        "bg_gradient": "linear-gradient(180deg, #f7fafb 0%, #ecf2f3 50%, #dfe9ea 100%)",
+        "security_tint": "#c2d5d7"
     },
     "PA": {
         "name": "Pennsylvania",
         "agency": "Pennsylvania Department of Transportation",
         "url": "www.dmv.pa.gov",
-        "class_label": "CLASS: C",
+        "class_label": "CLASS: C-Single/Comb < 26,001 END: None RESTR: None",
         "disclaimer": "Property of Commonwealth of Pennsylvania • Pa. Vehicle Code (Title 75) • Address change required within 15 days • Return to Harrisburg PA 17106",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
         "watermark": "PENNSYLVANIA",
-        "rev": "Rev. 09/2017",
+        "rev": "08/25/1972 Rev 06/07/2016",
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f6f7f8",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f6f7f9 50%, #edf0f3 100%)",
+        "security_tint": "#ccd3dc"
     },
     "RI": {
         "name": "Rhode Island",
         "agency": "Rhode Island Division of Motor Vehicles",
         "url": "www.dmv.ri.gov",
-        "class_label": "CLASS: 10",
-        "disclaimer": "State of Rhode Island • Report change of address within 10 days",
+        "class_label": "CLASS: 10-Operator License",
+        "disclaimer": "The law requires the DMV to be notified of any change of name or address within 10 days Please print change of address below in permanent int.",
         "donor": "ORGAN DONOR",
         "layout": "type_b",
         "watermark": "RHODE ISLAND",
-        "rev": "Rev. 02/2018",
+        "rev": "Rev 01/26/2017 09/16/1985",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f5f4f2",
+        "bg_gradient": "linear-gradient(180deg, #faf9f8 0%, #f3f1ee 50%, #e8e5e0 100%)",
+        "security_tint": "#cdc8be"
     },
     "SC": {
         "name": "South Carolina",
@@ -11439,7 +11559,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f0f0f0",
+        "bg_gradient": "linear-gradient(180deg, #fafafa 0%, #f2f2f2 50%, #e6e6e6 100%)",
+        "security_tint": "#d1d1d1"
     },
     "SD": {
         "name": "South Dakota",
@@ -11454,7 +11577,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#eef1f3",
+        "bg_gradient": "linear-gradient(180deg, #f6f8f9 0%, #ebedf0 50%, #dde2e5 100%)",
+        "security_tint": "#abb2b9"
     },
     "TN": {
         "name": "Tennessee",
@@ -11469,29 +11595,35 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f4f4f4 100%)",
+        "security_tint": "#d3d3d3"
     },
     "TX": {
         "name": "Texas",
         "agency": "Texas Department of Public Safety",
         "url": "www.dps.texas.gov",
-        "class_label": "CLASS: C",
-        "disclaimer": "Property of Texas Dept of Public Safety • Tex. Transp. Code § 521 • Unlawful to allow another to display or possess this license • Return to PO Box 4087 Austin TX",
+        "class_label": "CLASS: C-Single or comb veh w/ GVWR ≤ 26,000 lbs which transports placarder HAZMAT or ≥ 16 pass, including driver",
+        "disclaimer": "Tex. Transp. Code § 521 • Texas Department of Public Safety • Operation of a motor vehicle constitutes consent to alcohol testing • Directive to physician / Emergency Contact",
         "donor": "DONATE LIFE TEXAS",
         "layout": "type_b",
         "watermark": "TEXAS",
-        "rev": "Rev. 09/2016",
+        "rev": "REV: 02/23/2020",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f5f2f4",
+        "bg_gradient": "linear-gradient(180deg, #faf7f8 0%, #f0e7eb 50%, #e4eaee 100%)",
+        "security_tint": "#ccaebd"
     },
     "UT": {
         "name": "Utah",
         "agency": "Utah Department of Public Safety",
         "url": "dps.utah.gov",
-        "class_label": "CLASS: D",
-        "disclaimer": "State of Utah Driver License Division • Property of State of Utah",
+        "class_label": "CLASS: D-ALL VECHICLES NOT REQUIRING A CDL",
+        "disclaimer": "ADDRESS CHANGE: Notify in writing. Driver License Division. P.O. Box 144501, Salt Lake City, UT 04114-4001 or Online at driverlicense.utah.com any change of address within 10 days.",
         "donor": "YES UTAH DONOR",
         "layout": "type_b",
         "watermark": "UTAH",
@@ -11499,7 +11631,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafaf8 50%, #f4f3ed 100%)",
+        "security_tint": "#d7d4c5"
     },
     "VT": {
         "name": "Vermont",
@@ -11514,7 +11649,10 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8faf8 50%, #eef3ee 100%)",
+        "security_tint": "#c9d9c9"
     },
     "VA": {
         "name": "Virginia",
@@ -11529,14 +11667,17 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbfb 50%, #f1f4f5 100%)",
+        "security_tint": "#cbd7db"
     },
     "WA": {
         "name": "Washington",
         "agency": "Washington State Department of Licensing",
         "url": "www.dol.wa.gov",
         "class_label": "CLASS: DRIVER",
-        "disclaimer": "State of Washington Department of Licensing • RCW 46.20 • Operating a motor vehicle constitutes consent to alcohol/drug testing",
+        "disclaimer": "Please notify the Department of Licensing within 10 days of change of address",
         "donor": "LIFECENTER NW",
         "layout": "type_b",
         "watermark": "WASHINGTON",
@@ -11544,7 +11685,10 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7faf8 50%, #edf4ef 100%)",
+        "security_tint": "#c6dccb"
     },
     "WV": {
         "name": "West Virginia",
@@ -11559,22 +11703,28 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafbfb 50%, #f2f4f5 100%)",
+        "security_tint": "#d1d8dc"
     },
     "WI": {
         "name": "Wisconsin",
         "agency": "Wisconsin Department of Transportation",
         "url": "wisconsindot.gov",
-        "class_label": "CLASS: D",
+        "class_label": "CLASS:",
         "disclaimer": "State of Wisconsin • Drop in any US mailbox Madison WI 53707",
-        "donor": "DONATE LIFE WISCONSIN",
+        "donor": "I refuse to make an anatomical gift",
         "layout": "type_b",
         "watermark": "WISCONSIN",
         "rev": "Rev. 09/2015",
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#edf0f6",
+        "bg_gradient": "linear-gradient(180deg, #f6f8fc 0%, #eaedf5 50%, #dbe0ee 100%)",
+        "security_tint": "#b6c0db"
     },
     "WY": {
         "name": "Wyoming",
@@ -11589,14 +11739,17 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafaf9 50%, #f3f3f0 100%)",
+        "security_tint": "#d5d5cd"
     },
     "AB": {
         "name": "Alberta",
         "agency": "Government of Alberta • Service Alberta",
         "url": "alberta.ca",
         "class_label": "CLASS: 5",
-        "disclaimer": "Property of the Province of Alberta • Must be surrendered upon request of a peace officer • Traffic Safety Act",
+        "disclaimer": "In accordance with Alberta law it is an offence to have more than one Driver’s Licence and you",
         "donor": "ALBERTA DONOR REGISTRY",
         "layout": "canadian",
         "watermark": "ALBERTA",
@@ -11604,14 +11757,17 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#edf5f5",
+        "bg_gradient": "linear-gradient(180deg, #f5fafa 0%, #eaf4f4 50%, #dceeed 100%)",
+        "security_tint": "#bddada"
     },
     "BC": {
         "name": "British Columbia",
         "agency": "Insurance Corporation of British Columbia (ICBC)",
         "url": "icbc.com",
         "class_label": "CLASS: 5",
-        "disclaimer": "BC Services Card • Property of the Province of British Columbia • Motor Vehicle Act",
+        "disclaimer": "This card remains the property of the issuing agency and must be surrendered upon request.",
         "donor": "BC TRANSPLANT",
         "layout": "canadian",
         "watermark": "BRITISH COLUMBIA",
@@ -11619,7 +11775,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fafb 50%, #edf3f7 100%)",
+        "security_tint": "#c6d9e8"
     },
     "MB": {
         "name": "Manitoba",
@@ -11634,7 +11793,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafbfb 50%, #f1f4f5 100%)",
+        "security_tint": "#cbd8dc"
     },
     "NB": {
         "name": "New Brunswick",
@@ -11649,7 +11811,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #faf9f6 50%, #f3eee3 100%)",
+        "security_tint": "#dcd4c0"
     },
     "NL": {
         "name": "Newfoundland and Labrador",
@@ -11664,7 +11829,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7fbfd 50%, #eef5fa 100%)",
+        "security_tint": "#cbe1f0"
     },
     "NS": {
         "name": "Nova Scotia",
@@ -11679,7 +11847,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fbfd 50%, #edf4f9 100%)",
+        "security_tint": "#c7dcee"
     },
     "NT": {
         "name": "Northwest Territories",
@@ -11694,7 +11865,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#edf4f8",
+        "bg_gradient": "linear-gradient(180deg, #f6fafd 0%, #ebf3f8 50%, #deecf4 100%)",
+        "security_tint": "#b8d6e7"
     },
     "NU": {
         "name": "Nunavut",
@@ -11709,7 +11883,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#edf4f8",
+        "bg_gradient": "linear-gradient(180deg, #f6fafd 0%, #ebf3f8 50%, #deecf4 100%)",
+        "security_tint": "#b8d6e7"
     },
     "ON": {
         "name": "Ontario",
@@ -11724,7 +11901,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#e8f3f4",
+        "bg_gradient": "linear-gradient(180deg, #f4fafb 0%, #e4f2f3 50%, #d4eaec 100%)",
+        "security_tint": "#bcd1d4"
     },
     "PE": {
         "name": "Prince Edward Island",
@@ -11739,7 +11919,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbf9f8 50%, #f5eee9 100%)",
+        "security_tint": "#dfd2c6"
     },
     "QC": {
         "name": "Quebec",
@@ -11754,7 +11937,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian_fr",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#edf1fc",
+        "bg_gradient": "linear-gradient(180deg, #f5f7fe 0%, #e9edfa 50%, #d9e1f6 100%)",
+        "security_tint": "#c8d2f4"
     },
     "SK": {
         "name": "Saskatchewan",
@@ -11769,7 +11955,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#f8f8f2",
+        "bg_gradient": "linear-gradient(180deg, #fdfdfa 0%, #f6f6ef 50%, #ecece1 100%)",
+        "security_tint": "#dedecb"
     },
     "YT": {
         "name": "Yukon",
@@ -11784,7 +11973,10 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom"
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7fbfd 50%, #edf5fa 100%)",
+        "security_tint": "#cae0ee"
     }
 };
 
