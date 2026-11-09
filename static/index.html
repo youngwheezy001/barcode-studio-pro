@@ -2072,18 +2072,19 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <div class="absolute inset-0 pointer-events-none opacity-[0.06]" style="background-image: radial-gradient(#0369a1 1px, transparent 1px), radial-gradient(#0369a1 1px, transparent 1px); background-size: 10px 10px; background-position: 0 0, 5px 5px;"></div>
 
                                 <!-- Top Left White Cutout Notch for Vertical 1D Barcode -->
-                                <div class="absolute top-0 left-0 w-[80px] h-[116px] bg-white rounded-br-[12px] shadow-[1px_1px_3px_rgba(0,0,0,0.06)] flex items-center justify-between px-1.5 py-2 z-20">
+                                <div class="absolute top-0 left-0 w-[86px] h-[126px] bg-white rounded-br-[14px] shadow-[1px_1px_3px_rgba(0,0,0,0.06)] flex items-center justify-between px-1.5 py-2 z-20">
                                     <!-- Vertical Alphanumeric Sequence Number -->
-                                    <span id="alaska-seq-num" class="font-mono text-[8px] font-bold text-slate-800 select-none tracking-wider pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg);">2000002340</span>
+                                    <span id="alaska-seq-num" class="font-mono text-[9px] font-bold text-slate-800 select-none tracking-wider whitespace-nowrap pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg);">2000002340</span>
                                     <!-- Vertical Code 128 Barcode (Horizontal Bars) -->
-                                    <div class="w-[45px] h-[95px] flex items-center justify-center overflow-hidden">
-                                        <svg id="alaska-code128-svg" style="transform: rotate(-90deg); transform-origin: center center;"></svg>
+                                    <div class="w-[46px] h-[112px] flex items-center justify-center overflow-hidden">
+                                        <canvas id="alaska-code128-canvas" class="w-[44px] h-[110px] max-h-[110px] object-contain select-none"></canvas>
+                                        <svg id="alaska-code128-svg" class="hidden"></svg>
                                     </div>
                                 </div>
 
                                 <!-- Top Center: 2D PDF417 Machine-Readable Zone in Quiet Zone Box -->
-                                <div class="absolute top-2.5 left-[88px] right-[46px] flex flex-col items-center z-10">
-                                    <div class="bg-white rounded-[6px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2 py-1 flex items-center justify-center border border-white w-full max-w-[245px] min-h-[56px]">
+                                <div class="absolute top-2.5 left-[90px] right-[44px] flex flex-col items-center z-10">
+                                    <div class="bg-white rounded-[6px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2 py-1 flex items-center justify-center border border-white w-full max-w-[242px] min-h-[56px]">
                                         <canvas id="alaska-pdf417" class="max-w-[230px] max-h-[50px] w-auto h-auto object-contain"></canvas>
                                     </div>
                                     <!-- DMV Change of Address Warning -->
@@ -2091,7 +2092,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         You must notify DMV of name or address change within 30 days.
                                     </div>
                                     <!-- DMV Portal URL -->
-                                    <div class="text-[7.5px] text-slate-900 font-sans font-bold text-right w-full max-w-[245px] pr-1">
+                                    <div class="text-[7.5px] text-slate-900 font-sans font-bold text-right w-full max-w-[242px] pr-1">
                                         http://doa.alaska.gov/dmv/
                                     </div>
                                 </div>
@@ -5605,12 +5606,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
 
-                // Populate Alaska Sequence Number (ICN/Audit)
+                // Populate Alaska Sequence Number (ICN / DCK prioritized as on authentic sample)
                 const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
                 const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
                 const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
                 const idVal = (document.getElementById('aamva-id')?.value || '').trim();
-                const akSeq = dcfVal || auditVal || dckVal || idVal || '2000002340';
+                const akSeq = dckVal || auditVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 12 ? dcfVal : '') || idVal || '2000002340';
 
                 const akSeqEl = document.getElementById('alaska-seq-num');
                 if (akSeqEl) akSeqEl.textContent = akSeq;
@@ -5660,13 +5661,26 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
                 // Render Alaska vertical Code 128 barcode in top-left notch
                 try {
+                    const cleanSeq = akSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '2000002340';
+                    const akCanvas = document.getElementById('alaska-code128-canvas');
+                    if (akCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(akCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 22,
+                            rotate: 'R',
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
                     if (typeof JsBarcode === 'function' && document.getElementById('alaska-code128-svg')) {
-                        const cleanSeq = akSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '2000002340';
                         JsBarcode("#alaska-code128-svg", cleanSeq, {
                             format: "CODE128",
                             displayValue: false,
-                            height: 38,
-                            width: 1.1,
+                            height: 44,
+                            width: 1.25,
                             margin: 0,
                             lineColor: "#0a0a0a"
                         });
@@ -7438,6 +7452,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const cardPreviewBarcode = document.getElementById('card-preview-barcode');
             const cardCode128Svg = document.getElementById('card-code128-svg');
             const alaskaCanvas = document.getElementById('alaska-pdf417');
+            const alaskaCode128Canvas = document.getElementById('alaska-code128-canvas');
             const alaskaCode128Svg = document.getElementById('alaska-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
@@ -7474,6 +7489,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     alaskaCanvas.style.pointerEvents = 'auto';
                     alaskaCanvas.style.userSelect = 'auto';
                     alaskaCanvas.oncontextmenu = null;
+                }
+                if (alaskaCode128Canvas) {
+                    alaskaCode128Canvas.style.filter = 'none';
+                    alaskaCode128Canvas.style.pointerEvents = 'auto';
+                    alaskaCode128Canvas.style.userSelect = 'auto';
+                    alaskaCode128Canvas.oncontextmenu = null;
                 }
                 if (alaskaCode128Svg) {
                     alaskaCode128Svg.style.filter = 'none';
@@ -7517,6 +7538,12 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     alaskaCanvas.style.pointerEvents = 'none';
                     alaskaCanvas.style.userSelect = 'none';
                     alaskaCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (alaskaCode128Canvas) {
+                    alaskaCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    alaskaCode128Canvas.style.pointerEvents = 'none';
+                    alaskaCode128Canvas.style.userSelect = 'none';
+                    alaskaCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
                 if (alaskaCode128Svg) {
                     alaskaCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
