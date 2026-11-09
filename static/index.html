@@ -2612,6 +2612,43 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Kansas Custom Card Back View (Authentic Substrate, Top Rev/DOB, Dotted Turtle Perforation, Top 1D Barcode & Center 2D PDF417, Demographics & Kansas State Box) -->
+                            <div id="card-back-kansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('kansas_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top Left Revision Date and DOB (Centered above turtle perforation) -->
+                                <div class="absolute flex flex-col items-center justify-center select-none z-20" style="left: 6.2%; top: 4.8%; width: 22.0%;">
+                                    <span id="kansas-rev-val" class="font-sans text-[7.5px] sm:text-[8px] font-normal text-slate-900 tracking-tight whitespace-nowrap text-center">Rev. 06/01/2012</span>
+                                    <span id="kansas-dob-val" class="font-sans text-[7.5px] sm:text-[8px] font-normal text-slate-900 tracking-tight whitespace-nowrap text-center mt-[-1px]">12/04/1989</span>
+                                </div>
+
+                                <!-- Top Horizontal 1D Code 128 Barcode (Spanning top right sector) -->
+                                <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 36.5%; top: 0px; width: 56.5%; height: 14.5%;">
+                                    <canvas id="kansas-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <svg id="kansas-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
+                                <div id="kansas-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                     style="left: 36.5%; top: 14.5%; width: 56.5%; height: 26.5%; padding: 1px 1px;">
+                                    <canvas id="kansas-pdf417" class="w-full h-full object-contain"></canvas>
+                                </div>
+
+                                <!-- Demographics Stack (Lower Left) -->
+                                <!-- Class description (sits directly after static 'CLASS:' on the substrate background at x=2.0%..9.1%) -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 9.3%; top: 58.2%;">
+                                    <span id="kansas-class-val" class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">DL-C Any single vehicle with a GVWR less than 26,001 lbs</span>
+                                </div>
+                                <!-- Endorsements (sits directly after static 'ENDORSEMENTS:' on substrate at x=2.0%..19.4%) -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 20.0%; top: 79.7%;">
+                                    <span id="kansas-endorsements-val" class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">None</span>
+                                </div>
+                                <!-- Restrictions (sits directly after static 'RESTRICTIONS:' on substrate at x=2.0%..17.2%) -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 17.8%; top: 88.9%;">
+                                    <span id="kansas-restrictions-val" class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">None</span>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -6068,6 +6105,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const floridaView = document.getElementById('card-back-florida-view');
             const georgiaView = document.getElementById('card-back-georgia-view');
             const idahoView = document.getElementById('card-back-idaho-view');
+            const kansasView = document.getElementById('card-back-kansas-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -6081,6 +6119,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -6179,6 +6218,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -6275,6 +6315,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
                 }
@@ -6384,6 +6425,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
                 }
@@ -6496,6 +6538,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
                 }
@@ -6596,6 +6639,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("colorado_back_bg.webp") no-repeat center / cover';
                 }
@@ -6686,6 +6730,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.remove('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("florida_back_bg.webp") no-repeat center / cover';
                 }
@@ -6781,6 +6826,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.remove('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("georgia_back_bg.webp") no-repeat center / cover';
                 }
@@ -6877,6 +6923,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.remove('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("idaho_back_bg.webp") no-repeat center / cover';
                 }
@@ -6959,6 +7006,100 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Idaho 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'KS') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#fafaf8 url("kansas_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Kansas Revision Date (Top Left above turtle)
+                const ksRevEl = document.getElementById('kansas-rev-val');
+                if (ksRevEl) ksRevEl.textContent = meta.rev || 'Rev. 06/01/2012';
+
+                // Kansas DOB (Top Left above turtle)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1989-12-04').trim();
+                let ksDobFmt = '12/04/1989';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) ksDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        ksDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        ksDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const ksDobEl = document.getElementById('kansas-dob-val');
+                if (ksDobEl) ksDobEl.textContent = ksDobFmt;
+
+                // Kansas Demographics: Restrictions, Endorsements, Class
+                const ksRestEl = document.getElementById('kansas-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (ksRestEl) ksRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'None';
+
+                const ksEndEl = document.getElementById('kansas-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (ksEndEl) ksEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
+
+                const ksClassEl = document.getElementById('kansas-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (ksClassEl) {
+                    if (rawClass && rawClass !== 'C' && rawClass !== 'Operator') {
+                        ksClassEl.textContent = `DL-${rawClass} Any single vehicle with a GVWR less than 26,001 lbs`;
+                    } else {
+                        ksClassEl.textContent = 'DL-C Any single vehicle with a GVWR less than 26,001 lbs';
+                    }
+                }
+
+                // Kansas 1D Barcode (Top Right Code 128)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                let rawSeq = auditVal || dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 18 ? dcfVal : '') || idVal || '1204198901';
+                rawSeq = rawSeq.replace(/[^A-Za-z0-9]/g, '');
+                if (rawSeq.length < 8) {
+                    rawSeq = rawSeq.padStart(10, '0');
+                }
+
+                try {
+                    const cleanSeq = rawSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '1204198901';
+                    const ksCanvas = document.getElementById('kansas-code128-canvas');
+                    if (ksCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(ksCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 18,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('kansas-code128-svg')) {
+                        JsBarcode("#kansas-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Kansas 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
@@ -6970,6 +7111,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -7448,6 +7590,23 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'KS') {
+                const ksCanvas = document.getElementById('kansas-code128-canvas');
+                if (ksCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(ksCanvas, {
+                            bcid: 'code128',
+                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            scale: 2,
+                            height: 18,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -7641,6 +7800,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errId) {}
                     }
+                    const kansasCanvas = document.getElementById('kansas-pdf417');
+                    if (kansasCanvas) {
+                        try {
+                            bwipjs.toCanvas(kansasCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errKs) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -7804,6 +7975,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 4
                             });
                         } catch (errId) {}
+                    }
+                    const kansasCanvas = document.getElementById('kansas-pdf417');
+                    if (kansasCanvas) {
+                        try {
+                            bwipjs.toCanvas(kansasCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errKs) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -9180,6 +9367,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const idahoCanvas = document.getElementById('idaho-pdf417');
             const idahoCode128Canvas = document.getElementById('idaho-code128-canvas');
             const idahoCode128Svg = document.getElementById('idaho-code128-svg');
+            const kansasCanvas = document.getElementById('kansas-pdf417');
+            const kansasCode128Canvas = document.getElementById('kansas-code128-canvas');
+            const kansasCode128Svg = document.getElementById('kansas-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -9377,6 +9567,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     idahoCode128Svg.style.pointerEvents = 'auto';
                     idahoCode128Svg.style.userSelect = 'auto';
                     idahoCode128Svg.oncontextmenu = null;
+                }
+                if (kansasCanvas) {
+                    kansasCanvas.style.filter = 'none';
+                    kansasCanvas.style.pointerEvents = 'auto';
+                    kansasCanvas.style.userSelect = 'auto';
+                    kansasCanvas.oncontextmenu = null;
+                }
+                if (kansasCode128Canvas) {
+                    kansasCode128Canvas.style.filter = 'none';
+                    kansasCode128Canvas.style.pointerEvents = 'auto';
+                    kansasCode128Canvas.style.userSelect = 'auto';
+                    kansasCode128Canvas.oncontextmenu = null;
+                }
+                if (kansasCode128Svg) {
+                    kansasCode128Svg.style.filter = 'none';
+                    kansasCode128Svg.style.pointerEvents = 'auto';
+                    kansasCode128Svg.style.userSelect = 'auto';
+                    kansasCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -9576,6 +9784,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     idahoCode128Svg.style.pointerEvents = 'none';
                     idahoCode128Svg.style.userSelect = 'none';
                     idahoCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (kansasCanvas) {
+                    kansasCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    kansasCanvas.style.pointerEvents = 'none';
+                    kansasCanvas.style.userSelect = 'none';
+                    kansasCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (kansasCode128Canvas) {
+                    kansasCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    kansasCode128Canvas.style.pointerEvents = 'none';
+                    kansasCode128Canvas.style.userSelect = 'none';
+                    kansasCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (kansasCode128Svg) {
+                    kansasCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    kansasCode128Svg.style.pointerEvents = 'none';
+                    kansasCode128Svg.style.userSelect = 'none';
+                    kansasCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
