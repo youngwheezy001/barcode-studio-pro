@@ -2516,6 +2516,51 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Georgia Custom Card Back View (Authentic Substrate, DDS Logo, Top Audit & 1D Barcode, Upper-Right 2D PDF417, Demographics & State Capitol Seal) -->
+                            <div id="card-back-georgia-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('georgia_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top Left Revision Date (Rev 10/22/2017 above DDS Logo) -->
+                                <div class="absolute flex items-center select-none z-20" style="left: 3.7%; top: 7.8%; height: 16px;">
+                                    <span id="georgia-rev-val" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 tracking-tight whitespace-nowrap">Rev 10/22/2017</span>
+                                </div>
+
+                                <!-- Top Sequence / Audit Number (Left of Top Barcode) -->
+                                <div class="absolute flex items-center select-none z-20" style="left: 29.4%; top: 7.8%; height: 16px;">
+                                    <span id="georgia-seq-val" class="font-sans text-[7px] sm:text-[7.5px] font-medium text-slate-900 tracking-tight whitespace-nowrap">0445001121600101</span>
+                                </div>
+
+                                <!-- Top Horizontal 1D Code 128 Barcode (Spanning top right sector) -->
+                                <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 51.0%; top: 0px; width: 40.2%; height: 11.8%;">
+                                    <canvas id="georgia-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <svg id="georgia-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
+                                <div id="georgia-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                     style="left: 36.3%; top: 16.6%; width: 58.4%; height: 31.6%; padding: 1px 1px;">
+                                    <canvas id="georgia-pdf417" class="w-full h-full object-contain"></canvas>
+                                </div>
+
+                                <!-- Demographics (Lower Left): Class (sr-only/DOM), Endorsements, Restrictions -->
+                                <span id="georgia-class-val" class="sr-only">CLASS: C-≤ 26,000 lbs. GVWR and Trailer ≤ 10,000 lbs. All recreational vehicles included</span>
+
+                                <!-- Endorsements Dynamic Value (Placed right after static 'ENDORSEMENTS:' in background) -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 21.8%; top: 74.5%; height: 14px;">
+                                    <span id="georgia-endorsements-val" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 tracking-tight whitespace-nowrap">None</span>
+                                </div>
+
+                                <!-- Restrictions Dynamic Value (Placed right after static 'RESTRICTIONS:' in background) -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 19.7%; top: 82.5%; height: 14px;">
+                                    <span id="georgia-restrictions-val" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 tracking-tight whitespace-nowrap">None</span>
+                                </div>
+
+                                <!-- Date of Birth (Horizontal at bottom left) -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 3.7%; top: 93.8%; height: 14px;">
+                                    <span id="georgia-dob-val" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 tracking-tight whitespace-nowrap">03/03/1986</span>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5970,6 +6015,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const californiaView = document.getElementById('card-back-california-view');
             const coloradoView = document.getElementById('card-back-colorado-view');
             const floridaView = document.getElementById('card-back-florida-view');
+            const georgiaView = document.getElementById('card-back-georgia-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -5981,6 +6027,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -6077,6 +6124,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -6171,6 +6219,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
                 }
@@ -6278,6 +6327,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
                 }
@@ -6388,6 +6438,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.remove('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
                 }
@@ -6486,6 +6537,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.remove('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("colorado_back_bg.webp") no-repeat center / cover';
                 }
@@ -6574,6 +6626,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.remove('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("florida_back_bg.webp") no-repeat center / cover';
                 }
@@ -6658,6 +6711,101 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Florida 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'GA') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff url("georgia_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Georgia Revision Date
+                const gaRevEl = document.getElementById('georgia-rev-val');
+                if (gaRevEl) gaRevEl.textContent = meta.rev || 'Rev 10/22/2017';
+
+                // Georgia Demographics: Restrictions, Endorsements, Class
+                const gaRestEl = document.getElementById('georgia-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (gaRestEl) gaRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'None';
+
+                const gaEndEl = document.getElementById('georgia-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (gaEndEl) gaEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
+
+                const gaClassEl = document.getElementById('georgia-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (gaClassEl) {
+                    if (rawClass && rawClass !== 'C' && rawClass !== 'Operator') {
+                        gaClassEl.textContent = `CLASS: ${rawClass}-≤ 26,000 lbs. GVWR and Trailer ≤ 10,000 lbs. All recreational vehicles included`;
+                    } else {
+                        gaClassEl.textContent = 'CLASS: C-≤ 26,000 lbs. GVWR and Trailer ≤ 10,000 lbs. All recreational vehicles included';
+                    }
+                }
+
+                // Georgia DOB (Horizontal on lower left)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1986-03-03').trim();
+                let gaDobFmt = '03/03/1986';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) gaDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        gaDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        gaDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const gaDobEl = document.getElementById('georgia-dob-val');
+                if (gaDobEl) gaDobEl.textContent = gaDobFmt;
+
+                // Georgia Sequence Number (16-digit audit/ICN, e.g. 0445001121600101)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                let rawSeq = auditVal || dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 18 ? dcfVal : '') || idVal || '0445001121600101';
+                rawSeq = rawSeq.replace(/[^A-Za-z0-9]/g, '');
+                if (rawSeq.length < 16) {
+                    rawSeq = rawSeq.padStart(16, '0');
+                }
+                const gaSeqEl = document.getElementById('georgia-seq-val');
+                if (gaSeqEl) gaSeqEl.textContent = rawSeq;
+
+                // Render Georgia horizontal Code 128 barcode at top right
+                try {
+                    const cleanSeq = rawSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '0445001121600101';
+                    const gaCanvas = document.getElementById('georgia-code128-canvas');
+                    if (gaCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(gaCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 18,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('georgia-code128-svg')) {
+                        JsBarcode("#georgia-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Georgia 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
@@ -6667,6 +6815,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -7107,6 +7256,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'GA') {
+                const gaSeqEl = document.getElementById('georgia-seq-val');
+                if (gaSeqEl && activeTab === 'code128' && manualVal) {
+                    gaSeqEl.textContent = targetVal;
+                }
+                const gaCanvas = document.getElementById('georgia-code128-canvas');
+                if (gaCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(gaCanvas, {
+                            bcid: 'code128',
+                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            scale: 2,
+                            height: 18,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -7276,6 +7446,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errFl) {}
                     }
+                    const georgiaCanvas = document.getElementById('georgia-pdf417');
+                    if (georgiaCanvas) {
+                        try {
+                            bwipjs.toCanvas(georgiaCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errGa) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -7407,6 +7589,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 4
                             });
                         } catch (errFl) {}
+                    }
+                    const georgiaCanvas = document.getElementById('georgia-pdf417');
+                    if (georgiaCanvas) {
+                        try {
+                            bwipjs.toCanvas(georgiaCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errGa) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -8777,6 +8975,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const floridaCanvas = document.getElementById('florida-pdf417');
             const floridaCode128Canvas = document.getElementById('florida-code128-canvas');
             const floridaCode128Svg = document.getElementById('florida-code128-svg');
+            const georgiaCanvas = document.getElementById('georgia-pdf417');
+            const georgiaCode128Canvas = document.getElementById('georgia-code128-canvas');
+            const georgiaCode128Svg = document.getElementById('georgia-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -8938,6 +9139,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     floridaCode128Svg.style.pointerEvents = 'auto';
                     floridaCode128Svg.style.userSelect = 'auto';
                     floridaCode128Svg.oncontextmenu = null;
+                }
+                if (georgiaCanvas) {
+                    georgiaCanvas.style.filter = 'none';
+                    georgiaCanvas.style.pointerEvents = 'auto';
+                    georgiaCanvas.style.userSelect = 'auto';
+                    georgiaCanvas.oncontextmenu = null;
+                }
+                if (georgiaCode128Canvas) {
+                    georgiaCode128Canvas.style.filter = 'none';
+                    georgiaCode128Canvas.style.pointerEvents = 'auto';
+                    georgiaCode128Canvas.style.userSelect = 'auto';
+                    georgiaCode128Canvas.oncontextmenu = null;
+                }
+                if (georgiaCode128Svg) {
+                    georgiaCode128Svg.style.filter = 'none';
+                    georgiaCode128Svg.style.pointerEvents = 'auto';
+                    georgiaCode128Svg.style.userSelect = 'auto';
+                    georgiaCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -9101,6 +9320,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     floridaCode128Svg.style.pointerEvents = 'none';
                     floridaCode128Svg.style.userSelect = 'none';
                     floridaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (georgiaCanvas) {
+                    georgiaCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    georgiaCanvas.style.pointerEvents = 'none';
+                    georgiaCanvas.style.userSelect = 'none';
+                    georgiaCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (georgiaCode128Canvas) {
+                    georgiaCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    georgiaCode128Canvas.style.pointerEvents = 'none';
+                    georgiaCode128Canvas.style.userSelect = 'none';
+                    georgiaCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (georgiaCode128Svg) {
+                    georgiaCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    georgiaCode128Svg.style.pointerEvents = 'none';
+                    georgiaCode128Svg.style.userSelect = 'none';
+                    georgiaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
