@@ -2561,6 +2561,57 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Idaho Custom Card Back View (Authentic Substrate, Top DOB/REV & 1D Barcode, Upper-Right 2D PDF417, Lower-Left Demographics & Centered Legal Disclaimer) -->
+                            <div id="card-back-idaho-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('idaho_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top Left DOB and Revision Date -->
+                                <div class="absolute flex items-center select-none z-20" style="left: 3.3%; top: 4.8%; height: 16px;">
+                                    <span class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                                        DOB: <span id="idaho-dob-val" class="font-normal text-slate-900">04/05/1926</span>
+                                        <span class="ml-4 font-bold">REV:</span> <span id="idaho-rev-val" class="font-normal text-slate-900">00/01/2017</span>
+                                    </span>
+                                </div>
+
+                                <!-- Top Horizontal 1D Code 128 Barcode (Spanning top right sector) -->
+                                <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 48.7%; top: 0px; width: 45.8%; height: 8.5%;">
+                                    <canvas id="idaho-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <svg id="idaho-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
+                                <div id="idaho-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                     style="left: 33.3%; top: 13.3%; width: 59.1%; height: 37.3%; padding: 1px 1px;">
+                                    <canvas id="idaho-pdf417" class="w-full h-full object-contain"></canvas>
+                                </div>
+
+                                <!-- Demographics Stack (Lower Left) -->
+                                <!-- Class description -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 2.9%; top: 54.2%;">
+                                    <span id="idaho-class-val" class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">CLASS: D - Regular operator license</span>
+                                </div>
+                                <!-- Endorsements -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 3.0%; top: 64.6%;">
+                                    <span class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">
+                                        ENDORSEMENTS: <span id="idaho-endorsements-val" class="font-bold text-slate-900">NONE</span>
+                                    </span>
+                                </div>
+                                <!-- Restrictions -->
+                                <div class="absolute flex items-center select-none z-20 pointer-events-none" style="left: 3.0%; top: 74.9%;">
+                                    <span class="font-sans text-[7.5px] sm:text-[8px] font-bold text-slate-900 leading-tight">
+                                        RESTRICTIONS: <span id="idaho-restrictions-val" class="font-bold text-slate-900">NONE</span>
+                                    </span>
+                                </div>
+
+                                <!-- Bottom Centered Legal Disclaimer -->
+                                <div class="absolute inset-x-0 flex items-center justify-center select-none z-20 pointer-events-none text-center px-6" style="bottom: 4.5%;">
+                                    <p id="idaho-disclaimer" class="font-sans text-[6.5px] sm:text-[7px] font-semibold text-slate-800 leading-[1.25] max-w-[80%]">
+                                        Machine readable bar codes contain no personal information other than the<br>
+                                        full legal name and the human readable information printed on the card
+                                    </p>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -6016,6 +6067,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const coloradoView = document.getElementById('card-back-colorado-view');
             const floridaView = document.getElementById('card-back-florida-view');
             const georgiaView = document.getElementById('card-back-georgia-view');
+            const idahoView = document.getElementById('card-back-idaho-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -6028,6 +6080,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -6125,6 +6178,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -6220,6 +6274,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
                 }
@@ -6328,6 +6383,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
                 }
@@ -6439,6 +6495,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
                 }
@@ -6538,6 +6595,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.remove('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("colorado_back_bg.webp") no-repeat center / cover';
                 }
@@ -6627,6 +6685,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.remove('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("florida_back_bg.webp") no-repeat center / cover';
                 }
@@ -6721,6 +6780,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.remove('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("georgia_back_bg.webp") no-repeat center / cover';
                 }
@@ -6806,6 +6866,99 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Georgia 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'ID') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff url("idaho_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Idaho DOB (Top Left)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1926-04-05').trim();
+                let idDobFmt = '04/05/1926';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) idDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        idDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        idDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const idDobEl = document.getElementById('idaho-dob-val');
+                if (idDobEl) idDobEl.textContent = idDobFmt;
+
+                // Idaho REV (Top Left next to DOB)
+                const idRevEl = document.getElementById('idaho-rev-val');
+                if (idRevEl) idRevEl.textContent = meta.rev ? meta.rev.replace(/^REV:\s*/i, '') : '00/01/2017';
+
+                // Idaho Demographics: Restrictions, Endorsements, Class
+                const idRestEl = document.getElementById('idaho-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (idRestEl) idRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'NONE';
+
+                const idEndEl = document.getElementById('idaho-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (idEndEl) idEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'NONE';
+
+                const idClassEl = document.getElementById('idaho-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (idClassEl) {
+                    if (rawClass && rawClass !== 'D' && rawClass !== 'Operator') {
+                        idClassEl.textContent = `CLASS: ${rawClass} - Regular operator license`;
+                    } else {
+                        idClassEl.textContent = 'CLASS: D - Regular operator license';
+                    }
+                }
+
+                // Idaho 1D Barcode (Top Right Code 128)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                let rawSeq = auditVal || dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 18 ? dcfVal : '') || idVal || '1005063105';
+                rawSeq = rawSeq.replace(/[^A-Za-z0-9]/g, '');
+                if (rawSeq.length < 8) {
+                    rawSeq = rawSeq.padStart(10, '0');
+                }
+
+                try {
+                    const cleanSeq = rawSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '1005063105';
+                    const idCanvas = document.getElementById('idaho-code128-canvas');
+                    if (idCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(idCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 14,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('idaho-code128-svg')) {
+                        JsBarcode("#idaho-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 28,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Idaho 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
@@ -6816,6 +6969,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (coloradoView) coloradoView.classList.add('hidden');
                 if (floridaView) floridaView.classList.add('hidden');
                 if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -7277,6 +7431,23 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'ID') {
+                const idCanvas = document.getElementById('idaho-code128-canvas');
+                if (idCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(idCanvas, {
+                            bcid: 'code128',
+                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            scale: 2,
+                            height: 14,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -7458,6 +7629,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errGa) {}
                     }
+                    const idahoCanvas = document.getElementById('idaho-pdf417');
+                    if (idahoCanvas) {
+                        try {
+                            bwipjs.toCanvas(idahoCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errId) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -7605,6 +7788,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 4
                             });
                         } catch (errGa) {}
+                    }
+                    const idahoCanvas = document.getElementById('idaho-pdf417');
+                    if (idahoCanvas) {
+                        try {
+                            bwipjs.toCanvas(idahoCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errId) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -8978,6 +9177,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const georgiaCanvas = document.getElementById('georgia-pdf417');
             const georgiaCode128Canvas = document.getElementById('georgia-code128-canvas');
             const georgiaCode128Svg = document.getElementById('georgia-code128-svg');
+            const idahoCanvas = document.getElementById('idaho-pdf417');
+            const idahoCode128Canvas = document.getElementById('idaho-code128-canvas');
+            const idahoCode128Svg = document.getElementById('idaho-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -9157,6 +9359,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     georgiaCode128Svg.style.pointerEvents = 'auto';
                     georgiaCode128Svg.style.userSelect = 'auto';
                     georgiaCode128Svg.oncontextmenu = null;
+                }
+                if (idahoCanvas) {
+                    idahoCanvas.style.filter = 'none';
+                    idahoCanvas.style.pointerEvents = 'auto';
+                    idahoCanvas.style.userSelect = 'auto';
+                    idahoCanvas.oncontextmenu = null;
+                }
+                if (idahoCode128Canvas) {
+                    idahoCode128Canvas.style.filter = 'none';
+                    idahoCode128Canvas.style.pointerEvents = 'auto';
+                    idahoCode128Canvas.style.userSelect = 'auto';
+                    idahoCode128Canvas.oncontextmenu = null;
+                }
+                if (idahoCode128Svg) {
+                    idahoCode128Svg.style.filter = 'none';
+                    idahoCode128Svg.style.pointerEvents = 'auto';
+                    idahoCode128Svg.style.userSelect = 'auto';
+                    idahoCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -9338,6 +9558,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     georgiaCode128Svg.style.pointerEvents = 'none';
                     georgiaCode128Svg.style.userSelect = 'none';
                     georgiaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (idahoCanvas) {
+                    idahoCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    idahoCanvas.style.pointerEvents = 'none';
+                    idahoCanvas.style.userSelect = 'none';
+                    idahoCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (idahoCode128Canvas) {
+                    idahoCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    idahoCode128Canvas.style.pointerEvents = 'none';
+                    idahoCode128Canvas.style.userSelect = 'none';
+                    idahoCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (idahoCode128Svg) {
+                    idahoCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    idahoCode128Svg.style.pointerEvents = 'none';
+                    idahoCode128Svg.style.userSelect = 'none';
+                    idahoCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
