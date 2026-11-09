@@ -2226,6 +2226,66 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Arizona Authentic Physical CR80 Card-Back View (Top 1D Code 128, Magstripe, Guilloche Band, Bottom PDF417) -->
+                            <div id="card-back-arizona-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('arizona_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right) -->
+                                <div class="absolute top-1 right-6 sm:right-8 flex items-center justify-end z-20 overflow-hidden">
+                                    <canvas id="arizona-code128-canvas" class="h-[18px] sm:h-[20px] max-w-[210px] w-auto object-contain select-none"></canvas>
+                                    <svg id="arizona-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Magnetic Stripe (Solid Black Hi-Co Stripe across 100% width) -->
+                                <div id="arizona-magstripe" class="absolute top-[22px] left-0 w-full h-[60px] bg-black z-10 shadow-inner"></div>
+
+                                <!-- Middle Guilloche Band Typography: CLASS & ENDORSEMENTS (Left) -->
+                                <div class="absolute top-[86px] left-3 sm:left-4 flex flex-col gap-0.5 select-none z-20">
+                                    <div class="text-[8px] sm:text-[8.5px] font-sans font-bold text-slate-900 leading-tight">
+                                        CLASS: <span id="arizona-class-val" class="italic font-serif font-normal text-slate-800">O-Operator</span>
+                                    </div>
+                                    <div class="text-[7.5px] sm:text-[8px] font-sans font-bold text-slate-900 leading-tight">
+                                        ENDORSEMENTS:
+                                    </div>
+                                    <div id="arizona-endorsements-val" class="text-[7.5px] sm:text-[8px] font-sans font-medium text-slate-800 leading-tight">
+                                        None
+                                    </div>
+                                </div>
+
+                                <!-- Middle Guilloche Band Typography: RESTRICTIONS (Middle-Left) -->
+                                <div class="absolute top-[96px] left-[132px] sm:left-[142px] flex flex-col gap-0.5 select-none z-20">
+                                    <div class="text-[7.5px] sm:text-[8px] font-sans font-bold text-slate-900 leading-tight">
+                                        RESTRICTIONS:
+                                    </div>
+                                    <div id="arizona-restrictions-val" class="text-[7.5px] sm:text-[8px] font-sans font-medium text-slate-800 leading-tight">
+                                        None
+                                    </div>
+                                </div>
+
+                                <!-- Middle Guilloche Band Typography: Revision Date & Change of Address (Right) -->
+                                <div class="absolute top-[86px] right-3 sm:right-4 flex flex-col items-end gap-1 select-none z-20 text-right">
+                                    <div id="arizona-rev-val" class="text-[7.5px] sm:text-[8px] font-sans font-bold text-slate-900 leading-tight">
+                                        Rev MM/OO/CCYY
+                                    </div>
+                                    <div class="text-[6.5px] sm:text-[7px] font-sans font-bold text-slate-800 leading-[1.1] max-w-[125px] text-right mt-1">
+                                        You Must Report a<br>Change of Address<br>Within 10 Days
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Area: DOB & 17-char Sequence Number (Bottom-Left) -->
+                                <div class="absolute bottom-2.5 left-3 sm:left-4 flex flex-col items-start gap-3 select-none z-20">
+                                    <div id="arizona-dob-val" class="font-sans text-[10.5px] sm:text-[11px] font-bold text-slate-950 tracking-tight leading-none">02/01/1957</div>
+                                    <div id="arizona-seq-val" class="font-mono text-[7px] sm:text-[7.5px] font-bold text-slate-900 tracking-wider leading-none">123540WW000100001</div>
+                                </div>
+
+                                <!-- Bottom Area: 2D PDF417 Barcode Container (Bottom-Right/Center) -->
+                                <div class="absolute bottom-2 left-[104px] sm:left-[112px] right-2 sm:right-3 flex items-center justify-center z-10">
+                                    <div class="bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-1.5 py-0.5 flex items-center justify-center border border-white/90 w-full max-w-[280px] min-h-[66px]">
+                                        <canvas id="arizona-pdf417" class="max-w-[274px] max-h-[62px] w-auto h-auto object-contain"></canvas>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5671,16 +5731,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
             const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
 
-            // View Mode Switching: Alaska Authentic Custom Layout vs Arkansas vs Standard CR80 Layout
+            // View Mode Switching: Alaska Authentic Custom Layout vs Arkansas vs Arizona vs Standard CR80 Layout
             const standardView = document.getElementById('card-back-standard-view');
             const alaskaView = document.getElementById('card-back-alaska-view');
             const arkansasView = document.getElementById('card-back-arkansas-view');
+            const arizonaView = document.getElementById('card-back-arizona-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
                 if (standardView) standardView.classList.add('hidden');
                 if (alaskaView) alaskaView.classList.remove('hidden');
                 if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -5772,6 +5834,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (standardView) standardView.classList.add('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
                 if (arkansasView) arkansasView.classList.remove('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -5857,10 +5920,114 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Arkansas 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'AZ') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Populate Arizona DOB (Formatted MM/DD/YYYY)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1957-02-01').trim();
+                let azDobFmt = '02/01/1957';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) azDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        azDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        azDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const azDobEl = document.getElementById('arizona-dob-val');
+                if (azDobEl) azDobEl.textContent = azDobFmt;
+
+                // Arizona Classifications
+                const azClassEl = document.getElementById('arizona-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (azClassEl) {
+                    if (rawClass && rawClass !== 'D' && rawClass !== 'Operator' && rawClass !== 'O') {
+                        azClassEl.textContent = rawClass.startsWith('Class') ? rawClass : `Class ${rawClass}`;
+                    } else {
+                        azClassEl.textContent = 'O-Operator';
+                    }
+                }
+
+                // Arizona Restrictions
+                const azRestEl = document.getElementById('arizona-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (azRestEl) azRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'None';
+
+                // Arizona Endorsements
+                const azEndEl = document.getElementById('arizona-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (azEndEl) azEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
+
+                // Arizona Revision Date
+                const rawIss = (document.getElementById('aamva-iss')?.value || '').trim();
+                let azRevFmt = 'Rev MM/OO/CCYY';
+                if (rawIss.includes('-')) {
+                    const p = rawIss.split('-');
+                    if (p.length === 3) azRevFmt = `Rev ${p[1]}/${p[0]}`;
+                } else if (rawIss.length === 8) {
+                    if (parseInt(rawIss.substring(0, 4), 10) > 1900) {
+                        azRevFmt = `Rev ${rawIss.substring(4, 6)}/${rawIss.substring(0, 4)}`;
+                    } else {
+                        azRevFmt = `Rev ${rawIss.substring(0, 2)}/${rawIss.substring(4, 8)}`;
+                    }
+                } else {
+                    azRevFmt = (meta && meta.rev) ? meta.rev : 'Rev 03/2014';
+                }
+                const azRevEl = document.getElementById('arizona-rev-val');
+                if (azRevEl) azRevEl.textContent = azRevFmt;
+
+                // Arizona Sequence Number (DD / DCF prioritized as on authentic sample)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                const azSeq = dcfVal || dckVal || auditVal || idVal || '123540WW000100001';
+
+                const azSeqEl = document.getElementById('arizona-seq-val');
+                if (azSeqEl) azSeqEl.textContent = azSeq;
+
+                // Render Arizona horizontal Code 128 barcode at top right
+                try {
+                    const cleanSeq = azSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '123540WW000100001';
+                    const azCanvas = document.getElementById('arizona-code128-canvas');
+                    if (azCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(azCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('arizona-code128-svg')) {
+                        JsBarcode("#arizona-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Arizona 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
                 if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -6195,6 +6362,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'AZ') {
+                const azSeqEl = document.getElementById('arizona-seq-val');
+                if (azSeqEl && activeTab === 'code128' && manualVal) {
+                    azSeqEl.textContent = targetVal;
+                }
+                const azCanvas = document.getElementById('arizona-code128-canvas');
+                if (azCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(azCanvas, {
+                            bcid: 'code128',
+                            text: targetVal,
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -6304,6 +6492,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errAr) {}
                     }
+                    const arizonaCanvas = document.getElementById('arizona-pdf417');
+                    if (arizonaCanvas) {
+                        try {
+                            bwipjs.toCanvas(arizonaCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errAz) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -6355,6 +6555,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 6
                             });
                         } catch (errAr) {}
+                    }
+                    const arizonaCanvas = document.getElementById('arizona-pdf417');
+                    if (arizonaCanvas) {
+                        try {
+                            bwipjs.toCanvas(arizonaCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 6,
+                                paddingheight: 6
+                            });
+                        } catch (errAz) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -7710,6 +7926,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const arkansasCanvas = document.getElementById('arkansas-pdf417');
             const arkansasCode128Canvas = document.getElementById('arkansas-code128-canvas');
             const arkansasCode128Svg = document.getElementById('arkansas-code128-svg');
+            const arizonaCanvas = document.getElementById('arizona-pdf417');
+            const arizonaCode128Canvas = document.getElementById('arizona-code128-canvas');
+            const arizonaCode128Svg = document.getElementById('arizona-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -7781,6 +8000,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     arkansasCode128Svg.style.pointerEvents = 'auto';
                     arkansasCode128Svg.style.userSelect = 'auto';
                     arkansasCode128Svg.oncontextmenu = null;
+                }
+                if (arizonaCanvas) {
+                    arizonaCanvas.style.filter = 'none';
+                    arizonaCanvas.style.pointerEvents = 'auto';
+                    arizonaCanvas.style.userSelect = 'auto';
+                    arizonaCanvas.oncontextmenu = null;
+                }
+                if (arizonaCode128Canvas) {
+                    arizonaCode128Canvas.style.filter = 'none';
+                    arizonaCode128Canvas.style.pointerEvents = 'auto';
+                    arizonaCode128Canvas.style.userSelect = 'auto';
+                    arizonaCode128Canvas.oncontextmenu = null;
+                }
+                if (arizonaCode128Svg) {
+                    arizonaCode128Svg.style.filter = 'none';
+                    arizonaCode128Svg.style.pointerEvents = 'auto';
+                    arizonaCode128Svg.style.userSelect = 'auto';
+                    arizonaCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -7854,6 +8091,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     arkansasCode128Svg.style.pointerEvents = 'none';
                     arkansasCode128Svg.style.userSelect = 'none';
                     arkansasCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (arizonaCanvas) {
+                    arizonaCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    arizonaCanvas.style.pointerEvents = 'none';
+                    arizonaCanvas.style.userSelect = 'none';
+                    arizonaCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (arizonaCode128Canvas) {
+                    arizonaCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    arizonaCode128Canvas.style.pointerEvents = 'none';
+                    arizonaCode128Canvas.style.userSelect = 'none';
+                    arizonaCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (arizonaCode128Svg) {
+                    arizonaCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    arizonaCode128Svg.style.pointerEvents = 'none';
+                    arizonaCode128Svg.style.userSelect = 'none';
+                    arizonaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
