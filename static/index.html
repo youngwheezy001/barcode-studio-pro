@@ -2457,6 +2457,65 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- Florida Custom Card Back View (Authentic Substrate, Hi-Co Stripe, Guilloche, 1D Top Barcode, Gold Medallion & 2D PDF417) -->
+                            <div id="card-back-florida-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('florida_back_bg.webp') no-repeat center / cover;">
+                                
+                                <!-- Top Sequence / Audit Number (Left of Top Barcode) -->
+                                <div class="absolute flex items-center select-none z-20" style="left: 3.6%; top: 2.5%; height: 21px;">
+                                    <span id="florida-top-seq" class="font-mono text-[7px] sm:text-[7.5px] font-black text-slate-900 tracking-wider whitespace-nowrap">21 0100307546017219</span>
+                                </div>
+
+                                <!-- Top Horizontal 1D Code 128 Barcode (Spanning from Sequence Number to Right Edge above Magstripe) -->
+                                <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 27.0%; top: 0px; width: 53.0%; height: 21px;">
+                                    <canvas id="florida-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <svg id="florida-code128-svg" class="hidden"></svg>
+                                </div>
+
+                                <!-- Magnetic Stripe (Solid Black Hi-Co Stripe across 100% width) -->
+                                <div id="florida-magstripe" class="absolute left-0 w-full bg-black z-10 shadow-inner" style="top: 9.9%; height: 23.7%;"></div>
+
+                                <!-- Middle Demographics Typography (REST, END, CLASS, State Rights) -->
+                                <div class="absolute flex flex-col select-none z-20 pointer-events-none" style="left: 3.9%; top: 38.5%; right: 5%;">
+                                    <!-- Restrictions -->
+                                    <div class="font-sans text-[6.5px] sm:text-[7px] font-bold text-slate-900 leading-[1.2]">
+                                        REST: <span id="florida-restrictions-val" class="font-bold text-slate-900">None</span>
+                                    </div>
+                                    <!-- Endorsements -->
+                                    <div class="font-sans text-[6.5px] sm:text-[7px] font-bold text-slate-900 leading-[1.2] mt-0.5">
+                                        END: <span id="florida-endorsements-val" class="font-bold text-slate-900">None</span>
+                                    </div>
+                                    <!-- Class description -->
+                                    <div class="font-sans text-[6px] sm:text-[6.5px] font-bold text-slate-900 leading-[1.15] mt-0.5 max-w-[70%]">
+                                        <span id="florida-class-val" class="font-bold text-slate-900">CLASS: E - Any non-commercial vehicle with a GVWR &lt; 26,001 lbs. or any RV</span>
+                                    </div>
+                                </div>
+
+                                <!-- State Rights Disclaimer (Centered/Right above Barcode) -->
+                                <div class="absolute font-sans text-[6px] sm:text-[6.5px] font-bold text-slate-900 select-none z-20 pointer-events-none" style="left: 49.5%; top: 56.8%;">
+                                    The state of FL retains all property rights herein.
+                                </div>
+
+                                <!-- Lower-Left Ghost Portrait Medallion Window (Clipped Circle over Gold Medallion) -->
+                                <div id="florida-ghost-portrait" class="absolute flex items-center justify-center rounded-full overflow-hidden z-20 pointer-events-none" style="left: 5.7%; top: 57.1%; width: 61.6px; height: 61.6px;">
+                                    <svg class="w-[78%] h-[78%] object-cover text-slate-800/40" viewBox="0 0 100 100" fill="currentColor">
+                                        <circle cx="50" cy="38" r="20"/>
+                                        <path d="M18,92 C18,68 34,62 50,62 C66,62 82,68 82,92 Z"/>
+                                    </svg>
+                                </div>
+
+                                <!-- Vertical Date of Birth (Reading bottom-to-top between Medallion and PDF417) -->
+                                <div class="absolute flex items-center justify-center select-none z-20" style="left: 26.2%; top: 62.9%;">
+                                    <span id="florida-dob-val" class="font-sans text-[7px] sm:text-[7.5px] font-black text-slate-900 tracking-wider whitespace-nowrap" style="writing-mode: vertical-rl; transform: rotate(180deg);">05/05/1995</span>
+                                </div>
+
+                                <!-- Bottom 2D PDF417 Barcode Container (Spanning from right of vertical DOB to right edge) -->
+                                <div id="florida-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                     style="left: 31.0%; top: 74.5%; width: 65.1%; height: 19.6%; padding: 1px 1px;">
+                                    <canvas id="florida-pdf417" class="w-full h-full object-contain"></canvas>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5910,6 +5969,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const alabamaView = document.getElementById('card-back-alabama-view');
             const californiaView = document.getElementById('card-back-california-view');
             const coloradoView = document.getElementById('card-back-colorado-view');
+            const floridaView = document.getElementById('card-back-florida-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -5920,6 +5980,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
@@ -6015,6 +6076,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
                 }
@@ -6108,6 +6170,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
                 }
@@ -6214,6 +6277,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.remove('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
                 }
@@ -6323,6 +6387,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.remove('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
                 }
@@ -6420,6 +6485,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.remove('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     cardEl.style.background = '#ffffff url("colorado_back_bg.webp") no-repeat center / cover';
                 }
@@ -6499,6 +6565,99 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     console.error("Colorado 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'FL') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff url("florida_back_bg.webp") no-repeat center / cover';
+                }
+
+                // Florida Demographics: Restrictions, Endorsements, Class
+                const flRestEl = document.getElementById('florida-restrictions-val');
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                if (flRestEl) flRestEl.textContent = (rawRest && rawRest.toUpperCase() !== 'NONE') ? rawRest : 'None';
+
+                const flEndEl = document.getElementById('florida-endorsements-val');
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                if (flEndEl) flEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
+
+                const flClassEl = document.getElementById('florida-class-val');
+                const rawClass = (document.getElementById('aamva-class')?.value || '').trim();
+                if (flClassEl) {
+                    if (rawClass && rawClass !== 'E' && rawClass !== 'Operator') {
+                        flClassEl.textContent = `CLASS: ${rawClass} - Any non-commercial vehicle with a GVWR < 26,001 lbs. or any RV`;
+                    } else {
+                        flClassEl.textContent = 'CLASS: E - Any non-commercial vehicle with a GVWR < 26,001 lbs. or any RV';
+                    }
+                }
+
+                // Florida DOB (Vertical between Medallion and Barcode)
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1995-05-05').trim();
+                let flDobFmt = '05/05/1995';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) flDobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    if (parseInt(rawDob.substring(0, 4), 10) > 1900) {
+                        flDobFmt = `${rawDob.substring(4, 6)}/${rawDob.substring(6, 8)}/${rawDob.substring(0, 4)}`;
+                    } else {
+                        flDobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                    }
+                }
+                const flDobEl = document.getElementById('florida-dob-val');
+                if (flDobEl) flDobEl.textContent = flDobFmt;
+
+                // Florida Sequence Number (Prefix 21 + 16-digit audit/ICN, e.g. 21 0100307546017219)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                let rawSeq = auditVal || dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 18 ? dcfVal : '') || idVal || '0100307546017219';
+                rawSeq = rawSeq.replace(/[^A-Za-z0-9]/g, '');
+                let flFormattedSeq = '';
+                if (rawSeq.startsWith('21') && rawSeq.length >= 10) {
+                    flFormattedSeq = `21 ${rawSeq.substring(2)}`;
+                } else {
+                    flFormattedSeq = `21 ${rawSeq.padStart(16, '0')}`;
+                }
+                const flSeqEl = document.getElementById('florida-top-seq');
+                if (flSeqEl) flSeqEl.textContent = flFormattedSeq;
+
+                // Render Florida horizontal Code 128 barcode above magstripe
+                try {
+                    const cleanSeq = rawSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '0100307546017219';
+                    const flCanvas = document.getElementById('florida-code128-canvas');
+                    if (flCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(flCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('florida-code128-svg')) {
+                        JsBarcode("#florida-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Florida 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
@@ -6507,6 +6666,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alabamaView) alabamaView.classList.add('hidden');
                 if (californiaView) californiaView.classList.add('hidden');
                 if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -6926,6 +7086,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
+            if (stateCode === 'FL') {
+                const flSeqEl = document.getElementById('florida-top-seq');
+                if (flSeqEl && activeTab === 'code128' && manualVal) {
+                    flSeqEl.textContent = targetVal.startsWith('21') ? targetVal : `21 ${targetVal}`;
+                }
+                const flCanvas = document.getElementById('florida-code128-canvas');
+                if (flCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                    try {
+                        bwipjs.toCanvas(flCanvas, {
+                            bcid: 'code128',
+                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    } catch(e) {}
+                }
+            }
+
             try {
                 if (typeof JsBarcode === 'function') {
                     if (barcodePos === 'top') {
@@ -7083,6 +7264,18 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             });
                         } catch (errCo) {}
                     }
+                    const floridaCanvas = document.getElementById('florida-pdf417');
+                    if (floridaCanvas) {
+                        try {
+                            bwipjs.toCanvas(floridaCanvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.2,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errFl) {}
+                    }
 
                     const labelEl = document.getElementById('barcode-standard-label');
                     if (labelEl) labelEl.textContent = 'Digital ID vCard (Mobile Scanner Compatible)';
@@ -7198,6 +7391,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                                 paddingheight: 4
                             });
                         } catch (errCo) {}
+                    }
+                    const floridaCanvas = document.getElementById('florida-pdf417');
+                    if (floridaCanvas) {
+                        try {
+                            bwipjs.toCanvas(floridaCanvas, {
+                                bcid: 'pdf417',
+                                text: payload,
+                                scale: scale,
+                                columns: cols,
+                                eclevel: ecc,
+                                rowheight: ratio,
+                                rowmult: ratio,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch (errFl) {}
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -8565,6 +8774,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const coloradoCanvas = document.getElementById('colorado-pdf417');
             const coloradoCode128Canvas = document.getElementById('colorado-code128-canvas');
             const coloradoCode128Svg = document.getElementById('colorado-code128-svg');
+            const floridaCanvas = document.getElementById('florida-pdf417');
+            const floridaCode128Canvas = document.getElementById('florida-code128-canvas');
+            const floridaCode128Svg = document.getElementById('florida-code128-svg');
             const cardBarcodeLockOverlay = document.getElementById('card-barcode-lock-overlay');
 
             if (hasAccess) {
@@ -8708,6 +8920,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     coloradoCode128Svg.style.pointerEvents = 'auto';
                     coloradoCode128Svg.style.userSelect = 'auto';
                     coloradoCode128Svg.oncontextmenu = null;
+                }
+                if (floridaCanvas) {
+                    floridaCanvas.style.filter = 'none';
+                    floridaCanvas.style.pointerEvents = 'auto';
+                    floridaCanvas.style.userSelect = 'auto';
+                    floridaCanvas.oncontextmenu = null;
+                }
+                if (floridaCode128Canvas) {
+                    floridaCode128Canvas.style.filter = 'none';
+                    floridaCode128Canvas.style.pointerEvents = 'auto';
+                    floridaCode128Canvas.style.userSelect = 'auto';
+                    floridaCode128Canvas.oncontextmenu = null;
+                }
+                if (floridaCode128Svg) {
+                    floridaCode128Svg.style.filter = 'none';
+                    floridaCode128Svg.style.pointerEvents = 'auto';
+                    floridaCode128Svg.style.userSelect = 'auto';
+                    floridaCode128Svg.oncontextmenu = null;
                 }
             } else {
                 if (overlay) overlay.classList.remove('hidden');
@@ -8853,6 +9083,24 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     coloradoCode128Svg.style.pointerEvents = 'none';
                     coloradoCode128Svg.style.userSelect = 'none';
                     coloradoCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (floridaCanvas) {
+                    floridaCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    floridaCanvas.style.pointerEvents = 'none';
+                    floridaCanvas.style.userSelect = 'none';
+                    floridaCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (floridaCode128Canvas) {
+                    floridaCode128Canvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    floridaCode128Canvas.style.pointerEvents = 'none';
+                    floridaCode128Canvas.style.userSelect = 'none';
+                    floridaCode128Canvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (floridaCode128Svg) {
+                    floridaCode128Svg.style.filter = 'blur(1.8px) contrast(90%)';
+                    floridaCode128Svg.style.pointerEvents = 'none';
+                    floridaCode128Svg.style.userSelect = 'none';
+                    floridaCode128Svg.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
             }
         }
