@@ -1969,7 +1969,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <!-- Authentic CR80 Physical Card Sitting on Stage -->
                         <div id="studio-cr80-card" class="relative z-10 w-[410px] max-w-[95%] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             
-                            <!-- Top Section (Above Magnetic Stripe) -->
+                            <!-- Top Section (Above Magnetic Stripe / Top Security Band) -->
                             <div class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-white min-h-[24px]">
                                 <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
                                 <div id="card-top-code128-container" class="flex items-center justify-end overflow-hidden">
@@ -1977,8 +1977,11 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
                             </div>
 
-                            <!-- Full-Bleed Magnetic Stripe -->
+                            <!-- Full-Bleed Magnetic Stripe (Displayed for Magstripe Standard & Type A Southern) -->
                             <div id="card-magstripe" class="w-full h-9 sm:h-10 bg-[#0a0a0a] shadow-inner"></div>
+                            
+                            <!-- Alternative Clean Microprint Divider for Modern Optical Cards without Magnetic Stripe -->
+                            <div id="card-top-separator" class="hidden w-full h-[2px] bg-gradient-to-r from-slate-200 via-slate-400 to-slate-200"></div>
 
                             <!-- Card Body Content -->
                             <div class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-white">
@@ -2004,8 +2007,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <div class="flex justify-between items-end mt-2 relative">
                                     
                                     <!-- Left: 2D Barcode & DMV URL -->
-                                    <div class="flex flex-col items-start max-w-[250px] relative">
-                                        <canvas id="output-pdf417" class="max-w-[240px] sm:max-w-[250px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                    <div class="flex flex-col items-start max-w-[260px] relative">
+                                        <canvas id="output-pdf417" class="max-w-[250px] sm:max-w-[260px] max-h-[75px] w-auto h-auto object-contain transition duration-200"></canvas>
                                         <canvas id="card-preview-barcode" class="hidden"></canvas>
                                         <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
 
@@ -2022,11 +2025,11 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <div class="flex flex-col items-end text-right pl-2 max-w-[200px] relative flex-1">
                                         <div class="flex items-center gap-1.5 w-full justify-end">
                                             <div class="flex flex-col items-end text-right flex-1">
-                                                <!-- Gold Cursive State Watermark -->
-                                                <div class="flex items-center justify-end gap-1.5 my-0.5">
-                                                    <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                <!-- State Watermark (Cursive for Type A / Clean Official Seal Typography for Others) -->
+                                                <div id="studio-watermark-container" class="flex items-center justify-end gap-1.5 my-0.5">
+                                                    <div id="studio-wm-line-left" class="w-7 h-[1px] bg-[#c5a059]/70"></div>
                                                     <span id="studio-state-watermark" class="text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none" style="font-family: 'Dancing Script', 'Brush Script MT', 'Caveat', cursive; font-weight: 700;">Louisiana</span>
-                                                    <div class="w-7 h-[1px] bg-[#c5a059]/70"></div>
+                                                    <div id="studio-wm-line-right" class="w-7 h-[1px] bg-[#c5a059]/70"></div>
                                                 </div>
 
                                                 <!-- Federal / State Regulatory Disclaimer -->
@@ -5482,20 +5485,38 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const jurKey = jurEl ? jurEl.value : stateCode;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
-            const isTypeA = meta ? (meta.layout === 'type_a') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
+            const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
 
-            // Dynamic Spatial Layout Switching: Type A vs Type B / Canadian
-            const topBarcodeContainer = document.getElementById('card-top-code128-container');
-            const bottomBarcodeContainer = document.getElementById('card-bottom-code128-container');
-            if (isTypeA) {
-                if (topBarcodeContainer) topBarcodeContainer.classList.remove('hidden');
-                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.add('hidden');
-            } else {
-                if (topBarcodeContainer) topBarcodeContainer.classList.add('hidden');
-                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.remove('hidden');
+            // 2. Magnetic Stripe vs Modern Optical Top Separator
+            const magstripeEl = document.getElementById('card-magstripe');
+            const topSepEl = document.getElementById('card-top-separator');
+            const hasMagstripe = meta ? (meta.has_magstripe !== false) : true;
+            if (magstripeEl) {
+                if (hasMagstripe) {
+                    magstripeEl.classList.remove('hidden');
+                    if (topSepEl) topSepEl.classList.add('hidden');
+                } else {
+                    magstripeEl.classList.add('hidden');
+                    if (topSepEl) topSepEl.classList.remove('hidden');
+                }
             }
 
-            // 2. Sequence / Audit / Document Discriminator number
+            // 3. Dynamic Spatial 1D Barcode Switching
+            const topBarcodeContainer = document.getElementById('card-top-code128-container');
+            const bottomBarcodeContainer = document.getElementById('card-bottom-code128-container');
+            const barcodePos = (meta && meta.barcode_1d_pos) ? meta.barcode_1d_pos : (isTypeA ? 'top' : 'bottom');
+            if (barcodePos === 'top') {
+                if (topBarcodeContainer) topBarcodeContainer.classList.remove('hidden');
+                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.add('hidden');
+            } else if (barcodePos === 'bottom') {
+                if (topBarcodeContainer) topBarcodeContainer.classList.add('hidden');
+                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.remove('hidden');
+            } else {
+                if (topBarcodeContainer) topBarcodeContainer.classList.add('hidden');
+                if (bottomBarcodeContainer) bottomBarcodeContainer.classList.add('hidden');
+            }
+
+            // 4. Sequence / Audit / Document Discriminator number
             const seqEl = document.getElementById('studio-seq-num');
             if (seqEl) {
                 const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
@@ -5520,7 +5541,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 seqEl.textContent = docVal;
             }
 
-            // 3. Class, Endorsements, Restrictions
+            // 5. Class, Endorsements, Restrictions
             const STATE_STANDARD_CLASSES = {
                 'CA': 'Class C', 'TX': 'Class C', 'GA': 'Class C', 'NC': 'Class C', 'NV': 'Class C',
                 'FL': 'Class E', 'LA': 'Class E', 'MO': 'Class F', 'CO': 'Class R', 'MI': 'Operator',
@@ -5554,7 +5575,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 restEl.textContent = rVal;
             }
 
-            // 4. State Watermark, Portal URL, and Regulatory Disclaimer
+            // 6. State Watermark Styling (Authentic Seal/Typography vs Southern Cursive)
             const STATE_NAMES = {
                 'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
                 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'DC': 'District of Columbia',
@@ -5592,9 +5613,31 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             };
 
             const stateWatermark = document.getElementById('studio-state-watermark');
+            const wmLineL = document.getElementById('studio-wm-line-left');
+            const wmLineR = document.getElementById('studio-wm-line-right');
+            const isScript = meta ? (meta.watermark_style === 'script') : isTypeA;
             if (stateWatermark) {
-                stateWatermark.textContent = (meta && meta.watermark) ? meta.watermark : (STATE_NAMES[stateCode] || stateCode);
+                const wmText = (meta && meta.watermark) ? meta.watermark : (STATE_NAMES[stateCode] || stateCode);
+                stateWatermark.textContent = wmText;
+                if (isScript) {
+                    stateWatermark.className = 'text-[#bfa15f] text-sm sm:text-base italic tracking-wide select-none';
+                    stateWatermark.style.fontFamily = "'Dancing Script', 'Brush Script MT', 'Caveat', cursive";
+                    stateWatermark.style.fontWeight = '700';
+                    stateWatermark.style.letterSpacing = 'normal';
+                    stateWatermark.style.textTransform = 'none';
+                    if (wmLineL) wmLineL.classList.remove('hidden');
+                    if (wmLineR) wmLineR.classList.remove('hidden');
+                } else {
+                    stateWatermark.className = 'text-slate-400 font-sans text-[9px] sm:text-[10px] font-black tracking-widest uppercase select-none opacity-85';
+                    stateWatermark.style.fontFamily = "system-ui, -apple-system, 'Inter', sans-serif";
+                    stateWatermark.style.fontWeight = '900';
+                    stateWatermark.style.letterSpacing = '0.12em';
+                    stateWatermark.style.textTransform = 'uppercase';
+                    if (wmLineL) wmLineL.classList.add('hidden');
+                    if (wmLineR) wmLineR.classList.add('hidden');
+                }
             }
+
             const portalUrl = document.getElementById('studio-portal-url');
             if (portalUrl) {
                 portalUrl.textContent = (meta && meta.url) ? meta.url : (STATE_URLS[stateCode] || `www.dmv.${stateCode.toLowerCase()}.gov`);
@@ -5610,21 +5653,22 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 }
             }
 
-            // 5. Organ Donor Designation
+            // 7. Organ Donor Designation
             const donorEl = document.getElementById('studio-card-donor');
             const donorVal = (document.getElementById('aamva-donor')?.value || 'N').toUpperCase();
             const isDonor = (donorVal === '1' || donorVal === 'Y' || donorVal === 'YES');
 
             if (donorEl) {
-                const donorPattern = (meta && meta.donor) ? meta.donor : 'Donor __Y__N / Living Will __Y__N';
-                if (donorPattern.includes('Living Will') || isTypeA) {
+                const isSouthernTypeA = meta ? (meta.archetype === 'type_a_southern') : isTypeA;
+                if (isSouthernTypeA) {
                     donorEl.innerHTML = `Donor <span id="studio-donor-y" class="${isDonor ? 'underline font-black text-slate-900' : 'text-slate-600 font-normal'}">_Y</span> <span id="studio-donor-n" class="${!isDonor ? 'underline font-black text-slate-900' : 'text-slate-600 font-normal'}">_N</span> / Living Will <span id="studio-will-y" class="text-slate-600 font-normal">_Y</span> <span id="studio-will-n" class="underline font-black text-slate-900 font-normal">_N</span>`;
                 } else {
-                    donorEl.innerHTML = `<span class="text-[8px] sm:text-[8.5px] font-bold tracking-tight ${isDonor ? 'text-rose-700' : 'text-slate-700'}">${donorPattern}: <span class="${isDonor ? 'underline font-black text-slate-900' : 'font-semibold text-slate-600'}">${isDonor ? 'YES \u2665' : 'NO'}</span></span>`;
+                    const donorOrg = (meta && meta.donor) ? meta.donor : 'ORGAN DONOR';
+                    donorEl.innerHTML = `<span class="inline-flex items-center gap-1 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded text-[7.5px] sm:text-[8px] font-extrabold ${isDonor ? 'text-rose-700 border-rose-200 bg-rose-50/60' : 'text-slate-600'} tracking-tight"><span class="text-[9px] ${isDonor ? 'text-rose-600' : 'text-slate-400'}">♥</span><span>${donorOrg}:</span><span class="${isDonor ? 'underline font-black text-slate-900' : 'font-semibold text-slate-500'}">${isDonor ? 'YES' : 'NO'}</span></span>`;
                 }
             }
 
-            // 6. Dynamic State Revision & Expiration Stamp
+            // 8. Dynamic State Revision & Expiration Stamp
             const revStamp = document.getElementById('studio-rev-stamp');
             if (revStamp) {
                 let revDateStr = (meta && meta.rev) ? meta.rev : 'REV 03-12-2015';
@@ -5659,7 +5703,10 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             const jurKey = jurEl ? jurEl.value : stateCode;
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey) : null;
-            const isTypeA = meta ? (meta.layout === 'type_a') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
+            const isTypeA = meta ? (meta.layout === 'type_a' || meta.archetype === 'type_a_southern') : (stateCode === 'LA' || stateCode === 'AR' || stateCode === 'MS' || stateCode === 'MO');
+            const barcodePos = (meta && meta.barcode_1d_pos) ? meta.barcode_1d_pos : (isTypeA ? 'top' : 'bottom');
+
+            if (barcodePos === 'none') return;
 
             const seqEl = document.getElementById('studio-seq-num');
             const seqVal = (seqEl ? seqEl.textContent : '').trim();
@@ -5672,7 +5719,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             try {
                 if (typeof JsBarcode === 'function') {
-                    if (isTypeA) {
+                    if (barcodePos === 'top') {
                         const svgTop = document.getElementById('card-code128-svg');
                         if (svgTop) {
                             JsBarcode("#card-code128-svg", targetVal, {
