@@ -2874,6 +2874,10 @@ function getRandomMiddleName(sex) {
 
 
 function showInputDataAlert(msg) {
+    if (typeof window !== 'undefined' && window.isBatchCalculation) {
+        console.warn('State Calculator Alert (batch mode):', msg);
+        return;
+    }
     if (typeof showToast === 'function') {
         showToast(msg, 'warning');
     } else {
@@ -3545,10 +3549,21 @@ $$  $$ $$  $$ $$  $$ $$  $$ $$    $$  $$   $$     $$   $$  $$ $$  $$   $$
 
 
 function CT_calculate_documentNumber() {
-    var birthDate = getTargetElement("inputBrithDate").value;
-    if (birthDate.length != 8) {
-        showInputDataAlert("Document number calculation error. Incorrect birth date!")
-        return;
+    var bEl = getTargetElement("inputBrithDate");
+    var birthDate = (bEl ? bEl.value : '').replace(/\D/g, '');
+    if (birthDate.length !== 8) {
+        const raw = bEl ? bEl.value.trim() : '';
+        if (raw.includes('-')) {
+            const p = raw.split('-');
+            if (p.length === 3) birthDate = `${p[1]}${p[2]}${p[0]}`;
+        }
+    }
+    if (birthDate.length !== 8) {
+        const year = Math.floor(1965 + Math.random() * 35);
+        const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
+        const day = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
+        birthDate = `${month}${day}${year}`;
+        if (bEl) bEl.value = birthDate;
     }
 
     getTargetElement('inputDocumentNumber').value = get_month_number(birthDate) + getRandomNumericString(7);
@@ -3558,10 +3573,15 @@ function CT_calculate_documentNumber() {
 
 
 function CT_calculate_ICN() {
-    var documentNumber = getTargetElement("inputDocumentNumber").value;
-    if (documentNumber.length != 9) {
-        showInputDataAlert("ICN calculation error. Incorrect document number!")
-        return;
+    var docEl = getTargetElement("inputDocumentNumber");
+    var documentNumber = docEl ? docEl.value.trim() : '';
+    if (documentNumber.length !== 9) {
+        CT_calculate_documentNumber();
+        documentNumber = docEl ? docEl.value.trim() : '';
+    }
+    if (documentNumber.length !== 9) {
+        documentNumber = String(Math.floor(100000000 + Math.random() * 900000000));
+        if (docEl) docEl.value = documentNumber;
     }
 
     getTargetElement("inputICN").value = documentNumber + "CT" + getRandomDigit() + getRandomLetter() + getRandomLetter() + getRandomLetter() + "01";
@@ -9055,8 +9075,10 @@ function runStateCalculation(field, stateSlug) {
         if (fnName && typeof window[fnName] === 'function') {
             try {
                 window[fnName]();
+                return true;
             } catch (err) {
                 console.error(`Error running ${fnName}:`, err);
+                return false;
             }
         }
 
@@ -9084,7 +9106,7 @@ function runStateCalculation(field, stateSlug) {
             }
             return !!(el && el.value);
         }
-        return true;
+        return false;
     }
 
     // Expose globals

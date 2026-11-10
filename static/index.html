@@ -1131,11 +1131,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 P417
             </div>
             <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                    <h1 class="text-sm font-bold tracking-wide text-white whitespace-nowrap">Barcode Studio Pro</h1>
-                    <span class="hidden md:inline text-[10px] bg-blue-900/80 text-blue-200 border border-blue-600/60 px-2 py-0.5 rounded font-mono font-semibold whitespace-nowrap">ISO/IEC 15438 &bull; AAMVA 2020</span>
-                </div>
-                <p class="hidden xl:block text-[10px] text-slate-400 truncate">Strict Dimension Engine &bull; Dual-Subfile DL+ZC &bull; 100% Mobile & Hardware Scannable</p>
+                <h1 class="text-sm font-bold tracking-wide text-white whitespace-nowrap">Barcode Studio Pro</h1>
             </div>
             <!-- Mode Switcher: AAMVA Barcode vs MRZ Passport -->
             <div class="hidden lg:flex bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl text-xs font-bold ml-2 shadow-inner shrink-0">
@@ -2022,7 +2018,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         <span id="studio-seq-num" class="font-mono text-[8.5px] font-bold text-slate-800 tracking-wider">0070051972513905</span>
                                     </div>
                                     <div id="card-top-code128-container" class="flex items-center justify-end overflow-hidden bg-white/90 rounded px-1.5 py-0.5 border border-slate-200/50 shadow-2xs">
-                                        <svg id="card-code128-svg" class="max-h-[22px] max-w-[190px]"></svg>
+                                        <svg id="card-code128-svg" class="max-h-[24px] max-w-[210px] w-full"></svg>
                                     </div>
                                     <span id="card-top-agency-tag" class="hidden text-[7px] font-mono font-bold text-slate-400 tracking-wider uppercase select-none"></span>
                                 </div>
@@ -2057,9 +2053,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <div class="flex justify-between items-end mt-2 relative">
                                         
                                         <!-- Left: 2D Barcode & DMV URL -->
-                                        <div class="flex flex-col items-start max-w-[260px] relative">
+                                        <div class="flex flex-col items-start max-w-[280px] relative">
                                             <div id="card-pdf417-container" class="bg-white rounded px-1.5 py-1 shadow-xs border border-slate-200/60 flex items-center justify-center">
-                                                <canvas id="output-pdf417" class="max-w-[245px] sm:max-w-[255px] max-h-[72px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                                <canvas id="output-pdf417" class="max-w-[275px] max-h-[76px] w-auto h-auto object-contain transition duration-200"></canvas>
                                             </div>
                                             <canvas id="card-preview-barcode" class="hidden"></canvas>
                                             <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
@@ -2099,8 +2095,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                             <!-- 1D Code 128 Container for Type B, Canadian, and other jurisdictions with bottom companion barcode -->
                                             <div id="card-bottom-code128-container" class="hidden w-full flex flex-col items-end pt-1">
-                                                <div class="bg-white/90 rounded px-1.5 py-0.5 border border-slate-200/50 shadow-2xs flex flex-col items-end">
-                                                    <svg id="card-code128-svg-bottom" class="max-h-[20px] max-w-[175px]"></svg>
+                                                <div class="bg-white/90 rounded px-1.5 py-0.5 border border-slate-200/50 shadow-2xs flex flex-col items-end w-full">
+                                                    <svg id="card-code128-svg-bottom" class="max-h-[24px] max-w-[215px] w-full"></svg>
                                                     <div id="card-bottom-code128-text" class="text-[6.5px] font-mono font-bold text-slate-700 tracking-wider select-none pr-0.5 mt-0.5"></div>
                                                 </div>
                                             </div>
@@ -2211,9 +2207,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <div id="card-back-arkansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('arkansas_back_bg.webp') no-repeat center / cover;">
                                 
                                 <!-- Top PDF417 Barcode Container (Quiet Zone White Box across the top) -->
-                                <div class="absolute top-2.5 left-3 right-[66px] flex items-center justify-center z-10">
-                                    <div class="bg-white rounded-[4px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2 py-0.5 flex items-center justify-center border border-white/90 w-full max-w-[342px] min-h-[62px]">
-                                        <canvas id="arkansas-pdf417" class="max-w-[334px] max-h-[58px] w-auto h-auto object-contain"></canvas>
+                                <div class="absolute top-2 left-2.5 right-[66px] flex items-center justify-center z-10">
+                                    <div class="bg-white rounded-[4px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-1 py-0.5 flex items-center justify-center border border-white/90 w-full max-w-[348px] min-h-[64px]">
+                                        <canvas id="arkansas-pdf417" class="w-full max-h-[60px] object-contain"></canvas>
                                     </div>
                                 </div>
 
@@ -2225,8 +2221,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
 
                                 <!-- Right Vertical 1D Code 128 Barcode (Horizontal Bars running down right edge) -->
-                                <div class="absolute top-[42px] right-2 w-[28px] h-[168px] bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex items-center justify-center px-0.5 py-1 z-20 overflow-hidden">
-                                    <canvas id="arkansas-code128-canvas" class="w-[24px] h-[162px] object-contain select-none"></canvas>
+                                <div class="absolute top-[40px] right-1.5 w-[32px] h-[172px] bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex items-center justify-center px-0.5 py-1 z-20 overflow-hidden">
+                                    <canvas id="arkansas-code128-canvas" class="w-[28px] h-[166px] object-contain select-none"></canvas>
                                     <svg id="arkansas-code128-svg" class="hidden"></svg>
                                 </div>
 
@@ -5019,7 +5015,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         }
 
         // --- INDIVIDUAL CALCULATORS 🧮 ---
-        function calcField(field) {
+        function calcField(field, isBatch = false) {
             const jKey = document.getElementById('aamva-jurisdiction').value;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
@@ -5029,9 +5025,11 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (typeof window.runStateCalculation === 'function') {
                 const handled = window.runStateCalculation(field, jKey);
                 if (handled) {
-                    validateDlNumber();
-                    compileAAMVA();
-                    showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                    if (!isBatch) {
+                        validateDlNumber();
+                        compileAAMVA();
+                        showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                    }
                     return;
                 }
             }
@@ -5041,8 +5039,10 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const realIdEl = document.getElementById('aamva-realid');
                 if (realIdEl) {
                     realIdEl.value = (realIdEl.value === 'Yes') ? 'No' : 'Yes';
-                    showToast(`Toggled REAL ID compliance: ${realIdEl.value}`, 'info');
-                    compileAAMVA();
+                    if (!isBatch) {
+                        showToast(`Toggled REAL ID compliance: ${realIdEl.value}`, 'info');
+                        compileAAMVA();
+                    }
                     return;
                 }
             }
@@ -5051,33 +5051,39 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             if (field === 'id') {
                 const newId = profile.genDL ? profile.genDL() : String(Math.floor(100000000 + Math.random() * 900000000));
                 document.getElementById('aamva-id').value = newId;
-                validateDlNumber();
-                showToast(`Generated authentic ${profile.name} DL number!`, 'info');
+                if (!isBatch) {
+                    validateDlNumber();
+                    showToast(`Generated authentic ${profile.name} DL number!`, 'info');
+                }
             } else if (field === 'first') {
                 const firsts = ["Sean", "Jonathan", "Jacob", "Michael", "Christopher", "Matthew", "David", "Jessica", "Sarah", "Emily", "Ashley", "Daniel", "James", "Robert"];
                 document.getElementById('aamva-first').value = firsts[Math.floor(Math.random() * firsts.length)];
-                showToast('Calculated new First Name!', 'info');
+                if (!isBatch) showToast('Calculated new First Name!', 'info');
             } else if (field === 'last') {
                 const lasts = ["Harrison", "Garcia", "Glass", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Rodriguez", "Martinez", "Taylor", "Smith"];
                 document.getElementById('aamva-last').value = lasts[Math.floor(Math.random() * lasts.length)];
-                showToast('Calculated new Last Name!', 'info');
+                if (!isBatch) showToast('Calculated new Last Name!', 'info');
             } else if (field === 'mid') {
                 const mids = ["William", "Dalton", "Robert", "James", "Edward", "Thomas", "Lee", "Marie", "Ann", "Alexander", "Joseph"];
                 document.getElementById('aamva-mid').value = mids[Math.floor(Math.random() * mids.length)];
-                showToast('Calculated new Middle Name!', 'info');
+                if (!isBatch) showToast('Calculated new Middle Name!', 'info');
+            } else if (field === 'sex') {
+                const sexEl = document.getElementById('aamva-sex');
+                if (sexEl) sexEl.value = (Math.random() > 0.48) ? '1' : '2';
+                if (!isBatch) showToast('Calculated Sex!', 'info');
             } else if (field === 'dob') {
                 const year = Math.floor(1965 + Math.random() * 35);
                 const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
                 const day = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
                 document.getElementById('aamva-dob').value = `${month}${day}${year}`;
-                showToast('Calculated new Birth Date!', 'info');
+                if (!isBatch) showToast('Calculated new Birth Date!', 'info');
             } else if (field === 'issued') {
                 const year = 2024;
                 const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
                 const day = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
                 document.getElementById('aamva-issued').value = `${month}${day}${year}`;
                 autoSyncExpiryDate();
-                showToast('Calculated new Issue Date (Expiry synced)!', 'info');
+                if (!isBatch) showToast('Calculated new Issue Date (Expiry synced)!', 'info');
             } else if (field === 'exp') {
                 const dob = document.getElementById('aamva-dob').value;
                 const dobMonthDay = dob.length === 8 ? dob.substring(0, 4) : '0525';
@@ -5086,7 +5092,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const issueYear = issued.length === 8 ? parseInt(issued.slice(4, 8), 10) : 2024;
                 const year = issueYear + termYears;
                 document.getElementById('aamva-exp').value = `${dobMonthDay}${year}`;
-                showToast(`Calculated new Expiry Date (+${termYears} yrs)!`, 'info');
+                if (!isBatch) showToast(`Calculated new Expiry Date (+${termYears} yrs)!`, 'info');
             } else if (field === 'audit') {
                 const el = document.getElementById('aamva-audit');
                 const hasAudit = revInfo ? (revInfo.has_audit === true) : (profile.usesAudit === true);
@@ -5094,10 +5100,10 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     if (hasAudit) {
                         const sampleAud = (revInfo && revInfo.sample_audit) || profile.sample_audit || `CODL_0_051224_${Math.floor(10000 + Math.random() * 90000)}`;
                         el.value = sampleAud;
-                        showToast('Calculated Audit Information!', 'info');
+                        if (!isBatch) showToast('Calculated Audit Information!', 'info');
                     } else {
                         el.value = '';
-                        showToast(`${revInfo ? revInfo.label : profile.name} standard cards omit Audit Information (DCJ).`, 'info');
+                        if (!isBatch) showToast(`${revInfo ? revInfo.label : profile.name} standard cards omit Audit Information (DCJ).`, 'info');
                     }
                 }
             } else if (field === 'dcf') {
@@ -5105,26 +5111,26 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const dcfEl = document.getElementById('aamva-dcf');
                 if (!hasDd) {
                     if (dcfEl) dcfEl.value = '';
-                    showToast(`${revInfo ? revInfo.label : profile.name} standard cards omit DD (DCF).`, 'info');
+                    if (!isBatch) showToast(`${revInfo ? revInfo.label : profile.name} standard cards omit DD (DCF).`, 'info');
                 } else if (profile.genDD) {
                     dcfEl.value = profile.genDD();
-                    showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
+                    if (!isBatch) showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
                 } else if (baseCode === 'TX') {
                     const r16 = String(Math.floor(1000000000000000 + Math.random() * 9000000000000000));
                     dcfEl.value = `24${r16}`;
-                    showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
+                    if (!isBatch) showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
                 } else if (baseCode === 'CA') {
                     const r2 = Math.floor(10 + Math.random() * 89);
                     dcfEl.value = `08/25/202165508/AAFD/${r2}`;
-                    showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
+                    if (!isBatch) showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
                 } else if (baseCode === 'FL') {
                     const r6 = Math.floor(100000 + Math.random() * 900000);
                     dcfEl.value = `2407261442${r6}`;
-                    showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
+                    if (!isBatch) showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
                 } else {
                     const r4 = Math.floor(1000 + Math.random() * 9000);
                     dcfEl.value = `24072614422001${r4}`;
-                    showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
+                    if (!isBatch) showToast(`Calculated authentic ${profile.name} ${profile.ddLabel || 'Document Discriminator'}!`, 'info');
                 }
             } else if (field === 'dck') {
                 const hasIcn = (typeof stateUsesIcn === "function") ? stateUsesIcn(jKey) : (!NO_ICN_SET.has(jKey.toUpperCase()) && !NO_ICN_SET.has(baseCode.toUpperCase()));
@@ -5132,18 +5138,20 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const dckEl = document.getElementById('aamva-dck');
                 if (!hasIcn) {
                     if (dckEl) dckEl.value = '';
-                    showToast(`${profile.name} standard cards omit ICN (DCK). Tag cleared per AAMVA Section D.2.`, 'info');
+                    if (!isBatch) showToast(`${profile.name} standard cards omit ICN (DCK). Tag cleared per AAMVA Section D.2.`, 'info');
                 } else if (baseCode === 'CT') {
                     dckEl.value = `${currentDl || '188892143'}CTBRRL01`;
-                    showToast('Calculated Connecticut Inventory Control Number!', 'info');
+                    if (!isBatch) showToast('Calculated Connecticut Inventory Control Number!', 'info');
                 } else {
                     const r6 = Math.floor(100000 + Math.random() * 900000);
                     dckEl.value = `${currentDl || r6}01`;
-                    showToast(`Calculated authentic ${profile.name} inventory tracker!`, 'info');
+                    if (!isBatch) showToast(`Calculated authentic ${profile.name} inventory tracker!`, 'info');
                 }
             }
 
-            compileAAMVA();
+            if (!isBatch) {
+                compileAAMVA();
+            }
         }
 
         // --- PRELOAD SCREENSHOT (SEAN HARRISON) PRESET ---
@@ -7504,7 +7512,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             bcid: 'code128',
                             text: arVal,
                             scale: 2,
-                            height: 22,
+                            height: 28,
                             rotate: 'R',
                             includetext: false,
                             paddingwidth: 0,
@@ -7814,8 +7822,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             JsBarcode("#card-code128-svg", targetVal, {
                                 format: "CODE128",
                                 displayValue: false,
-                                height: 22,
-                                width: 1.25,
+                                height: 24,
+                                width: 1.35,
                                 margin: 0,
                                 lineColor: "#0a0a0a"
                             });
@@ -7826,8 +7834,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                             JsBarcode("#card-code128-svg-bottom", targetVal, {
                                 format: "CODE128",
                                 displayValue: false,
-                                height: 20,
-                                width: 1.15,
+                                height: 24,
+                                width: 1.35,
                                 margin: 0,
                                 lineColor: "#0a0a0a"
                             });
@@ -7862,6 +7870,11 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             if (!payload) return;
 
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
+            if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
+
             try {
                 if (barcode2DType === 'qrcode') {
                     // Mobile-Scannable Digital ID vCard format
@@ -7883,133 +7896,43 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
                     const vcard = `BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\nFN:${first} ${last}\nORG:State of ${state} Driver License\nUID:${id}\nBDAY:${dob}\nADR;TYPE=HOME:;;${street};${city};${state};${zip};USA\nNOTE:DL:${id} | EXP:${exp}\nEND:VCARD`;
 
-                    bwipjs.toCanvas(canvas, {
-                        bcid: 'qrcode',
-                        text: vcard,
-                        scale: 3,
-                        paddingwidth: 10,
-                        paddingheight: 10
-                    });
+                    if (canvas) {
+                        bwipjs.toCanvas(canvas, {
+                            bcid: 'qrcode',
+                            text: vcard,
+                            scale: 3,
+                            paddingwidth: 6,
+                            paddingheight: 6
+                        });
+                    }
 
-                    const alaskaCanvas = document.getElementById('alaska-pdf417');
-                    if (alaskaCanvas) {
-                        try {
-                            bwipjs.toCanvas(alaskaCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAk) {}
-                    }
-                    const arkansasCanvas = document.getElementById('arkansas-pdf417');
-                    if (arkansasCanvas) {
-                        try {
-                            bwipjs.toCanvas(arkansasCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAr) {}
-                    }
-                    const arizonaCanvas = document.getElementById('arizona-pdf417');
-                    if (arizonaCanvas) {
-                        try {
-                            bwipjs.toCanvas(arizonaCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAz) {}
-                    }
-                    const alabamaCanvas = document.getElementById('alabama-pdf417');
-                    if (alabamaCanvas) {
-                        try {
-                            bwipjs.toCanvas(alabamaCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAl) {}
-                    }
-                    const californiaCanvas = document.getElementById('california-pdf417');
-                    if (californiaCanvas) {
-                        try {
-                            bwipjs.toCanvas(californiaCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errCa) {}
-                    }
-                    const coloradoCanvas = document.getElementById('colorado-pdf417');
-                    if (coloradoCanvas) {
-                        try {
-                            bwipjs.toCanvas(coloradoCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errCo) {}
-                    }
-                    const floridaCanvas = document.getElementById('florida-pdf417');
-                    if (floridaCanvas) {
-                        try {
-                            bwipjs.toCanvas(floridaCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errFl) {}
-                    }
-                    const georgiaCanvas = document.getElementById('georgia-pdf417');
-                    if (georgiaCanvas) {
-                        try {
-                            bwipjs.toCanvas(georgiaCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errGa) {}
-                    }
-                    const idahoCanvas = document.getElementById('idaho-pdf417');
-                    if (idahoCanvas) {
-                        try {
-                            bwipjs.toCanvas(idahoCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errId) {}
-                    }
-                    const kansasCanvas = document.getElementById('kansas-pdf417');
-                    if (kansasCanvas) {
-                        try {
-                            bwipjs.toCanvas(kansasCanvas, {
-                                bcid: 'qrcode',
-                                text: vcard,
-                                scale: 2.2,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errKs) {}
+                    // Render only the active state canvas
+                    const stateCanvasMap = {
+                        'AK': 'alaska-pdf417',
+                        'AR': 'arkansas-pdf417',
+                        'AZ': 'arizona-pdf417',
+                        'AL': 'alabama-pdf417',
+                        'CA': 'california-pdf417',
+                        'CO': 'colorado-pdf417',
+                        'FL': 'florida-pdf417',
+                        'GA': 'georgia-pdf417',
+                        'ID': 'idaho-pdf417',
+                        'KS': 'kansas-pdf417'
+                    };
+                    const activeCanvasId = stateCanvasMap[stateCode];
+                    if (activeCanvasId) {
+                        const sc = document.getElementById(activeCanvasId);
+                        if (sc) {
+                            try {
+                                bwipjs.toCanvas(sc, {
+                                    bcid: 'qrcode',
+                                    text: vcard,
+                                    scale: 2.2,
+                                    paddingwidth: 4,
+                                    paddingheight: 4
+                                });
+                            } catch (e) {}
+                        }
                     }
 
                     const labelEl = document.getElementById('barcode-standard-label');
@@ -8018,178 +7941,192 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                     if (dimsEl) dimsEl.textContent = 'ISO/IEC 18004 • 256-bit ECC';
                 } else {
                     // Authentic Standard PDF417 Driver License Dimensions:
-                    // 12 columns, ECC 5, 3:1 ratio, 10-mil quiet zone
-                    bwipjs.toCanvas(canvas, {
-                        bcid: 'pdf417',
-                        text: payload,
-                        scale: scale,
-                        columns: cols,       // Standard 12-column rectangular aspect
-                        eclevel: ecc,       // Standard ECC 5
-                        rowheight: ratio,   // Standard 3:1 aspect ratio
-                        rowmult: ratio,     // BWIPP row height multiplier
-                        paddingwidth: 10,   // Standard quiet zone
-                        paddingheight: 10
-                    });
+                    // 12 columns, ECC 5, 3:1 ratio, optimized quiet zone for full width
+                    if (canvas) {
+                        bwipjs.toCanvas(canvas, {
+                            bcid: 'pdf417',
+                            text: payload,
+                            scale: scale,
+                            columns: cols,       // Standard 12-column rectangular aspect
+                            eclevel: ecc,       // Standard ECC 5
+                            rowheight: ratio,   // Standard 3:1 aspect ratio
+                            rowmult: ratio,     // BWIPP row height multiplier
+                            paddingwidth: 4,    // Clean quiet zone allowing maximum width
+                            paddingheight: 4
+                        });
+                    }
 
-                    const alaskaCanvas = document.getElementById('alaska-pdf417');
-                    if (alaskaCanvas) {
-                        try {
-                            bwipjs.toCanvas(alaskaCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAk) {}
-                    }
-                    const arkansasCanvas = document.getElementById('arkansas-pdf417');
-                    if (arkansasCanvas) {
-                        try {
-                            bwipjs.toCanvas(arkansasCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAr) {}
-                    }
-                    const arizonaCanvas = document.getElementById('arizona-pdf417');
-                    if (arizonaCanvas) {
-                        try {
-                            bwipjs.toCanvas(arizonaCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAz) {}
-                    }
-                    const alabamaCanvas = document.getElementById('alabama-pdf417');
-                    if (alabamaCanvas) {
-                        try {
-                            bwipjs.toCanvas(alabamaCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 6,
-                                paddingheight: 6
-                            });
-                        } catch (errAl) {}
-                    }
-                    const californiaCanvas = document.getElementById('california-pdf417');
-                    if (californiaCanvas) {
-                        try {
-                            bwipjs.toCanvas(californiaCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errCa) {}
-                    }
-                    const coloradoCanvas = document.getElementById('colorado-pdf417');
-                    if (coloradoCanvas) {
-                        try {
-                            bwipjs.toCanvas(coloradoCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errCo) {}
-                    }
-                    const floridaCanvas = document.getElementById('florida-pdf417');
-                    if (floridaCanvas) {
-                        try {
-                            bwipjs.toCanvas(floridaCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errFl) {}
-                    }
-                    const georgiaCanvas = document.getElementById('georgia-pdf417');
-                    if (georgiaCanvas) {
-                        try {
-                            bwipjs.toCanvas(georgiaCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errGa) {}
-                    }
-                    const idahoCanvas = document.getElementById('idaho-pdf417');
-                    if (idahoCanvas) {
-                        try {
-                            bwipjs.toCanvas(idahoCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errId) {}
-                    }
-                    const kansasCanvas = document.getElementById('kansas-pdf417');
-                    if (kansasCanvas) {
-                        try {
-                            bwipjs.toCanvas(kansasCanvas, {
-                                bcid: 'pdf417',
-                                text: payload,
-                                scale: scale,
-                                columns: cols,
-                                eclevel: ecc,
-                                rowheight: ratio,
-                                rowmult: ratio,
-                                paddingwidth: 4,
-                                paddingheight: 4
-                            });
-                        } catch (errKs) {}
+                    // Only render the active state card canvas to keep typing 100% instant and lag-free
+                    if (stateCode === 'AR') {
+                        const arkansasCanvas = document.getElementById('arkansas-pdf417');
+                        if (arkansasCanvas) {
+                            try {
+                                bwipjs.toCanvas(arkansasCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.4,
+                                    columns: 16,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errAr) {}
+                        }
+                    } else if (stateCode === 'AK') {
+                        const alaskaCanvas = document.getElementById('alaska-pdf417');
+                        if (alaskaCanvas) {
+                            try {
+                                bwipjs.toCanvas(alaskaCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 3,
+                                    paddingheight: 3
+                                });
+                            } catch (errAk) {}
+                        }
+                    } else if (stateCode === 'AZ') {
+                        const arizonaCanvas = document.getElementById('arizona-pdf417');
+                        if (arizonaCanvas) {
+                            try {
+                                bwipjs.toCanvas(arizonaCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 3,
+                                    paddingheight: 3
+                                });
+                            } catch (errAz) {}
+                        }
+                    } else if (stateCode === 'AL') {
+                        const alabamaCanvas = document.getElementById('alabama-pdf417');
+                        if (alabamaCanvas) {
+                            try {
+                                bwipjs.toCanvas(alabamaCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 3,
+                                    paddingheight: 3
+                                });
+                            } catch (errAl) {}
+                        }
+                    } else if (stateCode === 'CA') {
+                        const californiaCanvas = document.getElementById('california-pdf417');
+                        if (californiaCanvas) {
+                            try {
+                                bwipjs.toCanvas(californiaCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errCa) {}
+                        }
+                    } else if (stateCode === 'CO') {
+                        const coloradoCanvas = document.getElementById('colorado-pdf417');
+                        if (coloradoCanvas) {
+                            try {
+                                bwipjs.toCanvas(coloradoCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errCo) {}
+                        }
+                    } else if (stateCode === 'FL') {
+                        const floridaCanvas = document.getElementById('florida-pdf417');
+                        if (floridaCanvas) {
+                            try {
+                                bwipjs.toCanvas(floridaCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errFl) {}
+                        }
+                    } else if (stateCode === 'GA') {
+                        const georgiaCanvas = document.getElementById('georgia-pdf417');
+                        if (georgiaCanvas) {
+                            try {
+                                bwipjs.toCanvas(georgiaCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errGa) {}
+                        }
+                    } else if (stateCode === 'ID') {
+                        const idahoCanvas = document.getElementById('idaho-pdf417');
+                        if (idahoCanvas) {
+                            try {
+                                bwipjs.toCanvas(idahoCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errId) {}
+                        }
+                    } else if (stateCode === 'KS') {
+                        const kansasCanvas = document.getElementById('kansas-pdf417');
+                        if (kansasCanvas) {
+                            try {
+                                bwipjs.toCanvas(kansasCanvas, {
+                                    bcid: 'pdf417',
+                                    text: payload,
+                                    scale: 2.2,
+                                    columns: cols,
+                                    eclevel: ecc,
+                                    rowheight: ratio,
+                                    rowmult: ratio,
+                                    paddingwidth: 2,
+                                    paddingheight: 2
+                                });
+                            } catch (errKs) {}
+                        }
                     }
 
                     // Update Dynamic Physical Dimensions Pill
@@ -11033,16 +10970,23 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
         }
 
         function generateRandomAAMVA() {
-            calcField('id');
-            calcField('first');
-            calcField('last');
-            calcField('mid');
-            calcField('dob');
-            calcField('issued');
-            calcField('exp');
-            calcField('dcf');
-            calcField('dck');
-            calcField('audit');
+            window.isBatchCalculation = true;
+            try {
+                calcField('first', true);
+                calcField('mid', true);
+                calcField('last', true);
+                calcField('sex', true);
+                calcField('dob', true);
+                calcField('issued', true);
+                calcField('exp', true);
+                calcField('id', true);
+                calcField('dcf', true);
+                calcField('dck', true);
+                calcField('audit', true);
+            } finally {
+                window.isBatchCalculation = false;
+            }
+            validateDlNumber();
             compileAAMVA();
             if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             showToast('All fields randomized and calculated!', 'success');
