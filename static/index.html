@@ -5603,18 +5603,27 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const companionVal = (baseState === 'AK') 
                 ? (fields.dck || fields.audit || (fields.dcf && !fields.dcf.includes(' ') && fields.dcf.length <= 12 ? fields.dcf : '') || fields.id || '2000002340')
                 : (baseState === 'AR')
-                ? (fields.dck || (fields.dcf && !fields.dcf.includes(' ') ? fields.dcf : '') || '02101124843')
+                ? (fields.dck || (fields.dcf && !fields.dcf.includes(' ') && fields.dcf.length <= 14 ? fields.dcf : '') || (fields.id ? `021011${fields.id}` : '') || '02101124843')
                 : (baseState === 'TX')
-                ? (fields.dcf || fields.audit || fields.dck || fields.id || '2407261442200188')
+                ? (fields.dcf || fields.audit || fields.dck || (fields.id ? `24${fields.id.padStart(16, '0')}` : '') || '2407261442200188')
                 : (baseState === 'CT')
-                ? (fields.dcf || fields.dck || fields.id || '24072614422001MVI6')
+                ? (fields.dcf || fields.dck || (fields.id ? `${fields.id}CTBRRL01` : '') || '24072614422001MVI6')
                 : (baseState === 'CA')
-                ? (fields.dck || fields.dcf || fields.id || '08/25/202165508/AAFD/26')
+                ? (fields.dck || (fields.id ? `25064${fields.id}0401` : '') || fields.dcf || '19357D32472610401')
                 : (baseState === 'FL')
-                ? (fields.dcf || fields.audit || fields.id || '24072614422001M1')
+                ? (fields.dcf || fields.audit || (fields.id ? `21${fields.id.padStart(14, '0')}` : '') || '24072614422001M1')
+                : (baseState === 'CO')
+                ? (fields.audit || fields.dck || (fields.id ? fields.id.padStart(10, '0') : '') || '0005427101')
+                : (baseState === 'GA')
+                ? (fields.audit || fields.dck || (fields.id ? fields.id.padStart(16, '0') : '') || '0445001121600101')
+                : (baseState === 'ID')
+                ? (fields.audit || fields.dck || (fields.id ? fields.id.padStart(10, '0') : '') || '1005063105')
+                : (baseState === 'KS')
+                ? (fields.audit || fields.dck || (fields.id ? fields.id.padStart(10, '0') : '') || '1204198901')
                 : (fields.audit || fields.dcf || fields.dck || fields.id || '0070051972513905');
-            syncCompanionCode128(companionVal);
 
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+            syncCompanionCode128(companionVal);
             renderPDF417();
         }
 
@@ -6310,10 +6319,13 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
                 const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
                 const idVal = (document.getElementById('aamva-id')?.value || '').trim();
-                const arIcn = dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 14 ? dcfVal : '') || '02101124843';
+                const arIcn = dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 14 ? dcfVal : '') || (idVal ? `021011${idVal}` : '') || '02101124843';
 
                 const arIcnEl = document.getElementById('arkansas-icn-val');
                 if (arIcnEl) arIcnEl.textContent = arIcn;
+
+                const arRevEl = document.getElementById('arkansas-rev-val');
+                if (arRevEl && meta && meta.rev) arRevEl.textContent = meta.rev;
 
                 // Render Arkansas vertical Code 128 barcode in right margin
                 try {
@@ -6399,7 +6411,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (azEndEl) azEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
 
                 // Arizona Revision Date
-                const rawIss = (document.getElementById('aamva-iss')?.value || '').trim();
+                const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
                 let azRevFmt = 'Rev MM/OO/CCYY';
                 if (rawIss.includes('-')) {
                     const p = rawIss.split('-');
@@ -6473,7 +6485,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
                 // Populate Alabama Cardholder Full Name
                 const firstVal = (document.getElementById('aamva-first')?.value || 'FIRST').trim();
-                const middleVal = (document.getElementById('aamva-middle')?.value || 'MIDDLE').trim();
+                const middleVal = (document.getElementById('aamva-mid')?.value || document.getElementById('aamva-middle')?.value || '').trim();
                 const lastVal = (document.getElementById('aamva-last')?.value || 'LAST').trim();
                 const fullName = `${firstVal} ${middleVal} ${lastVal}`.replace(/\s+/g, ' ').trim().toUpperCase();
                 const alNameEl = document.getElementById('alabama-name-val');
@@ -6501,7 +6513,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (alEndEl) alEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
 
                 // Alabama Revision Date
-                const rawIss = (document.getElementById('aamva-iss')?.value || '').trim();
+                const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
                 let alRevFmt = 'Rev 11-01-2018';
                 if (rawIss.includes('-')) {
                     const p = rawIss.split('-');
@@ -6606,7 +6618,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 if (caEndEl) caEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
 
                 // California Revision Date
-                const rawIss = (document.getElementById('aamva-iss')?.value || '').trim();
+                const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
                 let caRevFmt = 'Rev 08/29/2017';
                 if (rawIss.includes('-')) {
                     const p = rawIss.split('-');
@@ -6628,7 +6640,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
                 const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
                 const idVal = (document.getElementById('aamva-id')?.value || '').trim();
-                const caSeq = dcfVal || dckVal || auditVal || (idVal ? `19357${idVal.padStart(12, '0')}` : '') || '19357D32472610401';
+                const caSeq = (dcfVal && !dcfVal.includes('/')) ? dcfVal : (dckVal || auditVal || (idVal ? `25064${idVal}0401` : '') || '19357D32472610401');
 
                 const caAuditEl = document.getElementById('california-audit-val');
                 if (caAuditEl) caAuditEl.textContent = caSeq;
@@ -6636,7 +6648,7 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                 // Vertical Sequence Number (next to white barcode box)
                 const caSeqEl = document.getElementById('california-seq-val');
                 if (caSeqEl) {
-                    const cleanVertical = (dckVal && dckVal.length >= 8) ? dckVal.substring(0, 8) : '24121998';
+                    const cleanVertical = (dckVal && dckVal.length >= 8) ? dckVal.substring(0, 8) : (idVal ? idVal.substring(0, 8) : '24121998');
                     caSeqEl.textContent = cleanVertical;
                 }
 
@@ -7445,15 +7457,16 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
 
             if (stateCode === 'AK') {
                 const akSeqEl = document.getElementById('alaska-seq-num');
-                if (akSeqEl && activeTab === 'code128' && manualVal) {
-                    akSeqEl.textContent = targetVal;
+                const akVal = (activeTab === 'code128' && manualVal) ? targetVal : (akSeqEl?.textContent || targetVal || '2000002340');
+                if (akSeqEl && (activeTab === 'code128' && manualVal)) {
+                    akSeqEl.textContent = akVal;
                 }
                 const akCanvas = document.getElementById('alaska-code128-canvas');
-                if (akCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (akCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(akCanvas, {
                             bcid: 'code128',
-                            text: targetVal,
+                            text: akVal,
                             scale: 2,
                             height: 22,
                             rotate: 'R',
@@ -7463,19 +7476,33 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('alaska-code128-svg')) {
+                    try {
+                        JsBarcode("#alaska-code128-svg", akVal, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 44,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'AR') {
                 const arIcnEl = document.getElementById('arkansas-icn-val');
-                if (arIcnEl && activeTab === 'code128' && manualVal) {
-                    arIcnEl.textContent = targetVal;
+                const arVal = (activeTab === 'code128' && manualVal) ? targetVal : (arIcnEl?.textContent || targetVal || '02101124843');
+                if (arIcnEl && (activeTab === 'code128' && manualVal)) {
+                    arIcnEl.textContent = arVal;
                 }
                 const arCanvas = document.getElementById('arkansas-code128-canvas');
-                if (arCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (arCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(arCanvas, {
                             bcid: 'code128',
-                            text: targetVal,
+                            text: arVal,
                             scale: 2,
                             height: 22,
                             rotate: 'R',
@@ -7485,19 +7512,33 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('arkansas-code128-svg')) {
+                    try {
+                        JsBarcode("#arkansas-code128-svg", arVal, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 44,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'AZ') {
                 const azSeqEl = document.getElementById('arizona-seq-val');
-                if (azSeqEl && activeTab === 'code128' && manualVal) {
-                    azSeqEl.textContent = targetVal;
+                const azVal = (activeTab === 'code128' && manualVal) ? targetVal : (azSeqEl?.textContent || targetVal || '123540WW000100001');
+                if (azSeqEl && (activeTab === 'code128' && manualVal)) {
+                    azSeqEl.textContent = azVal;
                 }
                 const azCanvas = document.getElementById('arizona-code128-canvas');
-                if (azCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (azCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(azCanvas, {
                             bcid: 'code128',
-                            text: targetVal,
+                            text: azVal,
                             scale: 2,
                             height: 16,
                             includetext: false,
@@ -7506,19 +7547,35 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('arizona-code128-svg')) {
+                    try {
+                        JsBarcode("#arizona-code128-svg", azVal, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'AL') {
                 const alTopSeqEl = document.getElementById('alabama-top-seq');
-                if (alTopSeqEl && activeTab === 'code128' && manualVal) {
-                    alTopSeqEl.textContent = targetVal;
+                const alVal = (activeTab === 'code128' && manualVal) ? targetVal : (alTopSeqEl?.textContent || targetVal || '0070051972513905');
+                if (alTopSeqEl && (activeTab === 'code128' && manualVal)) {
+                    alTopSeqEl.textContent = alVal;
                 }
+                const alBtmSeqEl = document.getElementById('alabama-btm-seq');
+                if (alBtmSeqEl && activeTab === 'code128' && manualVal) alBtmSeqEl.textContent = alVal;
                 const alCanvas = document.getElementById('alabama-code128-canvas');
-                if (alCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (alCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(alCanvas, {
                             bcid: 'code128',
-                            text: targetVal,
+                            text: alVal,
                             scale: 2,
                             height: 16,
                             includetext: false,
@@ -7527,19 +7584,33 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('alabama-code128-svg')) {
+                    try {
+                        JsBarcode("#alabama-code128-svg", alVal, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'CA') {
                 const caAuditEl = document.getElementById('california-audit-val');
-                if (caAuditEl && activeTab === 'code128' && manualVal) {
-                    caAuditEl.textContent = targetVal;
+                const caVal = (activeTab === 'code128' && manualVal) ? targetVal : (caAuditEl?.textContent || targetVal || '19357D32472610401');
+                if (caAuditEl && (activeTab === 'code128' && manualVal)) {
+                    caAuditEl.textContent = caVal;
                 }
                 const caCanvas = document.getElementById('california-code128-canvas');
-                if (caCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (caCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(caCanvas, {
                             bcid: 'code128',
-                            text: targetVal,
+                            text: caVal,
                             scale: 2,
                             height: 16,
                             includetext: false,
@@ -7548,19 +7619,33 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('california-code128-svg')) {
+                    try {
+                        JsBarcode("#california-code128-svg", caVal, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'CO') {
                 const coSeqEl = document.getElementById('colorado-seq-num');
-                if (coSeqEl && activeTab === 'code128' && manualVal) {
-                    coSeqEl.textContent = targetVal;
+                const coVal = (activeTab === 'code128' && manualVal) ? targetVal : (coSeqEl?.textContent || targetVal || '0005427101');
+                if (coSeqEl && (activeTab === 'code128' && manualVal)) {
+                    coSeqEl.textContent = coVal;
                 }
                 const coCanvas = document.getElementById('colorado-code128-canvas');
-                if (coCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (coCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(coCanvas, {
                             bcid: 'code128',
-                            text: targetVal,
+                            text: coVal,
                             scale: 2,
                             height: 18,
                             rotate: 'R',
@@ -7570,19 +7655,34 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('colorado-code128-svg')) {
+                    try {
+                        JsBarcode("#colorado-code128-svg", coVal, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 36,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'FL') {
                 const flSeqEl = document.getElementById('florida-top-seq');
-                if (flSeqEl && activeTab === 'code128' && manualVal) {
-                    flSeqEl.textContent = targetVal.startsWith('21') ? targetVal : `21 ${targetVal}`;
+                let flVal = (activeTab === 'code128' && manualVal) ? targetVal : (flSeqEl?.textContent || targetVal || '24072614422001M1');
+                if (flSeqEl && (activeTab === 'code128' && manualVal)) {
+                    flSeqEl.textContent = flVal.startsWith('21') ? flVal : (flVal.length <= 14 ? `21 ${flVal}` : flVal);
                 }
+                const cleanFl = flVal.replace(/[^A-Za-z0-9]/g, '');
                 const flCanvas = document.getElementById('florida-code128-canvas');
-                if (flCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (flCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(flCanvas, {
                             bcid: 'code128',
-                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            text: cleanFl,
                             scale: 2,
                             height: 16,
                             includetext: false,
@@ -7591,19 +7691,34 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('florida-code128-svg')) {
+                    try {
+                        JsBarcode("#florida-code128-svg", cleanFl, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'GA') {
                 const gaSeqEl = document.getElementById('georgia-seq-val');
-                if (gaSeqEl && activeTab === 'code128' && manualVal) {
-                    gaSeqEl.textContent = targetVal;
+                const gaVal = (activeTab === 'code128' && manualVal) ? targetVal : (gaSeqEl?.textContent || targetVal || '0445001121600101');
+                if (gaSeqEl && (activeTab === 'code128' && manualVal)) {
+                    gaSeqEl.textContent = gaVal;
                 }
+                const cleanGa = gaVal.replace(/[^A-Za-z0-9]/g, '');
                 const gaCanvas = document.getElementById('georgia-code128-canvas');
-                if (gaCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (gaCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(gaCanvas, {
                             bcid: 'code128',
-                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            text: cleanGa,
                             scale: 2,
                             height: 18,
                             includetext: false,
@@ -7612,15 +7727,30 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('georgia-code128-svg')) {
+                    try {
+                        JsBarcode("#georgia-code128-svg", cleanGa, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 36,
+                            width: 1.25,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'ID') {
+                const idValStr = (activeTab === 'code128' && manualVal) ? targetVal : (targetVal || '1005063105');
+                const cleanId = idValStr.replace(/[^A-Za-z0-9]/g, '');
                 const idCanvas = document.getElementById('idaho-code128-canvas');
-                if (idCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (idCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(idCanvas, {
                             bcid: 'code128',
-                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            text: cleanId,
                             scale: 2,
                             height: 14,
                             includetext: false,
@@ -7629,15 +7759,30 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('idaho-code128-svg')) {
+                    try {
+                        JsBarcode("#idaho-code128-svg", cleanId, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 28,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             if (stateCode === 'KS') {
+                const ksValStr = (activeTab === 'code128' && manualVal) ? targetVal : (targetVal || '1204198901');
+                const cleanKs = ksValStr.replace(/[^A-Za-z0-9]/g, '');
                 const ksCanvas = document.getElementById('kansas-code128-canvas');
-                if (ksCanvas && typeof bwipjs !== 'undefined' && activeTab === 'code128' && manualVal) {
+                if (ksCanvas && typeof bwipjs !== 'undefined') {
                     try {
                         bwipjs.toCanvas(ksCanvas, {
                             bcid: 'code128',
-                            text: targetVal.replace(/[^A-Za-z0-9]/g, ''),
+                            text: cleanKs,
                             scale: 2,
                             height: 18,
                             includetext: false,
@@ -7646,6 +7791,19 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
                         });
                     } catch(e) {}
                 }
+                if (typeof JsBarcode === 'function' && document.getElementById('kansas-code128-svg')) {
+                    try {
+                        JsBarcode("#kansas-code128-svg", cleanKs, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 32,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    } catch(e) {}
+                }
+                return;
             }
 
             try {
@@ -8088,10 +8246,8 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             const el = document.getElementById('input-code128');
             if (el) {
                 const targetVal = (idVal || '').trim() || 'DEMO-123456789';
-                if (el.value !== targetVal) {
-                    el.value = targetVal;
-                    renderCode128();
-                }
+                el.value = targetVal;
+                renderCode128();
                 const badge = document.getElementById('code128-sync-badge');
                 if (badge) {
                     badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span>Synced: ${targetVal}</span>`;
@@ -10886,6 +11042,9 @@ C012345672USA9206218M3206216A1234567&lt;&lt;&lt;&lt;&lt;&lt;64</pre>
             calcField('exp');
             calcField('dcf');
             calcField('dck');
+            calcField('audit');
+            compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             showToast('All fields randomized and calculated!', 'success');
         }
 
