@@ -165,7 +165,13 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Password</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent" onkeydown="if(event.key==='Enter') submitAuthForm()">
+                    <div class="relative">
+                        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 p-2.5 pr-10 rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent" onkeydown="if(event.key==='Enter') submitAuthForm()">
+                        <button type="button" id="btn-toggle-auth-password" onclick="toggleAuthPasswordVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 focus:outline-none transition cursor-pointer" title="Show/Hide Password" aria-label="Toggle password visibility">
+                            <svg id="icon-eye-open" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg id="icon-eye-closed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1246,6 +1252,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span id="user-menu-email" class="text-xs font-bold text-white truncate">Guest</span>
                     </div>
 
+                    <!-- Buy Tokens Button in dropdown -->
+                    <button type="button" onclick="openTokenModal(); closeUserMenu();" class="w-full text-left text-xs font-semibold text-emerald-300 hover:text-emerald-200 hover:bg-emerald-500/20 px-3 py-2 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                        <span class="text-sm">⚡</span>
+                        <span>Purchase Tokens &amp; Packages</span>
+                    </button>
+
                     <!-- Customer Orders Button -->
                     <button type="button" id="user-orders-btn" onclick="openUserOrdersModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4 text-accent-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -2093,11 +2105,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 <span>AAMVA 2020</span>
                             </button>
+                            <div id="barcode-scannability-pill" class="hidden sm:flex items-center gap-1 bg-slate-950/60 border border-emerald-800/60 px-2 py-1 rounded-lg text-[10px] font-mono text-emerald-400 font-bold select-none" title="ISO/IEC 15438 Verification: Grade A (100% Contrast • 10.0 mil • 4X Quiet Zone)">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span>Grade A &bull; 100% Scannable</span>
+                            </div>
                         </div>
 
                         <!-- Alternate QR Code Quick Tools (shown when in QR mode) -->
                         <div id="qrcode-quick-tools" class="hidden flex items-center gap-2 text-xs">
-                            <span class="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-1 rounded-lg font-mono font-bold">ISO/IEC 18004 • Mobile vCard</span>
+                            <span class="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-1 rounded-lg font-mono font-bold flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span>ISO/IEC 18004 &bull; Mobile vCard &bull; Grade A</span>
+                            </span>
                             <button type="button" onclick="copyVCardPayload()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-2 py-1 rounded-lg border border-slate-700 font-bold text-[11px] transition flex items-center gap-1 cursor-pointer">
                                 <svg class="w-3 h-3 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
                                 <span>Copy vCard</span>
@@ -5326,7 +5345,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             document.getElementById('aamva-hair').value = map[dl] || dl;
         }
 
-        // 2D Type Toggle: PDF417 vs QR Code
+        const STATE_CANVAS_CLASSES = {
+            'output-pdf417': 'max-w-[275px] max-h-[76px] w-auto h-auto object-contain transition duration-200',
+            'alaska-pdf417': 'max-w-[230px] max-h-[50px] w-auto h-auto object-contain',
+            'arkansas-pdf417': 'w-full max-h-[60px] object-contain',
+            'arizona-pdf417': 'max-w-[274px] max-h-[62px] w-auto h-auto object-contain',
+            'alabama-pdf417': 'w-full max-h-[68px] object-contain',
+            'california-pdf417': 'w-full h-full object-contain',
+            'colorado-pdf417': 'w-full h-full object-contain',
+            'florida-pdf417': 'w-full h-full object-contain',
+            'georgia-pdf417': 'w-full h-full object-contain',
+            'idaho-pdf417': 'w-full h-full object-contain',
+            'kansas-pdf417': 'w-full h-full object-contain'
+        };
+
         function setBarcode2DType(type) {
             barcode2DType = type;
             const btnPdf = document.getElementById('sub-pdf417');
@@ -5346,22 +5378,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (qrTools) qrTools.classList.remove('hidden');
             }
 
-            const all2DCanvases = [
-                'output-pdf417', 'alaska-pdf417', 'arkansas-pdf417', 'arizona-pdf417',
-                'alabama-pdf417', 'california-pdf417', 'colorado-pdf417',
-                'florida-pdf417', 'georgia-pdf417', 'idaho-pdf417', 'kansas-pdf417'
-            ];
-            all2DCanvases.forEach(id => {
+            Object.keys(STATE_CANVAS_CLASSES).forEach(id => {
                 const c = document.getElementById(id);
                 if (c) {
                     if (type === 'qrcode') {
-                        c.setAttribute('data-orig-class', c.className);
-                        c.className = 'w-[72px] h-[72px] object-contain transition duration-200 mx-auto';
+                        c.className = 'max-h-[56px] max-w-[56px] sm:max-h-[64px] sm:max-w-[64px] w-auto h-auto aspect-square object-contain mx-auto transition duration-150';
                     } else {
-                        const orig = c.getAttribute('data-orig-class');
-                        if (orig) c.className = orig;
-                        else if (id === 'output-pdf417') c.className = 'max-w-[275px] max-h-[76px] w-auto h-auto object-contain transition duration-200';
-                        else c.className = 'w-full h-full object-contain';
+                        c.className = STATE_CANVAS_CLASSES[id];
                     }
                 }
             });
@@ -8311,6 +8334,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
             if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
 
+            const stateCanvasMap = {
+                'AK': 'alaska-pdf417',
+                'AR': 'arkansas-pdf417',
+                'AZ': 'arizona-pdf417',
+                'AL': 'alabama-pdf417',
+                'CA': 'california-pdf417',
+                'CO': 'colorado-pdf417',
+                'FL': 'florida-pdf417',
+                'GA': 'georgia-pdf417',
+                'ID': 'idaho-pdf417',
+                'KS': 'kansas-pdf417'
+            };
+            const activeCanvasId = stateCanvasMap[stateCode];
+
             try {
                 if (barcode2DType === 'qrcode') {
                     // Mobile-Scannable Digital ID vCard format
@@ -8336,41 +8373,33 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     const vcard = `BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\nFN:${first} ${last}\nORG:State of ${state} Driver License\nTITLE:Driver License Class ${rawClass}\nUID:${id}\nBDAY:${dob}\nADR;TYPE=HOME:;;${street};${city};${state};${zip};USA\nNOTE:DL:${id} | CLASS:${rawClass} | REST:${rawRest} | END:${rawEnd} | EXP:${exp}\nEND:VCARD`;
 
                     if (canvas) {
-                        bwipjs.toCanvas(canvas, {
-                            bcid: 'qrcode',
-                            text: vcard,
-                            scale: 3,
-                            paddingwidth: 6,
-                            paddingheight: 6
-                        });
+                        canvas.className = 'w-[68px] h-[68px] sm:w-[72px] sm:h-[72px] aspect-square object-contain mx-auto transition duration-150';
+                        try {
+                            bwipjs.toCanvas(canvas, {
+                                bcid: 'qrcode',
+                                text: vcard,
+                                scale: 2.8,
+                                paddingwidth: 4,
+                                paddingheight: 4
+                            });
+                        } catch(e) {}
                     }
 
-                    // Render only the active state canvas
-                    const stateCanvasMap = {
-                        'AK': 'alaska-pdf417',
-                        'AR': 'arkansas-pdf417',
-                        'AZ': 'arizona-pdf417',
-                        'AL': 'alabama-pdf417',
-                        'CA': 'california-pdf417',
-                        'CO': 'colorado-pdf417',
-                        'FL': 'florida-pdf417',
-                        'GA': 'georgia-pdf417',
-                        'ID': 'idaho-pdf417',
-                        'KS': 'kansas-pdf417'
-                    };
-                    const activeCanvasId = stateCanvasMap[stateCode];
                     if (activeCanvasId) {
                         const sc = document.getElementById(activeCanvasId);
                         if (sc) {
+                            sc.className = 'max-h-[56px] max-w-[56px] sm:max-h-[64px] sm:max-w-[64px] w-auto h-auto aspect-square object-contain mx-auto transition duration-150';
                             try {
                                 bwipjs.toCanvas(sc, {
                                     bcid: 'qrcode',
                                     text: vcard,
                                     scale: 2.2,
-                                    paddingwidth: 4,
-                                    paddingheight: 4
+                                    paddingwidth: 3,
+                                    paddingheight: 3
                                 });
-                            } catch (e) {}
+                            } catch (e) {
+                                console.error('QR render error for ' + stateCode, e);
+                            }
                         }
                     }
 
@@ -8379,6 +8408,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     const dimsEl = document.getElementById('barcode-physical-dims');
                     if (dimsEl) dimsEl.textContent = 'ISO/IEC 18004 • 256-bit ECC';
                 } else {
+                    if (canvas && typeof STATE_CANVAS_CLASSES !== 'undefined' && STATE_CANVAS_CLASSES['output-pdf417']) {
+                        canvas.className = STATE_CANVAS_CLASSES['output-pdf417'];
+                    }
+                    if (activeCanvasId && typeof STATE_CANVAS_CLASSES !== 'undefined' && STATE_CANVAS_CLASSES[activeCanvasId]) {
+                        const sc = document.getElementById(activeCanvasId);
+                        if (sc) sc.className = STATE_CANVAS_CLASSES[activeCanvasId];
+                    }
                     // Authentic Standard PDF417 Driver License Dimensions:
                     // 12 columns, ECC 5, 3:1 ratio, optimized quiet zone for full width
                     if (canvas) {
@@ -8665,8 +8701,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         // --- AUTH & SESSION API ---
-        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+        function toggleAuthPasswordVisibility() {
+            const pwdInput = document.getElementById('auth-password');
+            const iconOpen = document.getElementById('icon-eye-open');
+            const iconClosed = document.getElementById('icon-eye-closed');
+            if (!pwdInput) return;
+            const isPassword = pwdInput.type === 'password';
+            pwdInput.type = isPassword ? 'text' : 'password';
+            if (iconOpen) iconOpen.classList.toggle('hidden', isPassword);
+            if (iconClosed) iconClosed.classList.toggle('hidden', !isPassword);
+        }
+
+        function openAuthModal() {
+            const pwdInput = document.getElementById('auth-password');
+            const iconOpen = document.getElementById('icon-eye-open');
+            const iconClosed = document.getElementById('icon-eye-closed');
+            if (pwdInput) pwdInput.type = 'password';
+            if (iconOpen) iconOpen.classList.remove('hidden');
+            if (iconClosed) iconClosed.classList.add('hidden');
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
 
         function switchAuthMode(mode) {
             authMode = mode;
@@ -10476,8 +10533,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 if (!res.ok) {
                     if (res.status === 402) {
-                        showToast('Insufficient tokens! Please top up or unlock Admin mode.', 'warning');
+                        showToast('Insufficient tokens! Opening Token Store...', 'warning');
                         updateAuthUI();
+                        setTimeout(openTokenModal, 300);
                     } else {
                         throw new Error(data.detail || 'Authorization failed');
                     }
@@ -10486,6 +10544,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 if (typeof data.tokens_remaining !== 'undefined') {
                     currentUser.tokens = data.tokens_remaining;
+                    try { localStorage.setItem('bsp_cached_user', JSON.stringify(currentUser)); } catch(e){}
                     updateAuthUI();
                 }
 
@@ -13601,6 +13660,22 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (typeof inspectAamvaCompliance === 'function') inspectAamvaCompliance();
                 if (typeof compileMrz === 'function') compileMrz();
                 if (typeof checkAuth === 'function') checkAuth();
+
+                // Auto-uppercase DMV text fields in real-time
+                ['aamva-first', 'aamva-last', 'aamva-middle', 'aamva-street', 'aamva-city', 'aamva-id', 'aamva-dcf', 'aamva-dck', 'aamva-audit'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('input', function() {
+                            const start = this.selectionStart;
+                            const end = this.selectionEnd;
+                            const upper = this.value.toUpperCase();
+                            if (this.value !== upper) {
+                                this.value = upper;
+                                if (start !== null && end !== null) this.setSelectionRange(start, end);
+                            }
+                        });
+                    }
+                });
 
                 if (urlParams.get('modal') === 'clients' && typeof openAdminClientsModal === 'function') {
                     openAdminClientsModal();

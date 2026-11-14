@@ -163,7 +163,7 @@ def run_tests():
 
     # 7. Test Admin User Unlimited Exports (No Token Depletion)
     print("\n[7/9] Testing Admin Auto-Promotion & Unlimited Exports...")
-    admin_login = client.post("/login", data={"username": "mwangilewis205@gmail.com", "password": "AdminPassword123!"})
+    admin_login = client.post("/login", data={"username": "mwangilewis205@gmail.com", "password": "admin2026"})
     assert admin_login.status_code == 200, f"Admin login failed: {admin_login.text}"
     admin_token = admin_login.json()["access_token"]
     admin_headers = {"Authorization": f"Bearer {admin_token}"}

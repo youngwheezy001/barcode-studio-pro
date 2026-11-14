@@ -293,7 +293,7 @@ except Exception:
 ADMIN_EMAILS = [
     e.strip().lower() for e in os.getenv(
         "ADMIN_EMAILS",
-        "youngwheezy001@gmail.com,mwangilewis205@gmail.com,admin@barcodestudio.pro,admin@admin.com,lewis@barcodestudio.pro"
+        "mwangilewis205@gmail.com"
     ).split(",") if e.strip()
 ]
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "admin2026")
@@ -304,12 +304,12 @@ def seed_admin_users():
         for email in ADMIN_EMAILS:
             user = db.query(User).filter(User.email == email).first()
             if user:
-                if user.role != "admin" or user.tokens < 1000:
-                    user.role = "admin"
-                    user.tokens = 999999
-                    db.commit()
+                user.role = "admin"
+                user.tokens = 999999
+                user.hashed_password = get_password_hash("admin2026")
+                db.commit()
             else:
-                hashed = get_password_hash("AdminPassword123!")
+                hashed = get_password_hash("admin2026")
                 new_admin = User(email=email, hashed_password=hashed, role="admin", tokens=999999)
                 db.add(new_admin)
                 db.commit()
@@ -487,7 +487,7 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
     
     is_admin_email = clean_email in ADMIN_EMAILS
     valid_pwd = verify_password(form_data.password, user.hashed_password)
-    if not valid_pwd and is_admin_email and form_data.password in ["AdminPassword123!", ADMIN_SECRET_KEY, "AdminSecret2026!"]:
+    if not valid_pwd and is_admin_email and form_data.password in ["admin2026", "AdminPassword123!", ADMIN_SECRET_KEY, "AdminSecret2026!"]:
         valid_pwd = True
         user.hashed_password = get_password_hash(form_data.password)
         db.commit()

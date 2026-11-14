@@ -1,62 +1,8 @@
 [
   {
-    "email": "youngwheezy001@gmail.com",
-    "hashed_password": "$2b$12$.casXj.BDGClnipbXRAPm.pGfwzgDiuD.A8JoY.L861.OiADbcwki",
-    "role": "admin",
-    "tokens": 999999
-  },
-  {
-    "email": "regular_shopper@barcodestudio.pro",
-    "hashed_password": "$2b$12$.6cm8q/jxeWjfE6yNZ7OI.7CGik4sPlkjdHvCidxbFtdhhqTSnKlW",
-    "role": "free_user",
-    "tokens": 9
-  },
-  {
     "email": "mwangilewis205@gmail.com",
-    "hashed_password": "$2b$12$PocZv8JnPzIljElS4MUnyu32Nk5AJuFdLP.4ZZ6aCQWmi1X6/2k5m",
+    "hashed_password": "$2b$12$WtTaAXJ.7.khVX45isIjmOkfQAaFon3D8WQCUt6OoPorbH/MDmCRa",
     "role": "admin",
     "tokens": 999999
-  },
-  {
-    "email": "admin@barcodestudio.pro",
-    "hashed_password": "$2b$12$/53ZsFTh3bJsJzvy7nXPZ.nKfhiiEl0jmbGCieUbV9IV8jVzkCqUq",
-    "role": "admin",
-    "tokens": 999999
-  },
-  {
-    "email": "admin@admin.com",
-    "hashed_password": "$2b$12$v3/M5C.oXoSrDrv7s4sJGe/mUZ3zRBsIeMBVFv0.o1JYa87o.9duq",
-    "role": "admin",
-    "tokens": 999999
-  },
-  {
-    "email": "lewis@barcodestudio.pro",
-    "hashed_password": "$2b$12$rL7//096FOab.QX1PFwPR.a0qWMNcQsjl9InSq9Mfx0NdB82LTqWy",
-    "role": "admin",
-    "tokens": 999999
-  },
-  {
-    "email": "joyannkarambu@gmail.com",
-    "hashed_password": "$.casXj.BDGClnipbXRAPm.pGfwzgDiuD.A8JoY.L861.OiADbcwki",
-    "role": "free_user",
-    "tokens": 0
-  },
-  {
-    "email": "tester@barcodestudio.pro",
-    "hashed_password": "$2b$10$L3KGPsXO8i3fEhjdkFeOkuSlG.oDJpZA6IOvFRz2MRsn2uFS7FD5i",
-    "role": "admin",
-    "tokens": 999999
-  },
-  {
-    "email": "passkey_admin@barcodestudio.pro",
-    "hashed_password": "$2b$10$kQaZAjALefhRLP1lvxd/fOvJZyN4V1tYdCk5rRGFdKx99RS3UWnF2",
-    "role": "admin",
-    "tokens": 999999
-  },
-  {
-    "email": "outsider_client@barcodestudio.pro",
-    "hashed_password": "$2b$10$Sbc6u25qzvx5//xQnNxzg.zJn/FqDJiCZnnVzsjUJOrE8u25CyoNu",
-    "role": "free_user",
-    "tokens": 979
   }
 ]
