@@ -1,6 +1,6 @@
 /**
  * Barcode Studio Pro - State-Aware Multi-Revision & Calculator Engine
- * Extracted from verified AAMVA specifications & pdf417.pro generator algorithms.
+ * Extracted from verified AAMVA specifications & standard compliance algorithms.
  */
 
 (function(window) {
@@ -9161,7 +9161,7 @@ function runStateCalculation(field, stateSlug) {
         
     // =========================================================================
     // CERTIFIED REFERENCE DEMOGRAPHIC DEFAULTS (86 Jurisdictions / Revisions)
-    // Extracted directly from reference specifications (pdf417.pro)
+    // Extracted directly from reference AAMVA specifications
     // =========================================================================
     const STATE_DEMOGRAPHIC_DEFAULTS = {
   "AL": {
@@ -11257,7 +11257,7 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#dad7d0",
         "bg_gradient": "linear-gradient(180deg, #faf9f7 0%, #f0ece5 50%, #e4ded4 100%)",
         "security_tint": "#c7bfb1"
@@ -11293,7 +11293,7 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fbfd 50%, #eff5fa 100%)",
         "security_tint": "#cbe0ef"
@@ -11473,7 +11473,7 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#f2f5f2",
         "bg_gradient": "linear-gradient(180deg, #f6f8f6 0%, #e9efe9 50%, #dce4dc 100%)",
         "security_tint": "#b8ccb9"
@@ -11491,7 +11491,7 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbfbfb 50%, #f5f4f2 100%)",
         "security_tint": "#d6d2cb"
@@ -11527,7 +11527,7 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9f9fa 50%, #f2f3f5 100%)",
         "security_tint": "#d2d5dc"
@@ -11581,7 +11581,7 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#f6f7f8",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f6f7f9 50%, #edf0f3 100%)",
         "security_tint": "#ccd3dc"
@@ -11671,7 +11671,7 @@ function QC_calculate_ICN() {
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#f5f2f4",
         "bg_gradient": "linear-gradient(180deg, #faf7f8 0%, #f0e7eb 50%, #e4eaee 100%)",
         "security_tint": "#ccaebd"
@@ -11743,7 +11743,7 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7faf8 50%, #edf4ef 100%)",
         "security_tint": "#c6dccb"
@@ -11779,7 +11779,7 @@ function QC_calculate_ICN() {
         "archetype": "modern_optical",
         "has_magstripe": false,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#edf0f6",
         "bg_gradient": "linear-gradient(180deg, #f6f8fc 0%, #eaedf5 50%, #dbe0ee 100%)",
         "security_tint": "#b6c0db"
@@ -11815,7 +11815,7 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#edf5f5",
         "bg_gradient": "linear-gradient(180deg, #f5fafa 0%, #eaf4f4 50%, #dceeed 100%)",
         "security_tint": "#bddada"
@@ -11833,7 +11833,7 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f8fafb 50%, #edf3f7 100%)",
         "security_tint": "#c6d9e8"
@@ -11959,7 +11959,7 @@ function QC_calculate_ICN() {
         "archetype": "canadian",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#e8f3f4",
         "bg_gradient": "linear-gradient(180deg, #f4fafb 0%, #e4f2f3 50%, #d4eaec 100%)",
         "security_tint": "#bcd1d4"
@@ -11995,7 +11995,7 @@ function QC_calculate_ICN() {
         "archetype": "canadian_fr",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#edf1fc",
         "bg_gradient": "linear-gradient(180deg, #f5f7fe 0%, #e9edfa 50%, #d9e1f6 100%)",
         "security_tint": "#c8d2f4"
