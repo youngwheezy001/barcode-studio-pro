@@ -5362,52 +5362,48 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             } catch (e) {}
         }
 
-        // Clear / Reset all inputs cleanly without throwing calculation alerts
+        // Clear all inputs completely
         function clearAllInputs() {
             window.isClearingForm = true;
             window.suppressCalcAlerts = true;
             clearDraftStorage();
 
-            const textFields = [
-                'aamva-first', 'aamva-last', 'aamva-mid',
-                'aamva-street', 'aamva-city', 'aamva-zip',
-                'aamva-restrictions', 'aamva-endorsements'
+            const allFieldIds = [
+                'aamva-first', 'aamva-last', 'aamva-mid', 'aamva-suffix',
+                'aamva-id', 'aamva-street', 'aamva-street2', 'aamva-city', 'aamva-zip',
+                'aamva-dob', 'aamva-issued', 'aamva-exp',
+                'aamva-dcf', 'aamva-dck', 'aamva-audit',
+                'aamva-restrictions', 'aamva-endorsements',
+                'aamva-height', 'aamva-height-in',
+                'aamva-weight', 'aamva-weight-lb',
+                'aamva-revision-date', 'aamva-safe-driver',
+                'aamva-in-office', 'aamva-la-office', 'aamva-la-parish',
+                'aamva-nd-opt', 'aamva-nj-opt1', 'aamva-nj-opt2', 'aamva-nj-opt3',
+                'aamva-pob', 'aamva-dups', 'input-code128'
             ];
-            textFields.forEach(id => {
+
+            allFieldIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
 
-            // Set clean baseline dates and sample document number for active jurisdiction
-            const slug = document.getElementById('aamva-jurisdiction')?.value || 'HI';
-            const defaults = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(slug) : null;
-            const profile = STATE_PROFILES[slug] || STATE_PROFILES[slug.split('_')[0]] || STATE_PROFILES.GENERIC;
+            // Reset unit converter badges
+            const hBadge = document.getElementById('height-cm-badge');
+            if (hBadge) hBadge.textContent = '≈ 0 cm';
+            const wBadge = document.getElementById('weight-kg-badge');
+            if (wBadge) wBadge.textContent = '≈ 0 kg';
 
-            const idEl = document.getElementById('aamva-id');
-            if (idEl) idEl.value = (defaults && defaults.sample_dl) ? defaults.sample_dl : (profile.sampleDL || 'H00123456');
+            // Reset DL format validation hint
+            const hintEl = document.getElementById('dl-format-hint');
+            if (hintEl) hintEl.innerHTML = '';
 
-            const dobEl = document.getElementById('aamva-dob');
-            if (dobEl) dobEl.value = '08151992';
-
-            const issEl = document.getElementById('aamva-issued');
-            if (issEl) issEl.value = '05202023';
-
-            const expEl = document.getElementById('aamva-exp');
-            if (expEl) expEl.value = '08152031';
-
-            if (typeof applyStatePreset === 'function') {
-                applyStatePreset();
-            } else {
-                updateStateDynamicLabels();
-                updateHeightMetric();
-                updateWeightMetric();
-                compileAAMVA();
-                renderCode128();
-            }
+            updateStateDynamicLabels();
+            compileAAMVA();
+            renderCode128();
 
             window.isClearingForm = false;
             window.suppressCalcAlerts = false;
-            showToast('Form cleared and reset to clean state standards!', 'info');
+            showToast('All fields cleared!', 'info');
         }
 
         // Dual Eye & Hair Sync
