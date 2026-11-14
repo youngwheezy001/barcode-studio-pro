@@ -2874,10 +2874,19 @@ function getRandomMiddleName(sex) {
 
 
 function showInputDataAlert(msg) {
-    if (typeof window !== 'undefined' && (window.isBatchCalculation || window.isClearingForm)) {
+    if (typeof window !== 'undefined' && (window.isBatchCalculation || window.isClearingForm || window.suppressCalcAlerts)) {
         console.warn('State Calculator Alert (suppressed):', msg);
         return;
     }
+    try {
+        const iss = document.getElementById('aamva-issued')?.value || '';
+        const dob = document.getElementById('aamva-dob')?.value || '';
+        const last = document.getElementById('aamva-last')?.value || '';
+        if (!iss || !dob || !last) {
+            console.warn('State Calculator Alert (suppressed - form partially empty):', msg);
+            return;
+        }
+    } catch(e) {}
     if (typeof showToast === 'function') {
         showToast(msg, 'warning');
     } else {
@@ -4994,33 +5003,46 @@ function HI_calculate_documentNumber() {
 
 
 function HI_calculate_DD() {
-    var issueDate = getTargetElement("inputIssueDate").value;
+    var el = getTargetElement("inputIssueDate");
+    var issueDate = (el && el.value) ? el.value.trim() : "";
     if (issueDate.length != 8) {
-        showInputDataAlert("DD calculation error. Incorrect issue date!")
-        return;
+        issueDate = "05202023";
+        if (el && !el.value) el.value = issueDate;
     }
 
     var data = "";
     for (var i = 0; i < 6; i++) { data += getRandomDigit(); }
     for (var i = 0; i < 6; i++) { data += getRandomLetterAndDigit(); }
 
-    getTargetElement('inputDD').value = issueDate.slice(-4) + issueDate.slice(0,2) + issueDate.slice(2,4) + data + "-ICWH";
+    var target = getTargetElement('inputDD');
+    if (target) {
+        target.value = issueDate.slice(-4) + issueDate.slice(0,2) + issueDate.slice(2,4) + data + "-ICWH";
+    }
 }
 
 
 
 function HI_calculate_ICN() {
-    var issueDate = getTargetElement("inputIssueDate").value;
+    var el = getTargetElement("inputIssueDate");
+    var issueDate = (el && el.value) ? el.value.trim() : "";
     if (issueDate.length != 8) {
-        showInputDataAlert("DD calculation error. Incorrect issue date!")
-        return;
+        issueDate = "05202023";
+        if (el && !el.value) el.value = issueDate;
     }
 
-    d = new Date(issueDate.slice(-4), issueDate.slice(0,2), issueDate.slice(2,4));
-    d.setDate(d.getDate() + 6)
-    var formattedDate = ("0" + d.getMonth()).slice(-2) + ("0" + d.getDate()).slice(-2) + d.getFullYear();
+    var y = parseInt(issueDate.slice(-4), 10);
+    var m = parseInt(issueDate.slice(0, 2), 10) - 1;
+    var day = parseInt(issueDate.slice(2, 4), 10);
+    var d = new Date(y, m, day);
+    d.setDate(d.getDate() + 6);
+    var mm = ("0" + (d.getMonth() + 1)).slice(-2);
+    var dd = ("0" + d.getDate()).slice(-2);
+    var formattedDate = mm + dd + d.getFullYear();
 
-    getTargetElement('inputICN').value = issueDate.slice(-4) + formattedDate.slice(0,4) + "_106336_2_1" + getRandomNumericString(2);
+    var target = getTargetElement('inputICN');
+    if (target) {
+        target.value = issueDate.slice(-4) + formattedDate.slice(0,4) + "_106336_2_1" + getRandomNumericString(2);
+    }
 }
 
 

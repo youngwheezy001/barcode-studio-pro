@@ -2806,6 +2806,76 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- AAMVA Engineering Test-Card & Diagnostics View (High-Precision Diagnostic Fixture for Hawaii & Downward Jurisdictions) -->
+                            <div id="card-back-engineering-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10 flex flex-col justify-between p-2.5"
+                                 style="background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);">
+                                
+                                <!-- Blueprint Engineering Grid Background Overlay -->
+                                <div class="absolute inset-0 pointer-events-none opacity-20"
+                                     style="background-image: linear-gradient(to right, rgba(148, 163, 184, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.2) 1px, transparent 1px); background-size: 16px 16px;"></div>
+
+                                <!-- Calibration Corner Alignment Crosshairs -->
+                                <div class="absolute top-1.5 left-1.5 w-3 h-3 border-t-2 border-l-2 border-cyan-400/60 pointer-events-none"></div>
+                                <div class="absolute top-1.5 right-1.5 w-3 h-3 border-t-2 border-r-2 border-cyan-400/60 pointer-events-none"></div>
+                                <div class="absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-cyan-400/60 pointer-events-none"></div>
+                                <div class="absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-cyan-400/60 pointer-events-none"></div>
+
+                                <!-- TOP HEADER: State Badge, ISO Diagnostic Tag & Top 1D Code 128 / Sequence -->
+                                <div class="relative z-10 flex items-center justify-between gap-2 border-b border-slate-700/80 pb-1.5">
+                                    <div class="flex items-center gap-1.5">
+                                        <span id="eng-state-badge" class="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 font-mono text-[9px] font-black border border-cyan-500/40 tracking-wider shadow-xs">
+                                            HI // AAMVA CDS BENCHMARK
+                                        </span>
+                                        <span class="px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 font-mono text-[7.5px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                                            <span>ISO/IEC 15438</span><span class="text-emerald-400">&check;</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <!-- Sequence / Tracking Indicator -->
+                                        <span id="eng-seq-val" class="font-mono text-[7.5px] font-bold text-slate-300 tracking-wider">
+                                            20230520-ICWH
+                                        </span>
+                                        <!-- Companion 1D Code 128 Barcode Chamber -->
+                                        <div class="bg-white rounded px-1.5 py-0.5 border border-slate-300 shadow-xs flex items-center justify-center max-h-[22px] max-w-[155px] overflow-hidden">
+                                            <canvas id="eng-code128-canvas" class="max-h-[18px] w-full object-fill"></canvas>
+                                            <svg id="eng-code128-svg" class="hidden"></svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CENTER: AAMVA Diagnostic Chamber & Full-Bleed 2D PDF417 Barcode -->
+                                <div class="relative z-10 flex-1 flex flex-col justify-center my-1.5">
+                                    <!-- Barcode Container: 100% Edge-to-Edge White Box Fill -->
+                                    <div id="eng-pdf417-container" class="w-full h-[116px] bg-white rounded-[2px] p-0.5 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.4)] border border-slate-300/80 flex items-center justify-center">
+                                        <canvas id="eng-pdf417" class="w-full h-full object-fill"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- BOTTOM HUD: Demographics & Calibration Attestation Block -->
+                                <div class="relative z-10 flex items-center justify-between text-slate-300 text-[8px] font-mono border-t border-slate-700/80 pt-1.5">
+                                    <div class="flex items-center gap-3">
+                                        <div>
+                                            <span class="text-slate-400">DL:</span> <span id="eng-dl-val" class="font-bold text-white">H00123456</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400">DOB:</span> <span id="eng-dob-val" class="font-bold text-white">08/15/1992</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400">EXP:</span> <span id="eng-exp-val" class="font-bold text-white">08/15/2031</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400">CLASS:</span> <span id="eng-class-val" class="font-bold text-white">3</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-[7px] text-cyan-400/90 font-bold tracking-tight">
+                                        <span>ECC-5 • 12 COLS • GRADE A</span>
+                                        <span class="text-slate-600">|</span>
+                                        <span class="text-amber-400/90">SPECIMEN TEST FIXTURE</span>
+                                    </div>
+                                </div>
+
+                            </div>
+
                         </div>
 
                         <!-- 3D Geometric Display Pedestal / Stage -->
@@ -5292,32 +5362,52 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             } catch (e) {}
         }
 
-        // Clear / Reset all inputs to certified state reference defaults
+        // Clear / Reset all inputs cleanly without throwing calculation alerts
         function clearAllInputs() {
             window.isClearingForm = true;
+            window.suppressCalcAlerts = true;
             clearDraftStorage();
+
+            const textFields = [
+                'aamva-first', 'aamva-last', 'aamva-mid',
+                'aamva-street', 'aamva-city', 'aamva-zip',
+                'aamva-restrictions', 'aamva-endorsements'
+            ];
+            textFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+
+            // Set clean baseline dates and sample document number for active jurisdiction
+            const slug = document.getElementById('aamva-jurisdiction')?.value || 'HI';
+            const defaults = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(slug) : null;
+            const profile = STATE_PROFILES[slug] || STATE_PROFILES[slug.split('_')[0]] || STATE_PROFILES.GENERIC;
+
+            const idEl = document.getElementById('aamva-id');
+            if (idEl) idEl.value = (defaults && defaults.sample_dl) ? defaults.sample_dl : (profile.sampleDL || 'H00123456');
+
+            const dobEl = document.getElementById('aamva-dob');
+            if (dobEl) dobEl.value = '08151992';
+
+            const issEl = document.getElementById('aamva-issued');
+            if (issEl) issEl.value = '05202023';
+
+            const expEl = document.getElementById('aamva-exp');
+            if (expEl) expEl.value = '08152031';
+
             if (typeof applyStatePreset === 'function') {
                 applyStatePreset();
             } else {
-                const fieldIds = [
-                    'aamva-id', 'aamva-first', 'aamva-last', 'aamva-mid',
-                    'aamva-street', 'aamva-city', 'aamva-zip', 'aamva-class',
-                    'aamva-dob', 'aamva-issued', 'aamva-exp', 'aamva-dcf',
-                    'aamva-dck', 'aamva-restrictions', 'aamva-endorsements',
-                    'aamva-height-in', 'aamva-weight-lb', 'input-code128'
-                ];
-                fieldIds.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
                 updateStateDynamicLabels();
                 updateHeightMetric();
                 updateWeightMetric();
                 compileAAMVA();
                 renderCode128();
             }
+
             window.isClearingForm = false;
-            showToast('Form reset to certified state reference standards!', 'info');
+            window.suppressCalcAlerts = false;
+            showToast('Form cleared and reset to clean state standards!', 'info');
         }
 
         // Dual Eye & Hair Sync
@@ -5351,7 +5441,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             'florida-pdf417': 'w-full h-full object-fill',
             'georgia-pdf417': 'w-full h-full object-fill',
             'idaho-pdf417': 'w-full h-full object-fill',
-            'kansas-pdf417': 'w-full h-full object-fill'
+            'kansas-pdf417': 'w-full h-full object-fill',
+            'eng-pdf417': 'w-full h-full object-fill'
         };
 
         function setBarcode2DType(type) {
@@ -6074,6 +6165,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 ? (fields.audit || fields.dck || (fields.id ? fields.id.padStart(10, '0') : '') || '1005063105')
                 : (baseState === 'KS')
                 ? (fields.audit || fields.dck || (fields.id ? fields.id.padStart(10, '0') : '') || '1204198901')
+                : (baseState === 'HI')
+                ? (fields.dck || fields.dcf || (fields.id ? `${fields.id}-ICWH` : '') || '20230520-ICWH')
                 : (fields.audit || fields.dcf || fields.dck || fields.id || '0070051972513905');
 
             if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
@@ -6612,6 +6705,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const georgiaView = document.getElementById('card-back-georgia-view');
             const idahoView = document.getElementById('card-back-idaho-view');
             const kansasView = document.getElementById('card-back-kansas-view');
+            const engView = document.getElementById('card-back-engineering-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             if (stateCode === 'AK') {
@@ -7609,6 +7703,95 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     console.error("Kansas 1D barcode error:", e);
                 }
 
+            } else if (stateCode === 'HI') {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
+                if (engView) engView.classList.remove('hidden');
+
+                if (cardEl) {
+                    cardEl.style.background = 'radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%)';
+                }
+
+                // Hawaii Engineering Test Details
+                const hiProfile = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jurKey]) ? STATE_PROFILES[jurKey] : (STATE_PROFILES['HI'] || { name: 'Hawaii' });
+                const engBadge = document.getElementById('eng-state-badge');
+                if (engBadge) engBadge.textContent = `${hiProfile.name.toUpperCase()} (HI) // AAMVA CDS BENCHMARK`;
+
+                const idVal = (document.getElementById('aamva-id')?.value || 'H00123456').trim();
+                const engDl = document.getElementById('eng-dl-val');
+                if (engDl) engDl.textContent = idVal;
+
+                const rawDob = (document.getElementById('aamva-dob')?.value || '1992-08-15').trim();
+                let dobFmt = '08/15/1992';
+                if (rawDob.includes('-')) {
+                    const p = rawDob.split('-');
+                    if (p.length === 3) dobFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawDob.length === 8) {
+                    dobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
+                }
+                const engDob = document.getElementById('eng-dob-val');
+                if (engDob) engDob.textContent = dobFmt;
+
+                const rawExp = (document.getElementById('aamva-exp')?.value || '2031-08-15').trim();
+                let expFmt = '08/15/2031';
+                if (rawExp.includes('-')) {
+                    const p = rawExp.split('-');
+                    if (p.length === 3) expFmt = `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (rawExp.length === 8) {
+                    expFmt = `${rawExp.substring(0, 2)}/${rawExp.substring(2, 4)}/${rawExp.substring(4, 8)}`;
+                }
+                const engExp = document.getElementById('eng-exp-val');
+                if (engExp) engExp.textContent = expFmt;
+
+                const rawClass = (document.getElementById('aamva-class')?.value || '3').trim();
+                const engClass = document.getElementById('eng-class-val');
+                if (engClass) engClass.textContent = rawClass || '3';
+
+                // Sequence / Tracking (DCK / DCF or sample)
+                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const hiSeq = dckVal || dcfVal || (idVal ? `${idVal}-ICWH` : '20230520-ICWH');
+                const engSeq = document.getElementById('eng-seq-val');
+                if (engSeq) engSeq.textContent = hiSeq;
+
+                // Render Hawaii 1D Code 128 Companion Barcode
+                try {
+                    const cleanSeq = hiSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '20230520-ICWH';
+                    const engCanvas = document.getElementById('eng-code128-canvas');
+                    if (engCanvas && typeof bwipjs !== 'undefined') {
+                        bwipjs.toCanvas(engCanvas, {
+                            bcid: 'code128',
+                            text: cleanSeq,
+                            scale: 2,
+                            height: 16,
+                            includetext: false,
+                            paddingwidth: 0,
+                            paddingheight: 0
+                        });
+                    }
+                    if (typeof JsBarcode === 'function' && document.getElementById('eng-code128-svg')) {
+                        JsBarcode("#eng-code128-svg", cleanSeq, {
+                            format: "CODE128",
+                            displayValue: false,
+                            height: 24,
+                            width: 1.5,
+                            margin: 0,
+                            lineColor: "#0a0a0a"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Engineering view 1D barcode error:", e);
+                }
+
             } else {
                 if (standardView) standardView.classList.remove('hidden');
                 if (alaskaView) alaskaView.classList.add('hidden');
@@ -7621,6 +7804,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (georgiaView) georgiaView.classList.add('hidden');
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
+                if (engView) engView.classList.add('hidden');
                 if (cardEl) {
                     if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
@@ -8365,7 +8549,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'FL': 'florida-pdf417',
                 'GA': 'georgia-pdf417',
                 'ID': 'idaho-pdf417',
-                'KS': 'kansas-pdf417'
+                'KS': 'kansas-pdf417',
+                'HI': 'eng-pdf417'
             };
             const activeCanvasId = stateCanvasMap[stateCode];
 
