@@ -795,7 +795,7 @@
             <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3 flex flex-col gap-1.5">
                 <label class="text-[11px] font-bold text-blue-900">Your Dedicated Affiliate Referral Link:</label>
                 <div class="flex gap-2">
-                    <input type="text" id="affiliate-ref-url" readonly value="https://barcode-studio-pro.onrender.com/?ref=REF-00000000" class="flex-1 bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none select-all">
+                    <input type="text" id="affiliate-ref-url" readonly value="https://luxvyne.com/?ref=REF-00000000" class="flex-1 bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none select-all">
                     <button onclick="copyReferralLink()" class="bg-accent hover:bg-accent-hover text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm shrink-0 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
                         <span>Copy Link</span>
@@ -10258,7 +10258,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const tbody = document.getElementById('affiliate-commissions-table-body');
 
                 if (codeEl) codeEl.textContent = data.referral_code || '—';
-                if (linkEl) linkEl.value = data.referral_url || `https://barcode-studio-pro.onrender.com/?ref=${data.referral_code}`;
+                if (linkEl) linkEl.value = data.referral_url || `${window.location.origin}/?ref=${data.referral_code}`;
                 if (countEl) countEl.textContent = data.referred_count || 0;
                 if (balEl) balEl.textContent = `$${data.affiliate_balance.toFixed(2)}`;
 

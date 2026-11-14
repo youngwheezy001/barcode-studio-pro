@@ -1961,7 +1961,7 @@ def clear_user_barcodes(current_user: User = Depends(get_current_user), db: Sess
     return {"status": "success", "message": f"Cleared {deleted} barcodes from history"}
 
 @app.get("/api/user/affiliate", summary="Get affiliate partner statistics and commissions")
-def get_affiliate_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_affiliate_stats(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not current_user.referral_code:
         current_user.referral_code = generate_user_referral_code(current_user.id, current_user.email)
         db.commit()
@@ -1985,9 +1985,13 @@ def get_affiliate_stats(current_user: User = Depends(get_current_user), db: Sess
             "created_at": c.created_at.isoformat() if c.created_at else None
         })
         
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host") or "luxvyne.com"
+    proto = request.headers.get("x-forwarded-proto") or "https"
+    base_url = f"{proto}://{host}"
+
     return {
         "referral_code": current_user.referral_code,
-        "referral_url": f"https://barcode-studio-pro.onrender.com/?ref={current_user.referral_code}",
+        "referral_url": f"{base_url}/?ref={current_user.referral_code}",
         "affiliate_balance": round(float(current_user.affiliate_balance or 0.0), 2),
         "referred_count": referred_count,
         "commissions": comm_list
