@@ -2074,6 +2074,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                 <span>Grade A &bull; 100% Scannable</span>
                             </div>
+                                                    <button type="button" id="btn-toggle-uv" onclick="toggleUvMode()" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold text-purple-300 hover:text-white transition flex items-center gap-1 cursor-pointer border border-purple-500/40 bg-purple-950/40 hover:bg-purple-900/60 shadow-xs" title="Inspect under simulated 365nm Ultraviolet Light">
+                                <span>🔦</span>
+                                <span>UV Blacklight</span>
+                            </button>
                         </div>
 
                         <!-- Alternate QR Code Quick Tools (shown when in QR mode) -->
@@ -2098,6 +2102,26 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             
                             <!-- Authentic Physical CR80 Guilloche Security Microprint Overlay -->
                             <div id="card-security-pattern" class="absolute inset-0 pointer-events-none opacity-[0.035] z-0 overflow-hidden" style="background-image: radial-gradient(#1e293b 1px, transparent 1px), radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px; background-position: 0 0, 4px 4px;"></div>
+
+                            <!-- Interactive Dynamic Holographic Kinegram / Rainbow Foil Overlay -->
+                            <div id="card-holographic-foil" class="absolute inset-0 pointer-events-none z-30 transition-opacity duration-300 opacity-20 mix-blend-color-dodge select-none"
+                                 style="background: linear-gradient(var(--foil-angle, 135deg), transparent 20%, rgba(255, 99, 132, 0.35) 35%, rgba(54, 162, 235, 0.4) 50%, rgba(255, 206, 86, 0.4) 65%, transparent 80%);"></div>
+
+                            <!-- Simulated 365nm UV Blacklight Fluorescent Security Marks -->
+                            <div id="card-uv-security-layer" class="hidden absolute inset-0 pointer-events-none z-25 overflow-hidden flex flex-col justify-between p-3 select-none" style="background: rgba(16, 7, 38, 0.75);">
+                                <div class="flex justify-between items-center">
+                                    <span id="uv-state-name" class="font-mono text-[9px] font-black tracking-widest text-[#ffff00] uppercase" style="text-shadow: 0 0 6px #ffff00;">AAMVA CERTIFIED UV</span>
+                                    <svg class="w-8 h-8 text-[#39ff14]" viewBox="0 0 24 24" fill="currentColor" style="filter: drop-shadow(0 0 6px #39ff14);"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                                </div>
+                                <div class="flex items-center justify-center opacity-75">
+                                    <div class="border-2 border-dashed border-[#39ff14] rounded-full p-4" style="box-shadow: 0 0 12px #39ff14;">
+                                        <span id="uv-seal-text" class="font-mono text-[10px] font-extrabold text-[#39ff14] tracking-widest uppercase" style="text-shadow: 0 0 8px #39ff14;">OFFICIAL CREDENTIAL SEAL</span>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <span class="font-mono text-[8px] font-bold tracking-widest text-[#00ffff] uppercase" style="text-shadow: 0 0 5px #00ffff;">GENUINE SECURE OPTICAL RECORD • ISO/IEC 18013</span>
+                                </div>
+                            </div>
 
                             <!-- Standard CR80 Card-Back View (Standard / Southern / Canadian Jurisdictions) -->
                             <div id="card-back-standard-view" class="w-full flex-1 flex flex-col justify-between relative z-10">
@@ -5268,26 +5292,32 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             } catch (e) {}
         }
 
-        // Clear all inputs so clean placeholders are visible and immediately typeable
+        // Clear / Reset all inputs to certified state reference defaults
         function clearAllInputs() {
-            const fieldIds = [
-                'aamva-id', 'aamva-first', 'aamva-last', 'aamva-mid',
-                'aamva-street', 'aamva-city', 'aamva-zip', 'aamva-class',
-                'aamva-dob', 'aamva-issued', 'aamva-exp', 'aamva-dcf',
-                'aamva-dck', 'aamva-restrictions', 'aamva-endorsements',
-                'aamva-height-in', 'aamva-weight-lb', 'input-code128'
-            ];
-            fieldIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
+            window.isClearingForm = true;
             clearDraftStorage();
-            updateStateDynamicLabels();
-            updateHeightMetric();
-            updateWeightMetric();
-            compileAAMVA();
-            renderCode128();
-            showToast('All fields cleared! Placeholders visible — click and type directly.', 'info');
+            if (typeof applyStatePreset === 'function') {
+                applyStatePreset();
+            } else {
+                const fieldIds = [
+                    'aamva-id', 'aamva-first', 'aamva-last', 'aamva-mid',
+                    'aamva-street', 'aamva-city', 'aamva-zip', 'aamva-class',
+                    'aamva-dob', 'aamva-issued', 'aamva-exp', 'aamva-dcf',
+                    'aamva-dck', 'aamva-restrictions', 'aamva-endorsements',
+                    'aamva-height-in', 'aamva-weight-lb', 'input-code128'
+                ];
+                fieldIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                updateStateDynamicLabels();
+                updateHeightMetric();
+                updateWeightMetric();
+                compileAAMVA();
+                renderCode128();
+            }
+            window.isClearingForm = false;
+            showToast('Form reset to certified state reference standards!', 'info');
         }
 
         // Dual Eye & Hair Sync
@@ -5404,6 +5434,21 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
+
+            // Ensure prerequisite dependency fields exist before calling state algorithms
+            const getValSafe = (id) => (document.getElementById(id)?.value || '').trim();
+            if ((field === 'exp' || field === 'dcf' || field === 'dck' || field === 'audit') && !getValSafe('aamva-issued')) {
+                calcField('issued', true);
+            }
+            if ((field === 'exp' || field === 'dcf' || field === 'dck' || field === 'id') && !getValSafe('aamva-dob')) {
+                calcField('dob', true);
+            }
+            if ((field === 'id' || field === 'dcf') && !getValSafe('aamva-last')) {
+                calcField('last', true);
+            }
+            if ((field === 'id' || field === 'dcf') && !getValSafe('aamva-first')) {
+                calcField('first', true);
+            }
             
             // 1. Try State-Aware Calculation Engine (from state_engine.js)
             if (typeof window.runStateCalculation === 'function') {
@@ -5791,14 +5836,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const baseState = revInfo ? revInfo.base_code : jKey.split('_')[0];
             const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
 
+            const defFirst = (defs && defs.first) || (profile && profile.defaultFirst) || 'JOHN';
+            const defLast = (defs && defs.last) || (profile && profile.defaultLast) || 'DOE';
+            const defId = (defs && defs.sample_dl) || (profile && profile.sample_dl) || '188892143';
+            const defStreet = (defs && defs.street) || '100 MAIN ST';
+            const defCity = (defs && defs.city) || (profile && profile.name) || 'NEW BRITAIN';
+            const defZip = (defs && defs.zip) || '06051';
+            const defDob = (defs && defs.dob) || '06211992';
+            const defIssued = (defs && defs.issued) || '07262024';
+            const defExp = (defs && defs.exp) || '06212030';
+
             const fields = {
-                first: getVal('aamva-first', 'JONATHAN').toUpperCase(),
+                first: getVal('aamva-first', defFirst).toUpperCase(),
                 mid: getVal('aamva-mid', '').toUpperCase(),
-                last: getVal('aamva-last', 'GARCIA').toUpperCase(),
-                dob: getVal('aamva-dob', '06211992'),
-                issued: getVal('aamva-issued', '07262024'),
-                exp: getVal('aamva-exp', '06212030'),
-                id: getVal('aamva-id', '188892143').toUpperCase(),
+                last: getVal('aamva-last', defLast).toUpperCase(),
+                dob: getVal('aamva-dob', defDob),
+                issued: getVal('aamva-issued', defIssued),
+                exp: getVal('aamva-exp', defExp),
+                id: getVal('aamva-id', defId).toUpperCase(),
                 dcf: (function() {
                     const hasDd = revInfo ? revInfo.has_dd : (defs ? defs.has_dd : profile.usesDd);
                     if (hasDd === false) return '';
@@ -13507,6 +13562,57 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 console.error("Initialization error:", err);
             }
         };
-    </script>
+            // --- UV 365nm BLACKLIGHT & INTERACTIVE HOLOGRAPHIC FOIL SHADER ---
+        let isUvMode = false;
+        function toggleUvMode() {
+            isUvMode = !isUvMode;
+            const btn = document.getElementById('btn-toggle-uv');
+            const chamber = document.getElementById('studio-spotlight-chamber');
+            const card = document.getElementById('studio-cr80-card');
+            const uvLayer = document.getElementById('card-uv-security-layer');
+            const uvStateEl = document.getElementById('uv-state-name');
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateName = (jurEl && jurEl.value ? jurEl.value.split('_')[0] : 'STATE').toUpperCase();
+
+            if (uvStateEl) uvStateEl.textContent = `${stateName} OFFICIAL UV CREDENTIAL`;
+
+            if (isUvMode) {
+                if (btn) btn.className = 'px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-purple-600 text-white shadow transition flex items-center gap-1 cursor-pointer border border-purple-400';
+                if (chamber) chamber.style.background = 'radial-gradient(ellipse 110% 95% at 50% 30%, #160a2c 0%, #0d061a 45%, #05020a 100%)';
+                if (card) card.style.filter = 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.45)) brightness(0.72) contrast(1.2)';
+                if (uvLayer) uvLayer.classList.remove('hidden');
+                showToast('UV 365nm Blacklight Mode Active: Revealing hidden fluorescent security features', 'info');
+            } else {
+                if (btn) btn.className = 'px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold text-purple-300 hover:text-white transition flex items-center gap-1 cursor-pointer border border-purple-500/40 bg-purple-950/40 hover:bg-purple-900/60 shadow-xs';
+                if (chamber) chamber.style.background = 'radial-gradient(ellipse 110% 95% at 50% 30%, #b2bdcc 0%, #8b97a6 32%, #687483 62%, #4f5b69 86%, #424d5a 100%)';
+                if (card) card.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))';
+                if (uvLayer) uvLayer.classList.add('hidden');
+                showToast('Standard Daylight Illumination Restored', 'info');
+            }
+        }
+
+        // Interactive Mouse-Tilt / Hologram Shimmer Angle Tracker
+        document.addEventListener('DOMContentLoaded', () => {
+            const chamber = document.getElementById('studio-spotlight-chamber');
+            if (chamber) {
+                chamber.addEventListener('mousemove', (e) => {
+                    const rect = chamber.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    const y = (e.clientY - rect.top) / rect.height;
+                    const angle = Math.round(Math.atan2(y - 0.5, x - 0.5) * (180 / Math.PI) + 180);
+                    const foil = document.getElementById('card-holographic-foil');
+                    if (foil) {
+                        foil.style.setProperty('--foil-angle', `${angle}deg`);
+                        foil.style.opacity = '0.28';
+                    }
+                });
+                chamber.addEventListener('mouseleave', () => {
+                    const foil = document.getElementById('card-holographic-foil');
+                    if (foil) foil.style.opacity = '0.15';
+                });
+            }
+        });
+
+</script>
 </body>
 </html>

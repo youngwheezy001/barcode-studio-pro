@@ -2874,8 +2874,8 @@ function getRandomMiddleName(sex) {
 
 
 function showInputDataAlert(msg) {
-    if (typeof window !== 'undefined' && window.isBatchCalculation) {
-        console.warn('State Calculator Alert (batch mode):', msg);
+    if (typeof window !== 'undefined' && (window.isBatchCalculation || window.isClearingForm)) {
+        console.warn('State Calculator Alert (suppressed):', msg);
         return;
     }
     if (typeof showToast === 'function') {
