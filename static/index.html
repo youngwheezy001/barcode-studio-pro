@@ -2150,8 +2150,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         
                                         <!-- Left: 2D Barcode & DMV URL -->
                                         <div class="flex flex-col items-start max-w-[280px] relative">
-                                            <div id="card-pdf417-container" class="bg-white rounded px-1.5 py-1 shadow-xs border border-slate-200/60 flex items-center justify-center">
-                                                <canvas id="output-pdf417" class="max-w-[275px] max-h-[76px] w-auto h-auto object-contain transition duration-200"></canvas>
+                                            <div id="card-pdf417-container" class="bg-white rounded p-1 shadow-xs border border-slate-200/60 flex items-center justify-center w-full max-w-[280px] h-[76px] overflow-hidden">
+                                                <canvas id="output-pdf417" class="w-full h-full object-fill transition duration-200"></canvas>
                                             </div>
                                             <canvas id="card-preview-barcode" class="hidden"></canvas>
                                             <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
@@ -2213,16 +2213,16 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <!-- Vertical Alphanumeric Sequence Number -->
                                     <span id="alaska-seq-num" class="font-mono text-[9px] font-bold text-slate-800 select-none tracking-wider whitespace-nowrap pl-0.5" style="writing-mode: vertical-rl; transform: rotate(180deg);">2000002340</span>
                                     <!-- Vertical Code 128 Barcode (Horizontal Bars) -->
-                                    <div class="w-[46px] h-[112px] flex items-center justify-center overflow-hidden">
-                                        <canvas id="alaska-code128-canvas" class="w-[44px] h-[110px] max-h-[110px] object-contain select-none"></canvas>
+                                    <div class="w-[54px] h-[118px] flex items-center justify-center overflow-hidden">
+                                        <canvas id="alaska-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                         <svg id="alaska-code128-svg" class="hidden"></svg>
                                     </div>
                                 </div>
 
                                 <!-- Top Center: 2D PDF417 Machine-Readable Zone in Quiet Zone Box -->
                                 <div class="absolute top-2.5 left-[90px] right-[44px] flex flex-col items-center z-10">
-                                    <div class="bg-white rounded-[6px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-2 py-1 flex items-center justify-center border border-white w-full max-w-[242px] min-h-[56px]">
-                                        <canvas id="alaska-pdf417" class="w-full max-w-[230px] max-h-[50px] object-contain"></canvas>
+                                    <div class="bg-white rounded-[6px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-0.5 flex items-center justify-center border border-white w-full max-w-[244px] h-[58px] overflow-hidden">
+                                        <canvas id="alaska-pdf417" class="w-full h-full object-fill"></canvas>
                                     </div>
                                     <!-- DMV Change of Address Warning -->
                                     <div class="text-[7px] text-slate-800 font-sans font-medium text-center tracking-tight mt-1">
@@ -2304,8 +2304,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 
                                 <!-- Top PDF417 Barcode Container (Quiet Zone White Box across the top) -->
                                 <div class="absolute top-2 left-2.5 right-[66px] flex items-center justify-center z-10">
-                                    <div class="bg-white rounded-[4px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-1 py-0.5 flex items-center justify-center border border-white/90 w-full max-w-[348px] min-h-[64px]">
-                                        <canvas id="arkansas-pdf417" class="w-full max-h-[60px] object-contain"></canvas>
+                                    <div class="bg-white rounded-[4px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-0.5 flex items-center justify-center border border-white/90 w-full max-w-[348px] h-[64px] overflow-hidden">
+                                        <canvas id="arkansas-pdf417" class="w-full h-full object-fill"></canvas>
                                     </div>
                                 </div>
 
@@ -2317,8 +2317,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
 
                                 <!-- Right Vertical 1D Code 128 Barcode (Horizontal Bars running down right edge) -->
-                                <div class="absolute top-[40px] right-1.5 w-[32px] h-[172px] bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex items-center justify-center px-0.5 py-1 z-20 overflow-hidden">
-                                    <canvas id="arkansas-code128-canvas" class="w-[28px] h-[166px] object-contain select-none"></canvas>
+                                <div class="absolute top-[40px] right-1.5 w-[32px] h-[172px] bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] flex items-center justify-center p-0.5 z-20 overflow-hidden">
+                                    <canvas id="arkansas-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="arkansas-code128-svg" class="hidden"></svg>
                                 </div>
 
@@ -2363,8 +2363,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <div id="card-back-arizona-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('arizona_back_bg.webp') no-repeat center / cover;">
                                 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right) -->
-                                <div class="absolute top-1 right-6 sm:right-8 flex items-center justify-end z-20 overflow-hidden">
-                                    <canvas id="arizona-code128-canvas" class="h-[18px] sm:h-[20px] max-w-[210px] w-auto object-contain select-none"></canvas>
+                                <div class="absolute top-1 right-6 sm:right-8 flex items-center justify-end z-20 overflow-hidden h-[20px] w-[210px]">
+                                    <canvas id="arizona-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="arizona-code128-svg" class="hidden"></svg>
                                 </div>
 
@@ -2412,8 +2412,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Bottom Area: 2D PDF417 Barcode Container (Bottom-Right/Center) -->
                                 <div class="absolute bottom-2 left-[104px] sm:left-[112px] right-2 sm:right-3 flex items-center justify-center z-10">
-                                    <div class="bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-1.5 py-0.5 flex items-center justify-center border border-white/90 w-full max-w-[280px] min-h-[66px]">
-                                        <canvas id="arizona-pdf417" class="w-full max-w-[274px] max-h-[62px] object-contain"></canvas>
+                                    <div class="bg-white rounded-[3px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-0.5 flex items-center justify-center border border-white/90 w-full max-w-[280px] h-[66px] overflow-hidden">
+                                        <canvas id="arizona-pdf417" class="w-full h-full object-fill"></canvas>
                                     </div>
                                 </div>
 
@@ -2429,7 +2429,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right/Center) -->
                                 <div class="absolute top-1 left-[135px] sm:left-[145px] w-[160px] sm:w-[170px] h-[20px] flex items-center justify-center z-20 overflow-hidden">
-                                    <canvas id="alabama-code128-canvas" class="h-[18px] sm:h-[20px] w-full object-contain select-none"></canvas>
+                                    <canvas id="alabama-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="alabama-code128-svg" class="hidden"></svg>
                                 </div>
 
@@ -2460,8 +2460,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Bottom Left/Center: Large 2D PDF417 Barcode Container -->
                                 <div class="absolute bottom-1.5 left-3 w-[58%] sm:w-[60%] max-w-[250px] flex items-center justify-center z-10">
-                                    <div class="bg-white rounded-[2px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-1 py-0.5 flex items-center justify-center border border-white/90 w-full min-h-[70px]">
-                                        <canvas id="alabama-pdf417" class="w-full max-h-[68px] object-contain"></canvas>
+                                    <div class="bg-white rounded-[2px] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-0.5 flex items-center justify-center border border-white/90 w-full h-[70px] overflow-hidden">
+                                        <canvas id="alabama-pdf417" class="w-full h-full object-fill"></canvas>
                                     </div>
                                 </div>
 
@@ -2482,7 +2482,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right/Center) -->
                                 <div class="absolute top-0 left-[34.15%] w-[55.91%] h-[6.68%] flex items-center justify-center z-20 overflow-hidden">
-                                    <canvas id="california-code128-canvas" class="h-full w-full object-contain select-none"></canvas>
+                                    <canvas id="california-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="california-code128-svg" class="hidden"></svg>
                                 </div>
 
@@ -2504,8 +2504,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Bottom Left: 2D PDF417 Barcode Container (Precision Fit in White Cutout Box) -->
                                 <div id="california-pdf417-container" class="absolute flex items-center justify-center bg-white z-20 overflow-hidden" 
-                                     style="left: 3.86%; top: 60.45%; width: 58.13%; height: 22.32%; padding: 2px 4px;">
-                                    <canvas id="california-pdf417" class="w-full h-full object-contain"></canvas>
+                                     style="left: 3.86%; top: 60.45%; width: 58.13%; height: 22.32%; padding: 1px 1px;">
+                                    <canvas id="california-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
                                 <!-- Vertical Sequence Number directly to the right of the PDF417 box -->
@@ -2543,7 +2543,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     
                                     <!-- Vertical Code 128 Barcode with Horizontal Bars -->
                                     <div class="flex-1 h-full flex items-center justify-center overflow-hidden pl-0.5">
-                                        <canvas id="colorado-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                        <canvas id="colorado-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                         <svg id="colorado-code128-svg" class="hidden"></svg>
                                     </div>
                                 </div>
@@ -2583,9 +2583,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
 
                                 <!-- Bottom 2D PDF417 Barcode Container (Spanning from right of ghost portrait to right edge) -->
-                                <div id="colorado-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
-                                     style="left: 33.5%; top: 68.0%; width: 65.4%; height: 22.8%; padding: 2px 2px;">
-                                    <canvas id="colorado-pdf417" class="w-full h-full object-contain"></canvas>
+                                <div id="colorado-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
+                                     style="left: 33.5%; top: 68.0%; width: 65.4%; height: 22.8%; padding: 1px 1px;">
+                                    <canvas id="colorado-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
                             </div>
@@ -2600,7 +2600,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Top Horizontal 1D Code 128 Barcode (Spanning from Sequence Number to Right Edge above Magstripe) -->
                                 <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 27.0%; top: 0px; width: 53.0%; height: 21px;">
-                                    <canvas id="florida-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <canvas id="florida-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="florida-code128-svg" class="hidden"></svg>
                                 </div>
 
@@ -2642,9 +2642,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
 
                                 <!-- Bottom 2D PDF417 Barcode Container (Spanning from right of vertical DOB to right edge) -->
-                                <div id="florida-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                <div id="florida-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
                                      style="left: 31.0%; top: 74.5%; width: 65.1%; height: 19.6%; padding: 1px 1px;">
-                                    <canvas id="florida-pdf417" class="w-full h-full object-contain"></canvas>
+                                    <canvas id="florida-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
                             </div>
@@ -2664,14 +2664,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Top Horizontal 1D Code 128 Barcode (Spanning top right sector) -->
                                 <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 51.0%; top: 0px; width: 40.2%; height: 11.8%;">
-                                    <canvas id="georgia-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <canvas id="georgia-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="georgia-code128-svg" class="hidden"></svg>
                                 </div>
 
                                 <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
-                                <div id="georgia-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                <div id="georgia-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
                                      style="left: 36.3%; top: 16.6%; width: 58.4%; height: 31.6%; padding: 1px 1px;">
-                                    <canvas id="georgia-pdf417" class="w-full h-full object-contain"></canvas>
+                                    <canvas id="georgia-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
                                 <!-- Demographics (Lower Left): Class (sr-only/DOM), Endorsements, Restrictions -->
@@ -2707,14 +2707,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Top Horizontal 1D Code 128 Barcode (Spanning top right sector) -->
                                 <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 48.7%; top: 0px; width: 45.8%; height: 8.5%;">
-                                    <canvas id="idaho-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <canvas id="idaho-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="idaho-code128-svg" class="hidden"></svg>
                                 </div>
 
                                 <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
-                                <div id="idaho-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                <div id="idaho-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
                                      style="left: 33.3%; top: 13.3%; width: 59.1%; height: 37.3%; padding: 1px 1px;">
-                                    <canvas id="idaho-pdf417" class="w-full h-full object-contain"></canvas>
+                                    <canvas id="idaho-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
                                 <!-- Demographics Stack (Lower Left) -->
@@ -2756,14 +2756,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                                 <!-- Top Horizontal 1D Code 128 Barcode (Spanning top right sector) -->
                                 <div class="absolute flex items-center justify-center z-20 overflow-hidden" style="left: 36.5%; top: 0px; width: 56.5%; height: 14.5%;">
-                                    <canvas id="kansas-code128-canvas" class="w-full h-full object-contain select-none"></canvas>
+                                    <canvas id="kansas-code128-canvas" class="w-full h-full object-fill select-none"></canvas>
                                     <svg id="kansas-code128-svg" class="hidden"></svg>
                                 </div>
 
                                 <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
-                                <div id="kansas-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden" 
+                                <div id="kansas-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
                                      style="left: 36.5%; top: 14.5%; width: 56.5%; height: 26.5%; padding: 1px 1px;">
-                                    <canvas id="kansas-pdf417" class="w-full h-full object-contain"></canvas>
+                                    <canvas id="kansas-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
                                 <!-- Demographics Stack (Lower Left) -->
@@ -5311,17 +5311,17 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         const STATE_CANVAS_CLASSES = {
-            'output-pdf417': 'max-w-[275px] max-h-[76px] w-auto h-auto object-contain transition duration-200',
-            'alaska-pdf417': 'w-full max-w-[230px] max-h-[50px] object-contain',
-            'arkansas-pdf417': 'w-full max-h-[60px] object-contain',
-            'arizona-pdf417': 'w-full max-w-[274px] max-h-[62px] object-contain',
-            'alabama-pdf417': 'w-full max-h-[68px] object-contain',
-            'california-pdf417': 'w-full h-full object-contain',
-            'colorado-pdf417': 'w-full h-full object-contain',
-            'florida-pdf417': 'w-full h-full object-contain',
-            'georgia-pdf417': 'w-full h-full object-contain',
-            'idaho-pdf417': 'w-full h-full object-contain',
-            'kansas-pdf417': 'w-full h-full object-contain'
+            'output-pdf417': 'w-full h-full object-fill transition duration-200',
+            'alaska-pdf417': 'w-full h-full object-fill',
+            'arkansas-pdf417': 'w-full h-full object-fill',
+            'arizona-pdf417': 'w-full h-full object-fill',
+            'alabama-pdf417': 'w-full h-full object-fill',
+            'california-pdf417': 'w-full h-full object-fill',
+            'colorado-pdf417': 'w-full h-full object-fill',
+            'florida-pdf417': 'w-full h-full object-fill',
+            'georgia-pdf417': 'w-full h-full object-fill',
+            'idaho-pdf417': 'w-full h-full object-fill',
+            'kansas-pdf417': 'w-full h-full object-fill'
         };
 
         function setBarcode2DType(type) {
@@ -5347,7 +5347,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const c = document.getElementById(id);
                 if (c) {
                     if (type === 'qrcode') {
-                        c.className = 'max-h-[56px] max-w-[56px] sm:max-h-[64px] sm:max-w-[64px] w-auto h-auto aspect-square object-contain mx-auto transition duration-150';
+                        c.className = 'h-full aspect-square object-contain mx-auto transition duration-150';
                     } else {
                         c.className = STATE_CANVAS_CLASSES[id];
                     }
@@ -6446,6 +6446,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (mode === 'card') {
                 updateStudioCardDetails();
+                if (typeof renderPDF417 === \'function\') renderPDF417();
             }
         }
 
@@ -6635,8 +6636,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         bwipjs.toCanvas(akCanvas, {
                             bcid: 'code128',
                             text: cleanSeq,
-                            scale: 2,
-                            height: 22,
+                            scale: 2.5,
+                            height: 14,
                             rotate: 'R',
                             includetext: false,
                             paddingwidth: 0,
@@ -7851,24 +7852,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             renderCardBackCompanionBarcode();
-
-            // Ensure 2D PDF417/QR barcode is mirrored onto active custom state card if present
-            const stateCanvasMap = {
-                'AK': 'alaska-pdf417', 'AR': 'arkansas-pdf417', 'AZ': 'arizona-pdf417',
-                'AL': 'alabama-pdf417', 'CA': 'california-pdf417', 'CO': 'colorado-pdf417',
-                'FL': 'florida-pdf417', 'GA': 'georgia-pdf417', 'ID': 'idaho-pdf417', 'KS': 'kansas-pdf417'
-            };
-            const activeCid = stateCanvasMap[stateCode];
-            if (activeCid) {
-                const targetC = document.getElementById(activeCid);
-                const sourceC = document.getElementById('output-pdf417');
-                if (targetC && sourceC && sourceC.width > 0 && sourceC.height > 0) {
-                    targetC.width = sourceC.width;
-                    targetC.height = sourceC.height;
-                    const ctx = targetC.getContext('2d');
-                    if (ctx) ctx.drawImage(sourceC, 0, 0);
-                }
-            }
         }
 
         function renderCardBackCompanionBarcode() {
@@ -7916,8 +7899,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         bwipjs.toCanvas(akCanvas, {
                             bcid: 'code128',
                             text: akVal,
-                            scale: 2,
-                            height: 22,
+                            scale: 2.5,
+                            height: 14,
                             rotate: 'R',
                             includetext: false,
                             paddingwidth: 0,
@@ -8356,14 +8339,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     const vcard = `BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\nFN:${first} ${last}\nORG:State of ${state} Driver License\nTITLE:Driver License Class ${rawClass}\nUID:${id}\nBDAY:${dob}\nADR;TYPE=HOME:;;${street};${city};${state};${zip};USA\nNOTE:DL:${id} | CLASS:${rawClass} | REST:${rawRest} | END:${rawEnd} | EXP:${exp}\nEND:VCARD`;
 
                     if (canvas) {
-                        canvas.className = 'w-[68px] h-[68px] sm:w-[72px] sm:h-[72px] aspect-square object-contain mx-auto transition duration-150';
+                        canvas.className = 'h-full aspect-square object-contain mx-auto transition duration-150';
                         try {
                             bwipjs.toCanvas(canvas, {
                                 bcid: 'qrcode',
                                 text: vcard,
-                                scale: 2.8,
-                                paddingwidth: 4,
-                                paddingheight: 4
+                                scale: 2.5,
+                                paddingwidth: 1,
+                                paddingheight: 1
                             });
                         } catch(e) {}
                     }
@@ -8371,25 +8354,17 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     if (activeCanvasId) {
                         const sc = document.getElementById(activeCanvasId);
                         if (sc) {
-                            sc.className = 'max-h-[56px] max-w-[56px] sm:max-h-[64px] sm:max-w-[64px] w-auto h-auto aspect-square object-contain mx-auto transition duration-150';
+                            sc.className = 'h-full aspect-square object-contain mx-auto transition duration-150';
                             try {
                                 bwipjs.toCanvas(sc, {
                                     bcid: 'qrcode',
                                     text: vcard,
-                                    scale: 2,
-                                    paddingwidth: 2,
-                                    paddingheight: 2
+                                    scale: 2.5,
+                                    paddingwidth: 1,
+                                    paddingheight: 1
                                 });
                             } catch (e) {
                                 console.error('QR render error for ' + stateCode, e);
-                            }
-                            if (canvas && (!sc.width || !sc.height || sc.width === 0 || sc.height === 0)) {
-                                try {
-                                    sc.width = canvas.width;
-                                    sc.height = canvas.height;
-                                    const ctx = sc.getContext('2d');
-                                    if (ctx) ctx.drawImage(canvas, 0, 0);
-                                } catch (errSync) {}
                             }
                         }
                     }
@@ -8417,12 +8392,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             eclevel: ecc,       // Standard ECC 5
                             rowheight: ratio,   // Standard 3:1 aspect ratio
                             rowmult: ratio,     // BWIPP row height multiplier
-                            paddingwidth: 4,    // Clean quiet zone allowing maximum width
-                            paddingheight: 4
+                            paddingwidth: 0,    // Container provides quiet zone
+                            paddingheight: 0
                         });
                     }
 
-                    // Render active state card canvas cleanly with bulletproof mirroring
+                    // Render active state card canvas cleanly filling the white box
                     if (activeCanvasId) {
                         const sc = document.getElementById(activeCanvasId);
                         if (sc) {
@@ -8440,23 +8415,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                     eclevel: ecc,
                                     rowheight: ratio,
                                     rowmult: ratio,
-                                    paddingwidth: (stateCode === 'AR' || stateCode === 'CA' || stateCode === 'CO' || stateCode === 'FL' || stateCode === 'GA' || stateCode === 'ID' || stateCode === 'KS') ? 2 : 3,
-                                    paddingheight: 2
+                                    paddingwidth: 0,
+                                    paddingheight: 0
                                 });
                             } catch (errSc) {
                                 console.error('PDF417 render error for ' + stateCode, errSc);
-                            }
-
-                            // Bulletproof Canvas Synchronization: If sc is blank/empty, mirror canvas directly!
-                            if (canvas && (!sc.width || !sc.height || sc.width === 0 || sc.height === 0)) {
-                                try {
-                                    sc.width = canvas.width;
-                                    sc.height = canvas.height;
-                                    const ctx = sc.getContext('2d');
-                                    if (ctx) ctx.drawImage(canvas, 0, 0);
-                                } catch (errSync) {
-                                    console.error('State canvas fallback sync error:', errSync);
-                                }
                             }
                         }
                     }
