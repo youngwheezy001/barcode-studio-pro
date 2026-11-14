@@ -155,13 +155,14 @@ class CryptoPayment(Base):
     wallet_address = Column(String, nullable=False)
     tx_hash = Column(String, nullable=True, index=True)
     status = Column(String, default="pending")  # pending, submitted, confirmed, rejected
+    invoice_number = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     confirmed_at = Column(DateTime, nullable=True)
 
 Base.metadata.create_all(bind=engine)
 
 def ensure_db_schema():
-    """Ensure SQLite schema has the new referral columns on existing tables."""
+    """Ensure SQLite and PostgreSQL schema have all required columns."""
     try:
         with engine.connect() as conn:
             inspector = inspect(engine)
@@ -177,6 +178,10 @@ def ensure_db_schema():
                 bcols = [c['name'] for c in inspector.get_columns('barcode_history')]
                 if 'form_data' not in bcols:
                     conn.execute(text("ALTER TABLE barcode_history ADD COLUMN form_data TEXT"))
+            if "crypto_payments" in inspector.get_table_names():
+                cpcols = [c['name'] for c in inspector.get_columns('crypto_payments')]
+                if 'invoice_number' not in cpcols:
+                    conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN invoice_number VARCHAR"))
             conn.commit()
     except Exception as e:
         print(f"Notice: Schema migration check: {e}")
@@ -925,6 +930,38 @@ def confirm_stripe_session(req: ConfirmStripeSessionRequest, current_user: User 
         
     current_user.tokens += tokens_to_credit
     process_referral_commission(db, current_user, order_type="stripe", amount_usd=amount_paid)
+    
+    # Ensure a confirmed order record exists with a unique invoice number
+    session_key = req.session_id or f"stripe_{int(datetime.utcnow().timestamp())}_{current_user.id}"
+    existing_order = db.query(CryptoPayment).filter(CryptoPayment.tx_hash == session_key).first()
+    if not existing_order:
+        stripe_order = CryptoPayment(
+            user_id=current_user.id,
+            user_email=current_user.email,
+            package_id=f"stripe_{tokens_to_credit}",
+            tokens=tokens_to_credit,
+            amount_usd=amount_paid,
+            crypto_currency="CARD_STRIPE",
+            network="Stripe Card Payment",
+            wallet_address="Visa / Mastercard",
+            tx_hash=session_key,
+            status="confirmed",
+            confirmed_at=datetime.utcnow()
+        )
+        db.add(stripe_order)
+        db.commit()
+        db.refresh(stripe_order)
+        stripe_order.invoice_number = f"INV-{datetime.utcnow().year}-{stripe_order.id:05d}"
+        db.commit()
+        invoice_num = stripe_order.invoice_number
+        order_id = stripe_order.id
+    else:
+        if not existing_order.invoice_number:
+            existing_order.invoice_number = f"INV-{datetime.utcnow().year}-{existing_order.id:05d}"
+            db.commit()
+        invoice_num = existing_order.invoice_number
+        order_id = existing_order.id
+
     db.commit()
     sync_users_to_backup(db)
     
@@ -932,7 +969,9 @@ def confirm_stripe_session(req: ConfirmStripeSessionRequest, current_user: User 
         "status": "success",
         "message": f"Payment verified! Credited {tokens_to_credit} export sets to your account.",
         "tokens_added": tokens_to_credit,
-        "new_token_balance": current_user.tokens
+        "new_token_balance": current_user.tokens,
+        "order_id": order_id,
+        "invoice_number": invoice_num
     }
 
 # --- CRYPTO PAYMENT ENDPOINTS ---
@@ -991,10 +1030,14 @@ def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current
     db.add(order)
     db.commit()
     db.refresh(order)
+    order.invoice_number = f"INV-{datetime.utcnow().year}-{order.id:05d}"
+    db.commit()
+    db.refresh(order)
 
     return {
         "status": "success",
         "order_id": order.id,
+        "invoice_number": order.invoice_number,
         "package_id": order.package_id,
         "package_name": pkg["name"],
         "tokens": order.tokens,
@@ -1416,6 +1459,7 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
     }
 
 @app.get("/api/crypto/order/{order_id}/receipt", summary="Get official payment receipt data for an order")
+@app.get("/api/user/order/{order_id}/invoice", summary="Get official invoice data for an order")
 def get_order_receipt(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     order = db.query(CryptoPayment).filter(CryptoPayment.id == order_id).first()
     if not order:
@@ -1432,9 +1476,11 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
         "SOL": "https://solscan.io/tx/"
     }
     base_url = explorer_base.get(order.crypto_currency, "https://tronscan.org/#/transaction/")
-    explorer_url = f"{base_url}{order.tx_hash}" if order.tx_hash else None
+    explorer_url = f"{base_url}{order.tx_hash}" if order.tx_hash and not order.tx_hash.startswith("stripe_") else None
+    inv_num = order.invoice_number or f"INV-2026-{order.id:05d}"
     
     return {
+        "invoice_number": inv_num,
         "receipt_number": f"RCP-2026-{order.id:05d}",
         "order_id": order.id,
         "invoice_date": order.created_at.strftime("%B %d, %Y %H:%M:%S UTC") if order.created_at else "",
@@ -1543,13 +1589,14 @@ def generate_batch_zip(req: BatchGenerateRequest, current_user: User = Depends(g
         headers={"Content-Disposition": f"attachment; filename=barcode_studio_batch_{len(req.records)}_sets.zip"}
     )
 
-@app.get("/api/user/orders", summary="Get crypto order history for current logged-in user")
+@app.get("/api/user/orders", summary="Get crypto and card order history for current logged-in user")
 def get_user_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     orders = db.query(CryptoPayment).filter(CryptoPayment.user_id == current_user.id).order_by(CryptoPayment.id.desc()).all()
     return {
         "orders": [
             {
                 "id": o.id,
+                "invoice_number": o.invoice_number or f"INV-2026-{o.id:05d}",
                 "package_id": o.package_id,
                 "tokens": o.tokens,
                 "amount_usd": o.amount_usd,
@@ -1565,16 +1612,27 @@ def get_user_orders(current_user: User = Depends(get_current_user), db: Session 
         ]
     }
 
-@app.get("/api/admin/crypto/orders", summary="Admin list all crypto payment orders")
-def list_crypto_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@app.get("/api/admin/crypto/orders", summary="Admin list all crypto payment orders with invoice search")
+def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
-    orders = db.query(CryptoPayment).order_by(CryptoPayment.id.desc()).limit(100).all()
+    query = db.query(CryptoPayment)
+    if q and q.strip():
+        term = f"%{q.strip().lower()}%"
+        query = query.filter(
+            func.lower(CryptoPayment.invoice_number).like(term) |
+            func.lower(CryptoPayment.user_email).like(term) |
+            func.lower(CryptoPayment.tx_hash).like(term) |
+            func.lower(CryptoPayment.package_id).like(term) |
+            func.lower(CryptoPayment.crypto_currency).like(term)
+        )
+    orders = query.order_by(CryptoPayment.id.desc()).limit(150).all()
     return {
         "orders": [
             {
                 "id": o.id,
+                "invoice_number": o.invoice_number or f"INV-2026-{o.id:05d}",
                 "user_id": o.user_id,
                 "user_email": o.user_email,
                 "package_id": o.package_id,
@@ -2021,6 +2079,61 @@ def convert_affiliate_to_tokens(current_user: User = Depends(get_current_user), 
         "new_token_balance": current_user.tokens,
         "remaining_affiliate_balance": current_user.affiliate_balance
     }
+
+# --- USER PASSWORD CHANGE & SECURITY ---
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+@app.post("/api/user/change-password", summary="Change current user password with previous password verification")
+def change_user_password(req: ChangePasswordRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not verify_password(req.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect previous password. Please verify your current password and try again."
+        )
+    if len(req.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters long.")
+    if req.new_password != req.confirm_password:
+        raise HTTPException(status_code=400, detail="New password and confirmation password do not match.")
+    if req.current_password == req.new_password:
+        raise HTTPException(status_code=400, detail="New password must be different from your current password.")
+
+    current_user.hashed_password = get_password_hash(req.new_password)
+    db.commit()
+    db.refresh(current_user)
+    sync_users_to_backup(db)
+    return {"status": "success", "message": "Password updated successfully! Please use your new password next time you sign in."}
+
+# --- DIRECT THERMAL ZPL (ZEBRA PROGRAMMING LANGUAGE) EXPORT ---
+
+class ZplExportRequest(BaseModel):
+    pdf417_data: str
+    code128_data: str
+    state: Optional[str] = "CT"
+
+@app.post("/api/export/zpl", summary="Generate certified Zebra ZPL II print code")
+def export_zpl(req: ZplExportRequest):
+    pdf_esc = req.pdf417_data.replace("^", "^^").replace("~", "^7E")
+    c128_esc = req.code128_data.replace("^", "^^").replace("~", "^7E")
+    st = (req.state or "CT").upper()
+    zpl_code = (
+        "^XA\n"
+        "^PW812\n"
+        "^LL1218\n"
+        f"^FX --- BARCODE STUDIO PRO CERTIFIED DUAL BUNDLE ({st}) ---\n"
+        f"^FO50,40^A0N,28,28^FDBARCODE STUDIO PRO - {st} COMPLIANCE SET^FS\n"
+        "^FO50,80^B7N,6,5,18,0,N\n"
+        f"^FD{pdf_esc}^FS\n"
+        "^FO50,600^A0N,24,24^FD1D COMPANION CODE 128:^FS\n"
+        "^FO50,640^BY3,3,100^BCN,100,Y,N,N\n"
+        f"^FD{c128_esc}^FS\n"
+        "^FO50,780^A0N,20,20^FDVERIFIED ISO/IEC 15438 PDF417 & CODE 128 STANDARD^FS\n"
+        "^XZ"
+    )
+    return {"status": "success", "zpl": zpl_code}
 
 @app.get("/mrz", response_class=FileResponse)
 @app.get("/mrz/", response_class=FileResponse)

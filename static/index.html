@@ -478,11 +478,20 @@
             </div>
             <p class="text-xs text-slate-500">Review incoming customer crypto payments, verify TxID hashes on blockchain explorers, and 1-click approve token credits.</p>
             
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <input type="text" id="admin-order-search" oninput="handleAdminOrderSearch(this.value)" placeholder="Search by Invoice # (e.g. INV-2026-00001), Customer Email, or Tx Hash..." class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 outline-none focus:ring-2 focus:ring-accent">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <button type="button" onclick="document.getElementById('admin-order-search').value=''; handleAdminOrderSearch('');" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-600 rounded-lg text-xs font-semibold cursor-pointer">Clear</button>
+            </div>
+            
             <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
                 <table class="w-full text-left text-xs">
                     <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
                         <tr>
                             <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Invoice #</th>
                             <th class="p-2.5">Customer</th>
                             <th class="p-2.5">Package</th>
                             <th class="p-2.5">Amount</th>
@@ -829,6 +838,118 @@
 
             <div class="flex justify-end pt-2 border-t border-slate-200">
                 <button onclick="closeUserAffiliateModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Orders & Invoices Ledger Modal -->
+    <div id="user-orders-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col gap-3 max-h-[85vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🧾</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">My Orders &amp; Tax Invoices</h3>
+                        <p class="text-[11px] text-slate-500">Official purchase history and printable tax receipts for your records.</p>
+                    </div>
+                </div>
+                <button onclick="closeUserOrdersModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+            
+            <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5">Invoice #</th>
+                            <th class="p-2.5">Date</th>
+                            <th class="p-2.5">Package</th>
+                            <th class="p-2.5">Amount</th>
+                            <th class="p-2.5">Method</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5 text-right">Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-orders-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="7" class="p-4 text-center text-slate-400">Loading orders &amp; invoices...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                <span class="text-[11px] text-slate-400">Unique invoice numbers match admin records</span>
+                <button onclick="closeUserOrdersModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Password Security Modal -->
+    <div id="user-password-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🔐</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Security &amp; Password Update</h3>
+                        <p class="text-[11px] text-slate-500">Verify your previous password to set a new password.</p>
+                    </div>
+                </div>
+                <button onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+            
+            <form onsubmit="handlePasswordChange(event)" class="flex flex-col gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 text-[11px]">Current (Previous) Password:</label>
+                    <input type="password" id="pwd-current" required placeholder="Enter your current password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 text-[11px]">New Password (min 8 chars):</label>
+                    <input type="password" id="pwd-new" required minlength="8" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 text-[11px]">Confirm New Password:</label>
+                    <input type="password" id="pwd-confirm" required minlength="8" placeholder="Re-type new password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                </div>
+
+                <div id="pwd-msg" class="hidden text-[11px] p-2 rounded-lg font-medium"></div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+                    <button type="button" onclick="closePasswordModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg transition">Cancel</button>
+                    <button type="submit" id="pwd-submit-btn" class="bg-accent hover:bg-accent-hover text-white font-bold px-4 py-1.5 rounded-lg shadow transition flex items-center gap-1.5">
+                        <span>Save New Password</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ZPL Thermal Code Modal -->
+    <div id="zpl-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-xl flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🖨️</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Zebra ZPL II Thermal Printer Code</h3>
+                        <p class="text-[11px] text-slate-500">Certified for Zebra, Evolis, Magicard &amp; direct thermal card printers.</p>
+                    </div>
+                </div>
+                <button onclick="closeZplModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+            
+            <textarea id="zpl-output-area" rows="10" readonly class="w-full bg-slate-900 text-emerald-400 p-3 rounded-lg font-mono text-xs outline-none select-all"></textarea>
+            
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                <span class="text-slate-400 text-[11px]">Native 300 DPI vector commands</span>
+                <div class="flex gap-2">
+                    <button onclick="copyZplCode()" class="bg-accent hover:bg-accent-hover text-white font-bold px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1">
+                        <span>📋 Copy ZPL</span>
+                    </button>
+                    <button onclick="downloadZplFile()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1">
+                        <span>💾 Download .ZPL</span>
+                    </button>
+                    <button onclick="closeZplModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg transition">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1414,7 +1535,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>Admin Clients CRM</span>
                     </button>
 
-                    <div id="user-menu-divider" class="border-t border-slate-800 my-0.5 hidden"></div>
+                                        <!-- Security & Password Button -->
+                    <button type="button" id="user-password-btn" onclick="openPasswordModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span>Security &amp; Password</span>
+                    </button>
+
+<div id="user-menu-divider" class="border-t border-slate-800 my-0.5 hidden"></div>
 
                     <!-- Sign Out Button -->
                     <button type="button" id="logout-btn" onclick="apiLogout(); closeUserMenu();" class="hidden w-full text-left text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 rounded-lg transition items-center gap-2 font-semibold cursor-pointer">
@@ -1453,7 +1580,17 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2 flex-1 min-w-[280px]">
                             <div class="flex-1 w-full">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Jurisdiction Profile &amp; Revision</label>
+                                <div class="flex items-center justify-between gap-1 mb-0.5">
+                                    <label class="block text-[10px] font-bold text-slate-600 uppercase">Jurisdiction Profile &amp; Revision</label>
+                                    <div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500">
+                                        <span class="text-[9px] uppercase font-bold text-slate-400">Quick Test:</span>
+                                        <button type="button" onclick="loadQuickStatePreset('CT')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test Connecticut (CT)">CT</button>
+                                        <button type="button" onclick="loadQuickStatePreset('CA')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test California (CA)">CA</button>
+                                        <button type="button" onclick="loadQuickStatePreset('TX')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test Texas (TX)">TX</button>
+                                        <button type="button" onclick="loadQuickStatePreset('FL')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test Florida (FL)">FL</button>
+                                        <button type="button" onclick="loadQuickStatePreset('NY')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test New York (NY)">NY</button>
+                                    </div>
+                                </div>
                                 <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
                             </div>
                             <select id="aamva-version" class="hidden">
@@ -3247,6 +3384,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <button onclick="openCertificateModal('aamva')" class="col-span-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black py-2 px-2 rounded-xl transition shadow text-xs flex items-center justify-center gap-1">
                         <span>📜</span>
                         <span>ISO Cert (PDF)</span>
+                    </button>
+
+                    <!-- Row 4: Direct Zebra ZPL II Thermal Printer Code Export -->
+                    <button onclick="openZplModal()" class="col-span-6 bg-slate-900 border border-slate-700 hover:border-emerald-500 hover:bg-slate-800 text-white font-bold py-1.5 px-3 rounded-xl transition shadow text-xs flex items-center justify-between group cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span class="text-base">🖨️</span>
+                            <span class="text-left leading-tight">
+                                <span class="block text-emerald-400 font-bold">Zebra ZPL II Thermal Printer Code (.ZPL)</span>
+                                <span class="text-[9px] text-slate-400 font-normal">Native vector barcode commands for Zebra, Evolis, Magicard &amp; direct card printers</span>
+                            </span>
+                        </span>
+                        <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">READY</span>
                     </button>
                 </div>
             </div>
@@ -9609,15 +9758,25 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (modal) modal.classList.add('hidden');
         }
 
+        let adminOrderSearchQuery = '';
+
+        function handleAdminOrderSearch(val) {
+            adminOrderSearchQuery = (val || '').trim();
+            loadAdminCryptoOrders(false);
+        }
+
         async function loadAdminCryptoOrders(isInitial = false) {
             const tbody = document.getElementById('admin-crypto-table-body');
             if (!tbody) return;
             if (isInitial) {
-                tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">Loading live crypto orders...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-slate-400">Loading live crypto orders...</td></tr>';
             }
 
             try {
-                const res = await fetch(`${API_BASE}/api/admin/crypto/orders`, {
+                const url = adminOrderSearchQuery
+                    ? `${API_BASE}/api/admin/crypto/orders?q=${encodeURIComponent(adminOrderSearchQuery)}`
+                    : `${API_BASE}/api/admin/crypto/orders`;
+                const res = await fetch(url, {
                     headers: { ...getAuthHeader() }
                 });
                 const data = await res.json();
@@ -9673,6 +9832,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     return `
                         <tr class="hover:bg-slate-50 transition">
                             <td class="p-2.5 font-bold text-slate-900">#${o.id}</td>
+                            <td class="p-2.5 font-mono font-bold text-blue-600 select-all text-[11px]">${o.invoice_number || ('INV-2026-' + String(o.id).padStart(5, '0'))}</td>
                             <td class="p-2.5">
                                 <span class="text-slate-800 font-semibold block">${o.user_email}</span>
                                 <span class="text-[10px] text-slate-400 block">${dateDisplay}</span>
@@ -10582,6 +10742,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const userOrdersBtn = document.getElementById('user-orders-btn');
             const userHistoryBtn = document.getElementById('user-history-btn');
             const userAffiliateBtn = document.getElementById('user-affiliate-btn');
+            const userPasswordBtn = document.getElementById('user-password-btn');
             const userMenuEmail = document.getElementById('user-menu-email');
             const userMenuRole = document.getElementById('user-menu-role');
             const userMenuChevron = document.getElementById('user-menu-chevron');
@@ -10603,6 +10764,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (userAffiliateBtn) {
                     userAffiliateBtn.classList.remove('hidden');
                     userAffiliateBtn.classList.add('flex');
+                }
+                if (userPasswordBtn) {
+                    userPasswordBtn.classList.remove('hidden');
+                    userPasswordBtn.classList.add('flex');
                 }
                 if (userMenuChevron) userMenuChevron.classList.remove('hidden');
                 if (userMenuDivider) userMenuDivider.classList.remove('hidden');
