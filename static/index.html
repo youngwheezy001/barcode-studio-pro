@@ -5961,15 +5961,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             document.getElementById('aamva-dck').value = '188892143CTBRRL01';
             document.getElementById('aamva-restrictions').value = 'NONE';
             document.getElementById('aamva-endorsements').value = 'NONE';
-            document.getElementById('aamva-height-in').value = '61';
+            document.getElementById('aamva-height-in').value = '69';
             document.getElementById('aamva-weight-lb').value = ''; // Omitted in v09 sample!
             document.getElementById('aamva-eyes-dl').value = 'BLK';
             document.getElementById('aamva-eyes').value = 'BLK';
             document.getElementById('aamva-hair-dl').value = ''; // Omitted in v09 sample!
             document.getElementById('aamva-hair').value = ''; // Omitted in v09 sample!
             document.getElementById('include-zc').checked = true;
-            document.getElementById('zc-field-a').value = '0002303378';
-            document.getElementById('zc-field-b').value = '';
+            document.getElementById('zc-field-a').value = '';
+            document.getElementById('zc-field-b').value = '0002303378';
 
             document.getElementById('tune-cols').value = 12;
             document.getElementById('tune-ecc').value = 5;
@@ -6475,13 +6475,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 `    <element id="DCS" name="Customer Family Name">${fields.last}</element>\n` +
                 `    <element id="DDE" name="Family name truncation">N</element>\n` +
                 `    <element id="DAC" name="Driver First Name">${fields.first}</element>\n` +
-                `    <element id="DDF" name="First name truncation">N</element>\n`;
-
-            if (fields.mid) {
-                dlElementsXml += `    <element id="DAD" name="Driver Middle Name or Initial">${fields.mid}</element>\n`;
-            }
-
-            dlElementsXml += `    <element id="DDG" name="Middle name truncation">N</element>\n`;
+                `    <element id="DDF" name="First name truncation">N</element>\n` +
+                `    <element id="DAD" name="Driver Middle Name or Initial">${fields.mid || ''}</element>\n` +
+                `    <element id="DDG" name="Middle name truncation">N</element>\n`;
 
             if (fields.suffix && fields.suffix !== 'NONE') {
                 dlElementsXml += `    <element id="DCU" name="Name Suffix">${fields.suffix}</element>\n`;
@@ -6518,22 +6514,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 dlElementsXml += `    <element id="DCK" name="Inventory control number">${fields.dck}</element>\n`;
             }
             dlElementsXml += `    <element id="DDA" name="Compliance Type">F</element>\n` +
-                `    <element id="DDB" name="Card Revision Date">02102017</element>\n` +
-                `    <element id="DDK" name="Organ Donor">${fields.donor}</element>\n` +
-                `  </subfile>\n`;
+                `    <element id="DDB" name="Card Revision Date">02102017</element>\n`;
+
+            if (fields.donor === '1') {
+                dlElementsXml += `    <element id="DDK" name="Organ Donor">${fields.donor}</element>\n`;
+            }
+            dlElementsXml += `  </subfile>\n`;
 
             let zcXml = '';
             if (includeZC) {
-                if (usesOffsets) {
-                    zcXml = `  <subfile designator="ZC" offset="${zcOffset}" length="${zcLen}">\n` +
-                        `    <element id="A" name="Optional field A">${zcFieldA}</element>\n` +
-                        `  </subfile>\n`;
-                } else {
-                    zcXml = `  <subfile designator="ZC">\n` +
-                        `    <element id="A" name="Optional field A">${zcFieldA}</element>\n` +
-                        `    <element id="B" name="Optional field B">${zcFieldB}</element>\n` +
-                        `  </subfile>\n`;
-                }
+                const zcOffsetAttr = usesOffsets ? ` offset="${zcOffset}" length="${zcLen}"` : '';
+                const zcBVal = zcFieldB || (selectedVersion === '09' ? '0002303378' : '');
+                const zcAVal = zcFieldA && zcFieldA !== '0002303378' ? zcFieldA : '';
+                zcXml = `  <subfile designator="ZC"${zcOffsetAttr}>\n` +
+                    `    <element id="A" name="Optional field A">${zcAVal}</element>\n` +
+                    `    <element id="B" name="Optional field B">${zcBVal}</element>\n` +
+                    `  </subfile>\n`;
             }
 
             const fullXml = `<AAMVA>\n${userXml}${headXml}${dlSubfileTag}${dlElementsXml}${zcXml}</AAMVA>`;

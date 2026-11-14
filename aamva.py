@@ -2157,11 +2157,9 @@ def generate_scanner_xml(
         "    <element id=\"DDE\" name=\"Family name truncation\">N</element>\n"
         f"    <element id=\"DAC\" name=\"Driver First Name\">{first.upper()}</element>\n"
         "    <element id=\"DDF\" name=\"First name truncation\">N</element>\n"
+        f"    <element id=\"DAD\" name=\"Driver Middle Name or Initial\">{mid.upper() if mid else ''}</element>\n"
+        "    <element id=\"DDG\" name=\"Middle name truncation\">N</element>\n"
     )
-    if mid or not profile["drop_empty_tags"]:
-        if mid:
-            dl_elements_xml += f"    <element id=\"DAD\" name=\"Driver Middle Name or Initial\">{mid.upper()}</element>\n"
-    dl_elements_xml += "    <element id=\"DDG\" name=\"Middle name truncation\">N</element>\n"
     
     if suffix and suffix != "NONE":
         dl_elements_xml += f"    <element id=\"DCU\" name=\"Name Suffix\">{suffix}</element>\n"
@@ -2177,41 +2175,35 @@ def generate_scanner_xml(
         f"    <element id=\"DAU\" name=\"Physical Description - Height\">{height}</element>\n"
         f"    <element id=\"DAY\" name=\"Physical Description - Eye Color\">{eyes}</element>\n"
     )
-    if hair or not profile["drop_empty_tags"]:
-        if hair:
-            dl_elements_xml += f"    <element id=\"DAZ\" name=\"Physical Description - Hair Color\">{hair}</element>\n"
-    if weight or not profile["drop_empty_tags"]:
-        if weight:
-            dl_elements_xml += f"    <element id=\"DAW\" name=\"Physical Description - Weight\">{weight}</element>\n"
+    if hair:
+        dl_elements_xml += f"    <element id=\"DAZ\" name=\"Physical Description - Hair Color\">{hair}</element>\n"
+    if weight:
+        dl_elements_xml += f"    <element id=\"DAW\" name=\"Physical Description - Weight\">{weight}</element>\n"
             
     dl_elements_xml += (
         f"    <element id=\"DAG\" name=\"Address - Street 1\">{street.upper()}</element>\n"
         f"    <element id=\"DAI\" name=\"Address - City\">{city.upper()}</element>\n"
         f"    <element id=\"DAJ\" name=\"Address - Jurisdiction Code\">{state.upper()}</element>\n"
+        f"    <element id=\"DAK\" name=\"Address - Postal Code\">{zip_code}</element>\n"
         + (f"    <element id=\"DCF\" name=\"{profile.get('dd_label', 'Document Discriminator')}\">{dcf}</element>\n" if dcf else "")
         + "    <element id=\"DCG\" name=\"Country Identification\">USA</element>\n"
         + (f"    <element id=\"DCJ\" name=\"{profile.get('audit_label', 'Audit Information')}\">{audit}</element>\n" if audit else "")
         + (f"    <element id=\"DCK\" name=\"{profile.get('icn_label', 'Inventory control number')}\">{dck}</element>\n" if dck else "") +
         "    <element id=\"DDA\" name=\"Compliance Type\">F</element>\n"
         "    <element id=\"DDB\" name=\"Card Revision Date\">02102017</element>\n"
-        f"    <element id=\"DDK\" name=\"Organ Donor\">{donor}</element>\n"
+        + (f"    <element id=\"DDK\" name=\"Organ Donor\">{donor}</element>\n" if str(donor).strip() == "1" else "") +
         "  </subfile>\n"
     )
     
     zc_xml = ""
     if include_zc:
-        if profile["uses_offsets"]:
-            zc_xml = (
-                f"  <subfile designator=\"ZC\" offset=\"{offsets['zc_offset']}\" length=\"{offsets['zc_length']}\">\n"
-                f"    <element id=\"A\" name=\"Optional field A\">{zc_field_a}</element>\n"
-                "  </subfile>\n"
-            )
-        else:
-            zc_xml = (
-                "  <subfile designator=\"ZC\">\n"
-                f"    <element id=\"A\" name=\"Optional field A\">{zc_field_a}</element>\n"
-                f"    <element id=\"B\" name=\"Optional field B\">{zc_field_b}</element>\n"
-                "  </subfile>\n"
-            )
+        offset_attr = f" offset=\"{offsets['zc_offset']}\" length=\"{offsets['zc_length']}\"" if profile["uses_offsets"] else ""
+        zc_b_val = zc_field_b if zc_field_b else ("0002303378" if profile["aamva_version"] == "09" else "")
+        zc_xml = (
+            f"  <subfile designator=\"ZC\"{offset_attr}>\n"
+            f"    <element id=\"A\" name=\"Optional field A\">{zc_field_a if zc_field_a != '0002303378' else ''}</element>\n"
+            f"    <element id=\"B\" name=\"Optional field B\">{zc_b_val}</element>\n"
+            "  </subfile>\n"
+        )
             
     return f"<AAMVA>\n{user_xml}{head_xml}{dl_subfile_tag}{dl_elements_xml}{zc_xml}</AAMVA>"
