@@ -707,6 +707,132 @@
         </div>
     </div>
 
+    <!-- User Barcode Generation History Ledger Modal -->
+    <div id="user-history-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col gap-3 max-h-[85vh]">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🗂️</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">My Saved Barcode Generation Ledger</h3>
+                        <p class="text-[11px] text-slate-500">History of your generated barcodes. Re-load specifications into the editor with 1 click.</p>
+                    </div>
+                </div>
+                <button onclick="closeUserHistoryModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+            
+            <div class="overflow-x-auto flex-1 border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                        <tr>
+                            <th class="p-2.5">ID</th>
+                            <th class="p-2.5">Jurisdiction</th>
+                            <th class="p-2.5">Cardholder Name</th>
+                            <th class="p-2.5">Document #</th>
+                            <th class="p-2.5">Generated At</th>
+                            <th class="p-2.5">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-history-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-slate-400">Loading saved barcodes...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                <button onclick="clearUserBarcodes()" class="text-rose-600 hover:text-rose-800 text-xs font-semibold flex items-center gap-1 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Clear All History
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="loadUserBarcodes()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition">Refresh Ledger</button>
+                    <button onclick="closeUserHistoryModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg transition">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affiliate & Referral Partner Program Modal -->
+    <div id="user-affiliate-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col gap-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🤝</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Affiliate &amp; Referral Partner Program</h3>
+                        <p class="text-[11px] text-slate-500">Earn 15% instant commission whenever your referrals purchase export token packages.</p>
+                    </div>
+                </div>
+                <button onclick="closeUserAffiliateModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none">&times;</button>
+            </div>
+
+            <!-- Stats & Earnings Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col">
+                    <span class="text-[11px] font-semibold text-slate-500">Your Referral Code</span>
+                    <span id="affiliate-ref-code" class="text-lg font-mono font-extrabold text-slate-900 mt-1">REF-00000000</span>
+                    <span class="text-[10px] text-slate-400 mt-0.5">Auto-applies upon registration</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col">
+                    <span class="text-[11px] font-semibold text-slate-500">Total Referred Users</span>
+                    <span id="affiliate-referred-count" class="text-lg font-extrabold text-blue-600 mt-1">0</span>
+                    <span class="text-[10px] text-slate-400 mt-0.5">Active client accounts linked</span>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[11px] font-semibold text-emerald-800">Affiliate Balance</span>
+                        <div id="affiliate-balance-display" class="text-xl font-mono font-black text-emerald-700 mt-0.5">$0.00</div>
+                    </div>
+                    <button onclick="convertAffiliateToTokens()" class="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-1 px-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-1 cursor-pointer">
+                        <span>⚡ Convert to Tokens</span>
+                        <span class="text-[9px] opacity-80">($1.80/set)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Share Link Container -->
+            <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3 flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-blue-900">Your Dedicated Affiliate Referral Link:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="affiliate-ref-url" readonly value="https://barcode-studio-pro.onrender.com/?ref=REF-00000000" class="flex-1 bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-800 outline-none select-all">
+                    <button onclick="copyReferralLink()" class="bg-accent hover:bg-accent-hover text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm shrink-0 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>Copy Link</span>
+                    </button>
+                </div>
+                <p class="text-[10px] text-blue-700">When visitors click your link, your referral code is saved in their browser. You earn 15% on any token package they purchase!</p>
+            </div>
+
+            <!-- Recent Commissions Ledger -->
+            <div class="flex flex-col gap-1.5">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Recent Commission Earnings</h4>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl max-h-48">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-2.5">Referred User</th>
+                                <th class="p-2.5">Method</th>
+                                <th class="p-2.5">Order Amount</th>
+                                <th class="p-2.5">Your Commission (15%)</th>
+                                <th class="p-2.5">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="affiliate-commissions-table-body" class="divide-y divide-slate-100">
+                            <tr>
+                                <td colspan="5" class="p-4 text-center text-slate-400">Loading commissions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t border-slate-200">
+                <button onclick="closeUserAffiliateModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Official Invoice / Printable Receipt Modal -->
     <div id="receipt-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col gap-4 overflow-y-auto">
@@ -1262,6 +1388,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <button type="button" id="user-orders-btn" onclick="openUserOrdersModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4 text-accent-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                         <span>My Orders &amp; Receipts</span>
+                    </button>
+
+                    <!-- Saved Barcode History Ledger Button -->
+                    <button type="button" id="user-history-btn" onclick="openUserHistoryModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>My Barcode History</span>
+                    </button>
+
+                    <!-- Affiliate & Referral Partner Program Button -->
+                    <button type="button" id="user-affiliate-btn" onclick="openUserAffiliateModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <span>Affiliate &amp; Partner Program</span>
                     </button>
 
                     <!-- Admin Orders Ledger Button -->
@@ -9811,6 +9949,383 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
+        // --- SMART DATE PASTE SANITIZATION ---
+        function attachDatePasteSanitizers() {
+            function sanitizeDateValue(raw, format) {
+                if (!raw) return '';
+                const trimmed = raw.trim();
+                // Match MM/DD/YYYY, MM-DD-YYYY, MM.DD.YYYY
+                const mdy = trimmed.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+                if (mdy) {
+                    const m = mdy[1].padStart(2, '0');
+                    const d = mdy[2].padStart(2, '0');
+                    const y = mdy[3];
+                    return format === 'iso' ? `${y}-${m}-${d}` : `${m}${d}${y}`;
+                }
+                // Match ISO YYYY-MM-DD or YYYY/MM/DD
+                const ymd = trimmed.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
+                if (ymd) {
+                    const y = ymd[1];
+                    const m = ymd[2].padStart(2, '0');
+                    const d = ymd[3].padStart(2, '0');
+                    return format === 'iso' ? `${y}-${m}-${d}` : `${m}${d}${y}`;
+                }
+                // Match 8 contiguous digits
+                const digits = trimmed.replace(/\D/g, '');
+                if (digits.length === 8) {
+                    if (format === 'iso') {
+                        return `${digits.slice(4, 8)}-${digits.slice(0, 2)}-${digits.slice(2, 4)}`;
+                    }
+                    return digits;
+                }
+                return trimmed;
+            }
+
+            const aamvaDateIds = ['aamva-dob', 'aamva-issued', 'aamva-exp', 'aamva-revision-date'];
+            aamvaDateIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.dataset.pasteSanitizer) {
+                    el.dataset.pasteSanitizer = 'true';
+                    el.addEventListener('paste', function(e) {
+                        const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                        if (pasteData) {
+                            const cleaned = sanitizeDateValue(pasteData, 'mmddyyyy');
+                            if (cleaned !== pasteData) {
+                                e.preventDefault();
+                                this.value = cleaned;
+                                this.dispatchEvent(new Event('input', { bubbles: true }));
+                                this.dispatchEvent(new Event('change', { bubbles: true }));
+                                showToast(`Auto-formatted pasted date to MMDDYYYY (${cleaned})`, 'info');
+                            }
+                        }
+                    });
+                }
+            });
+
+            const mrzDateIds = ['mrz-dob', 'mrz-expiry'];
+            mrzDateIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.dataset.pasteSanitizer) {
+                    el.dataset.pasteSanitizer = 'true';
+                    el.addEventListener('paste', function(e) {
+                        const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                        if (pasteData) {
+                            const cleaned = sanitizeDateValue(pasteData, 'iso');
+                            if (cleaned !== pasteData) {
+                                e.preventDefault();
+                                this.value = cleaned;
+                                this.dispatchEvent(new Event('input', { bubbles: true }));
+                                this.dispatchEvent(new Event('change', { bubbles: true }));
+                                showToast(`Auto-formatted pasted date to YYYY-MM-DD (${cleaned})`, 'info');
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // --- SAVED BARCODE GENERATION HISTORY LEDGER ---
+        let cachedUserBarcodes = [];
+
+        function openUserHistoryModal() {
+            if (!currentUser) {
+                showToast('Please sign in to view your barcode generation history.', 'info');
+                openAuthModal();
+                return;
+            }
+            const m = document.getElementById('user-history-modal');
+            if (m) {
+                m.classList.remove('hidden');
+                loadUserBarcodes();
+            }
+        }
+
+        function closeUserHistoryModal() {
+            const m = document.getElementById('user-history-modal');
+            if (m) m.classList.add('hidden');
+        }
+
+        async function loadUserBarcodes() {
+            const tbody = document.getElementById('user-history-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Loading saved barcodes...</td></tr>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/user/barcodes`, {
+                    headers: { ...getAuthHeader() }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Failed to load barcode ledger');
+
+                cachedUserBarcodes = Array.isArray(data) ? data : [];
+                if (cachedUserBarcodes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No barcodes saved yet. Generate and export a barcode to record it in your ledger!</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = cachedUserBarcodes.map(b => {
+                    const dateStr = b.created_at ? new Date(b.created_at).toLocaleString() : '—';
+                    return `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="p-2.5 font-bold text-slate-900">#${b.id}</td>
+                            <td class="p-2.5 font-bold text-accent">${b.jurisdiction}</td>
+                            <td class="p-2.5 font-semibold text-slate-800">${b.holder_name}</td>
+                            <td class="p-2.5 font-mono text-slate-600">${b.doc_number}</td>
+                            <td class="p-2.5 text-slate-500 text-[11px]">${dateStr}</td>
+                            <td class="p-2.5">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button onclick="reloadBarcodeIntoEditor(${b.id})" class="text-[10px] bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded font-bold transition shadow-xs">
+                                        ⚡ Re-load
+                                    </button>
+                                    <button onclick="deleteUserBarcode(${b.id})" class="text-[10px] text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-1.5 py-0.5 rounded transition">
+                                        &times;
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-500 font-bold">Error loading history: ${err.message}</td></tr>`;
+            }
+        }
+
+        function reloadBarcodeIntoEditor(barcodeId) {
+            const item = cachedUserBarcodes.find(x => x.id === barcodeId);
+            if (!item) return;
+
+            if (item.form_data) {
+                try {
+                    const f = JSON.parse(item.form_data);
+                    if (f.jurisdiction) {
+                        const jurEl = document.getElementById('aamva-jurisdiction');
+                        if (jurEl) jurEl.value = f.jurisdiction;
+                    }
+                    if (f.firstName) document.getElementById('aamva-first').value = f.firstName;
+                    if (f.lastName) document.getElementById('aamva-last').value = f.lastName;
+                    if (f.middleName) document.getElementById('aamva-middle').value = f.middleName;
+                    if (f.dob) document.getElementById('aamva-dob').value = f.dob;
+                    if (f.exp) document.getElementById('aamva-exp').value = f.exp;
+                    if (f.issued) document.getElementById('aamva-issued').value = f.issued;
+                    if (f.docNum) document.getElementById('aamva-id').value = f.docNum;
+                    if (f.street) document.getElementById('aamva-street').value = f.street;
+                    if (f.city) document.getElementById('aamva-city').value = f.city;
+                    if (f.state) document.getElementById('aamva-state').value = f.state;
+                    if (f.zip) document.getElementById('aamva-zip').value = f.zip;
+                    if (f.sex) document.getElementById('aamva-sex').value = f.sex;
+                    if (f.eyeColor) document.getElementById('aamva-eyes').value = f.eyeColor;
+                    if (f.height) document.getElementById('aamva-height').value = f.height;
+                    if (f.weight) document.getElementById('aamva-weight').value = f.weight;
+                    if (f.hairColor) document.getElementById('aamva-hair').value = f.hairColor;
+                    if (f.classType) document.getElementById('aamva-class').value = f.classType;
+                    if (f.dcf) document.getElementById('aamva-dcf').value = f.dcf;
+                    if (f.dck) document.getElementById('aamva-dck').value = f.dck;
+                    if (f.audit) document.getElementById('aamva-audit').value = f.audit;
+                } catch(e) {
+                    console.log("Error parsing form data:", e);
+                }
+            } else if (item.jurisdiction) {
+                const jurEl = document.getElementById('aamva-jurisdiction');
+                if (jurEl) jurEl.value = item.jurisdiction;
+            }
+
+            if (item.code128_payload) {
+                const c128El = document.getElementById('input-code128');
+                if (c128El) c128El.value = item.code128_payload;
+            }
+
+            switchWorkspace('aamva');
+            if (typeof compileAAMVA === 'function') compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+            closeUserHistoryModal();
+            showToast(`Re-loaded ${item.holder_name} (#${item.id}) into the editor!`, 'success');
+        }
+
+        async function deleteUserBarcode(barcodeId) {
+            if (!confirm(`Delete barcode entry #${barcodeId} from your history?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/user/barcodes/${barcodeId}`, {
+                    method: 'DELETE',
+                    headers: { ...getAuthHeader() }
+                });
+                if (res.ok) {
+                    showToast('Barcode deleted from history', 'info');
+                    loadUserBarcodes();
+                }
+            } catch(e) {
+                showToast('Failed to delete barcode: ' + e.message, 'error');
+            }
+        }
+
+        async function clearUserBarcodes() {
+            if (!confirm("Are you sure you want to clear your entire barcode history ledger? This action cannot be undone.")) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/user/barcodes`, {
+                    method: 'DELETE',
+                    headers: { ...getAuthHeader() }
+                });
+                if (res.ok) {
+                    showToast('Barcode history ledger cleared.', 'info');
+                    loadUserBarcodes();
+                }
+            } catch(e) {
+                showToast('Failed to clear history: ' + e.message, 'error');
+            }
+        }
+
+        function recordGeneratedBarcodeToHistory() {
+            if (!currentUser) return;
+            try {
+                const jur = (document.getElementById('aamva-jurisdiction')?.value || 'GENERIC').toUpperCase();
+                const first = (document.getElementById('aamva-first')?.value || '').trim();
+                const last = (document.getElementById('aamva-last')?.value || '').trim();
+                const holderName = `${first} ${last}`.trim() || 'UNKNOWN';
+                const docNum = (document.getElementById('aamva-id')?.value || '').trim() || 'N/A';
+                const pdfPayload = document.getElementById('preview-payload')?.value || '';
+                const c128Payload = document.getElementById('input-code128')?.value || '';
+
+                const formData = {
+                    jurisdiction: jur,
+                    firstName: first,
+                    lastName: last,
+                    middleName: document.getElementById('aamva-middle')?.value || '',
+                    dob: document.getElementById('aamva-dob')?.value || '',
+                    exp: document.getElementById('aamva-exp')?.value || '',
+                    issued: document.getElementById('aamva-issued')?.value || '',
+                    docNum: docNum,
+                    street: document.getElementById('aamva-street')?.value || '',
+                    city: document.getElementById('aamva-city')?.value || '',
+                    state: document.getElementById('aamva-state')?.value || '',
+                    zip: document.getElementById('aamva-zip')?.value || '',
+                    sex: document.getElementById('aamva-sex')?.value || '',
+                    eyeColor: document.getElementById('aamva-eyes')?.value || '',
+                    height: document.getElementById('aamva-height')?.value || '',
+                    weight: document.getElementById('aamva-weight')?.value || '',
+                    hairColor: document.getElementById('aamva-hair')?.value || '',
+                    classType: document.getElementById('aamva-class')?.value || '',
+                    dcf: document.getElementById('aamva-dcf')?.value || '',
+                    dck: document.getElementById('aamva-dck')?.value || '',
+                    audit: document.getElementById('aamva-audit')?.value || ''
+                };
+
+                fetch(`${API_BASE}/api/user/barcodes/save`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jurisdiction: jur,
+                        holder_name: holderName,
+                        doc_number: docNum,
+                        pdf417_payload: pdfPayload,
+                        code128_payload: c128Payload,
+                        form_data: JSON.stringify(formData)
+                    })
+                }).catch(e => console.log("History save notice:", e));
+            } catch(e) {
+                console.log("History capture error:", e);
+            }
+        }
+
+        // --- AFFILIATE & REFERRAL PARTNER SYSTEM ---
+        let currentAffiliateData = null;
+
+        function openUserAffiliateModal() {
+            if (!currentUser) {
+                showToast('Please sign in to access the Affiliate & Partner program.', 'info');
+                openAuthModal();
+                return;
+            }
+            const m = document.getElementById('user-affiliate-modal');
+            if (m) {
+                m.classList.remove('hidden');
+                loadUserAffiliate();
+            }
+        }
+
+        function closeUserAffiliateModal() {
+            const m = document.getElementById('user-affiliate-modal');
+            if (m) m.classList.add('hidden');
+        }
+
+        async function loadUserAffiliate() {
+            try {
+                const res = await fetch(`${API_BASE}/api/user/affiliate`, {
+                    headers: { ...getAuthHeader() }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Failed to load affiliate dashboard');
+                currentAffiliateData = data;
+
+                const codeEl = document.getElementById('affiliate-ref-code');
+                const linkEl = document.getElementById('affiliate-ref-url');
+                const countEl = document.getElementById('affiliate-referred-count');
+                const balEl = document.getElementById('affiliate-balance-display');
+                const tbody = document.getElementById('affiliate-commissions-table-body');
+
+                if (codeEl) codeEl.textContent = data.referral_code || '—';
+                if (linkEl) linkEl.value = data.referral_url || `https://barcode-studio-pro.onrender.com/?ref=${data.referral_code}`;
+                if (countEl) countEl.textContent = data.referred_count || 0;
+                if (balEl) balEl.textContent = `$${data.affiliate_balance.toFixed(2)}`;
+
+                if (tbody) {
+                    if (!data.commissions || data.commissions.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">No commissions earned yet. Share your referral link above to earn 15% on every purchase!</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.commissions.map(c => {
+                            const dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString() : '—';
+                            return `
+                                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                                    <td class="p-2.5 font-semibold text-slate-800">${c.referred_email}</td>
+                                    <td class="p-2.5 uppercase font-bold text-slate-600 text-[10px]">${c.order_type}</td>
+                                    <td class="p-2.5 font-mono text-slate-700">$${c.order_amount_usd.toFixed(2)}</td>
+                                    <td class="p-2.5 font-bold text-emerald-600">+$${c.commission_usd.toFixed(2)}</td>
+                                    <td class="p-2.5 text-slate-400 text-[11px]">${dateStr}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                }
+            } catch(err) {
+                showToast('Affiliate loading error: ' + err.message, 'error');
+            }
+        }
+
+        function copyReferralLink() {
+            const linkEl = document.getElementById('affiliate-ref-url');
+            if (!linkEl) return;
+            navigator.clipboard.writeText(linkEl.value).then(() => {
+                showToast('Referral link copied to clipboard! Share it with clients or partners.', 'success');
+            }).catch(() => {
+                showToast('Failed to copy. Please manually select and copy the link.', 'error');
+            });
+        }
+
+        async function convertAffiliateToTokens() {
+            if (!currentAffiliateData || currentAffiliateData.affiliate_balance < 1.80) {
+                showToast('Minimum balance to convert into export tokens is $1.80 (1 token set).', 'warning');
+                return;
+            }
+            if (!confirm(`Convert your affiliate balance of $${currentAffiliateData.affiliate_balance.toFixed(2)} into Barcode Export Sets at $1.80/set?`)) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/user/affiliate/convert-to-tokens`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader() }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Conversion failed');
+
+                showToast(data.message, 'success');
+                if (currentUser) {
+                    currentUser.tokens = data.new_token_balance;
+                    currentUser.affiliate_balance = data.remaining_affiliate_balance;
+                    updateAuthUI();
+                }
+                loadUserAffiliate();
+            } catch(e) {
+                showToast(e.message, 'error');
+            }
+        }
+
         // --- LEGAL & SUPPORT MODAL CONTROLS ---
         function openPrivacyModal() {
             const m = document.getElementById('privacy-modal');
@@ -9930,6 +10445,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             try {
                 const payload = { email, password };
                 if (admin_key) payload.admin_key = admin_key;
+                const refCode = localStorage.getItem('bsp_ref');
+                if (refCode) payload.ref_code = refCode.trim();
 
                 const res = await fetch(`${API_BASE}/register`, {
                     method: 'POST',
@@ -10067,6 +10584,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const adminCryptoBtn = document.getElementById('admin-crypto-btn');
             const adminClientsBtn = document.getElementById('admin-clients-btn');
             const userOrdersBtn = document.getElementById('user-orders-btn');
+            const userHistoryBtn = document.getElementById('user-history-btn');
+            const userAffiliateBtn = document.getElementById('user-affiliate-btn');
             const userMenuEmail = document.getElementById('user-menu-email');
             const userMenuRole = document.getElementById('user-menu-role');
             const userMenuChevron = document.getElementById('user-menu-chevron');
@@ -10080,6 +10599,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (userOrdersBtn) {
                     userOrdersBtn.classList.remove('hidden');
                     userOrdersBtn.classList.add('flex');
+                }
+                if (userHistoryBtn) {
+                    userHistoryBtn.classList.remove('hidden');
+                    userHistoryBtn.classList.add('flex');
+                }
+                if (userAffiliateBtn) {
+                    userAffiliateBtn.classList.remove('hidden');
+                    userAffiliateBtn.classList.add('flex');
                 }
                 if (userMenuChevron) userMenuChevron.classList.remove('hidden');
                 if (userMenuDivider) userMenuDivider.classList.remove('hidden');
@@ -10144,6 +10671,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (userOrdersBtn) {
                     userOrdersBtn.classList.add('hidden');
                     userOrdersBtn.classList.remove('flex');
+                }
+                if (userHistoryBtn) {
+                    userHistoryBtn.classList.add('hidden');
+                    userHistoryBtn.classList.remove('flex');
+                }
+                if (userAffiliateBtn) {
+                    userAffiliateBtn.classList.add('hidden');
+                    userAffiliateBtn.classList.remove('flex');
                 }
                 if (userMenuChevron) userMenuChevron.classList.add('hidden');
                 if (userMenuDivider) userMenuDivider.classList.add('hidden');
@@ -10715,6 +11250,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 // Unlimited Admin Mode: export directly without gating
                 try {
                     exportCallback();
+                    recordGeneratedBarcodeToHistory();
                     showToast('Export downloaded with Admin Privileges (Unlimited)!', 'success');
                 } catch (err) {
                     showToast('Export error: ' + err.message, 'error');
@@ -10752,6 +11288,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
 
                 exportCallback();
+                recordGeneratedBarcodeToHistory();
                 showToast('Export downloaded successfully!', 'success');
             } catch (err) {
                 showToast('Export failed: ' + err.message, 'error');
@@ -12579,10 +13116,6 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const rev = (typeof getRevisionInfo === 'function') ? getRevisionInfo(slug) : null;
             showToast(`Loaded ${rev ? rev.label : slug} specifications and reference demographics!`, 'success');
 
-            if (window.history && window.history.pushState) {
-                window.history.pushState(null, '', `/?state=${slug}`);
-            }
-
             const formEl = document.getElementById('form-pdf417');
             if (formEl) {
                 formEl.scrollIntoView({ behavior: 'smooth' });
@@ -13820,9 +14353,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         window.onload = function() {
             try {
-                // Support deep-linking query parameters (e.g. ?mode=card, ?modal=clients, ?state=VT)
+                // Support deep-linking query parameters (e.g. ?mode=card, ?modal=clients, ?state=VT, ?ref=REF-123)
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetState = urlParams.get('state') || urlParams.get('jurisdiction');
+                const refParam = urlParams.get('ref');
+                if (refParam) {
+                    try {
+                        localStorage.setItem('bsp_ref', refParam.trim().toUpperCase());
+                    } catch(e) {}
+                }
 
                 populateStateDropdown();
                 const jurEl = document.getElementById('aamva-jurisdiction');
@@ -13855,6 +14394,11 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     applyStatePreset();
                 }
 
+                // Sanitize address bar so URL remains clean (https://barcode-studio-pro.onrender.com/) without lingering ?state=... or ?ref=...
+                if (window.history && window.history.replaceState && window.location.search) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
                 if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
                 if (typeof updateTuningUI === 'function') updateTuningUI();
                 if (typeof updateHeightMetric === 'function') updateHeightMetric();
@@ -13871,6 +14415,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (typeof inspectAamvaCompliance === 'function') inspectAamvaCompliance();
                 if (typeof compileMrz === 'function') compileMrz();
                 if (typeof checkAuth === 'function') checkAuth();
+                if (typeof attachDatePasteSanitizers === 'function') attachDatePasteSanitizers();
 
                 // Auto-uppercase DMV text fields in real-time
                 ['aamva-first', 'aamva-last', 'aamva-middle', 'aamva-street', 'aamva-city', 'aamva-id', 'aamva-dcf', 'aamva-dck', 'aamva-audit'].forEach(id => {

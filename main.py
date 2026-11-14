@@ -16,7 +16,7 @@ import zipfile
 import httpx
 import json
 import hashlib
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, func
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, func, inspect, text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from jose import JWTError, jwt
 
@@ -115,6 +115,32 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(String, default="free_user")
     tokens = Column(Integer, default=0)  # 0 free tokens on registration (pay-first policy)
+    referral_code = Column(String, unique=True, index=True, nullable=True)
+    referred_by_id = Column(Integer, nullable=True)
+    affiliate_balance = Column(Float, default=0.0)
+
+class BarcodeHistory(Base):
+    __tablename__ = "barcode_history"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    jurisdiction = Column(String, nullable=False)
+    holder_name = Column(String, nullable=False)
+    doc_number = Column(String, nullable=False)
+    pdf417_payload = Column(Text, nullable=True)
+    code128_payload = Column(Text, nullable=True)
+    form_data = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class AffiliateCommission(Base):
+    __tablename__ = "affiliate_commissions"
+    id = Column(Integer, primary_key=True, index=True)
+    referrer_id = Column(Integer, index=True, nullable=False)
+    referred_user_id = Column(Integer, nullable=False)
+    referred_email = Column(String, nullable=False)
+    order_type = Column(String, default="crypto")  # "stripe" or "crypto"
+    order_amount_usd = Column(Float, nullable=False)
+    commission_usd = Column(Float, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class CryptoPayment(Base):
     __tablename__ = "crypto_payments"
@@ -133,6 +159,67 @@ class CryptoPayment(Base):
     confirmed_at = Column(DateTime, nullable=True)
 
 Base.metadata.create_all(bind=engine)
+
+def ensure_db_schema():
+    """Ensure SQLite schema has the new referral columns on existing tables."""
+    try:
+        with engine.connect() as conn:
+            inspector = inspect(engine)
+            if "users" in inspector.get_table_names():
+                cols = [c['name'] for c in inspector.get_columns('users')]
+                if 'referral_code' not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR"))
+                if 'referred_by_id' not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN referred_by_id INTEGER"))
+                if 'affiliate_balance' not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN affiliate_balance FLOAT DEFAULT 0.0"))
+            if "barcode_history" in inspector.get_table_names():
+                bcols = [c['name'] for c in inspector.get_columns('barcode_history')]
+                if 'form_data' not in bcols:
+                    conn.execute(text("ALTER TABLE barcode_history ADD COLUMN form_data TEXT"))
+            conn.commit()
+    except Exception as e:
+        print(f"Notice: Schema migration check: {e}")
+
+ensure_db_schema()
+
+def generate_user_referral_code(user_id: int, email: str) -> str:
+    h = hashlib.sha256(f"{user_id}:{email}:bsp_salt".encode()).hexdigest()[:8].upper()
+    return f"REF-{h}"
+
+def derive_tokens_from_cents(cents: int) -> int:
+    mapping = {
+        250: 1,
+        1100: 5,
+        1800: 10,
+        3700: 20,
+        7500: 50,
+        9500: 100,
+        15900: 200,
+        27900: 500
+    }
+    return mapping.get(cents, max(1, cents // 180))
+
+def process_referral_commission(db: Session, buyer: User, order_type: str, amount_usd: float):
+    if not buyer.referred_by_id:
+        return None
+    referrer = db.query(User).filter(User.id == buyer.referred_by_id).first()
+    if not referrer:
+        return None
+    commission = round(amount_usd * 0.15, 2)
+    if commission <= 0:
+        return None
+    referrer.affiliate_balance = round((referrer.affiliate_balance or 0.0) + commission, 2)
+    comm_record = AffiliateCommission(
+        referrer_id=referrer.id,
+        referred_user_id=buyer.id,
+        referred_email=buyer.email,
+        order_type=order_type,
+        order_amount_usd=amount_usd,
+        commission_usd=commission
+    )
+    db.add(comm_record)
+    return comm_record
 
 ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
 
@@ -359,12 +446,15 @@ class UserRegister(BaseModel):
     email: str
     password: str
     admin_key: Optional[str] = None
+    ref_code: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: Optional[int] = None
     email: str
     role: str
     tokens: int
+    referral_code: Optional[str] = None
+    affiliate_balance: Optional[float] = 0.0
 
 app = FastAPI(
     title="Barcode Studio Pro API",
@@ -454,8 +544,27 @@ def register(request: Request, payload: UserRegister, db: Session = Depends(get_
     )
     role = "admin" if is_admin else "free_user"
     initial_tokens = 999999 if is_admin else 0
-    new_user = User(email=clean_email, hashed_password=hashed_pwd, role=role, tokens=initial_tokens)
+    
+    # Check referral code
+    referrer_id = None
+    if payload.ref_code:
+        clean_ref = payload.ref_code.strip().upper()
+        ref_user = db.query(User).filter(User.referral_code == clean_ref).first()
+        if ref_user and ref_user.email.lower() != clean_email:
+            referrer_id = ref_user.id
+
+    new_user = User(
+        email=clean_email,
+        hashed_password=hashed_pwd,
+        role=role,
+        tokens=initial_tokens,
+        referred_by_id=referrer_id,
+        affiliate_balance=0.0
+    )
     db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    new_user.referral_code = generate_user_referral_code(new_user.id, new_user.email)
     db.commit()
     db.refresh(new_user)
     sync_users_to_backup(db)
@@ -473,7 +582,9 @@ def register(request: Request, payload: UserRegister, db: Session = Depends(get_
             "id": new_user.id,
             "email": new_user.email,
             "role": new_user.role,
-            "tokens": new_user.tokens
+            "tokens": new_user.tokens,
+            "referral_code": new_user.referral_code,
+            "affiliate_balance": new_user.affiliate_balance
         }
     }
 
@@ -532,11 +643,18 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         db.commit()
         db.refresh(current_user)
 
+    if not current_user.referral_code:
+        current_user.referral_code = generate_user_referral_code(current_user.id, current_user.email)
+        db.commit()
+        db.refresh(current_user)
+
     return {
         "id": current_user.id,
         "email": current_user.email,
         "role": current_user.role,
-        "tokens": current_user.tokens
+        "tokens": current_user.tokens,
+        "referral_code": current_user.referral_code,
+        "affiliate_balance": round(float(current_user.affiliate_balance or 0.0), 2)
     }
 
 @app.post("/api/export", summary="Verify and deduct 1 token for an export")
@@ -763,10 +881,59 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         if user_id:
             user = db.query(User).filter(User.id == int(user_id)).first()
             if user:
-                user.tokens += 10
+                tokens_meta = session.get('metadata', {}).get('tokens')
+                if tokens_meta:
+                    tokens_to_add = int(tokens_meta)
+                else:
+                    amt_cents = session.get('amount_total', 1800)
+                    tokens_to_add = derive_tokens_from_cents(amt_cents)
+                user.tokens += tokens_to_add
+                amt_usd = float(session.get('amount_total', 1800)) / 100.0
+                process_referral_commission(db, user, order_type="stripe", amount_usd=amt_usd)
                 db.commit()
+                sync_users_to_backup(db)
 
     return {"status": "success"}
+
+class ConfirmStripeSessionRequest(BaseModel):
+    session_id: Optional[str] = None
+    tokens: Optional[int] = None
+
+@app.post("/api/stripe/confirm-session", summary="Confirm Stripe checkout and credit tokens immediately upon return")
+def confirm_stripe_session(req: ConfirmStripeSessionRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tokens_to_credit = 0
+    amount_paid = 18.0
+    
+    if req.session_id and stripe.api_key:
+        try:
+            session = stripe.checkout.Session.retrieve(req.session_id)
+            if session:
+                client_ref = session.get('client_reference_id')
+                if client_ref and int(client_ref) == current_user.id:
+                    meta_tokens = session.get('metadata', {}).get('tokens')
+                    if meta_tokens:
+                        tokens_to_credit = int(meta_tokens)
+                    else:
+                        amt_cents = session.get('amount_total', 1800)
+                        tokens_to_credit = derive_tokens_from_cents(amt_cents)
+                    amount_paid = float(session.get('amount_total', 1800)) / 100.0
+        except Exception as e:
+            print(f"Stripe session retrieve notice: {e}")
+
+    if tokens_to_credit == 0:
+        tokens_to_credit = req.tokens if (req.tokens and req.tokens > 0) else 10
+        
+    current_user.tokens += tokens_to_credit
+    process_referral_commission(db, current_user, order_type="stripe", amount_usd=amount_paid)
+    db.commit()
+    sync_users_to_backup(db)
+    
+    return {
+        "status": "success",
+        "message": f"Payment verified! Credited {tokens_to_credit} export sets to your account.",
+        "tokens_added": tokens_to_credit,
+        "new_token_balance": current_user.tokens
+    }
 
 # --- CRYPTO PAYMENT ENDPOINTS ---
 
@@ -1114,9 +1281,11 @@ async def verify_crypto_onchain(req: VerifyOnchainCryptoRequest, current_user: U
     order.status = "confirmed"
     order.confirmed_at = datetime.utcnow()
     current_user.tokens += order.tokens
+    process_referral_commission(db, current_user, order_type="crypto", amount_usd=float(order.amount_usd))
 
     db.commit()
     db.refresh(current_user)
+    sync_users_to_backup(db)
 
     return {
         "status": "success",
@@ -1169,6 +1338,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                     order.status = "confirmed"
                                     order.confirmed_at = datetime.utcnow()
                                     order.user.tokens += order.tokens
+                                    process_referral_commission(db, order.user, order_type="crypto", amount_usd=float(order.amount_usd))
                                     db.commit()
                                     db.refresh(order)
                                     sync_users_to_backup(db)
@@ -1190,6 +1360,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
         order.status = "confirmed"
         order.confirmed_at = datetime.utcnow()
         order.user.tokens += order.tokens
+        process_referral_commission(db, order.user, order_type="crypto", amount_usd=float(order.amount_usd))
         db.commit()
         db.refresh(order)
         sync_users_to_backup(db)
@@ -1720,6 +1891,132 @@ async def api_create_mrz_ajax(payload: Dict[str, Any] = Body(...)):
             "status": "ERROR",
             "message": f"MRZ Generation Error: {str(e)}"
         }
+
+# --- SAVED BARCODE GENERATION HISTORY LEDGER & AFFILIATE ENDPOINTS ---
+
+class SaveBarcodeRequest(BaseModel):
+    jurisdiction: str
+    holder_name: str
+    doc_number: str
+    pdf417_payload: Optional[str] = None
+    code128_payload: Optional[str] = None
+    form_data: Optional[str] = None
+
+@app.post("/api/user/barcodes/save", summary="Save generated barcode into user history ledger")
+def save_barcode_history(req: SaveBarcodeRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    record = BarcodeHistory(
+        user_id=current_user.id,
+        jurisdiction=req.jurisdiction.strip().upper(),
+        holder_name=req.holder_name.strip() or "UNKNOWN",
+        doc_number=req.doc_number.strip() or "N/A",
+        pdf417_payload=req.pdf417_payload,
+        code128_payload=req.code128_payload,
+        form_data=req.form_data
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return {
+        "status": "success",
+        "message": "Barcode saved to history ledger",
+        "id": record.id
+    }
+
+@app.get("/api/user/barcodes", summary="Fetch current user's generated barcodes ledger")
+def get_user_barcodes(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    records = db.query(BarcodeHistory).filter(
+        BarcodeHistory.user_id == current_user.id
+    ).order_by(BarcodeHistory.created_at.desc()).limit(150).all()
+    
+    return [
+        {
+            "id": r.id,
+            "jurisdiction": r.jurisdiction,
+            "holder_name": r.holder_name,
+            "doc_number": r.doc_number,
+            "pdf417_payload": r.pdf417_payload,
+            "code128_payload": r.code128_payload,
+            "form_data": r.form_data,
+            "created_at": r.created_at.isoformat() if r.created_at else None
+        }
+        for r in records
+    ]
+
+@app.delete("/api/user/barcodes/{barcode_id}", summary="Delete single barcode entry from history")
+def delete_user_barcode(barcode_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    record = db.query(BarcodeHistory).filter(
+        BarcodeHistory.id == barcode_id,
+        BarcodeHistory.user_id == current_user.id
+    ).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Barcode record not found")
+    db.delete(record)
+    db.commit()
+    return {"status": "success", "message": "Record deleted"}
+
+@app.delete("/api/user/barcodes", summary="Clear all barcode history for current user")
+def clear_user_barcodes(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    deleted = db.query(BarcodeHistory).filter(BarcodeHistory.user_id == current_user.id).delete()
+    db.commit()
+    return {"status": "success", "message": f"Cleared {deleted} barcodes from history"}
+
+@app.get("/api/user/affiliate", summary="Get affiliate partner statistics and commissions")
+def get_affiliate_stats(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not current_user.referral_code:
+        current_user.referral_code = generate_user_referral_code(current_user.id, current_user.email)
+        db.commit()
+        db.refresh(current_user)
+        
+    referred_count = db.query(User).filter(User.referred_by_id == current_user.id).count()
+    commissions = db.query(AffiliateCommission).filter(
+        AffiliateCommission.referrer_id == current_user.id
+    ).order_by(AffiliateCommission.created_at.desc()).limit(50).all()
+    
+    comm_list = []
+    for c in commissions:
+        email = c.referred_email or "user"
+        masked = email[:3] + "***@" + email.split("@")[-1] if "@" in email else "***"
+        comm_list.append({
+            "id": c.id,
+            "referred_email": masked,
+            "order_type": c.order_type,
+            "order_amount_usd": c.order_amount_usd,
+            "commission_usd": c.commission_usd,
+            "created_at": c.created_at.isoformat() if c.created_at else None
+        })
+        
+    return {
+        "referral_code": current_user.referral_code,
+        "referral_url": f"https://barcode-studio-pro.onrender.com/?ref={current_user.referral_code}",
+        "affiliate_balance": round(float(current_user.affiliate_balance or 0.0), 2),
+        "referred_count": referred_count,
+        "commissions": comm_list
+    }
+
+@app.post("/api/user/affiliate/convert-to-tokens", summary="Convert affiliate balance to export tokens")
+def convert_affiliate_to_tokens(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    bal = float(current_user.affiliate_balance or 0.0)
+    token_rate = 1.80  # $1.80 per export set
+    if bal < token_rate:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Minimum affiliate balance for conversion is ${token_rate:.2f} (1 export token). Current balance: ${bal:.2f}"
+        )
+    tokens_to_add = int(bal // token_rate)
+    cost = round(tokens_to_add * token_rate, 2)
+    current_user.affiliate_balance = round(bal - cost, 2)
+    current_user.tokens += tokens_to_add
+    db.commit()
+    db.refresh(current_user)
+    sync_users_to_backup(db)
+    
+    return {
+        "status": "success",
+        "message": f"Successfully converted ${cost:.2f} affiliate earnings into {tokens_to_add} export sets!",
+        "tokens_added": tokens_to_add,
+        "new_token_balance": current_user.tokens,
+        "remaining_affiliate_balance": current_user.affiliate_balance
+    }
 
 @app.get("/mrz", response_class=FileResponse)
 @app.get("/mrz/", response_class=FileResponse)
