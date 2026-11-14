@@ -10888,6 +10888,24 @@ function QC_calculate_ICN() {
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f4f4f4 100%)",
         "security_tint": "#cfc0b4"
     },
+    "AL_2022": {
+        "name": "Alabama",
+        "agency": "Alabama Law Enforcement Agency",
+        "url": "www.alea.gov",
+        "class_label": "CLASS: D-Regular Operators License",
+        "disclaimer": "Property of State of Alabama • If found drop in any US mailbox • Return postage guaranteed",
+        "donor": "ORGAN DONOR",
+        "layout": "alabama_custom",
+        "watermark": "ALABAMA",
+        "rev": "Rev 04-26-2022",
+        "archetype": "alabama_custom",
+        "has_magstripe": true,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "top_center",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f4f4f4 100%)",
+        "security_tint": "#cfc0b4"
+    },
     "AK": {
         "name": "Alaska",
         "agency": "Alaska Division of Motor Vehicles",
@@ -12064,7 +12082,60 @@ function QC_calculate_ICN() {
         if (!slugOrCode) return STATE_CARDBACK_METADATA["LA"];
         const s = slugOrCode.toUpperCase().trim();
         const base = s.split('_')[0];
-        return STATE_CARDBACK_METADATA[s] || STATE_CARDBACK_METADATA[base] || STATE_CARDBACK_METADATA["LA"];
+        const baseMeta = STATE_CARDBACK_METADATA[s] || STATE_CARDBACK_METADATA[base] || STATE_CARDBACK_METADATA["LA"];
+        const meta = { ...baseMeta };
+
+        // Dynamically resolve authentic revision date from STATE_HIERARCHY if not explicitly customized
+        if (typeof STATE_HIERARCHY !== 'undefined') {
+            for (const group of Object.values(STATE_HIERARCHY)) {
+                if (group.revisions) {
+                    const r = group.revisions.find(rev => rev.slug === slugOrCode || rev.slug === s);
+                    if (r) {
+                        let dynamicRev = '';
+                        if (r.rev_header) {
+                            const dMatch = r.rev_header.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                            if (dMatch) {
+                                let n1 = parseInt(dMatch[1], 10);
+                                let n2 = parseInt(dMatch[2], 10);
+                                let yr = dMatch[3];
+                                let mo = '', da = '';
+                                if (n1 > 12) { da = String(n1).padStart(2, '0'); mo = String(n2).padStart(2, '0'); }
+                                else { mo = String(n1).padStart(2, '0'); da = String(n2).padStart(2, '0'); }
+                                if (base === 'AZ') dynamicRev = `Rev ${mo}/${yr}`;
+                                else if (base === 'CA' || base === 'GA' || base === 'KS') dynamicRev = `Rev ${mo}/${da}/${yr}`;
+                                else if (base === 'ID') dynamicRev = `${mo}/${da}/${yr}`;
+                                else dynamicRev = `Rev ${mo}-${da}-${yr}`;
+                            } else {
+                                const yMatch = r.rev_header.match(/\b(20\d\d|19\d\d)\b/);
+                                if (yMatch) {
+                                    const yr = yMatch[1];
+                                    if (base === 'AZ') dynamicRev = `Rev 01/${yr}`;
+                                    else if (base === 'CA' || base === 'GA' || base === 'KS') dynamicRev = `Rev 01/01/${yr}`;
+                                    else if (base === 'ID') dynamicRev = `01/01/${yr}`;
+                                    else dynamicRev = `Rev 01-01-${yr}`;
+                                }
+                            }
+                        }
+                        if (!dynamicRev) {
+                            const yrMatch = (r.label ? r.label.match(/\b(20\d\d)\b/) : null) || s.match(/_?(20\d\d)/);
+                            if (yrMatch) {
+                                const yr = yrMatch[1];
+                                if (s === 'AL_2022') dynamicRev = 'Rev 04-26-2022';
+                                else if (base === 'AZ') dynamicRev = `Rev 01/${yr}`;
+                                else if (base === 'CA' || base === 'GA' || base === 'KS') dynamicRev = `Rev 01/01/${yr}`;
+                                else if (base === 'ID') dynamicRev = `01/01/${yr}`;
+                                else dynamicRev = `Rev 01-01-${yr}`;
+                            }
+                        }
+                        if (dynamicRev) {
+                            meta.rev = dynamicRev;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return meta;
     }
 
     window.STATE_CARDBACK_METADATA = STATE_CARDBACK_METADATA;

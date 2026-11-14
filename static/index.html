@@ -5370,7 +5370,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             const allFieldIds = [
                 'aamva-first', 'aamva-last', 'aamva-mid', 'aamva-suffix',
-                'aamva-id', 'aamva-street', 'aamva-street2', 'aamva-city', 'aamva-zip',
+                'aamva-id', 'aamva-class', 'aamva-street', 'aamva-street2', 'aamva-city', 'aamva-zip',
                 'aamva-dob', 'aamva-issued', 'aamva-exp',
                 'aamva-dcf', 'aamva-dck', 'aamva-audit',
                 'aamva-restrictions', 'aamva-endorsements',
@@ -5379,7 +5379,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'aamva-revision-date', 'aamva-safe-driver',
                 'aamva-in-office', 'aamva-la-office', 'aamva-la-parish',
                 'aamva-nd-opt', 'aamva-nj-opt1', 'aamva-nj-opt2', 'aamva-nj-opt3',
-                'aamva-pob', 'aamva-dups', 'input-code128'
+                'aamva-pob', 'aamva-dups', 'aamva-country', 'input-code128'
             ];
 
             allFieldIds.forEach(id => {
@@ -6643,24 +6643,38 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return (el && el.value.trim() !== '') ? el.value.trim() : fb;
             };
             const jKey = document.getElementById('aamva-jurisdiction')?.value || 'CT';
-            const first = getV('aamva-first', 'JONATHAN').toUpperCase();
-            const last = getV('aamva-last', 'GARCIA').toUpperCase();
-            const dl = getV('aamva-id', '188892143').toUpperCase();
-            const street = getV('aamva-street', '30 BEATTY ST').toUpperCase();
-            const city = getV('aamva-city', 'NEW BRITAIN').toUpperCase();
-            const state = getV('aamva-state', jKey).toUpperCase();
-            const zip = getV('aamva-zip', '06051');
-            const dob = getV('aamva-dob', '06211992');
-            const exp = getV('aamva-exp', '06212030');
-            const sexVal = document.getElementById('aamva-sex')?.value || '1';
-            const sexLabel = sexVal === '1' ? 'M' : (sexVal === '2' ? 'F' : 'X');
+            const stateCode = (jKey.split('_')[0] || 'CT').toUpperCase();
+            const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
 
-            const fmtD = d => (d && d.length === 8) ? `${d.substring(4,8)}-${d.substring(0,2)}-${d.substring(2,4)}` : d;
+            const first = getV('aamva-first', defs && defs.first ? defs.first : 'FIRST').toUpperCase();
+            const last = getV('aamva-last', defs && defs.last ? defs.last : 'LAST').toUpperCase();
+            const dl = getV('aamva-id', defs && defs.sample_dl ? defs.sample_dl : '188892143').toUpperCase();
+            const street = getV('aamva-street', defs && defs.street ? defs.street : '123 MAIN ST').toUpperCase();
+            const city = getV('aamva-city', defs && defs.city ? defs.city : 'CITY').toUpperCase();
+            const state = getV('aamva-state', stateCode).toUpperCase();
+            const zip = getV('aamva-zip', defs && defs.zip ? defs.zip : '00000');
+            const dob = getV('aamva-dob', defs && defs.dob ? defs.dob : '01011990');
+            const exp = getV('aamva-exp', defs && defs.exp ? defs.exp : '01012030');
+            const sexVal = document.getElementById('aamva-sex')?.value || (defs && defs.sex ? defs.sex : '1');
+            const sexLabel = (sexVal === '1' || sexVal === 'M') ? 'M' : ((sexVal === '2' || sexVal === 'F') ? 'F' : 'X');
+
+            const fmtD = d => {
+                if (!d) return '';
+                if (d.includes('-')) return d;
+                if (d.length === 8) {
+                    if (parseInt(d.substring(0, 4), 10) > 1900) {
+                        return `${d.substring(0, 4)}-${d.substring(4, 6)}-${d.substring(6, 8)}`;
+                    } else {
+                        return `${d.substring(4, 8)}-${d.substring(0, 2)}-${d.substring(2, 4)}`;
+                    }
+                }
+                return d;
+            };
 
             const titleEl = document.getElementById('front-state-title');
             if (titleEl) {
-                const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jKey]) ? STATE_PROFILES[jKey].name : jKey;
-                titleEl.textContent = prof || jKey;
+                const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jKey]) ? STATE_PROFILES[jKey].name : (STATE_PROFILES && STATE_PROFILES[stateCode] ? STATE_PROFILES[stateCode].name : stateCode);
+                titleEl.textContent = prof || stateCode;
             }
             const dlEl = document.getElementById('front-dl-num');
             if (dlEl) dlEl.textContent = dl;
@@ -6674,6 +6688,86 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (expEl) expEl.textContent = fmtD(exp);
             const sexEl = document.getElementById('front-sex');
             if (sexEl) sexEl.textContent = sexLabel;
+        }
+
+        function getCardRevisionDateString(jurKey, meta, revInfo, stateCodeHint = '') {
+            const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
+            const stCode = (stateCodeHint || (jurKey ? jurKey.split('_')[0] : '')).toUpperCase();
+
+            // 1. If user entered an issue date, format according to state convention
+            if (rawIss) {
+                let yr = '', mo = '', da = '';
+                if (rawIss.includes('-')) {
+                    const p = rawIss.split('-');
+                    if (p.length === 3) {
+                        if (p[0].length === 4) { yr = p[0]; mo = p[1].padStart(2, '0'); da = p[2].padStart(2, '0'); }
+                        else if (p[2].length === 4) { mo = p[0].padStart(2, '0'); da = p[1].padStart(2, '0'); yr = p[2]; }
+                    }
+                } else if (rawIss.includes('/')) {
+                    const p = rawIss.split('/');
+                    if (p.length === 3) {
+                        if (p[0].length === 4) { yr = p[0]; mo = p[1].padStart(2, '0'); da = p[2].padStart(2, '0'); }
+                        else if (p[2].length === 4) { mo = p[0].padStart(2, '0'); da = p[1].padStart(2, '0'); yr = p[2]; }
+                    }
+                } else if (rawIss.length === 8 && /^\d{8}$/.test(rawIss)) {
+                    if (parseInt(rawIss.substring(0, 4), 10) > 1900) {
+                        yr = rawIss.substring(0, 4); mo = rawIss.substring(4, 6); da = rawIss.substring(6, 8);
+                    } else {
+                        mo = rawIss.substring(0, 2); da = rawIss.substring(2, 4); yr = rawIss.substring(4, 8);
+                    }
+                }
+                if (yr && mo && da) {
+                    if (stCode === 'AZ') return `Rev ${mo}/${yr}`;
+                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev ${mo}/${da}/${yr}`;
+                    if (stCode === 'ID') return `${mo}/${da}/${yr}`;
+                    return `Rev ${mo}-${da}-${yr}`;
+                }
+            }
+
+            // 2. Check meta.rev if already resolved
+            if (meta && meta.rev && meta.rev !== 'REV 03-12-2015') {
+                return meta.rev;
+            }
+
+            // 3. Check revInfo.rev_header or revInfo.label from active state hierarchy
+            if (revInfo && revInfo.rev_header) {
+                const header = revInfo.rev_header;
+                const dMatch = header.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                if (dMatch) {
+                    let n1 = parseInt(dMatch[1], 10);
+                    let n2 = parseInt(dMatch[2], 10);
+                    let yr = dMatch[3];
+                    let mo = '', da = '';
+                    if (n1 > 12) { da = String(n1).padStart(2, '0'); mo = String(n2).padStart(2, '0'); }
+                    else { mo = String(n1).padStart(2, '0'); da = String(n2).padStart(2, '0'); }
+                    if (stCode === 'AZ') return `Rev ${mo}/${yr}`;
+                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev ${mo}/${da}/${yr}`;
+                    if (stCode === 'ID') return `${mo}/${da}/${yr}`;
+                    return `Rev ${mo}-${da}-${yr}`;
+                }
+                const yMatch = header.match(/\b(20\d\d|19\d\d)\b/);
+                if (yMatch) {
+                    const yr = yMatch[1];
+                    if (stCode === 'AZ') return `Rev 01/${yr}`;
+                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev 01/01/${yr}`;
+                    if (stCode === 'ID') return `01/01/${yr}`;
+                    return `Rev 01-01-${yr}`;
+                }
+            }
+
+            // 4. Fallback: extract year from jurKey or revInfo.label
+            const slugYr = (jurKey || '').match(/_?(20\d\d)/) || ((revInfo && revInfo.label) ? revInfo.label.match(/\b(20\d\d)\b/) : null);
+            if (slugYr) {
+                const yr = slugYr[1];
+                if (jurKey === 'AL_2022') return 'Rev 04-26-2022';
+                if (stCode === 'AZ') return `Rev 01/${yr}`;
+                if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev 01/01/${yr}`;
+                if (stCode === 'ID') return `01/01/${yr}`;
+                return `Rev 01-01-${yr}`;
+            }
+
+            if (meta && meta.rev) return meta.rev;
+            return (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') ? 'Rev 01/01/2022' : 'Rev 01-01-2022';
         }
 
         function updateStudioCardDetails() {
@@ -6871,7 +6965,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (arIcnEl) arIcnEl.textContent = arIcn;
 
                 const arRevEl = document.getElementById('arkansas-rev-val');
-                if (arRevEl && meta && meta.rev) arRevEl.textContent = meta.rev;
+                if (arRevEl) arRevEl.textContent = getCardRevisionDateString(jurKey, meta, revInfo, 'AR');
 
                 // Render Arkansas vertical Code 128 barcode in right margin
                 try {
@@ -6957,20 +7051,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (azEndEl) azEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
 
                 // Arizona Revision Date
-                const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
-                let azRevFmt = 'Rev MM/OO/CCYY';
-                if (rawIss.includes('-')) {
-                    const p = rawIss.split('-');
-                    if (p.length === 3) azRevFmt = `Rev ${p[1]}/${p[0]}`;
-                } else if (rawIss.length === 8) {
-                    if (parseInt(rawIss.substring(0, 4), 10) > 1900) {
-                        azRevFmt = `Rev ${rawIss.substring(4, 6)}/${rawIss.substring(0, 4)}`;
-                    } else {
-                        azRevFmt = `Rev ${rawIss.substring(0, 2)}/${rawIss.substring(4, 8)}`;
-                    }
-                } else {
-                    azRevFmt = (meta && meta.rev) ? meta.rev : 'Rev 03/2014';
-                }
+                const azRevFmt = getCardRevisionDateString(jurKey, meta, revInfo, 'AZ');
                 const azRevEl = document.getElementById('arizona-rev-val');
                 if (azRevEl) azRevEl.textContent = azRevFmt;
 
@@ -7030,12 +7111,16 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
 
                 // Populate Alabama Cardholder Full Name
-                const firstVal = (document.getElementById('aamva-first')?.value || 'FIRST').trim();
+                const firstVal = (document.getElementById('aamva-first')?.value || '').trim();
                 const middleVal = (document.getElementById('aamva-mid')?.value || document.getElementById('aamva-middle')?.value || '').trim();
-                const lastVal = (document.getElementById('aamva-last')?.value || 'LAST').trim();
-                const fullName = `${firstVal} ${middleVal} ${lastVal}`.replace(/\s+/g, ' ').trim().toUpperCase();
+                const lastVal = (document.getElementById('aamva-last')?.value || '').trim();
+                let fullName = `${firstVal} ${middleVal} ${lastVal}`.replace(/\s+/g, ' ').trim().toUpperCase();
+                if (!fullName) {
+                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jurKey) : null;
+                    fullName = (defs && defs.first) ? `${defs.first} ${defs.last}`.toUpperCase() : 'FIRST MIDDLE LAST';
+                }
                 const alNameEl = document.getElementById('alabama-name-val');
-                if (alNameEl) alNameEl.textContent = fullName || 'FIRST MIDDLE LAST';
+                if (alNameEl) alNameEl.textContent = fullName;
 
                 // Alabama Classifications
                 const alClassEl = document.getElementById('alabama-class-val');
@@ -7059,20 +7144,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (alEndEl) alEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
 
                 // Alabama Revision Date
-                const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
-                let alRevFmt = 'Rev 11-01-2018';
-                if (rawIss.includes('-')) {
-                    const p = rawIss.split('-');
-                    if (p.length === 3) alRevFmt = `Rev ${p[1]}-${p[2]}-${p[0]}`;
-                } else if (rawIss.length === 8) {
-                    if (parseInt(rawIss.substring(0, 4), 10) > 1900) {
-                        alRevFmt = `Rev ${rawIss.substring(4, 6)}-${rawIss.substring(6, 8)}-${rawIss.substring(0, 4)}`;
-                    } else {
-                        alRevFmt = `Rev ${rawIss.substring(0, 2)}-${rawIss.substring(2, 4)}-${rawIss.substring(4, 8)}`;
-                    }
-                } else {
-                    alRevFmt = (meta && meta.rev) ? meta.rev : 'Rev 11-01-2018';
-                }
+                const alRevFmt = getCardRevisionDateString(jurKey, meta, revInfo, 'AL');
                 const alRevEl = document.getElementById('alabama-rev-val');
                 if (alRevEl) alRevEl.textContent = alRevFmt;
 
@@ -7083,7 +7155,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const idVal = (document.getElementById('aamva-id')?.value || '').trim();
 
                 // Top sequence (20-digit ICN format)
-                let alTopSeq = dckVal || dcfVal || auditVal || idVal || '00000000003829372612';
+                let alTopSeq = dckVal || dcfVal || auditVal || idVal;
+                if (!alTopSeq) {
+                    alTopSeq = (jurKey === 'AL_2022' || jurKey.includes('2022')) ? '20220000003829372612' : '00000000003829372612';
+                }
                 if (/^\d+$/.test(alTopSeq) && alTopSeq.length < 20) {
                     alTopSeq = alTopSeq.padStart(20, '0');
                 }
@@ -7093,7 +7168,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 // Bottom audit number (e.g. 1641693 - 0)
                 const alAuditEl = document.getElementById('alabama-audit-val');
                 if (alAuditEl) {
-                    const cleanAudit = auditVal || (dcfVal && dcfVal !== 'NONE' ? dcfVal : '') || '1641693 - 0';
+                    let cleanAudit = auditVal || (dcfVal && dcfVal !== 'NONE' ? dcfVal : '');
+                    if (!cleanAudit) {
+                        cleanAudit = (jurKey === 'AL_2022' || jurKey.includes('2022')) ? '20220426 - 0' : '1641693 - 0';
+                    }
                     alAuditEl.textContent = cleanAudit;
                 }
 
@@ -7164,20 +7242,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (caEndEl) caEndEl.textContent = (rawEnd && rawEnd.toUpperCase() !== 'NONE') ? rawEnd : 'None';
 
                 // California Revision Date
-                const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
-                let caRevFmt = 'Rev 08/29/2017';
-                if (rawIss.includes('-')) {
-                    const p = rawIss.split('-');
-                    if (p.length === 3) caRevFmt = `Rev ${p[1]}/${p[2]}/${p[0]}`;
-                } else if (rawIss.length === 8) {
-                    if (parseInt(rawIss.substring(0, 4), 10) > 1900) {
-                        caRevFmt = `Rev ${rawIss.substring(4, 6)}/${rawIss.substring(6, 8)}/${rawIss.substring(0, 4)}`;
-                    } else {
-                        caRevFmt = `Rev ${rawIss.substring(0, 2)}/${rawIss.substring(2, 4)}/${rawIss.substring(4, 8)}`;
-                    }
-                } else {
-                    caRevFmt = (meta && meta.rev) ? meta.rev : 'Rev 08/29/2017';
-                }
+                const caRevFmt = getCardRevisionDateString(jurKey, meta, revInfo, 'CA');
                 const caRevEl = document.getElementById('california-rev-val');
                 if (caRevEl) caRevEl.textContent = caRevFmt;
 
@@ -7432,7 +7497,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 // Georgia Revision Date
                 const gaRevEl = document.getElementById('georgia-rev-val');
-                if (gaRevEl) gaRevEl.textContent = meta.rev || 'Rev 10/22/2017';
+                if (gaRevEl) gaRevEl.textContent = getCardRevisionDateString(jurKey, meta, revInfo, 'GA');
 
                 // Georgia Demographics: Restrictions, Endorsements, Class
                 const gaRestEl = document.getElementById('georgia-restrictions-val');
@@ -7545,7 +7610,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 // Idaho REV (Top Left next to DOB)
                 const idRevEl = document.getElementById('idaho-rev-val');
-                if (idRevEl) idRevEl.textContent = meta.rev ? meta.rev.replace(/^REV:\s*/i, '') : '00/01/2017';
+                if (idRevEl) idRevEl.textContent = getCardRevisionDateString(jurKey, meta, revInfo, 'ID').replace(/^REV:\s*/i, '');
 
                 // Idaho Demographics: Restrictions, Endorsements, Class
                 const idRestEl = document.getElementById('idaho-restrictions-val');
@@ -7623,7 +7688,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 // Kansas Revision Date (Top Left above turtle)
                 const ksRevEl = document.getElementById('kansas-rev-val');
-                if (ksRevEl) ksRevEl.textContent = meta.rev || 'Rev. 06/01/2012';
+                if (ksRevEl) ksRevEl.textContent = getCardRevisionDateString(jurKey, meta, revInfo, 'KS');
 
                 // Kansas DOB (Top Left above turtle)
                 const rawDob = (document.getElementById('aamva-dob')?.value || '1989-12-04').trim();
@@ -8066,20 +8131,19 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             // 8. Dynamic State Revision & Expiration Stamp
             const revStamp = document.getElementById('studio-rev-stamp');
             if (revStamp) {
-                let revDateStr = (meta && meta.rev) ? meta.rev : 'REV 03-12-2015';
-                if (!meta || !meta.rev) {
-                    if (revInfo && revInfo.rev_header) {
-                        const match = revInfo.rev_header.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-                        if (match) revDateStr = `REV ${match[1]}-${match[2]}-${match[3]}`;
-                    }
-                }
-                const dobVal = (document.getElementById('aamva-dob')?.value || '1990-10-02');
+                const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jurKey) : null;
+                let revDateStr = getCardRevisionDateString(jurKey, meta, revInfo, stateCode);
+                const dobVal = (document.getElementById('aamva-dob')?.value || (defs && defs.dob ? defs.dob : '1990-10-02')).trim();
                 const parts = dobVal.includes('-') ? dobVal.split('-') : [];
                 let dobFmt = '10-02-1990';
                 if (parts.length === 3) {
                     dobFmt = `${parts[1]}-${parts[2]}-${parts[0]}`;
                 } else if (dobVal.length === 8) {
-                    dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
+                    if (parseInt(dobVal.substring(0, 4), 10) > 1900) {
+                        dobFmt = `${dobVal.substring(4,6)}-${dobVal.substring(6,8)}-${dobVal.substring(0,4)}`;
+                    } else {
+                        dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
+                    }
                 }
                 let revClean = revDateStr.toUpperCase().replace(/^REV\.\s*/i, 'REV ').trim();
                 if (!revClean.startsWith('REV')) revClean = `REV ${revClean}`;
