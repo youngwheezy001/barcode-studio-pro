@@ -40,7 +40,210 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+        // =========================================================================
+        // ZXING DECODER ONLINE CONTROLLER
+        // =========================================================================
+        let lastDecodedZxingData = null;
+
+        function openZxingModal() {
+            const modal = document.getElementById('zxing-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeZxingModal() {
+            const modal = document.getElementById('zxing-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function displayZxingSuccess(rawText, formatName) {
+            const spinner = document.getElementById('zxing-spinner');
+            const panel = document.getElementById('zxing-result-panel');
+            const statusIcon = document.getElementById('zxing-status-icon');
+            const title = document.getElementById('zxing-result-title');
+            const badge = document.getElementById('zxing-format-badge');
+            const textarea = document.getElementById('zxing-decoded-text');
+            const summary = document.getElementById('zxing-parsed-summary');
+            const loadBtn = document.getElementById('zxing-load-form-btn');
+
+            if (spinner) spinner.classList.add('hidden');
+            if (panel) panel.classList.remove('hidden');
+            if (statusIcon) statusIcon.textContent = '✅';
+            if (title) title.textContent = 'Barcode Decoded Successfully';
+            if (badge) badge.textContent = `Format: ${formatName || 'Universal 1D/2D'} • ${rawText.length} Characters`;
+            if (textarea) textarea.value = rawText;
+
+            lastDecodedZxingData = rawText;
+
+            // Check if AAMVA DL / ID stream
+            const isAamva = rawText.includes('@') && rawText.includes('ANSI') && rawText.includes('DL');
+            if (isAamva) {
+                if (loadBtn) loadBtn.classList.remove('hidden');
+                if (summary) {
+                    summary.classList.remove('hidden');
+                    let first = (rawText.match(/DAC([^
+]+)/) || [])[1] || '';
+                    let last = (rawText.match(/DCS([^
+]+)/) || [])[1] || '';
+                    let dl = (rawText.match(/DAQ([^
+]+)/) || [])[1] || '';
+                    let state = (rawText.match(/DAJ([^
+]+)/) || [])[1] || '';
+                    let exp = (rawText.match(/DBA([^
+]+)/) || [])[1] || '';
+                    summary.innerHTML = `
+                        <span class="font-bold text-indigo-700 text-[10px] uppercase">AAMVA Compliant Identification Stream:</span>
+                        <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-700">
+                            <div><strong>Name:</strong> ${first} ${last}</div>
+                            <div><strong>DL/ID #:</strong> ${dl}</div>
+                            <div><strong>Jurisdiction:</strong> ${state}</div>
+                            <div><strong>Expiration:</strong> ${exp}</div>
+                        </div>
+                    `;
+                }
+            } else {
+                if (loadBtn) loadBtn.classList.add('hidden');
+                if (summary) {
+                    summary.classList.remove('hidden');
+                    summary.innerHTML = `<span class="text-slate-600">Standard 1D / 2D Payload: ${rawText.length} characters</span>`;
+                }
+            }
+        }
+
+        function displayZxingError(errMsg) {
+            const spinner = document.getElementById('zxing-spinner');
+            const panel = document.getElementById('zxing-result-panel');
+            const statusIcon = document.getElementById('zxing-status-icon');
+            const title = document.getElementById('zxing-result-title');
+            const badge = document.getElementById('zxing-format-badge');
+            const textarea = document.getElementById('zxing-decoded-text');
+            const summary = document.getElementById('zxing-parsed-summary');
+            const loadBtn = document.getElementById('zxing-load-form-btn');
+
+            if (spinner) spinner.classList.add('hidden');
+            if (panel) panel.classList.remove('hidden');
+            if (statusIcon) statusIcon.textContent = '❌';
+            if (title) title.textContent = 'Decoding Failed / No Barcode Detected';
+            if (badge) badge.textContent = 'Status: Unrecognized';
+            if (textarea) textarea.value = errMsg || 'Could not find a valid 1D or 2D barcode in the provided image. Try increasing contrast, resolution, or uploading the uncompressed source.';
+            if (summary) summary.classList.add('hidden');
+            if (loadBtn) loadBtn.classList.add('hidden');
+        }
+
+        async function decodeImageElement(imgElement) {
+            const spinner = document.getElementById('zxing-spinner');
+            const panel = document.getElementById('zxing-result-panel');
+            if (spinner) spinner.classList.remove('hidden');
+            if (panel) panel.classList.add('hidden');
+
+            try {
+                // Method 1: ZXing Universal MultiFormat Reader
+                if (window.ZXing) {
+                    const reader = getZXingMultiReader();
+                    try {
+                        const res = await reader.decode(imgElement);
+                        if (res && res.getText()) {
+                            displayZxingSuccess(res.getText(), res.getBarcodeFormat() ? String(res.getBarcodeFormat()) : 'Universal');
+                            return;
+                        }
+                    } catch (e1) {
+                        // Fallback to dedicated PDF417 reader
+                        try {
+                            const pdfReader = getZXingPdf417Reader();
+                            const res2 = await pdfReader.decode(imgElement);
+                            if (res2 && res2.getText()) {
+                                displayZxingSuccess(res2.getText(), 'PDF_417');
+                                return;
+                            }
+                        } catch (e2) {}
+                    }
+                }
+                displayZxingError('No readable barcode pattern found in the image.');
+            } catch (err) {
+                displayZxingError(err.message || 'Error occurred while decoding barcode.');
+            }
+        }
+
+        function decodeActiveStudioBarcode() {
+            // Check active canvas
+            let canvas = document.getElementById('output-pdf417');
+            if (!canvas || canvas.width === 0) {
+                canvas = document.getElementById('card-preview-barcode');
+            }
+            if (!canvas || canvas.width === 0) {
+                showToast('No active barcode rendered yet in the studio.', 'error');
+                return;
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                decodeImageElement(img);
+            };
+            img.src = canvas.toDataURL('image/png');
+        }
+
+        function decodeZxingFile() {
+            const fileInput = document.getElementById('zxing-file-input');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                showToast('Please choose an image file first.', 'error');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    decodeImageElement(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function decodeZxingUrl() {
+            const urlInput = document.getElementById('zxing-url-input');
+            const url = (urlInput?.value || '').trim();
+            if (!url) {
+                showToast('Please enter an image URL.', 'error');
+                return;
+            }
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                decodeImageElement(img);
+            };
+            img.onerror = () => {
+                displayZxingError('Unable to load image from URL (Cross-Origin CORS blocked or invalid image URL). Try saving and uploading the file directly.');
+            };
+            img.src = url;
+        }
+
+        function copyZxingResult() {
+            const textarea = document.getElementById('zxing-decoded-text');
+            if (!textarea || !textarea.value) return;
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                showToast('📋 Decoded barcode copied to clipboard!', 'success');
+            });
+        }
+
+        function loadZxingResultIntoForm() {
+            if (!lastDecodedZxingData) return;
+            closeZxingModal();
+            if (typeof parseAndLoadScannedAAMVA === 'function') {
+                parseAndLoadScannedAAMVA(lastDecodedZxingData);
+            } else {
+                const el = document.getElementById('input-pdf417');
+                if (el) {
+                    el.value = lastDecodedZxingData;
+                    if (typeof generateBarcode === 'function') generateBarcode();
+                }
+                showToast('Loaded decoded data into studio!', 'success');
+            }
+        }
+
+</script>
     <!-- JsBarcode for 1D barcodes (Code 128) -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <!-- bwip-js for 2D barcodes (PDF417 & QR Code) -->
@@ -954,6 +1157,133 @@
         </div>
     </div>
 
+    <!-- ZXing Decoder Online Modal -->
+    <div id="zxing-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col gap-4 overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-start border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-xl shadow-xs">
+                        🏁
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base font-bold text-slate-900">ZXing Decoder Online</h3>
+                            <span class="bg-emerald-50 text-emerald-700 border border-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Universal 1D / 2D</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Decode a 1D or 2D barcode from an image on the web or upload directly from your device.</p>
+                    </div>
+                </div>
+                <button onclick="closeZxingModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none cursor-pointer">&times;</button>
+            </div>
+
+            <!-- Supported Formats Grid (Matches ZXing.org) -->
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 text-xs flex flex-col gap-1.5">
+                <span class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Supported Barcode Formats:</span>
+                <div class="grid grid-cols-4 gap-x-2 gap-y-1 text-[11px] text-slate-700 font-mono">
+                    <div>• UPC-A / UPC-E</div>
+                    <div>• Code 93</div>
+                    <div>• Codabar</div>
+                    <div>• Data Matrix</div>
+                    <div>• EAN-8 / EAN-13</div>
+                    <div>• Code 128</div>
+                    <div>• RSS-14</div>
+                    <div>• Aztec</div>
+                    <div>• Code 39</div>
+                    <div>• ITF</div>
+                    <div>• RSS Expanded</div>
+                    <div>• <strong class="text-indigo-600">PDF 417</strong></div>
+                    <div>• QR Code</div>
+                    <div>• MaxiCode</div>
+                </div>
+            </div>
+
+            <!-- 1-Click Test Active Canvas Barcode -->
+            <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">⚡</span>
+                    <div>
+                        <span class="font-bold text-blue-900 text-xs block">Verify Active Studio Barcode</span>
+                        <span class="text-[11px] text-blue-700">Test the barcode currently displayed in the generator workspace against ZXing.</span>
+                    </div>
+                </div>
+                <button type="button" onclick="decodeActiveStudioBarcode()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow transition whitespace-nowrap cursor-pointer">
+                    Decode Active
+                </button>
+            </div>
+
+            <!-- Input Form: Image URL & File Upload (Matches ZXing.org) -->
+            <div class="border border-slate-200 rounded-xl p-4 flex flex-col gap-3 bg-white">
+                <!-- Method 1: Enter image URL -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-[11px] font-bold text-slate-700">Enter an image URL:</label>
+                    <div class="flex gap-2">
+                        <input type="url" id="zxing-url-input" placeholder="https://example.com/barcode.png" class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="decodeZxingUrl()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-1.5 rounded-lg transition cursor-pointer">Submit</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 my-1">
+                    <div class="flex-1 border-t border-slate-200"></div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">OR</span>
+                    <div class="flex-1 border-t border-slate-200"></div>
+                </div>
+
+                <!-- Method 2: Upload a file (<10MB, <10MP) -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-[11px] font-bold text-slate-700">Or upload a file (&lt;10MB, &lt;10MP):</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="file" id="zxing-file-input" accept="image/*" class="flex-1 text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer">
+                        <button type="button" onclick="decodeZxingFile()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-1.5 rounded-lg transition cursor-pointer">Submit</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decoding Progress Indicator -->
+            <div id="zxing-spinner" class="hidden flex items-center justify-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600">
+                <span class="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></span>
+                <span>Decoding with ZXing universal engine...</span>
+            </div>
+
+            <!-- Decoding Results Panel -->
+            <div id="zxing-result-panel" class="hidden border border-slate-200 rounded-xl p-4 flex flex-col gap-2.5 bg-slate-50">
+                <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base" id="zxing-status-icon">✅</span>
+                        <div>
+                            <span class="font-bold text-xs text-slate-900 block" id="zxing-result-title">Barcode Successfully Decoded</span>
+                            <span class="text-[10px] text-slate-500 font-mono" id="zxing-format-badge">Format: PDF_417</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button type="button" onclick="copyZxingResult()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold shadow-xs cursor-pointer">Copy</button>
+                        <button type="button" id="zxing-load-form-btn" onclick="loadZxingResultIntoForm()" class="hidden px-2.5 py-1 bg-accent hover:bg-accent-hover text-white rounded-lg text-xs font-bold shadow-xs cursor-pointer">Load into Studio</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold uppercase text-slate-500">Raw Decoded Stream:</span>
+                    <textarea id="zxing-decoded-text" rows="6" readonly class="w-full bg-slate-900 text-emerald-400 p-2.5 rounded-lg font-mono text-xs outline-none select-all"></textarea>
+                </div>
+
+                <div id="zxing-parsed-summary" class="hidden bg-white border border-slate-200 rounded-lg p-2.5 text-xs flex flex-col gap-1 font-mono text-[11px]">
+                </div>
+            </div>
+
+            <!-- Footer: Attribution & External ZXing Link (Matches ZXing.org) -->
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 text-[11px] text-slate-500">
+                <span class="text-[10px]">Powered by the open source <a href="https://github.com/zxing/zxing" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">ZXing Project</a>.</span>
+                <div class="flex items-center gap-2">
+                    <a href="https://zxing.org/w/decode.jspx" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-1">
+                        <span>Open zxing.org Online Decoder</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                    <button type="button" onclick="closeZxingModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3.5 py-1.5 rounded-lg transition text-xs cursor-pointer">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Official Invoice / Printable Receipt Modal -->
     <div id="receipt-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col gap-4 overflow-y-auto">
@@ -1449,6 +1779,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <div class="flex flex-col">
                             <span class="font-bold text-white">Scan Barcode</span>
                             <span class="text-[9px] text-slate-400">Camera, Image &amp; MRZ Validator</span>
+                        </div>
+                    </button>
+                    <!-- ZXing Decoder Online Tool -->
+                    <button type="button" onclick="openZxingModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
+                        <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">🏁</span>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-white">ZXing Decoder</span>
+                            <span class="text-[9px] text-slate-400">Universal 1D/2D Online Verifier</span>
                         </div>
                     </button>
                     <button type="button" onclick="openBatchModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
