@@ -2853,22 +2853,19 @@ function getRandomLastName() {
 }
 
 // Get a random first name from a list of the 100 most popular US first names
-
-
 function getRandomFirstName(sex) {
-    m_names = ["James","Robert","John","Michael","David","William","Richard","Joseph","Thomas","Charles","Christopher","Daniel","Matthew","Anthony","Mark","Donald","Steven","Paul","Andrew","Joshua","Kenneth","Kevin","Brian","George","Timothy","Ronald","Edward","Jason","Jeffrey","Ryan","Jacob","Gary","Nicholas","Eric","Jonathan","Stephen","Larry","Justin","Scott","Brandon","Benjamin","Samuel","Gregory","Alexander","Frank","Patrick","Raymond","Jack","Dennis","Jerry","Tyler","Aaron","Jose","Adam","Nathan","Henry","Douglas","Zachary","Peter","Kyle","Ethan","Walter","Noah","Jeremy","Christian","Keith","Roger","Terry","Gerald","Harold","Sean","Austin","Carl","Arthur","Lawrence","Dylan","Jesse","Jordan","Bryan","Billy","Joe","Bruce","Gabriel","Logan","Albert","Willie","Alan","Juan","Wayne","Elijah","Randy","Roy","Vincent","Ralph","Eugene","Russell","Bobby","Mason","Philip","Louis"];
-    f_names = ["Mary","Patricia","Jennifer","Linda","Elizabeth","Barbara","Susan","Jessica","Sarah","Karen","Lisa","Nancy","Betty","Margaret","Sandra","Ashley","Kimberly","Emily","Donna","Michelle","Carol","Amanda","Dorothy","Melissa","Deborah","Stephanie","Rebecca","Sharon","Laura","Cynthia","Kathleen","Amy","Angela","Shirley","Anna","Brenda","Pamela","Emma","Nicole","Helen","Samantha","Katherine","Christine","Debra","Rachel","Carolyn","Janet","Catherine","Maria","Heather","Diane","Ruth","Julie","Olivia","Joyce","Virginia","Victoria","Kelly","Lauren","Christina","Joan","Evelyn","Judith","Megan","Andrea","Cheryl","Hannah","Jacqueline","Martha","Gloria","Teresa","Ann","Sara","Madison","Frances","Kathryn","Janice","Jean","Abigail","Alice","Julia","Judy","Sophia","Grace","Denise","Amber","Doris","Marilyn","Danielle","Beverly","Isabella","Theresa","Diana","Natalie","Brittany","Charlotte","Marie","Kayla","Alexis","Lori"];
-    return (sex == "F" || sex == "f") ? (f_names[Math.floor(Math.random() * f_names.length)]) : (m_names[Math.floor(Math.random() * m_names.length)])
+    var m_names = ["James","Robert","John","Michael","David","William","Richard","Joseph","Thomas","Charles","Christopher","Daniel","Matthew","Anthony","Mark","Donald","Steven","Paul","Andrew","Joshua","Kenneth","Kevin","Brian","George","Timothy","Ronald","Edward","Jason","Jeffrey","Ryan","Jacob","Gary","Nicholas","Eric","Jonathan","Stephen","Larry","Justin","Scott","Brandon","Benjamin","Samuel","Gregory","Alexander","Frank","Patrick","Raymond","Jack","Dennis","Jerry","Tyler","Aaron","Jose","Adam","Nathan","Henry","Douglas","Zachary","Peter","Kyle","Ethan","Walter","Noah","Jeremy","Christian","Keith","Roger","Terry","Gerald","Harold","Sean","Austin","Carl","Arthur","Lawrence","Dylan","Jesse","Jordan","Bryan","Billy","Joe","Bruce","Gabriel","Logan","Albert","Willie","Alan","Juan","Wayne","Elijah","Randy","Roy","Vincent","Ralph","Eugene","Russell","Bobby","Mason","Philip","Louis"];
+    var f_names = ["Mary","Patricia","Jennifer","Linda","Elizabeth","Barbara","Susan","Jessica","Sarah","Karen","Lisa","Nancy","Betty","Margaret","Sandra","Ashley","Kimberly","Emily","Donna","Michelle","Carol","Amanda","Dorothy","Melissa","Deborah","Stephanie","Rebecca","Sharon","Laura","Cynthia","Kathleen","Amy","Angela","Shirley","Anna","Brenda","Pamela","Emma","Nicole","Helen","Samantha","Katherine","Christine","Debra","Rachel","Carolyn","Janet","Catherine","Maria","Heather","Diane","Ruth","Julie","Olivia","Joyce","Virginia","Victoria","Kelly","Lauren","Christina","Joan","Evelyn","Judith","Megan","Andrea","Cheryl","Hannah","Jacqueline","Martha","Gloria","Teresa","Ann","Sara","Madison","Frances","Kathryn","Janice","Jean","Abigail","Alice","Julia","Judy","Sophia","Grace","Denise","Amber","Doris","Marilyn","Danielle","Beverly","Isabella","Theresa","Diana","Natalie","Brittany","Charlotte","Marie","Kayla","Alexis","Lori"];
+    var isFemale = (sex == "F" || sex == "f" || sex == "2");
+    return isFemale ? (f_names[Math.floor(Math.random() * f_names.length)]) : (m_names[Math.floor(Math.random() * m_names.length)]);
 }
 
 // Get a random middle name from a list of the most popular US middle names
-
-
 function getRandomMiddleName(sex) {
-    m_names = ["James","John","William","Thomas","David","Robert","Edward","Peter","Lee","Christopher","Alexander","Michael","Daniel"];
-    f_names = ["Louise","Rose","Grace","Jane","Elizabeth","Anne","Ann","May","Mae","Marie","Mary","Amy","Catherine","Victoria","Kate"];
-
-    return (sex == "F" || sex == "f") ? (f_names[Math.floor(Math.random() * f_names.length)]) : (m_names[Math.floor(Math.random() * m_names.length)])
+    var m_names = ["James","John","William","Thomas","David","Robert","Edward","Peter","Lee","Christopher","Alexander","Michael","Daniel","Anthony","Charles","Scott","Paul","George","Allen","Ray","Wayne","Eugene","Russell","Dalton"];
+    var f_names = ["Louise","Rose","Grace","Jane","Elizabeth","Anne","Ann","May","Mae","Marie","Mary","Amy","Catherine","Victoria","Kate","Lynn","Nicole","Renee","Kay","Faith","Hope","Joy","Jean","Dawn","Brooke","Claire","Paige"];
+    var isFemale = (sex == "F" || sex == "f" || sex == "2");
+    return isFemale ? (f_names[Math.floor(Math.random() * f_names.length)]) : (m_names[Math.floor(Math.random() * m_names.length)]);
 }
 
 
@@ -4006,14 +4003,9 @@ function TN_calculate_REAL_ID(alert) {
         parseInt(issueDate.substr(0, 2), 10) - 1,
         parseInt(issueDate.substr(2, 2), 10)
     );
-    var comparisonDate = new Date(2019, 6, 1);
     var realEl = getTargetElement("inputIsRealID");
     if (realEl) {
-        if (inputDateObject >= comparisonDate) {
-            realEl.value = (realEl.tagName === 'SELECT' && realEl.querySelector('option[value="Yes"]')) ? "Yes" : "F";
-        } else {
-            realEl.value = (realEl.tagName === 'SELECT' && realEl.querySelector('option[value="No"]')) ? "No" : "N";
-        }
+        realEl.value = (realEl.tagName === 'SELECT' && realEl.querySelector('option[value="Yes"]')) ? "Yes" : "F";
     }
 }
 
@@ -4271,12 +4263,10 @@ function UT_2016_calculate_REAL_ID(alert) {
         parseInt(issueDate.substr(0, 2)) - 1,
         parseInt(issueDate.substr(2, 2))
     );
-    var comparisonDate = new Date(2019, 1, 1);
-    var val = (inputDateObject >= comparisonDate) ? "F" : "N";
     var el = getTargetElement("inputIsRealID");
-    if (el) el.value = val;
+    if (el) el.value = "F";
     var aamvaRealId = getTargetElement("aamva-realid");
-    if (aamvaRealId) aamvaRealId.value = (val === 'F') ? "Yes" : "No";
+    if (aamvaRealId) aamvaRealId.value = "Yes";
 }
 
 function AR_calculate_documentNumber() {
@@ -4958,14 +4948,9 @@ function OK_calculate_REAL_ID(alert) {
         parseInt(issueDate.substr(0, 2), 10) - 1,
         parseInt(issueDate.substr(2, 2), 10)
     );
-    var comparisonDate = new Date(2020, 3, 30);
     var realEl = getTargetElement("inputIsRealID");
     if (realEl) {
-        if (inputDateObject >= comparisonDate) {
-            realEl.value = (realEl.tagName === 'SELECT' && realEl.querySelector('option[value="Yes"]')) ? "Yes" : "F";
-        } else {
-            realEl.value = (realEl.tagName === 'SELECT' && realEl.querySelector('option[value="No"]')) ? "No" : "N";
-        }
+        realEl.value = (realEl.tagName === 'SELECT' && realEl.querySelector('option[value="Yes"]')) ? "Yes" : "F";
     }
 }
 
@@ -8095,16 +8080,10 @@ function UT_2016_calculate_REAL_ID(alert) {
         parseInt(issueDate.substr(0, 2)) - 1,
         parseInt(issueDate.substr(2, 2))
     );
-    var comparisonDate = new Date(2019, 1, 1);
-    var val = (inputDateObject >= comparisonDate) ? "F" : "N";
     var el = getTargetElement("inputIsRealID");
-    if (el) {
-        el.value = val;
-    }
+    if (el) el.value = "F";
     var aamvaRealId = getTargetElement("aamva-realid");
-    if (aamvaRealId) {
-        aamvaRealId.value = (val === 'F') ? "Yes" : "No";
-    }
+    if (aamvaRealId) aamvaRealId.value = "Yes";
 }
 
 // --- VERMONT ---

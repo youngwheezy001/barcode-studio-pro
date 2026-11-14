@@ -1402,8 +1402,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         <input type="text" id="aamva-class" placeholder="D" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" oninput="compileAAMVA()">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-700 mb-1">Sex</label>
-                                        <select id="aamva-sex" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                                <span>Sex</span>
+                                            </label>
+                                            <button type="button" onclick="calcField('sex')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Harmonize or Toggle Sex">🧮</button>
+                                        </div>
+                                        <select id="aamva-sex" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="onAamvaSexChange()">
                                             <option value="1">M</option>
                                             <option value="2">F</option>
                                             <option value="9">X</option>
@@ -1574,7 +1579,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <div id="row-dd-realid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div id="container-dd">
+                                <div id="container-dd" class="sm:col-span-2">
                                     <div class="flex items-center justify-between mb-1">
                                         <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
                                             <span id="label-dcf-text">DD</span>
@@ -1588,17 +1593,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <div id="dd-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
                                 </div>
 
-                                <div id="container-realid">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                                            <span>REAL ID</span>
-                                        </label>
-                                        <button type="button" onclick="calcField('real_id')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate REAL ID compliance">🧮</button>
-                                    </div>
-                                    <select id="aamva-realid" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
-                                        <option value="Yes" selected>Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
+                                <div id="container-realid" class="hidden" style="display: none;">
+                                    <input type="hidden" id="aamva-realid" value="Yes">
                                 </div>
                             </div>
 
@@ -4843,31 +4839,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             // REAL ID Container: completely remove if omitted
+            // REAL ID Container: streamlined to compliant DDAF in background
             const realidContainer = document.getElementById('container-realid');
             if (realidContainer) {
-                if (hasRealId) {
-                    realidContainer.style.display = '';
-                    realidContainer.classList.remove('hidden');
-                } else {
-                    realidContainer.style.display = 'none';
-                    realidContainer.classList.add('hidden');
-                }
+                realidContainer.style.display = 'none';
+                realidContainer.classList.add('hidden');
             }
 
-            // Row DD & Real ID: manage grid width and hide entire row if both omitted (e.g. NM, BC, etc.)
+            // Row DD: manage grid width and hide if DD omitted for this jurisdiction (e.g. NM, BC)
             const rowDdRealid = document.getElementById('row-dd-realid');
             if (rowDdRealid) {
-                if (!hasDd && !hasRealId) {
+                if (!hasDd) {
                     rowDdRealid.style.display = 'none';
                 } else {
                     rowDdRealid.style.display = '';
                     if (ddContainer) {
-                        if (hasDd && !hasRealId) ddContainer.classList.add('sm:col-span-2');
-                        else ddContainer.classList.remove('sm:col-span-2');
-                    }
-                    if (realidContainer) {
-                        if (hasRealId && !hasDd) realidContainer.classList.add('sm:col-span-2');
-                        else realidContainer.classList.remove('sm:col-span-2');
+                        ddContainer.classList.add('sm:col-span-2');
                     }
                 }
             }
@@ -5515,6 +5502,70 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             });
         }
 
+        // --- GENDER-HARMONIZED NAME REPOSITORIES & DEMOGRAPHIC CALCULATORS ---
+        const FEMALE_FIRST_NAMES = [
+            "Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Barbara", "Susan", "Jessica", "Sarah", "Karen",
+            "Lisa", "Nancy", "Betty", "Margaret", "Sandra", "Ashley", "Kimberly", "Emily", "Donna", "Michelle",
+            "Carol", "Amanda", "Dorothy", "Melissa", "Deborah", "Stephanie", "Rebecca", "Sharon", "Laura", "Cynthia",
+            "Kathleen", "Amy", "Angela", "Shirley", "Anna", "Brenda", "Pamela", "Emma", "Nicole", "Helen",
+            "Samantha", "Katherine", "Christine", "Debra", "Rachel", "Carolyn", "Janet", "Catherine", "Maria", "Heather",
+            "Diane", "Ruth", "Julie", "Olivia", "Joyce", "Virginia", "Victoria", "Kelly", "Lauren", "Christina",
+            "Joan", "Evelyn", "Judith", "Megan", "Andrea", "Cheryl", "Hannah", "Jacqueline", "Martha", "Gloria",
+            "Teresa", "Ann", "Sara", "Madison", "Frances", "Kathryn", "Janice", "Jean", "Abigail", "Alice",
+            "Julia", "Judy", "Sophia", "Grace", "Denise", "Amber", "Doris", "Marilyn", "Danielle", "Beverly",
+            "Isabella", "Theresa", "Diana", "Natalie", "Brittany", "Charlotte", "Marie", "Kayla", "Alexis", "Lori",
+            "Chloe", "Hailey", "Mia", "Harper", "Ella", "Avery", "Sofia", "Camila", "Aria", "Scarlett"
+        ];
+
+        const MALE_FIRST_NAMES = [
+            "James", "Robert", "John", "Michael", "David", "William", "Richard", "Joseph", "Thomas", "Charles",
+            "Christopher", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Paul", "Andrew", "Joshua",
+            "Kenneth", "Kevin", "Brian", "George", "Timothy", "Ronald", "Edward", "Jason", "Jeffrey", "Ryan",
+            "Jacob", "Gary", "Nicholas", "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon",
+            "Benjamin", "Samuel", "Gregory", "Alexander", "Frank", "Patrick", "Raymond", "Jack", "Dennis", "Jerry",
+            "Tyler", "Aaron", "Jose", "Adam", "Nathan", "Henry", "Douglas", "Zachary", "Peter", "Kyle",
+            "Ethan", "Walter", "Noah", "Jeremy", "Christian", "Keith", "Roger", "Terry", "Gerald", "Harold",
+            "Sean", "Austin", "Carl", "Arthur", "Lawrence", "Dylan", "Jesse", "Jordan", "Bryan", "Billy",
+            "Joe", "Bruce", "Gabriel", "Logan", "Albert", "Willie", "Alan", "Juan", "Wayne", "Elijah",
+            "Randy", "Roy", "Vincent", "Ralph", "Eugene", "Russell", "Bobby", "Mason", "Philip", "Louis",
+            "Liam", "Oliver", "Lucas", "Theodore", "Leo", "Ezra", "Hudson", "Asher", "Julian", "Grayson"
+        ];
+
+        const FEMALE_MIDDLE_NAMES = [
+            "Marie", "Ann", "Anne", "Lynn", "Grace", "Rose", "Jane", "Elizabeth", "Louise", "Mae",
+            "May", "Nicole", "Renee", "Kay", "Faith", "Hope", "Joy", "Jean", "Dawn", "Brooke",
+            "Claire", "Paige", "Kate", "Victoria", "Catherine", "Mary", "Amy", "Leigh", "Rae"
+        ];
+
+        const MALE_MIDDLE_NAMES = [
+            "William", "James", "John", "Robert", "Michael", "David", "Thomas", "Joseph", "Edward", "Alexander",
+            "Lee", "Christopher", "Daniel", "Matthew", "Anthony", "Charles", "Scott", "Paul", "George", "Allen",
+            "Ray", "Wayne", "Eugene", "Russell", "Dalton", "Grant", "Cole", "Dean", "Blake", "Carter"
+        ];
+
+        function onAamvaSexChange() {
+            const sexVal = document.getElementById('aamva-sex')?.value;
+            const firstEl = document.getElementById('aamva-first');
+            const midEl = document.getElementById('aamva-mid');
+            if (sexVal === '2') { // Female
+                const currentFirst = (firstEl?.value || '').trim();
+                const isMale = MALE_FIRST_NAMES.some(n => n.toLowerCase() === currentFirst.toLowerCase());
+                if (isMale || !currentFirst) {
+                    firstEl.value = FEMALE_FIRST_NAMES[Math.floor(Math.random() * FEMALE_FIRST_NAMES.length)];
+                    if (midEl) midEl.value = FEMALE_MIDDLE_NAMES[Math.floor(Math.random() * FEMALE_MIDDLE_NAMES.length)];
+                }
+            } else if (sexVal === '1') { // Male
+                const currentFirst = (firstEl?.value || '').trim();
+                const isFemale = FEMALE_FIRST_NAMES.some(n => n.toLowerCase() === currentFirst.toLowerCase());
+                if (isFemale || !currentFirst) {
+                    firstEl.value = MALE_FIRST_NAMES[Math.floor(Math.random() * MALE_FIRST_NAMES.length)];
+                    if (midEl) midEl.value = MALE_MIDDLE_NAMES[Math.floor(Math.random() * MALE_MIDDLE_NAMES.length)];
+                }
+            }
+            compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+        }
+
         // --- INDIVIDUAL CALCULATORS 🧮 ---
         function calcField(field, isBatch = false) {
             const jKey = document.getElementById('aamva-jurisdiction').value;
@@ -5572,21 +5623,53 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     showToast(`Generated authentic ${profile.name} DL number!`, 'info');
                 }
             } else if (field === 'first') {
-                const firsts = ["Sean", "Jonathan", "Jacob", "Michael", "Christopher", "Matthew", "David", "Jessica", "Sarah", "Emily", "Ashley", "Daniel", "James", "Robert"];
-                document.getElementById('aamva-first').value = firsts[Math.floor(Math.random() * firsts.length)];
-                if (!isBatch) showToast('Calculated new First Name!', 'info');
+                const sexEl = document.getElementById('aamva-sex');
+                const isFemale = sexEl && (sexEl.value === '2' || sexEl.value === 'F');
+                const pool = isFemale ? FEMALE_FIRST_NAMES : MALE_FIRST_NAMES;
+                document.getElementById('aamva-first').value = pool[Math.floor(Math.random() * pool.length)];
+                // Also ensure middle name aligns if already filled with opposite gender
+                const midEl = document.getElementById('aamva-mid');
+                if (midEl && midEl.value) {
+                    const midVal = midEl.value.trim().toLowerCase();
+                    const oppMid = isFemale ? MALE_MIDDLE_NAMES : FEMALE_MIDDLE_NAMES;
+                    if (oppMid.some(m => m.toLowerCase() === midVal)) {
+                        const newMidPool = isFemale ? FEMALE_MIDDLE_NAMES : MALE_MIDDLE_NAMES;
+                        midEl.value = newMidPool[Math.floor(Math.random() * newMidPool.length)];
+                    }
+                }
+                if (!isBatch) showToast(`Calculated new ${isFemale ? 'Female' : 'Male'} First Name!`, 'info');
             } else if (field === 'last') {
-                const lasts = ["Harrison", "Garcia", "Glass", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Rodriguez", "Martinez", "Taylor", "Smith"];
-                document.getElementById('aamva-last').value = lasts[Math.floor(Math.random() * lasts.length)];
+                document.getElementById('aamva-last').value = (typeof getRandomLastName === 'function') ? getRandomLastName() : ["Harrison", "Garcia", "Glass", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Rodriguez", "Martinez", "Taylor", "Smith"][Math.floor(Math.random() * 13)];
                 if (!isBatch) showToast('Calculated new Last Name!', 'info');
             } else if (field === 'mid') {
-                const mids = ["William", "Dalton", "Robert", "James", "Edward", "Thomas", "Lee", "Marie", "Ann", "Alexander", "Joseph"];
-                document.getElementById('aamva-mid').value = mids[Math.floor(Math.random() * mids.length)];
-                if (!isBatch) showToast('Calculated new Middle Name!', 'info');
+                const sexEl = document.getElementById('aamva-sex');
+                const firstVal = (document.getElementById('aamva-first')?.value || '').trim();
+                const isFirstFemale = FEMALE_FIRST_NAMES.some(n => n.toLowerCase() === firstVal.toLowerCase());
+                const isFemale = (sexEl && sexEl.value === '2') || isFirstFemale;
+                const pool = isFemale ? FEMALE_MIDDLE_NAMES : MALE_MIDDLE_NAMES;
+                document.getElementById('aamva-mid').value = pool[Math.floor(Math.random() * pool.length)];
+                if (!isBatch) showToast(`Calculated new ${isFemale ? 'Female' : 'Male'} Middle Name!`, 'info');
             } else if (field === 'sex') {
                 const sexEl = document.getElementById('aamva-sex');
-                if (sexEl) sexEl.value = (Math.random() > 0.48) ? '1' : '2';
-                if (!isBatch) showToast('Calculated Sex!', 'info');
+                if (sexEl) {
+                    const firstVal = (document.getElementById('aamva-first')?.value || '').trim();
+                    const isFirstFemale = FEMALE_FIRST_NAMES.some(n => n.toLowerCase() === firstVal.toLowerCase());
+                    const isFirstMale = MALE_FIRST_NAMES.some(n => n.toLowerCase() === firstVal.toLowerCase());
+                    
+                    if (isFirstFemale) {
+                        sexEl.value = '2';
+                    } else if (isFirstMale) {
+                        sexEl.value = '1';
+                    } else {
+                        sexEl.value = (sexEl.value === '1') ? '2' : '1';
+                    }
+                    const newIsFemale = (sexEl.value === '2');
+                    const fPool = newIsFemale ? FEMALE_FIRST_NAMES : MALE_FIRST_NAMES;
+                    const mPool = newIsFemale ? FEMALE_MIDDLE_NAMES : MALE_MIDDLE_NAMES;
+                    document.getElementById('aamva-first').value = fPool[Math.floor(Math.random() * fPool.length)];
+                    document.getElementById('aamva-mid').value = mPool[Math.floor(Math.random() * mPool.length)];
+                }
+                if (!isBatch) showToast(`Harmonized Sex: ${document.getElementById('aamva-sex')?.value === '2' ? 'Female' : 'Male'}!`, 'info');
             } else if (field === 'dob') {
                 const year = Math.floor(1965 + Math.random() * 35);
                 const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
@@ -12009,10 +12092,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         function generateRandomAAMVA() {
             window.isBatchCalculation = true;
             try {
+                // Determine gender first: 50% Female ('2'), 50% Male ('1')
+                const isFemale = Math.random() > 0.5;
+                const chosenSex = isFemale ? '2' : '1';
+                const sexEl = document.getElementById('aamva-sex');
+                if (sexEl) sexEl.value = chosenSex;
+
                 calcField('first', true);
                 calcField('mid', true);
                 calcField('last', true);
-                calcField('sex', true);
                 calcField('dob', true);
                 calcField('issued', true);
                 calcField('exp', true);
@@ -12935,11 +13023,14 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         function randomizeMrzData() {
-            const firstNames = ['LIAM', 'NOAH', 'OLIVER', 'EMMA', 'CHARLOTTE', 'AMELIA', 'SOPHIA', 'LUCAS', 'ETHAN', 'MIA', 'JONATHAN'];
-            const lastNames = ['SMITH', 'JOHNSON', 'WILLIAMS', 'BROWN', 'JONES', 'GARCIA', 'MILLER', 'DAVIS', 'RODRIGUEZ', 'MARTINEZ'];
+            const femaleFirstNames = ['EMMA', 'CHARLOTTE', 'AMELIA', 'SOPHIA', 'MIA', 'ISABELLA', 'HARPER', 'EVELYN', 'ABIGAIL', 'EMILY', 'ELIZABETH', 'JESSICA', 'SARAH', 'OLIVIA', 'CHLOE'];
+            const maleFirstNames = ['LIAM', 'NOAH', 'OLIVER', 'LUCAS', 'ETHAN', 'JONATHAN', 'JAMES', 'WILLIAM', 'BENJAMIN', 'HENRY', 'ALEXANDER', 'MICHAEL', 'DANIEL', 'DAVID'];
+            const lastNames = ['SMITH', 'JOHNSON', 'WILLIAMS', 'BROWN', 'JONES', 'GARCIA', 'MILLER', 'DAVIS', 'RODRIGUEZ', 'MARTINEZ', 'HERNANDEZ', 'LOPEZ', 'GONZALEZ', 'WILSON', 'ANDERSON'];
             const countries = ['USA', 'CAN', 'GBR', 'DEU', 'FRA', 'AUS', 'ITA', 'ESP', 'NLD', 'CHE'];
 
-            const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const isFemale = Math.random() > 0.5;
+            const sex = isFemale ? 'F' : 'M';
+            const fn = isFemale ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)] : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
             const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
             const co = countries[Math.floor(Math.random() * countries.length)];
             const docNum = 'C' + Math.floor(10000000 + Math.random() * 90000000);
@@ -12955,7 +13046,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             document.getElementById('mrz-doc-number').value = docNum;
             document.getElementById('mrz-dob').value = `${birthYear}-${birthMonth}-${birthDay}`;
             document.getElementById('mrz-expiry').value = `${expYear}-${birthMonth}-${birthDay}`;
-            document.getElementById('mrz-sex').value = Math.random() > 0.5 ? 'M' : 'F';
+            document.getElementById('mrz-sex').value = sex;
             document.getElementById('mrz-optional-data').value = 'A' + Math.floor(1000000 + Math.random() * 9000000);
 
             compileMrz();
