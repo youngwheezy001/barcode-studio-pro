@@ -85,7 +85,7 @@ def restore_users_from_backup(db: Session):
         restored = 0
         for item in data:
             email_clean = item.get("email", "").strip().lower()
-            if not email_clean:
+            if not email_clean or email_clean == "youngwheezy001@gmail.com":
                 continue
             is_adm = email_clean in ADMIN_EMAILS or item.get("role") == "admin"
             existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
@@ -286,6 +286,9 @@ def restore_orders_from_backup(db: Session):
             data = json.load(f)
         restored = 0
         for item in data:
+            email = (item.get("user_email") or "").strip().lower()
+            if not email or email.endswith("@barcodestudio.pro") or item.get("crypto_currency") == "MOCK_TEST":
+                continue
             existing = db.query(CryptoPayment).filter(CryptoPayment.id == item["id"]).first()
             if not existing:
                 c_at = datetime.fromisoformat(item["created_at"]) if item.get("created_at") else datetime.utcnow()
@@ -406,20 +409,33 @@ except Exception:
 ADMIN_EMAILS = [
     e.strip().lower() for e in os.getenv(
         "ADMIN_EMAILS",
-        "mwangilewis205@gmail.com,youngwheezy001@gmail.com,joyannkarambu@gmail.com"
-    ).split(",") if e.strip()
+        "mwangilewis205@gmail.com,joyannkarambu@gmail.com"
+    ).split(",") if e.strip() and e.strip().lower() != "youngwheezy001@gmail.com"
 ]
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "admin2026")
 
 def seed_admin_users():
     db = SessionLocal()
     try:
+        # Explicitly remove youngwheezy001@gmail.com from database
+        yw = db.query(User).filter(func.lower(User.email) == "youngwheezy001@gmail.com").first()
+        if yw:
+            db.delete(yw)
+            db.commit()
+            print("[ADMIN CLEANUP] Removed youngwheezy001@gmail.com from database.")
+
+        # Purge any old sandbox/mock test orders
+        db.query(CryptoPayment).filter(
+            (func.lower(CryptoPayment.user_email).like("%@barcodestudio.pro")) |
+            (CryptoPayment.crypto_currency == "MOCK_TEST")
+        ).delete(synchronize_session=False)
+        db.commit()
+
         for email in ADMIN_EMAILS:
-            user = db.query(User).filter(User.email == email).first()
+            user = db.query(User).filter(func.lower(User.email) == email).first()
             if user:
                 user.role = "admin"
                 user.tokens = 999999
-                user.hashed_password = get_password_hash("admin2026")
                 db.commit()
             else:
                 hashed = get_password_hash("admin2026")
@@ -1560,7 +1576,7 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
         "explorer_url": explorer_url,
         "status": order.status.upper(),
         "merchant": "Barcode Studio Pro Technologies LLC",
-        "support_email": "youngwheezy001@gmail.com"
+        "support_email": os.getenv("SUPPORT_EMAIL", "mwangilewis205@gmail.com")
     }
 
 # --- BATCH CSV / BULK GENERATION ENDPOINTS ---
@@ -1763,24 +1779,30 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
-    users = db.query(User).order_by(User.id.asc()).all()
+    users = db.query(User).filter(func.lower(User.email) != "youngwheezy001@gmail.com").order_by(User.id.asc()).all()
 
-    # Pre-calculate user order counts and spent totals
-    orders = db.query(CryptoPayment).all()
+    # Pre-calculate user order counts and spent totals strictly matching by email and user_id, excluding test data
+    orders = db.query(CryptoPayment).filter(
+        ~CryptoPayment.user_email.like("%@barcodestudio.pro"),
+        CryptoPayment.crypto_currency != "MOCK_TEST"
+    ).all()
+
     order_counts = {}
     spent_totals = {}
     for o in orders:
-        uid = o.user_id
-        order_counts[uid] = order_counts.get(uid, 0) + 1
-        if o.status == "confirmed":
-            spent_totals[uid] = spent_totals.get(uid, 0.0) + o.amount_usd
+        email_key = (o.user_email or "").strip().lower()
+        if email_key:
+            order_counts[email_key] = order_counts.get(email_key, 0) + 1
+            if o.status == "confirmed":
+                spent_totals[email_key] = spent_totals.get(email_key, 0.0) + (o.amount_usd or 0.0)
 
     client_list = []
     total_tokens_circulating = 0
     active_count = 0
 
     for u in users:
-        is_admin = u.role == "admin" or u.email.lower() in ADMIN_EMAILS
+        email_clean = u.email.strip().lower()
+        is_admin = u.role == "admin" or email_clean in ADMIN_EMAILS
         display_tokens = 999999 if is_admin else u.tokens
         if not is_admin:
             total_tokens_circulating += u.tokens
@@ -1793,16 +1815,38 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
             "role": "admin" if is_admin else u.role,
             "tokens": display_tokens,
             "is_admin": is_admin,
-            "order_count": order_counts.get(u.id, 0),
-            "total_spent_usd": round(spent_totals.get(u.id, 0.0), 2)
+            "order_count": order_counts.get(email_clean, 0),
+            "total_spent_usd": round(spent_totals.get(email_clean, 0.0), 2)
         })
 
     return {
         "status": "success",
-        "total_clients": len(users),
+        "total_clients": len(client_list),
         "active_clients": active_count,
         "total_tokens_circulating": total_tokens_circulating,
         "clients": client_list
+    }
+
+@app.delete("/api/admin/clients/{user_id}", summary="Admin CRM: Delete client account")
+def delete_client_account(user_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Client account not found")
+
+    if target.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own active administrator account")
+
+    email_deleted = target.email
+    db.delete(target)
+    db.commit()
+    sync_users_to_backup(db)
+
+    return {
+        "status": "success",
+        "message": f"Account for {email_deleted} has been permanently deleted from database."
     }
 
 @app.post("/api/admin/clients/adjust-tokens", summary="Admin CRM: Adjust client token balance")

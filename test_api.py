@@ -617,7 +617,7 @@ def run_tests():
     assert rcpt["order_id"] == order_id
     assert rcpt["barcode_sets"] == 50
     assert rcpt["total_barcodes"] == 100
-    assert rcpt["support_email"] == "youngwheezy001@gmail.com"
+    assert rcpt["support_email"] == "mwangilewis205@gmail.com"
     assert rcpt["status"] == "CONFIRMED"
     assert "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H" in rcpt["wallet_address"]
     print(f"  -> Passed: Official Receipt #{rcpt['receipt_number']} verified with support email {rcpt['support_email']}.")
