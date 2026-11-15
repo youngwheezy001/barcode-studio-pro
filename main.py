@@ -2134,13 +2134,60 @@ from email.mime.multipart import MIMEMultipart
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
 SMTP_HOST = os.getenv("SMTP_HOST", os.getenv("SMTP_SERVER", ""))
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
 SMTP_USER = os.getenv("SMTP_USER", os.getenv("SMTP_USERNAME", ""))
 SMTP_PASS = os.getenv("SMTP_PASS", os.getenv("SMTP_PASSWORD", ""))
-EMAIL_FROM = os.getenv("EMAIL_FROM", "Barcode Studio Pro <support@luxvyne.com>")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "")
+
+def get_gmail_smtp_credentials():
+    """Extracts and sanitizes Google / Gmail SMTP credentials from all possible env variable aliases."""
+    user = (
+        os.getenv("GMAIL_USER") or 
+        os.getenv("GMAIL_EMAIL") or 
+        os.getenv("GMAIL_USERNAME") or 
+        os.getenv("GOOGLE_USER") or 
+        os.getenv("GOOGLE_EMAIL") or 
+        os.getenv("SMTP_USER") or 
+        os.getenv("SMTP_USERNAME") or 
+        os.getenv("EMAIL_HOST_USER") or 
+        os.getenv("MAIL_USERNAME") or 
+        SMTP_USER or ""
+    ).strip().strip("'\"")
+    
+    password = (
+        os.getenv("GMAIL_PASS") or 
+        os.getenv("GMAIL_PASSWORD") or 
+        os.getenv("GMAIL_APP_PASSWORD") or 
+        os.getenv("GOOGLE_PASS") or 
+        os.getenv("GOOGLE_PASSWORD") or 
+        os.getenv("GOOGLE_APP_PASSWORD") or 
+        os.getenv("SMTP_PASS") or 
+        os.getenv("SMTP_PASSWORD") or 
+        os.getenv("EMAIL_HOST_PASSWORD") or 
+        os.getenv("MAIL_PASSWORD") or 
+        SMTP_PASS or ""
+    ).strip().strip("'\"").replace(" ", "")  # Google 16-character App Passwords are generated with spaces (e.g. 'abcd efgh ijkl mnop')
+
+    host = (
+        os.getenv("SMTP_HOST") or 
+        os.getenv("SMTP_SERVER") or 
+        SMTP_HOST or ""
+    ).strip().strip("'\"")
+    
+    # Auto-detect Gmail host if user email is gmail
+    if not host:
+        if "@gmail.com" in user.lower() or "google" in user.lower():
+            host = "smtp.gmail.com"
+        elif user:
+            host = "smtp.gmail.com"
+
+    port_raw = os.getenv("SMTP_PORT", str(SMTP_PORT)).strip().strip("'\"")
+    port = int(port_raw) if port_raw.isdigit() else 465
+
+    return host, port, user, password
 
 def dispatch_password_reset_email(to_email: str, code: str) -> dict:
-    """Dispatches password reset verification email via Resend API or SMTP, with fallback."""
+    """Dispatches password reset verification email via Google Gmail SMTP (primary), with Resend fallback."""
     subject = f"Your Password Reset Code: {code} - Barcode Studio Pro"
     html_content = f"""
     <!DOCTYPE html>
@@ -2169,7 +2216,56 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
     </html>
     """
 
-    # 1. Resend API
+    # =========================================================================
+    # PRIORITY 1: GOOGLE / GMAIL SMTP DISPATCH
+    # =========================================================================
+    smtp_host, smtp_port, smtp_user, smtp_pass = get_gmail_smtp_credentials()
+    smtp_err_msg = None
+
+    if smtp_user and smtp_pass:
+        if not smtp_host:
+            smtp_host = "smtp.gmail.com"
+
+        sender_from = f"Barcode Studio Pro <{smtp_user}>"
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = sender_from
+        msg["To"] = to_email
+        msg.attach(MIMEText(html_content, "html"))
+
+        # Try Port 465 (SSL direct) first, fallback to Port 587 (STARTTLS)
+        candidate_ports = [465, 587] if smtp_port in [465, 587] else [smtp_port, 465, 587]
+        # Remove duplicates while preserving order
+        candidate_ports = list(dict.fromkeys(candidate_ports))
+
+        for p in candidate_ports:
+            try:
+                print(f"[GMAIL SMTP] Sending to '{to_email}' via {smtp_host}:{p} using account '{smtp_user}'...")
+                if p == 465:
+                    server = smtplib.SMTP_SSL(smtp_host, p, timeout=6)
+                else:
+                    server = smtplib.SMTP(smtp_host, p, timeout=6)
+                    server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.sendmail(smtp_user, [to_email], msg.as_string())
+                server.quit()
+                print(f"[GMAIL SMTP SUCCESS] Successfully delivered reset email to '{to_email}' via {smtp_host}:{p}!")
+                return {"delivered": True, "provider": "gmail_smtp", "sender": smtp_user}
+            except smtplib.SMTPAuthenticationError as auth_err:
+                smtp_err_msg = (
+                    f"Gmail SMTP Authentication Failed (535): Invalid username or password. "
+                    f"Notice: Google requires a 16-character App Password (from myaccount.google.com/apppasswords), "
+                    f"not your standard Google password. Detail: {auth_err}"
+                )
+                print(f"[GMAIL SMTP AUTH ERROR] {smtp_err_msg}")
+                break  # Don't try other ports if authentication is rejected
+            except Exception as e:
+                smtp_err_msg = str(e)
+                print(f"[GMAIL SMTP ERROR] Port {p} failed: {e}")
+
+    # =========================================================================
+    # PRIORITY 2: RESEND API (FALLBACK IF GOOGLE SMTP NOT SET OR FAILED)
+    # =========================================================================
     resend_key = (
         os.getenv("RESEND_API_KEY") or 
         os.getenv("resend_api_key") or 
@@ -2208,59 +2304,20 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                 return {"delivered": True, "provider": "resend", "data": resp.json()}
             
             resend_err_msg = resp.text
-            if ("not verified" in resp.text.lower() or "domain" in resp.text.lower()) and "testing emails" not in resp.text.lower() and "onboarding@resend.dev" not in email_from:
-                retry_resp = httpx.post(
-                    "https://api.resend.com/emails",
-                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
-                    json={
-                        "from": "Barcode Studio Pro <onboarding@resend.dev>",
-                        "to": [to_email],
-                        "subject": subject,
-                        "html": html_content
-                    },
-                    timeout=3.0
-                )
-                print(f"[RESEND] Retry with onboarding@resend.dev -> Status {retry_resp.status_code}: {retry_resp.text}")
-                if retry_resp.status_code in [200, 201]:
-                    return {"delivered": True, "provider": "resend", "data": retry_resp.json()}
-                resend_err_msg = retry_resp.text
         except Exception as e:
             resend_err_msg = str(e)
             print(f"Notice: Resend email error: {e}")
 
-    # 2. SMTP
-    smtp_host = os.getenv("SMTP_HOST", os.getenv("SMTP_SERVER", SMTP_HOST))
-    smtp_pass = os.getenv("SMTP_PASS", os.getenv("SMTP_PASSWORD", SMTP_PASS))
-    smtp_user = os.getenv("SMTP_USER", os.getenv("SMTP_USERNAME", SMTP_USER))
-    smtp_port = int(os.getenv("SMTP_PORT", str(SMTP_PORT)))
-    if smtp_host and smtp_pass:
-        try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = email_from or "Barcode Studio Pro <noreply@resend.dev>"
-            msg["To"] = to_email
-            msg.attach(MIMEText(html_content, "html"))
-
-            if smtp_port == 465:
-                server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=3)
-            else:
-                server = smtplib.SMTP(smtp_host, smtp_port, timeout=3)
-                server.starttls()
-            if smtp_user:
-                server.login(smtp_user, smtp_pass)
-            server.sendmail(msg["From"], [to_email], msg.as_string())
-            server.quit()
-            return {"delivered": True, "provider": "smtp"}
-        except Exception as e:
-            print(f"Notice: SMTP email error: {e}")
-
-    # 3. Fallback: Logged locally for testing/admin visibility
-    print(f"[SECURITY] Password reset code for {to_email}: {code} (Delivery pending external verification)")
+    # =========================================================================
+    # PRIORITY 3: IN-APP FALLBACK NOTICE (CODE SURFACED DIRECTLY IN UI)
+    # =========================================================================
+    print(f"[SECURITY] Password reset code for {to_email}: {code} (Surfacing to user UI)")
+    combined_err = smtp_err_msg or resend_err_msg or "No SMTP credentials or Resend API key configured in Render environment"
     return {
         "delivered": False, 
-        "provider": "resend_sandbox" if resend_key else "console_fallback", 
+        "provider": "google_smtp_fallback" if (smtp_user and smtp_pass) else "console_fallback", 
         "code": code,
-        "error_detail": resend_err_msg or ("RESEND_API_KEY not found in Render environment" if not resend_key else None)
+        "error_detail": combined_err
     }
 
 class ForgotPasswordRequest(BaseModel):

@@ -182,10 +182,10 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Password</label>
                     <div class="relative">
-                        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 p-2.5 pr-10 rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent" onkeydown="if(event.key==='Enter') submitAuthForm()">
-                        <button type="button" id="btn-toggle-auth-password" onclick="toggleAuthPasswordVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 focus:outline-none transition cursor-pointer" title="Show/Hide Password" aria-label="Toggle password visibility">
-                            <svg id="icon-eye-open" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            <svg id="icon-eye-closed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-300 p-2.5 pr-11 rounded-lg text-sm outline-none focus:ring-2 focus:ring-accent" onkeydown="if(event.key==='Enter') submitAuthForm()">
+                        <button type="button" id="btn-toggle-auth-password" onclick="toggleAuthPasswordVisibility()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md focus:outline-none transition cursor-pointer flex items-center justify-center border border-slate-200" title="Show/Hide Password" aria-label="Toggle password visibility">
+                            <svg id="icon-eye-open" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg id="icon-eye-closed" class="w-4 h-4 hidden text-accent" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
                         </button>
                     </div>
                 </div>
@@ -201,7 +201,7 @@
 
     <!-- Forgot Password / Reset via Email Modal -->
     <div id="forgot-password-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col gap-4 animate-in fade-in zoom-in duration-150">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-sm max-h-[92vh] overflow-y-auto flex flex-col gap-4 animate-in fade-in zoom-in duration-150">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="text-lg">🔐</span>
@@ -238,18 +238,18 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">New Password (min 8 chars):</label>
                     <div class="relative">
-                        <input type="password" id="fp-new-password" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 p-2 pr-9 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
-                        <button type="button" onclick="togglePasswordVisibility('fp-new-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <input type="password" id="fp-new-password" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 p-2 pr-11 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('fp-new-password', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md cursor-pointer transition flex items-center justify-center border border-slate-200" title="Show/Hide Password" aria-label="Show or hide password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </button>
                     </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">Confirm New Password:</label>
                     <div class="relative">
-                        <input type="password" id="fp-confirm-password" placeholder="Confirm new password" class="w-full bg-slate-50 border border-slate-300 p-2 pr-9 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
-                        <button type="button" onclick="togglePasswordVisibility('fp-confirm-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <input type="password" id="fp-confirm-password" placeholder="Confirm new password" class="w-full bg-slate-50 border border-slate-300 p-2 pr-11 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('fp-confirm-password', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md cursor-pointer transition flex items-center justify-center border border-slate-200" title="Show/Hide Password" aria-label="Show or hide password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </button>
                     </div>
                 </div>
@@ -999,27 +999,27 @@
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">Current (Previous) Password:</label>
                     <div class="relative">
-                        <input type="password" id="pwd-current" required placeholder="Enter your current password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-9 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
-                        <button type="button" onclick="togglePasswordVisibility('pwd-current', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <input type="password" id="pwd-current" required placeholder="Enter your current password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-11 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('pwd-current', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md cursor-pointer transition flex items-center justify-center border border-slate-200" title="Show/Hide Password" aria-label="Show or hide password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </button>
                     </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">New Password (min 8 chars):</label>
                     <div class="relative">
-                        <input type="password" id="pwd-new" required minlength="8" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-9 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
-                        <button type="button" onclick="togglePasswordVisibility('pwd-new', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <input type="password" id="pwd-new" required minlength="8" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-11 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('pwd-new', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md cursor-pointer transition flex items-center justify-center border border-slate-200" title="Show/Hide Password" aria-label="Show or hide password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </button>
                     </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">Confirm New Password:</label>
                     <div class="relative">
-                        <input type="password" id="pwd-confirm" required minlength="8" placeholder="Re-type new password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-9 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
-                        <button type="button" onclick="togglePasswordVisibility('pwd-confirm', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <input type="password" id="pwd-confirm" required minlength="8" placeholder="Re-type new password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-11 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('pwd-confirm', this)" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-md cursor-pointer transition flex items-center justify-center border border-slate-200" title="Show/Hide Password" aria-label="Show or hide password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </button>
                     </div>
                 </div>
@@ -15522,7 +15522,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                         el.type = 'password';
                         const btn = el.parentElement ? el.parentElement.querySelector('button') : null;
                         if (btn) {
-                            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+                            btn.innerHTML = '<svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
                         }
                     }
                 });
@@ -15891,8 +15891,8 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             input.type = isPassword ? 'text' : 'password';
             if (btn) {
                 btn.innerHTML = isPassword
-                    ? '<svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>'
-                    : '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+                    ? '<svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>'
+                    : '<svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
             }
         }
 
