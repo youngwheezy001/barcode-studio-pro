@@ -1,7 +1,7 @@
 [
   {
     "email": "mwangilewis205@gmail.com",
-    "hashed_password": "$2b$10$JrO9Vphtu4kPVf8oIqMTHuSKFTr6VN/3a54RTDqTNO2jo/9PQTrfS",
+    "hashed_password": "$2b$10$s149q6fqI4w67e0rWoG8ievvL7Fy8cDUOHbqMFZ92zhynbb4TJAzu",
     "role": "admin",
     "tokens": 999999
   }

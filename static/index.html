@@ -227,10 +227,18 @@
 
             <!-- Step 2: Enter Code & New Password -->
             <div id="fp-step-2" class="hidden flex flex-col gap-3 text-xs">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-[11px] text-blue-900">
-                    A 6-digit verification code was sent to <strong id="fp-target-email-display">your email</strong>. Valid for 15 minutes.
+                <div id="fp-step2-banner" class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 flex items-start gap-2.5 shadow-xs">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-sm font-bold">✉️</div>
+                    <div class="flex-1">
+                        <div class="font-bold text-slate-900 text-xs flex items-center justify-between">
+                            <span>Check Your Email Inbox</span>
+                            <span class="text-[9px] bg-blue-200/80 text-blue-900 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                            A secure 6-digit verification code was sent to <strong id="fp-target-email-display" class="text-slate-900 font-bold">your email</strong>. Please check your inbox and spam folder, then enter the code below.
+                        </p>
+                    </div>
                 </div>
-                <div id="fp-step2-banner" class="hidden"></div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">6-Digit Verification Code:</label>
                     <input type="text" id="fp-code-input" maxlength="6" placeholder="e.g. 123456" class="w-full bg-slate-50 border border-slate-300 p-2 rounded-lg text-slate-900 text-center font-mono font-bold tracking-widest text-base outline-none focus:ring-2 focus:ring-accent">
@@ -15707,41 +15715,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         function renderFpCodeBanner(code, delivered, errorDetail) {
             const banner = document.getElementById('fp-step2-banner');
-            if (!banner) return;
-            if (!code) {
-                banner.classList.add('hidden');
-                return;
-            }
-            if (delivered) {
-                banner.className = 'bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-[11px] text-emerald-900 flex flex-col gap-1.5 block shadow-xs';
-                banner.innerHTML = `
-                    <div class="font-bold flex items-center justify-between text-emerald-800">
-                        <span class="flex items-center gap-1.5"><span>✅</span> <span>Email Sent via Gmail!</span></span>
-                        <span class="text-[9px] bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full font-mono font-bold">Inbox / Spam</span>
-                    </div>
-                    <p class="text-[11px] text-emerald-800 leading-normal m-0">
-                        A 6-digit verification code was delivered to your Gmail inbox. Check your Spam folder if not received in 1 minute.
-                    </p>
-                `;
-            } else {
-                banner.className = 'bg-amber-50 border border-amber-300 rounded-xl p-3 text-[11px] text-amber-900 flex flex-col gap-2 block shadow-xs';
-                banner.innerHTML = `
-                    <div class="font-bold flex items-center justify-between text-amber-800">
-                        <span class="flex items-center gap-1.5"><span>🔑</span> <span>Your Verification Code:</span></span>
-                        <span class="text-[9px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
-                    </div>
-                    <div class="bg-white border border-amber-300/80 rounded-lg p-2 font-mono text-center text-sm font-bold text-slate-900 select-all flex items-center justify-between px-3 shadow-2xs">
-                        <span class="text-slate-500 font-sans text-[11px] font-semibold">6-Digit Code:</span>
-                        <span class="text-accent font-black text-lg tracking-widest">${code}</span>
-                    </div>
-                    <p class="text-[10px] text-amber-800 leading-normal m-0">
-                        ${errorDetail && errorDetail.includes('535') 
-                            ? 'Notice: Gmail authentication requires a 16-character App Password (from myaccount.google.com/apppasswords). Use the 6-digit code above to reset immediately.'
-                            : 'Use the 6-digit code above to reset your password immediately.'}
-                    </p>
-                `;
-            }
-            banner.classList.remove('hidden');
+            if (banner) banner.classList.remove('hidden');
         }
 
         async function requestPasswordResetCode() {
@@ -15787,19 +15761,17 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     if (disp) disp.textContent = email;
                     
                     const codeInp = document.getElementById('fp-code-input');
-                    const codeVal = data.dev_code || data.code;
-
-                    if (codeVal) {
-                        if (codeInp) codeInp.value = codeVal;
-                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
-                        showToast(`Verification code ready: ${codeVal}`, 'info');
-                    } else {
-                        renderFpCodeBanner(null);
-                        showToast('Verification code dispatched to your email!', 'success');
+                    if (codeInp) {
+                        codeInp.value = '';
+                        codeInp.focus();
                     }
+                    renderFpCodeBanner(null, data.delivered, data.error_detail);
+                    showToast('Verification code sent to your email!', 'success');
 
                     const newPass = document.getElementById('fp-new-password');
-                    if (newPass) newPass.focus();
+                    if (newPass) newPass.value = '';
+                    const confPass = document.getElementById('fp-confirm-password');
+                    if (confPass) confPass.value = '';
                 } else {
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
@@ -15853,18 +15825,16 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 }
 
                 if (res.ok) {
-                    const codeVal = data.dev_code || data.code;
                     const codeInp = document.getElementById('fp-code-input');
-                    if (codeVal) {
-                        if (codeInp) codeInp.value = codeVal;
-                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
-                        showToast(`New verification code: ${codeVal}`, 'info');
-                    } else {
-                        showToast('A fresh verification code was sent to your email!', 'success');
+                    if (codeInp) {
+                        codeInp.value = '';
+                        codeInp.focus();
                     }
+                    renderFpCodeBanner(null, data.delivered, data.error_detail);
+                    showToast('A fresh verification code was sent to your email!', 'success');
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
-                        msgEl.textContent = codeVal ? `New verification code generated: ${codeVal}` : 'A fresh code was sent to your email.';
+                        msgEl.textContent = 'A fresh 6-digit verification code was sent to your email.';
                         msgEl.classList.remove('hidden');
                     }
                 } else {

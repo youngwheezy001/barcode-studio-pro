@@ -2272,6 +2272,35 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
         """
 
         # =========================================================================
+        # METHOD 0: RESEND HTTPS API (PORT 443 - NEVER BLOCKED BY RENDER, ULTRA-FAST)
+        # =========================================================================
+        resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip().strip("'\"")
+        if resend_key:
+            try:
+                print(f"[RESEND] Dispatching reset email to '{to_email}' via Resend HTTPS API...")
+                from_addr = os.getenv("EMAIL_FROM") or os.getenv("RESEND_FROM") or "Barcode Studio Pro <onboarding@resend.dev>"
+                resend_payload = json.dumps({
+                    "from": from_addr,
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html_content
+                }).encode("utf-8")
+                resend_req = urllib.request.Request(
+                    "https://api.resend.com/emails",
+                    data=resend_payload,
+                    headers={
+                        "Authorization": f"Bearer {resend_key}",
+                        "Content-Type": "application/json",
+                        "User-Agent": "BarcodeStudioPro/2.0"
+                    }
+                )
+                with urllib.request.urlopen(resend_req, timeout=3) as r_resp:
+                    print(f"[RESEND SUCCESS] Successfully delivered reset email to '{to_email}' via Resend API!")
+                    return {"delivered": True, "provider": "resend"}
+            except Exception as r_err:
+                print(f"[RESEND NOTICE] {r_err}")
+
+        # =========================================================================
         # METHOD 1: GOOGLE APPS SCRIPT / HTTPS WEBHOOK RELAY (PORT 443 - NEVER BLOCKED BY RENDER)
         # =========================================================================
         gmail_relay_url = (os.getenv("GMAIL_RELAY_URL") or os.getenv("GOOGLE_WEBHOOK_URL") or "").strip().strip("'\"")
@@ -2289,7 +2318,7 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                     data=payload,
                     headers={"Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/1.0"}
                 )
-                with urllib.request.urlopen(req, timeout=6) as resp:
+                with urllib.request.urlopen(req, timeout=3) as resp:
                     status = resp.status if hasattr(resp, "status") else 200
                     print(f"[GMAIL RELAY SUCCESS] Dispatched to '{to_email}' with HTTP {status}!")
                     return {"delivered": True, "provider": "gmail_relay"}
@@ -2321,9 +2350,9 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                 try:
                     print(f"[GMAIL SMTP] Sending to '{to_email}' via {smtp_host}:{p} using account '{smtp_user}'...")
                     if p == 465:
-                        server = smtplib.SMTP_SSL(smtp_host, p, timeout=4)
+                        server = smtplib.SMTP_SSL(smtp_host, p, timeout=3)
                     else:
-                        server = smtplib.SMTP(smtp_host, p, timeout=4)
+                        server = smtplib.SMTP(smtp_host, p, timeout=3)
                         server.starttls()
                     server.login(smtp_user, smtp_pass)
                     server.sendmail(smtp_user, [to_email], msg.as_string())
@@ -2345,20 +2374,17 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
             smtp_err_msg = "Google Gmail credentials (SMTP_USER / SMTP_PASS) not configured in Render environment variables."
             print(f"[GMAIL SMTP NOTICE] {smtp_err_msg}")
 
-        # Fallback response: Surface code to UI for instant testing/reset
-        print(f"[SECURITY] Password reset code for {to_email}: {code} (Surfacing to user UI)")
+        # Fallback response: Do not leak code to UI
         return {
             "delivered": False, 
             "provider": "gmail_smtp", 
-            "code": code,
-            "error_detail": smtp_err_msg or "Failed to connect to Gmail SMTP. Verification code is ready on screen."
+            "error_detail": smtp_err_msg or "Failed to connect to email service."
         }
     except Exception as top_err:
         print(f"[DISPATCH ERROR] Unexpected error in dispatch_password_reset_email: {top_err}")
         return {
             "delivered": False,
             "provider": "fallback",
-            "code": code,
             "error_detail": str(top_err)
         }
 
@@ -2409,16 +2435,13 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
         dispatch_res = dispatch_password_reset_email(clean_email, code)
     except Exception as e:
         print(f"[AUTH ERROR] Failed during email dispatch: {e}")
-        dispatch_res = {"delivered": False, "provider": "error", "error_detail": str(e), "code": code}
+        dispatch_res = {"delivered": False, "provider": "error", "error_detail": str(e)}
 
     resp = {
         "status": "success",
-        "message": f"A 6-digit reset code has been sent to {clean_email}." if dispatch_res.get("delivered") else f"Verification code generated for {clean_email}.",
+        "message": f"A 6-digit reset code has been sent to {clean_email}." if dispatch_res.get("delivered") else f"A 6-digit reset code has been dispatched to {clean_email}.",
         "delivered": dispatch_res.get("delivered", False),
-        "provider": dispatch_res.get("provider"),
-        "error_detail": dispatch_res.get("error_detail"),
-        "code": code,
-        "dev_code": code
+        "provider": dispatch_res.get("provider")
     }
     return resp
 
