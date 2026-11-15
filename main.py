@@ -2210,7 +2210,32 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
     """
 
     # =========================================================================
-    # EXCLUSIVE GOOGLE / GMAIL SMTP DISPATCH (RESEND DISCONNECTED)
+    # METHOD 1: GOOGLE APPS SCRIPT / HTTPS WEBHOOK RELAY (PORT 443 - NEVER BLOCKED BY RENDER)
+    # =========================================================================
+    gmail_relay_url = (os.getenv("GMAIL_RELAY_URL") or os.getenv("GOOGLE_WEBHOOK_URL") or "").strip().strip("'\"")
+    if gmail_relay_url:
+        try:
+            print(f"[GMAIL RELAY] Dispatching email to '{to_email}' via Google HTTPS Relay...")
+            payload = json.dumps({
+                "to": to_email,
+                "subject": subject,
+                "html": html_content,
+                "code": code
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                gmail_relay_url,
+                data=payload,
+                headers={"Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/1.0"}
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                status = resp.status if hasattr(resp, "status") else 200
+                print(f"[GMAIL RELAY SUCCESS] Dispatched to '{to_email}' with HTTP {status}!")
+                return {"delivered": True, "provider": "gmail_relay"}
+        except Exception as e:
+            print(f"[GMAIL RELAY ERROR] Failed to send via Google relay: {e}")
+
+    # =========================================================================
+    # METHOD 2: DIRECT GOOGLE / GMAIL SMTP (PORTS 465 / 587)
     # =========================================================================
     smtp_host, smtp_port, smtp_user, smtp_pass = get_gmail_smtp_credentials()
     smtp_err_msg = None
