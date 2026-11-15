@@ -14905,6 +14905,400 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
         });
 
+
+        // =========================================================================
+        // STUDIO VERIFIER & UNIVERSAL DECODER CONTROLLER
+        // =========================================================================
+        let lastDecodedZxingData = null;
+
+        function openZxingModal() {
+            const modal = document.getElementById('zxing-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeZxingModal() {
+            const modal = document.getElementById('zxing-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function openZxingModalAndAction(action) {
+            openZxingModal();
+            if (action === 'active') {
+                setTimeout(() => {
+                    decodeActiveStudioBarcode();
+                }, 120);
+            } else if (action === 'file') {
+                setTimeout(() => {
+                    const fi = document.getElementById('zxing-file-input');
+                    if (fi) fi.click();
+                }, 120);
+            } else if (action === 'url') {
+                setTimeout(() => {
+                    const ui = document.getElementById('zxing-url-input');
+                    if (ui) {
+                        ui.focus();
+                        ui.select();
+                    }
+                }, 120);
+            }
+        }
+
+        function displayZxingSuccess(rawText, formatName) {
+            const spinner = document.getElementById('zxing-spinner');
+            const panel = document.getElementById('zxing-result-panel');
+            const statusIcon = document.getElementById('zxing-status-icon');
+            const title = document.getElementById('zxing-result-title');
+            const badge = document.getElementById('zxing-format-badge');
+            const textarea = document.getElementById('zxing-decoded-text');
+            const summary = document.getElementById('zxing-parsed-summary');
+            const loadBtn = document.getElementById('zxing-load-form-btn');
+
+            if (spinner) spinner.classList.add('hidden');
+            if (panel) panel.classList.remove('hidden');
+            if (statusIcon) statusIcon.textContent = '✅';
+            if (title) title.textContent = 'Barcode Decoded Successfully';
+            if (badge) badge.textContent = `Format: ${formatName || 'Universal 1D/2D'} • ${rawText.length} Characters`;
+            if (textarea) textarea.value = rawText;
+
+            lastDecodedZxingData = rawText;
+
+            // Check if AAMVA DL / ID stream
+            const isAamva = rawText.includes('@') && rawText.includes('ANSI') && rawText.includes('DL');
+            if (isAamva) {
+                if (loadBtn) loadBtn.classList.remove('hidden');
+                if (summary) {
+                    summary.classList.remove('hidden');
+                    let first = (rawText.match(/DAC([^\n\r]+)/) || [])[1] || '';
+                    let last = (rawText.match(/DCS([^\n\r]+)/) || [])[1] || '';
+                    let dl = (rawText.match(/DAQ([^\n\r]+)/) || [])[1] || '';
+                    let state = (rawText.match(/DAJ([^\n\r]+)/) || [])[1] || '';
+                    let exp = (rawText.match(/DBA([^\n\r]+)/) || [])[1] || '';
+                    summary.innerHTML = `
+                        <span class="font-bold text-indigo-700 text-[10px] uppercase">AAMVA Compliant Identification Stream:</span>
+                        <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-700">
+                            <div><strong>Name:</strong> ${first} ${last}</div>
+                            <div><strong>DL/ID #:</strong> ${dl}</div>
+                            <div><strong>Jurisdiction:</strong> ${state}</div>
+                            <div><strong>Expiration:</strong> ${exp}</div>
+                        </div>
+                    `;
+                }
+            } else {
+                if (loadBtn) loadBtn.classList.add('hidden');
+                if (summary) {
+                    summary.classList.remove('hidden');
+                    summary.innerHTML = `<span class="text-slate-600">Standard 1D / 2D Payload: ${rawText.length} characters</span>`;
+                }
+            }
+        }
+
+        function displayZxingError(errMsg) {
+            const spinner = document.getElementById('zxing-spinner');
+            const panel = document.getElementById('zxing-result-panel');
+            const statusIcon = document.getElementById('zxing-status-icon');
+            const title = document.getElementById('zxing-result-title');
+            const badge = document.getElementById('zxing-format-badge');
+            const textarea = document.getElementById('zxing-decoded-text');
+            const summary = document.getElementById('zxing-parsed-summary');
+            const loadBtn = document.getElementById('zxing-load-form-btn');
+
+            if (spinner) spinner.classList.add('hidden');
+            if (panel) panel.classList.remove('hidden');
+            if (statusIcon) statusIcon.textContent = '❌';
+            if (title) title.textContent = 'Decoding Failed / No Barcode Detected';
+            if (badge) badge.textContent = 'Status: Unrecognized';
+            if (textarea) textarea.value = errMsg || 'Could not find a valid 1D or 2D barcode in the provided image. Try increasing contrast, resolution, or uploading the uncompressed source.';
+            if (summary) summary.classList.add('hidden');
+            if (loadBtn) loadBtn.classList.add('hidden');
+        }
+
+        async function decodeImageElement(imgElement) {
+            const spinner = document.getElementById('zxing-spinner');
+            const panel = document.getElementById('zxing-result-panel');
+            if (spinner) spinner.classList.remove('hidden');
+            if (panel) panel.classList.add('hidden');
+
+            try {
+                if (window.ZXing) {
+                    const reader = getZXingMultiReader();
+                    try {
+                        const res = await reader.decode(imgElement);
+                        if (res && res.getText()) {
+                            displayZxingSuccess(res.getText(), res.getBarcodeFormat() ? String(res.getBarcodeFormat()) : 'Universal');
+                            return;
+                        }
+                    } catch (e1) {
+                        try {
+                            const pdfReader = getZXingPdf417Reader();
+                            const res2 = await pdfReader.decode(imgElement);
+                            if (res2 && res2.getText()) {
+                                displayZxingSuccess(res2.getText(), 'PDF_417');
+                                return;
+                            }
+                        } catch (e2) {}
+                    }
+                }
+                displayZxingError('No readable barcode pattern found in the image.');
+            } catch (err) {
+                displayZxingError(err.message || 'Error occurred while decoding barcode.');
+            }
+        }
+
+        function decodeActiveStudioBarcode() {
+            let canvas = document.getElementById('output-pdf417');
+            if (!canvas || canvas.width === 0) {
+                canvas = document.getElementById('card-preview-barcode');
+            }
+            if (!canvas || canvas.width === 0) {
+                showToast('No active barcode rendered yet in the studio.', 'error');
+                return;
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                decodeImageElement(img);
+            };
+            img.src = canvas.toDataURL('image/png');
+        }
+
+        function decodeZxingFile() {
+            const fileInput = document.getElementById('zxing-file-input');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                showToast('Please choose an image file first.', 'error');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    decodeImageElement(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function decodeZxingUrl() {
+            const urlInput = document.getElementById('zxing-url-input');
+            const url = (urlInput?.value || '').trim();
+            if (!url) {
+                showToast('Please enter an image URL.', 'error');
+                return;
+            }
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                decodeImageElement(img);
+            };
+            img.onerror = () => {
+                displayZxingError('Unable to load image from URL (Cross-Origin CORS blocked or invalid image URL). Try saving and uploading the file directly.');
+            };
+            img.src = url;
+        }
+
+        function copyZxingResult() {
+            const textarea = document.getElementById('zxing-decoded-text');
+            if (!textarea || !textarea.value) return;
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                showToast('📋 Decoded barcode copied to clipboard!', 'success');
+            });
+        }
+
+        function loadZxingResultIntoForm() {
+            if (!lastDecodedZxingData) return;
+            try {
+                if (typeof parseAndLoadScannedData === 'function') {
+                    parseAndLoadScannedData(lastDecodedZxingData);
+                    closeZxingModal();
+                    showToast('✅ AAMVA credentials loaded into Studio form!', 'success');
+                } else {
+                    showToast('Could not load directly into form.', 'info');
+                }
+            } catch (err) {
+                console.error('Error loading into form:', err);
+            }
+        }
+
+        // =========================================================================
+        // FORGOT PASSWORD / EMAIL VERIFICATION CODE RESET CONTROLLER
+        // =========================================================================
+        let fpTargetEmail = '';
+
+        function openForgotPasswordModal() {
+            const authModal = document.getElementById('auth-modal');
+            if (authModal) authModal.classList.add('hidden');
+            const fpModal = document.getElementById('forgot-password-modal');
+            if (fpModal) {
+                fpModal.classList.remove('hidden');
+                document.getElementById('fp-step-1')?.classList.remove('hidden');
+                document.getElementById('fp-step-2')?.classList.add('hidden');
+                const msg1 = document.getElementById('fp-step1-msg');
+                if (msg1) msg1.classList.add('hidden');
+                const emailInp = document.getElementById('fp-email-input');
+                if (emailInp) {
+                    const authEmail = document.getElementById('auth-email')?.value;
+                    if (authEmail) emailInp.value = authEmail;
+                    emailInp.focus();
+                }
+            }
+        }
+
+        function closeForgotPasswordModal() {
+            const fpModal = document.getElementById('forgot-password-modal');
+            if (fpModal) fpModal.classList.add('hidden');
+        }
+
+        async function requestPasswordResetCode() {
+            const emailInp = document.getElementById('fp-email-input');
+            const msgEl = document.getElementById('fp-step1-msg');
+            const sendBtn = document.getElementById('fp-send-btn');
+            const email = (emailInp?.value || fpTargetEmail || '').trim();
+
+            if (!email || !email.includes('@')) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.textContent = 'Please enter a valid email address.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            fpTargetEmail = email;
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.textContent = 'Sending Code...';
+            }
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('fp-step-1')?.classList.add('hidden');
+                    const step2 = document.getElementById('fp-step-2');
+                    if (step2) step2.classList.remove('hidden');
+                    const disp = document.getElementById('fp-target-email-display');
+                    if (disp) disp.textContent = email;
+                    const codeInp = document.getElementById('fp-code-input');
+                    if (codeInp) {
+                        codeInp.value = '';
+                        codeInp.focus();
+                    }
+                    showToast('Verification code dispatched to your email!', 'success');
+                } else {
+                    if (msgEl) {
+                        msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                        msgEl.textContent = data.detail || 'Unable to process reset request.';
+                        msgEl.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.textContent = 'Network error contacting auth service.';
+                    msgEl.classList.remove('hidden');
+                }
+            } finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = 'Send 6-Digit Verification Code';
+                }
+            }
+        }
+
+        async function submitPasswordResetWithCode() {
+            const codeInp = document.getElementById('fp-code-input');
+            const newPassInp = document.getElementById('fp-new-password');
+            const confirmPassInp = document.getElementById('fp-confirm-password');
+            const msgEl = document.getElementById('fp-step2-msg');
+            const resetBtn = document.getElementById('fp-reset-btn');
+
+            const code = (codeInp?.value || '').trim();
+            const newPassword = newPassInp?.value || '';
+            const confirmPassword = confirmPassInp?.value || '';
+
+            if (!code || code.length !== 6) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.textContent = 'Please enter the complete 6-digit code sent to your email.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.textContent = 'Password must be at least 8 characters long.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.textContent = 'Passwords do not match.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (resetBtn) {
+                resetBtn.disabled = true;
+                resetBtn.textContent = 'Resetting Password...';
+            }
+
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: fpTargetEmail,
+                        reset_code: code,
+                        code: code,
+                        new_password: newPassword,
+                        confirm_password: confirmPassword
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('🎉 Password reset successfully! You can now sign in.', 'success');
+                    closeForgotPasswordModal();
+                    const authEmail = document.getElementById('auth-email');
+                    const authPass = document.getElementById('auth-password');
+                    if (authEmail) authEmail.value = fpTargetEmail;
+                    if (authPass) authPass.value = newPassword;
+                    openAuthModal();
+                } else {
+                    if (msgEl) {
+                        msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                        msgEl.textContent = data.detail || 'Password reset failed.';
+                        msgEl.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.textContent = 'Network error while resetting password.';
+                    msgEl.classList.remove('hidden');
+                }
+            } finally {
+                if (resetBtn) {
+                    resetBtn.disabled = false;
+                    resetBtn.textContent = 'Update Password & Sign In';
+                }
+            }
+        }
+
 </script>
 </body>
 </html>

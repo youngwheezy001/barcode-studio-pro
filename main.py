@@ -2133,48 +2133,75 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
     """
 
     # 1. Resend API
-    if RESEND_API_KEY:
+    resend_key = (os.getenv("RESEND_API_KEY") or RESEND_API_KEY or "").strip()
+    email_from = (os.getenv("EMAIL_FROM") or EMAIL_FROM or "").strip()
+
+    if resend_key:
+        if not email_from or "luxvyne.com" in email_from:
+            email_from = "Barcode Studio Pro <onboarding@resend.dev>"
+
         try:
             resp = httpx.post(
                 "https://api.resend.com/emails",
-                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
                 json={
-                    "from": EMAIL_FROM,
+                    "from": email_from,
                     "to": [to_email],
                     "subject": subject,
                     "html": html_content
                 },
                 timeout=10.0
             )
+            print(f"[RESEND] Sending from '{email_from}' to '{to_email}' -> Status {resp.status_code}: {resp.text}")
             if resp.status_code in [200, 201]:
-                return {"delivered": True, "provider": "resend"}
+                return {"delivered": True, "provider": "resend", "data": resp.json()}
+            elif "not verified" in resp.text.lower() or resp.status_code in [400, 403]:
+                # Fallback to Resend onboarding address
+                retry_resp = httpx.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+                    json={
+                        "from": "Barcode Studio Pro <onboarding@resend.dev>",
+                        "to": [to_email],
+                        "subject": subject,
+                        "html": html_content
+                    },
+                    timeout=10.0
+                )
+                print(f"[RESEND] Retry with onboarding@resend.dev -> Status {retry_resp.status_code}: {retry_resp.text}")
+                if retry_resp.status_code in [200, 201]:
+                    return {"delivered": True, "provider": "resend", "data": retry_resp.json()}
         except Exception as e:
             print(f"Notice: Resend email error: {e}")
 
     # 2. SMTP
-    if SMTP_HOST and SMTP_PASS:
+    smtp_host = os.getenv("SMTP_HOST", os.getenv("SMTP_SERVER", SMTP_HOST))
+    smtp_pass = os.getenv("SMTP_PASS", os.getenv("SMTP_PASSWORD", SMTP_PASS))
+    smtp_user = os.getenv("SMTP_USER", os.getenv("SMTP_USERNAME", SMTP_USER))
+    smtp_port = int(os.getenv("SMTP_PORT", str(SMTP_PORT)))
+    if smtp_host and smtp_pass:
         try:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = EMAIL_FROM
+            msg["From"] = email_from or "Barcode Studio Pro <noreply@resend.dev>"
             msg["To"] = to_email
             msg.attach(MIMEText(html_content, "html"))
 
-            if SMTP_PORT == 465:
-                server = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=10)
+            if smtp_port == 465:
+                server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
             else:
-                server = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10)
+                server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
                 server.starttls()
-            if SMTP_USER:
-                server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(EMAIL_FROM, [to_email], msg.as_string())
+            if smtp_user:
+                server.login(smtp_user, smtp_pass)
+            server.sendmail(msg["From"], [to_email], msg.as_string())
             server.quit()
             return {"delivered": True, "provider": "smtp"}
         except Exception as e:
             print(f"Notice: SMTP email error: {e}")
 
     # 3. Fallback: Logged locally for testing/admin visibility
-    print(f"[SECURITY] Password reset code for {to_email}: {code} (No external email provider configured yet)")
+    print(f"[SECURITY] Password reset code for {to_email}: {code}")
     return {"delivered": False, "provider": "console_fallback", "code": code}
 
 class ForgotPasswordRequest(BaseModel):
@@ -2182,9 +2209,10 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     email: str
-    reset_code: str
+    reset_code: Optional[str] = None
+    code: Optional[str] = None
     new_password: str
-    confirm_password: str
+    confirm_password: Optional[str] = None
 
 @app.post("/api/auth/forgot-password", summary="Request password reset code via email")
 @limiter.limit("5/minute")
@@ -2211,7 +2239,7 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
     }
     if not dispatch_res.get("delivered"):
         resp["dev_code"] = code
-        resp["hint"] = "Note: To send real external emails, add RESEND_API_KEY or SMTP credentials in Render. Your test reset code is: " + code
+        resp["hint"] = "Note: To send real external emails, verify RESEND_API_KEY in Render. Your test reset code is: " + code
     return resp
 
 @app.post("/api/auth/reset-password", summary="Reset password using verification code")
@@ -2222,7 +2250,8 @@ def reset_password_with_code(request: Request, payload: ResetPasswordRequest, db
     if not user:
         raise HTTPException(status_code=400, detail="Invalid request. Account not found.")
 
-    if not user.reset_code or user.reset_code != payload.reset_code.strip():
+    code_val = (payload.reset_code or payload.code or "").strip()
+    if not user.reset_code or user.reset_code != code_val:
         raise HTTPException(status_code=400, detail="Invalid verification code. Please check your code or request a new one.")
 
     if user.reset_code_expires_at and datetime.utcnow() > user.reset_code_expires_at:
@@ -2231,7 +2260,8 @@ def reset_password_with_code(request: Request, payload: ResetPasswordRequest, db
     if len(payload.new_password) < 8:
         raise HTTPException(status_code=400, detail="New password must be at least 8 characters long.")
 
-    if payload.new_password != payload.confirm_password:
+    confirm = payload.confirm_password if payload.confirm_password is not None else payload.new_password
+    if payload.new_password != confirm:
         raise HTTPException(status_code=400, detail="New passwords do not match.")
 
     user.hashed_password = get_password_hash(payload.new_password)
