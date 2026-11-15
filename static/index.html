@@ -2593,6 +2593,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <span>🔦</span>
                                 <span>UV Blacklight</span>
                             </button>
+                            <button type="button" id="btn-flip-card" onclick="toggleCardSide()" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold text-sky-300 hover:text-white transition flex items-center gap-1 cursor-pointer border border-sky-500/40 bg-sky-950/40 hover:bg-sky-900/60 shadow-xs" title="Flip between Scannable Card Back and Authentic Front Template">
+                                <span>🔄</span>
+                                <span id="card-side-label">Front View</span>
+                            </button>
                         </div>
 
                         <!-- Alternate QR Code Quick Tools (shown when in QR mode) -->
@@ -2635,6 +2639,29 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
                                 <div class="text-center">
                                     <span class="font-mono text-[8px] font-bold tracking-widest text-[#00ffff] uppercase" style="text-shadow: 0 0 5px #00ffff;">GENUINE SECURE OPTICAL RECORD • ISO/IEC 18013</span>
+                                </div>
+                            </div>
+
+                            <!-- Authentic Physical CR80 Front Card Template View (Revealed when Flip Card is clicked) -->
+                            <div id="card-front-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10 flex flex-col justify-between p-3.5">
+                                <div class="flex justify-between items-start">
+                                    <div class="space-y-0.5 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded shadow-2xs border border-white/60">
+                                        <div id="front-state-title" class="font-extrabold text-[10px] uppercase tracking-wider text-slate-900">WASHINGTON DRIVER LICENSE</div>
+                                        <div id="front-card-dl" class="font-mono text-[9px] font-extrabold text-blue-900">DL: WDL987654321</div>
+                                    </div>
+                                    <div id="front-realid-star" class="w-6 h-6 rounded-full bg-amber-400 border border-amber-500 flex items-center justify-center text-white text-[10px] font-black shadow-xs">★</div>
+                                </div>
+                                <div class="flex justify-between items-end">
+                                    <div class="space-y-1 text-[8.5px] font-semibold text-slate-800 bg-white/85 backdrop-blur-xs p-2 rounded shadow-2xs border border-white/70">
+                                        <div><span class="text-[7px] text-slate-500 uppercase">LN:</span> <span id="front-card-last" class="font-bold">DOE</span></div>
+                                        <div><span class="text-[7px] text-slate-500 uppercase">FN:</span> <span id="front-card-first" class="font-bold">JOHN</span></div>
+                                        <div><span class="text-[7px] text-slate-500 uppercase">DOB:</span> <span id="front-card-dob">01/01/1990</span></div>
+                                        <div><span class="text-[7px] text-slate-500 uppercase">EXP:</span> <span id="front-card-exp">01/01/2028</span></div>
+                                    </div>
+                                    <div class="w-16 h-20 rounded bg-slate-200/90 border border-slate-300 shadow-xs flex flex-col items-center justify-center text-slate-400 overflow-hidden">
+                                        <svg class="w-8 h-8 opacity-60 text-slate-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                        <span class="text-[6px] font-mono font-bold text-slate-600 uppercase tracking-tight">PORTRAIT</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -7722,7 +7749,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
+                    const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+                    const akTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate('AK', side) : null;
+                    cardEl.style.background = akTmpl ? `#ffffff url("${akTmpl}") no-repeat center / cover` : 'linear-gradient(135deg, #e4f2fb 0%, #d5ebf7 50%, #cde5f4 100%)';
                 }
 
                 // Populate Alaska Sequence Number (ICN / DCK prioritized as on authentic sample)
@@ -8690,7 +8719,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (engView) engView.classList.remove('hidden');
 
                 if (cardEl) {
-                    cardEl.style.background = 'radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%)';
+                    const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+                    const hiTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate('HI', side) : null;
+                    cardEl.style.background = hiTmpl ? `#ffffff url("${hiTmpl}") no-repeat center / cover` : 'radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%)';
                 }
 
                 // Hawaii Engineering Test Details
@@ -8778,7 +8809,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (kansasView) kansasView.classList.add('hidden');
                 if (engView) engView.classList.add('hidden');
                 if (cardEl) {
-                    if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
+                    const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+                    const tmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, side) : null;
+                    if (tmpl) {
+                        cardEl.style.background = `#ffffff url("${tmpl}") no-repeat center / cover`;
+                    } else if (meta && meta.bg_gradient && meta.bg_gradient !== '#ffffff') {
                         cardEl.style.background = meta.bg_gradient;
                     } else if (meta && meta.bg_color) {
                         cardEl.style.background = meta.bg_color;
@@ -15289,6 +15324,70 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (card) card.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))';
                 if (uvLayer) uvLayer.classList.add('hidden');
                 showToast('Standard Daylight Illumination Restored', 'info');
+            }
+        }
+
+        // --- INTERACTIVE CARD SIDE FLIP (FRONT / BACK TEMPLATE SWITCHER) ---
+        let currentCardSide = 'back';
+        function toggleCardSide() {
+            currentCardSide = (currentCardSide === 'back') ? 'front' : 'back';
+            const btnLabel = document.getElementById('card-side-label');
+            const frontView = document.getElementById('card-front-view');
+            const cardEl = document.getElementById('studio-cr80-card');
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const jurKey = jurEl ? jurEl.value : 'WA';
+            
+            if (currentCardSide === 'front') {
+                if (btnLabel) btnLabel.textContent = 'Back (Barcodes)';
+                if (frontView) frontView.classList.remove('hidden');
+                
+                // Hide specific back views
+                const backViews = ['card-back-standard-view', 'card-back-alaska-view', 'card-back-arkansas-view', 'card-back-arizona-view', 'card-back-alabama-view', 'card-back-california-view', 'card-back-colorado-view', 'card-back-florida-view', 'card-back-georgia-view', 'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view'];
+                backViews.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
+                
+                // Populate front demographic values from form
+                const fn = (document.getElementById('aamva-first-name')?.value || 'JOHN').toUpperCase();
+                const ln = (document.getElementById('aamva-last-name')?.value || 'DOE').toUpperCase();
+                const idVal = (document.getElementById('aamva-id')?.value || 'WDL987654321').toUpperCase();
+                const dob = (document.getElementById('aamva-dob')?.value || '1990-01-01');
+                const exp = (document.getElementById('aamva-exp')?.value || '2028-01-01');
+                
+                const frontLast = document.getElementById('front-card-last');
+                const frontFirst = document.getElementById('front-card-first');
+                const frontDl = document.getElementById('front-card-dl');
+                const frontDob = document.getElementById('front-card-dob');
+                const frontExp = document.getElementById('front-card-exp');
+                const frontTitle = document.getElementById('front-state-title');
+                
+                if (frontLast) frontLast.textContent = ln;
+                if (frontFirst) frontFirst.textContent = fn;
+                if (frontDl) frontDl.textContent = `DL: ${idVal}`;
+                if (frontDob) frontDob.textContent = dob;
+                if (frontExp) frontExp.textContent = exp;
+                if (frontTitle) {
+                    const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jurKey]) ? STATE_PROFILES[jurKey] : null;
+                    const stName = prof ? prof.name.toUpperCase() : jurKey.split('_')[0].toUpperCase();
+                    frontTitle.textContent = `${stName} DRIVER LICENSE`;
+                }
+                
+                if (cardEl) {
+                    const tmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey, 'front') : null;
+                    if (tmpl) {
+                        cardEl.style.background = `#ffffff url("${tmpl}") no-repeat center / cover`;
+                    }
+                }
+                showToast('Viewing Front Card Template', 'info');
+            } else {
+                if (btnLabel) btnLabel.textContent = 'Front View';
+                if (frontView) frontView.classList.add('hidden');
+                // Reapply state preset to restore authentic back view
+                if (typeof updateStudioCardDetails === 'function') {
+                    updateStudioCardDetails();
+                }
+                showToast('Viewing Scannable Barcode Card Back', 'info');
             }
         }
 

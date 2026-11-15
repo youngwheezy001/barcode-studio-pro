@@ -12156,8 +12156,96 @@ function QC_calculate_ICN() {
         return meta;
     }
 
+    const JURISDICTION_TEMPLATE_MAP = {
+        "AL": "card_templates/alabama_back.webp",
+        "AK": "card_templates/alaska_back.webp",
+        "AZ": "card_templates/arizona_back.webp",
+        "AR": "card_templates/arkansas_back.webp",
+        "CA": "card_templates/california_back.webp",
+        "CO": "card_templates/colorado_back.webp",
+        "CT": "card_templates/connecticut_back.webp",
+        "DE": "card_templates/delaware_back.webp",
+        "DC": "card_templates/district_of_columbia_back.webp",
+        "FL": "card_templates/florida_back.webp",
+        "GA": "card_templates/georgia_back.webp",
+        "HI": "card_templates/hawaii_back.webp",
+        "ID": "card_templates/idaho_back.webp",
+        "IL": "card_templates/illinois_back.webp",
+        "IN": "card_templates/indiana_back.webp",
+        "IA": "card_templates/iowa_back.webp",
+        "KS": "card_templates/kansas_back.webp",
+        "KY": "card_templates/kentucky_back.webp",
+        "LA": "card_templates/louisiana_back.webp",
+        "ME": "card_templates/maine_back.webp",
+        "MD": "card_templates/maryland_back.webp",
+        "MA": "card_templates/massachusetts_back.webp",
+        "MI": "card_templates/michigan_back.webp",
+        "MN": "card_templates/minnesota_back.webp",
+        "MS": "card_templates/mississippi_back.webp",
+        "MO": "card_templates/missouri_back.webp",
+        "MT": "card_templates/montana_back.webp",
+        "NE": "card_templates/nebraska_back.webp",
+        "NV": "card_templates/nevada_back.webp",
+        "NH": "card_templates/new_hampshire_back.webp",
+        "NJ": "card_templates/new_jersey_back.webp",
+        "NM": "card_templates/new_mexico_back.webp",
+        "NY": "card_templates/new_york_back.webp",
+        "NC": "card_templates/north_carolina_back.webp",
+        "ND": "card_templates/north_dakota_back.webp",
+        "OH": "card_templates/ohio_back.webp",
+        "OK": "card_templates/oklahoma_back.webp",
+        "OR": "card_templates/oregon_back.webp",
+        "PA": "card_templates/pennsylvania_back.webp",
+        "RI": "card_templates/rhode_island_back.webp",
+        "SC": "card_templates/south_carolina_back.webp",
+        "SD": "card_templates/south_dakota_back.webp",
+        "TN": "card_templates/tennessee_back.webp",
+        "TX": "card_templates/texas_back.webp",
+        "UT": "card_templates/utah_back.webp",
+        "VT": "card_templates/vermont_back.webp",
+        "VA": "card_templates/virginia_back.webp",
+        "WA": "card_templates/washington_back.webp",
+        "WV": "card_templates/west_virginia_back.webp",
+        "WI": "card_templates/wisconsin_back.webp",
+        "WY": "card_templates/wyoming_back.webp",
+        // Canadian Provinces
+        "AB": "card_templates/alberta_back.webp",
+        "BC": "card_templates/british_columbia_back.webp",
+        "MB": "card_templates/manitoba_back.webp",
+        "NB": "card_templates/new_brunswick_back.webp",
+        "NL": "card_templates/newfoundland_back.webp",
+        "NS": "card_templates/nova_scotia_back.webp",
+        "NT": "card_templates/northwest_territories_back.webp",
+        "NU": "card_templates/nunavut_back.webp",
+        "ON": "card_templates/ontario_back.webp",
+        "PE": "card_templates/prince_edward_island_back.webp",
+        "QC": "card_templates/quebec_back.webp",
+        "SK": "card_templates/saskatchewan_back.webp",
+        "YT": "card_templates/yukon_back.webp",
+        // Passports / MRZ
+        "PASSPORT_CARD": "mrz_templates/us_passport_card_back.webp",
+        "US_PASSPORT": "mrz_templates/us_passport_card_back.webp",
+        "GREENCARD": "mrz_templates/us_greencard_back.webp",
+        "UK_PASSPORT": "mrz_templates/uk_passport_back.webp"
+    };
+
+    function getJurisdictionCardTemplate(slugOrCode, side) {
+        if (!slugOrCode) return null;
+        side = side || 'back';
+        const s = String(slugOrCode).toUpperCase().trim();
+        const base = s.split('_')[0];
+        let path = JURISDICTION_TEMPLATE_MAP[s] || JURISDICTION_TEMPLATE_MAP[base];
+        if (!path) return null;
+        if (side === 'front') {
+            return path.replace('_back.webp', '_front.webp');
+        }
+        return path;
+    }
+
     window.STATE_CARDBACK_METADATA = STATE_CARDBACK_METADATA;
     window.getCardBackMetadata = getCardBackMetadata;
+    window.JURISDICTION_TEMPLATE_MAP = JURISDICTION_TEMPLATE_MAP;
+    window.getJurisdictionCardTemplate = getJurisdictionCardTemplate;
 
     window.STATE_HIERARCHY = STATE_HIERARCHY;
     window.runStateCalculation = runStateCalculation;
