@@ -142,7 +142,7 @@
         }
     </style>
 </head>
-<body class="bg-appbg text-slate-800 font-sans h-screen flex flex-col overflow-hidden relative select-none">
+<body class="bg-appbg text-slate-800 font-sans min-h-screen xl:h-screen flex flex-col overflow-x-hidden xl:overflow-hidden relative select-none">
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
@@ -1836,12 +1836,27 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         </div>
     </header>
 
+    <!-- Mobile/Tablet Workspace Mode Switcher (Visible on screens < lg) -->
+    <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-1 overflow-x-auto shrink-0 z-30">
+        <button type="button" onclick="switchWorkspace('aamva')" id="mobile-tab-aamva" class="flex-1 py-1.5 px-2 rounded-lg bg-accent text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap shadow-xs">
+            <span>🪪 AAMVA</span>
+        </button>
+        <button type="button" onclick="switchWorkspace('states')" id="mobile-tab-states" class="flex-1 py-1.5 px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap">
+            <span>🗺️ States</span>
+            <span class="text-[8px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-1 rounded uppercase">50+CA</span>
+        </button>
+        <button type="button" onclick="switchWorkspace('mrz')" id="mobile-tab-mrz" class="flex-1 py-1.5 px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap">
+            <span>🛂 Passport</span>
+            <span class="text-[8px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1 rounded uppercase">MRZ</span>
+        </button>
+    </div>
+
     <!-- Main Workspace -->
-    <main class="flex-1 flex overflow-hidden p-4 gap-4 max-w-[1780px] mx-auto w-full">
+    <main class="flex-1 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden p-2.5 sm:p-4 gap-4 max-w-[1780px] mx-auto w-full">
         <!-- Mode 1: AAMVA DL / ID & Code 128 Workspace -->
-        <div id="workspace-view-aamva" class="flex-1 flex overflow-hidden gap-4 w-full">
+        <div id="workspace-view-aamva" class="flex-1 flex flex-col xl:flex-row gap-4 w-full min-h-0">
         <!-- Left Column: Generator Form (Matches Screenshot Layout) -->
-        <section class="w-[52%] bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col gap-3 overflow-y-auto shadow-sm">
+        <section class="w-full xl:w-[52%] bg-cardbg rounded-2xl border border-bordercol p-3.5 sm:p-4 flex flex-col gap-3 overflow-y-auto shadow-sm shrink-0 xl:shrink">
             
             <!-- Symbology Tab Switcher -->
             <div class="flex bg-slate-100 p-1 rounded-xl border border-bordercol">
@@ -2562,7 +2577,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         </section>
 
         <!-- Right Column: Real-Time Card Inspection Studio & Exact Screenshot Dimensions Monitor -->
-        <section class="w-[48%] bg-[#0a0e19] rounded-2xl border border-slate-800/80 p-4 sm:p-5 flex flex-col overflow-y-auto shadow-2xl gap-3 text-slate-100">
+        <section class="w-full xl:w-[48%] bg-[#0a0e19] rounded-2xl border border-slate-800/80 p-3.5 sm:p-5 flex flex-col overflow-y-auto shadow-2xl gap-3 text-slate-100">
             
             <div class="flex flex-col gap-2.5">
                 <!-- Monitor Header -->
@@ -3757,9 +3772,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
         </div>
 
         <!-- Mode 2: ICAO 9303 MRZ Generator Workspace -->
-        <div id="workspace-view-mrz" class="hidden flex-1 flex overflow-hidden gap-4 w-full">
+        <div id="workspace-view-mrz" class="hidden flex-1 flex flex-col xl:flex-row gap-4 w-full min-h-0">
             <!-- MRZ Left Column: Document Form & Checksum Live Telemetry -->
-            <section class="w-[52%] bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col gap-3 overflow-y-auto shadow-sm">
+            <section class="w-full xl:w-[52%] bg-cardbg rounded-2xl border border-bordercol p-3.5 sm:p-4 flex flex-col gap-3 overflow-y-auto shadow-sm shrink-0 xl:shrink">
                 <!-- MRZ Document Type Tabs -->
                 <div class="flex bg-slate-100 p-1 rounded-xl border border-bordercol">
                     <button type="button" onclick="setMrzType('TD3')" id="mrz-tab-TD3" class="flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5">
@@ -3941,7 +3956,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             </section>
 
             <!-- MRZ Right Column: Document Visualizer, High-Res OCR-B MRZ Zone & Exporter -->
-            <section class="flex-1 bg-cardbg rounded-2xl border border-bordercol p-4 flex flex-col justify-between overflow-y-auto shadow-sm">
+            <section class="w-full xl:flex-1 bg-cardbg rounded-2xl border border-bordercol p-3.5 sm:p-4 flex flex-col justify-between overflow-y-auto shadow-sm">
                 <div class="flex flex-col gap-3">
                     <!-- Top Visualizer Header -->
                     <div class="flex items-center justify-between pb-2 border-b border-bordercol">
@@ -13721,8 +13736,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const statesTab = document.getElementById('workspace-tab-states');
             const mrzTab = document.getElementById('workspace-tab-mrz');
 
+            const mobileAamvaTab = document.getElementById('mobile-tab-aamva');
+            const mobileStatesTab = document.getElementById('mobile-tab-states');
+            const mobileMrzTab = document.getElementById('mobile-tab-mrz');
+
             const activeHeaderBtn = 'px-3 py-1.5 rounded-lg bg-accent text-white shadow-sm flex items-center gap-1.5 transition';
             const inactiveHeaderBtn = 'px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition';
+
+            const activeMobileBtn = 'flex-1 py-1.5 px-2 rounded-lg bg-accent text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap shadow-xs';
+            const inactiveMobileBtn = 'flex-1 py-1.5 px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap';
 
             // Hide all views first
             if (aamvaView) aamvaView.classList.add('hidden');
@@ -13734,17 +13756,24 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             if (statesTab) statesTab.className = inactiveHeaderBtn;
             if (mrzTab) mrzTab.className = inactiveHeaderBtn;
 
+            if (mobileAamvaTab) mobileAamvaTab.className = inactiveMobileBtn;
+            if (mobileStatesTab) mobileStatesTab.className = inactiveMobileBtn;
+            if (mobileMrzTab) mobileMrzTab.className = inactiveMobileBtn;
+
             if (mode === 'states') {
                 if (statesView) statesView.classList.remove('hidden');
                 if (statesTab) statesTab.className = activeHeaderBtn;
+                if (mobileStatesTab) mobileStatesTab.className = activeMobileBtn;
                 renderStatesDirectory();
             } else if (mode === 'mrz') {
                 if (mrzView) mrzView.classList.remove('hidden');
                 if (mrzTab) mrzTab.className = activeHeaderBtn;
+                if (mobileMrzTab) mobileMrzTab.className = activeMobileBtn;
                 compileMrz();
             } else {
                 if (aamvaView) aamvaView.classList.remove('hidden');
                 if (aamvaTab) aamvaTab.className = activeHeaderBtn;
+                if (mobileAamvaTab) mobileAamvaTab.className = activeMobileBtn;
             }
         }
 
