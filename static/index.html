@@ -5912,7 +5912,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             } catch (e) {}
         }
 
-        // Clear all inputs completely
+        // Clear all inputs completely and blank out all barcodes
         function clearAllInputs() {
             window.isClearingForm = true;
             window.suppressCalcAlerts = true;
@@ -5929,7 +5929,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'aamva-revision-date', 'aamva-safe-driver',
                 'aamva-in-office', 'aamva-la-office', 'aamva-la-parish',
                 'aamva-nd-opt', 'aamva-nj-opt1', 'aamva-nj-opt2', 'aamva-nj-opt3',
-                'aamva-pob', 'aamva-dups', 'aamva-country', 'input-code128'
+                'aamva-pob', 'aamva-dups', 'aamva-country', 'input-code128', 'input-pdf417'
             ];
 
             allFieldIds.forEach(id => {
@@ -5947,13 +5947,60 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const hintEl = document.getElementById('dl-format-hint');
             if (hintEl) hintEl.innerHTML = '';
 
+            // Reset card previews
+            const cardIdEl = document.getElementById('card-id-preview');
+            if (cardIdEl) cardIdEl.textContent = 'ID: —';
+            const cardNameEl = document.getElementById('card-name-preview');
+            if (cardNameEl) cardNameEl.textContent = '—';
+            const cardStateEl = document.getElementById('card-state-preview');
+            if (cardStateEl) cardStateEl.textContent = 'STATE: —';
+
+            const byteCounter = document.getElementById('byte-counter');
+            if (byteCounter) {
+                byteCounter.textContent = '0 / 800 B';
+                byteCounter.className = "text-xs code-font font-bold text-slate-400";
+            }
+
+            const badge = document.getElementById('code128-sync-badge');
+            if (badge) {
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span><span>Cleared (No data)</span>`;
+            }
+
+            const labelEl = document.getElementById('barcode-standard-label');
+            if (labelEl) labelEl.textContent = 'Cleared (Blank Canvas)';
+            const dimsEl = document.getElementById('barcode-physical-dims');
+            if (dimsEl) dimsEl.textContent = 'Empty payload • Nothing to scan';
+
+            // Completely wipe all 2D and 1D canvases
+            const canvasesToClear = [
+                'output-pdf417', 'card-preview-barcode',
+                'alaska-pdf417', 'arkansas-pdf417', 'arizona-pdf417', 'alabama-pdf417',
+                'california-pdf417', 'colorado-pdf417', 'florida-pdf417', 'georgia-pdf417',
+                'idaho-pdf417', 'kansas-pdf417', 'eng-pdf417',
+                'output-code128', 'alaska-code128-canvas', 'arkansas-code128-canvas',
+                'arizona-code128-canvas', 'alabama-code128-canvas', 'california-code128-canvas',
+                'colorado-code128-canvas', 'florida-code128-canvas', 'georgia-code128-canvas',
+                'idaho-code128-canvas', 'kansas-code128-canvas', 'eng-code128-canvas'
+            ];
+            canvasesToClear.forEach(id => {
+                const c = document.getElementById(id);
+                if (c && c.getContext) {
+                    const ctx = c.getContext('2d');
+                    if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+                }
+            });
+
+            const svg128 = document.getElementById('output-code128');
+            if (svg128 && (svg128.tagName === 'svg' || svg128.tagName === 'SVG')) {
+                svg128.innerHTML = '';
+            }
+
             updateStateDynamicLabels();
-            compileAAMVA();
-            renderCode128();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
 
             window.isClearingForm = false;
             window.suppressCalcAlerts = false;
-            showToast('All fields cleared!', 'info');
+            showToast('All fields and barcodes cleared!', 'info');
         }
 
         // Dual Eye & Hair Sync
@@ -6316,9 +6363,44 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
+        // --- JURISDICTION PROFILE SELECT HELPER ---
+        function setJurisdictionSelect(codeOrSlug) {
+            const sel = document.getElementById('aamva-jurisdiction');
+            if (!sel) return;
+            const target = (codeOrSlug || '').trim();
+            if (!target) return;
+
+            // 1. Exact match on option value
+            let opt = Array.from(sel.options).find(o => o.value === target);
+            // 2. Prefix match e.g. target='TX' -> 'TX_2020' or target='NY' -> 'NY_2022'
+            if (!opt) {
+                const matches = Array.from(sel.options).filter(o => o.value.startsWith(target + '_'));
+                if (matches.length > 0) {
+                    opt = matches[matches.length - 1]; // Pick latest revision
+                }
+            }
+            // 3. Base code match
+            if (!opt) {
+                opt = Array.from(sel.options).find(o => o.value.split('_')[0].toUpperCase() === target.toUpperCase());
+            }
+
+            if (opt) {
+                sel.value = opt.value;
+            }
+
+            const stateInput = document.getElementById('aamva-state');
+            if (stateInput) {
+                stateInput.value = target.split('_')[0].toUpperCase();
+            }
+
+            if (typeof applyStatePreset === 'function') {
+                applyStatePreset();
+            }
+        }
+
         // --- PRELOAD SCREENSHOT (SEAN HARRISON) PRESET ---
         function loadSeanHarrisonScreenshotPreset() {
-            document.getElementById('aamva-jurisdiction').value = 'CA';
+            setJurisdictionSelect('CA');
             document.getElementById('aamva-version').value = 'AUTO';
             document.getElementById('aamva-id').value = 'Y4509481';
             document.getElementById('aamva-first').value = 'Sean';
@@ -6361,12 +6443,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             updateWeightMetric();
             validateDlNumber();
             compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             showToast('Loaded Sean Harrison (California) preset with standard dimensions!', 'success');
         }
 
         // --- PRELOAD JONATHAN GARCIA PRESET (CT v09 / FORMAT 11) ---
         function loadJonathanGarciaPreset() {
-            document.getElementById('aamva-jurisdiction').value = 'CT';
+            setJurisdictionSelect('CT');
             document.getElementById('aamva-version').value = 'AUTO';
             document.getElementById('aamva-id').value = '188892143';
             document.getElementById('aamva-first').value = 'Jonathan';
@@ -6407,12 +6490,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             updateWeightMetric();
             validateDlNumber();
             compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             showToast('Loaded Jonathan Garcia (Connecticut v09 / Format 11) profile!', 'success');
         }
 
         // --- PRELOAD JACOB GLASS PRESET (WA v08 / FORMAT 16) ---
         function loadJacobGlassPreset() {
-            document.getElementById('aamva-jurisdiction').value = 'WA';
+            setJurisdictionSelect('WA');
             document.getElementById('aamva-version').value = 'AUTO';
             document.getElementById('aamva-id').value = 'WDLYXY3PA0TB';
             document.getElementById('aamva-first').value = 'Jacob';
@@ -6453,12 +6537,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             updateWeightMetric();
             validateDlNumber();
             compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             showToast('Loaded Jacob Glass (Washington v08 / Format 16) profile!', 'success');
         }
 
         // --- PRELOAD TEXAS PRESET (TX v09 / AUDIT NUMBER / OMITTED ICN) ---
         function loadTexasPreset() {
-            document.getElementById('aamva-jurisdiction').value = 'TX';
+            setJurisdictionSelect('TX');
             document.getElementById('aamva-version').value = 'AUTO';
             document.getElementById('aamva-id').value = '38914028';
             document.getElementById('aamva-first').value = 'Michael';
@@ -6499,7 +6584,125 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             updateWeightMetric();
             validateDlNumber();
             compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             showToast('Loaded Texas (TX v09 / Format 11) profile with Audit Number and omitted ICN!', 'success');
+        }
+
+        // --- PRELOAD FLORIDA PRESET (FL) ---
+        function loadFloridaPreset() {
+            setJurisdictionSelect('FL');
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+            setVal('aamva-version', 'AUTO');
+            setVal('aamva-id', 'B420123894120');
+            setVal('aamva-first', 'David');
+            setVal('aamva-mid', 'Alan');
+            setVal('aamva-last', 'Miller');
+            setVal('aamva-street', '428 Ocean Drive');
+            setVal('aamva-city', 'Miami Beach');
+            setVal('aamva-state', 'FL');
+            setVal('aamva-zip', '33139');
+            setVal('aamva-class', 'E');
+            setVal('aamva-sex', '1');
+            setVal('aamva-donor', '1');
+            setVal('aamva-dob', '04121990');
+            setVal('aamva-issued', '05102022');
+            setVal('aamva-exp', '04122030');
+            setVal('aamva-dcf', '24051014422001M1');
+            setVal('aamva-dck', 'B420123894120FL01');
+            setVal('aamva-restrictions', 'NONE');
+            setVal('aamva-endorsements', 'NONE');
+            setVal('aamva-height-in', '71');
+            setVal('aamva-weight-lb', '185');
+            setVal('aamva-eyes-dl', 'BLU');
+            setVal('aamva-eyes', 'BLU');
+            setVal('aamva-hair-dl', 'BRN');
+            setVal('aamva-hair', 'BRO');
+            const incZc = document.getElementById('include-zc');
+            if (incZc) incZc.checked = true;
+            setVal('zc-field-a', '000000000');
+            setVal('zc-field-b', '0002303378');
+
+            setVal('tune-cols', 12);
+            setVal('tune-ecc', 5);
+            setVal('tune-scale', 2.0);
+            setVal('tune-ratio', 3);
+            if (typeof updateTuningUI === 'function') updateTuningUI();
+
+            if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
+            if (typeof updateHeightMetric === 'function') updateHeightMetric();
+            if (typeof updateWeightMetric === 'function') updateWeightMetric();
+            if (typeof validateDlNumber === 'function') validateDlNumber();
+            if (typeof compileAAMVA === 'function') compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+            showToast('Loaded Florida (FL) compliance preset!', 'success');
+        }
+
+        // --- PRELOAD NEW YORK PRESET (NY) ---
+        function loadNewYorkPreset() {
+            setJurisdictionSelect('NY');
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+            setVal('aamva-version', 'AUTO');
+            setVal('aamva-id', '849201847');
+            setVal('aamva-first', 'Sarah');
+            setVal('aamva-mid', 'Elizabeth');
+            setVal('aamva-last', 'Jenkins');
+            setVal('aamva-street', '145 W 57th St');
+            setVal('aamva-city', 'New York');
+            setVal('aamva-state', 'NY');
+            setVal('aamva-zip', '10019');
+            setVal('aamva-class', 'D');
+            setVal('aamva-sex', '2');
+            setVal('aamva-donor', '1');
+            setVal('aamva-dob', '09181993');
+            setVal('aamva-issued', '10222023');
+            setVal('aamva-exp', '09182031');
+            setVal('aamva-dcf', '24102214422001NY01');
+            setVal('aamva-dck', ''); // Standard NY omits DCK subfile tag
+            setVal('aamva-restrictions', 'NONE');
+            setVal('aamva-endorsements', 'NONE');
+            setVal('aamva-height-in', '65');
+            setVal('aamva-weight-lb', '135');
+            setVal('aamva-eyes-dl', 'GRN');
+            setVal('aamva-eyes', 'GRN');
+            setVal('aamva-hair-dl', 'BLN');
+            setVal('aamva-hair', 'BLN');
+            const incZc = document.getElementById('include-zc');
+            if (incZc) incZc.checked = true;
+            setVal('zc-field-a', '000000000');
+            setVal('zc-field-b', '000000000');
+
+            setVal('tune-cols', 12);
+            setVal('tune-ecc', 5);
+            setVal('tune-scale', 2.0);
+            setVal('tune-ratio', 3);
+            if (typeof updateTuningUI === 'function') updateTuningUI();
+
+            if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
+            if (typeof updateHeightMetric === 'function') updateHeightMetric();
+            if (typeof updateWeightMetric === 'function') updateWeightMetric();
+            if (typeof validateDlNumber === 'function') validateDlNumber();
+            if (typeof compileAAMVA === 'function') compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+            showToast('Loaded New York (NY) compliance preset!', 'success');
+        }
+
+        // --- QUICK TEST STATES DISPATCHER (CT | CA | TX | FL | NY) ---
+        function loadQuickStatePreset(code) {
+            const cleanCode = (code || '').trim().toUpperCase();
+            if (cleanCode === 'CT') {
+                loadJonathanGarciaPreset();
+            } else if (cleanCode === 'CA') {
+                loadSeanHarrisonScreenshotPreset();
+            } else if (cleanCode === 'TX') {
+                loadTexasPreset();
+            } else if (cleanCode === 'FL') {
+                loadFloridaPreset();
+            } else if (cleanCode === 'NY') {
+                loadNewYorkPreset();
+            } else {
+                setJurisdictionSelect(cleanCode);
+                generateRandomAAMVA();
+            }
         }
 
         function updateTuningUI() {
@@ -6554,6 +6757,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // --- COMPILE AAMVA DATA STREAM ---
         function compileAAMVA() {
+            if (window.isClearingForm) return;
             if (typeof triggerAutoSave === 'function') triggerAutoSave();
             const jKey = document.getElementById('aamva-jurisdiction').value;
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES.GENERIC;
@@ -9234,7 +9438,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const scale = parseFloat(document.getElementById('tune-scale').value) || 2.0;
             const ratio = parseInt(document.getElementById('tune-ratio').value, 10) || 3;
 
-            if (!payload) return;
+            // If payload is empty, blank out all barcode canvases
+            if (!payload || !payload.trim()) {
+                if (canvas && canvas.getContext) {
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+                const scId = (jurEl ? jurEl.value.split('_')[0] : (stateEl ? stateEl.value : '')).trim().toLowerCase();
+                const curSc = scId ? document.getElementById(scId + '-pdf417') : null;
+                if (curSc && curSc.getContext) {
+                    const sctx = curSc.getContext('2d');
+                    if (sctx) sctx.clearRect(0, 0, curSc.width, curSc.height);
+                }
+                const cpb = document.getElementById('card-preview-barcode');
+                if (cpb && cpb.getContext) {
+                    const bctx = cpb.getContext('2d');
+                    if (bctx) bctx.clearRect(0, 0, cpb.width, cpb.height);
+                }
+                const labelEl = document.getElementById('barcode-standard-label');
+                if (labelEl) labelEl.textContent = 'Cleared (Blank Canvas)';
+                const dimsEl = document.getElementById('barcode-physical-dims');
+                if (dimsEl) dimsEl.textContent = 'Empty payload • Nothing to scan';
+                return;
+            }
 
             const jurEl = document.getElementById('aamva-jurisdiction');
             const stateEl = document.getElementById('aamva-state');
@@ -9265,15 +9491,33 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         const v = el.value.trim();
                         return v !== '' ? v : fallback;
                     };
-                    const first = getV('aamva-first', 'Jonathan');
-                    const last = getV('aamva-last', 'Garcia');
-                    const id = getV('aamva-id', '188892143');
-                    const dob = getV('aamva-dob', '1992-06-21');
-                    const exp = getV('aamva-exp', '2030-06-21');
-                    const street = getV('aamva-street', '30 Beatty St');
-                    const city = getV('aamva-city', 'New Britain');
-                    const state = getV('aamva-state', 'CT');
-                    const zip = getV('aamva-zip', '06051');
+                    const first = getV('aamva-first', '');
+                    const last = getV('aamva-last', '');
+                    const id = getV('aamva-id', '');
+
+                    if (!first && !last && !id) {
+                        if (canvas && canvas.getContext) {
+                            const ctx = canvas.getContext('2d');
+                            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        if (activeCanvasId) {
+                            const sc = document.getElementById(activeCanvasId);
+                            if (sc && sc.getContext) {
+                                const sctx = sc.getContext('2d');
+                                if (sctx) sctx.clearRect(0, 0, sc.width, sc.height);
+                            }
+                        }
+                        const labelEl = document.getElementById('barcode-standard-label');
+                        if (labelEl) labelEl.textContent = 'Cleared (Blank Canvas)';
+                        return;
+                    }
+
+                    const dob = getV('aamva-dob', '');
+                    const exp = getV('aamva-exp', '');
+                    const street = getV('aamva-street', '');
+                    const city = getV('aamva-city', '');
+                    const state = getV('aamva-state', stateCode || 'CT');
+                    const zip = getV('aamva-zip', '');
                     const rawClass = getV('aamva-class', 'C');
                     const rawRest = getV('aamva-restrictions', 'NONE');
                     const rawEnd = getV('aamva-endorsements', 'NONE');
@@ -9385,7 +9629,19 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         function renderCode128() {
             const el = document.getElementById('input-code128');
-            const val = (el ? el.value.trim() : '') || 'DEMO-123456789';
+            const val = (el ? el.value.trim() : '');
+            if (!val) {
+                const out128 = document.getElementById('output-code128');
+                if (out128) {
+                    if (out128.tagName === 'CANVAS' && out128.getContext) {
+                        const ctx = out128.getContext('2d');
+                        if (ctx) ctx.clearRect(0, 0, out128.width, out128.height);
+                    } else if (out128.tagName === 'svg' || out128.tagName === 'SVG') {
+                        out128.innerHTML = '';
+                    }
+                }
+                return;
+            }
             const height = parseInt(document.getElementById('tune-128-height')?.value || 50, 10);
             const width = parseInt(document.getElementById('tune-128-width')?.value || 2, 10);
             const showText = document.getElementById('tune-128-text')?.checked ?? false;
@@ -11189,11 +11445,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         });
 
-        // Close dropdowns on Escape key
+        // Close dropdowns & modals on Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeHeaderToolsMenu();
-                closeUserMenu();
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (typeof dismissAllModalsAndTiles === 'function') {
+                    dismissAllModalsAndTiles();
+                } else {
+                    closeHeaderToolsMenu();
+                    closeUserMenu();
+                }
             }
         });
 
@@ -14737,20 +14997,63 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
         }
 
+        // --- GLOBAL ESCAPE / DISMISS CONTROLLER ---
+        function dismissAllModalsAndTiles() {
+            // 1. Close all dropdown menus
+            try { if (typeof closeHeaderToolsMenu === 'function') closeHeaderToolsMenu(); } catch (e) {}
+            try { if (typeof closeUserMenu === 'function') closeUserMenu(); } catch (e) {}
+            const tm = document.getElementById('header-tools-dropdown');
+            if (tm && !tm.classList.contains('hidden')) tm.classList.add('hidden');
+            const um = document.getElementById('user-dropdown-menu');
+            if (um && !um.classList.contains('hidden')) um.classList.add('hidden');
+
+            // 2. Stop camera scanner if running
+            try { if (typeof stopCameraScanning === 'function') stopCameraScanning(); } catch (e) {}
+
+            // 3. Call explicit close functions for modals
+            const closeFns = [
+                closePasswordModal, closeForgotPasswordModal, closeAuthModal,
+                closeTokenModal, closeZxingModal, closeBarcodeScannerModal,
+                closeBatchModal, closeXmlModal, closeZplModal, closeReceiptModal,
+                closeCertificateModal, closeUserOrdersModal, closeUserHistoryModal,
+                closeUserAffiliateModal, closeAdminCryptoModal, closeAdminClientsModal,
+                closePrivacyModal, closeTermsModal, closeSupportModal
+            ];
+            closeFns.forEach(fn => {
+                if (typeof fn === 'function') {
+                    try { fn(); } catch (err) {}
+                }
+            });
+
+            // 4. Force hide all modal overlay elements by ID
+            const modalIds = [
+                'auth-modal', 'forgot-password-modal', 'user-password-modal', 'token-modal',
+                'zxing-modal', 'barcode-scanner-modal', 'batch-modal', 'xml-modal',
+                'zpl-modal', 'receipt-modal', 'certificate-modal', 'user-orders-modal',
+                'user-history-modal', 'user-affiliate-modal', 'admin-crypto-modal',
+                'admin-clients-modal', 'privacy-modal', 'terms-modal', 'support-modal',
+                'modal-compliance-inspector'
+            ];
+            modalIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.classList.contains('hidden')) {
+                    el.classList.add('hidden');
+                }
+            });
+
+            // 5. Force hide any visible full-screen overlay backdrop
+            document.querySelectorAll('.fixed.inset-0').forEach(el => {
+                if (el.id !== 'app-loading-screen' && !el.classList.contains('hidden')) {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
         // --- PRO KEYBOARD SHORTCUTS ---
         document.addEventListener('keydown', (e) => {
-            // Escape: Close all open modals
-            if (e.key === 'Escape') {
-                closeTokenModal();
-                closeXmlModal();
-                closeAuthModal();
-                closePrivacyModal();
-                closeTermsModal();
-                closeSupportModal();
-                closeAdminCryptoModal();
-                closeUserOrdersModal();
-                closeBarcodeScannerModal();
-                closeBatchModal();
+            // Escape: Close all open modals, tiles, dropdowns, and flyouts
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                dismissAllModalsAndTiles();
                 return;
             }
 
@@ -15211,6 +15514,17 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     if (authEmail) emailInp.value = authEmail;
                     emailInp.focus();
                 }
+                ['fp-new-password', 'fp-confirm-password'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = '';
+                        el.type = 'password';
+                        const btn = el.parentElement ? el.parentElement.querySelector('button') : null;
+                        if (btn) {
+                            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+                        }
+                    }
+                });
             }
         }
 
@@ -15402,14 +15716,20 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const modal = document.getElementById('user-password-modal');
             if (modal) {
                 modal.classList.remove('hidden');
-                const cur = document.getElementById('pwd-current');
-                const np = document.getElementById('pwd-new');
-                const cp = document.getElementById('pwd-confirm');
-                if (cur) cur.value = '';
-                if (np) np.value = '';
-                if (cp) cp.value = '';
+                ['pwd-current', 'pwd-new', 'pwd-confirm'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = '';
+                        el.type = 'password';
+                        const btn = el.parentElement ? el.parentElement.querySelector('button') : null;
+                        if (btn) {
+                            btn.innerHTML = '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+                        }
+                    }
+                });
                 const msgEl = document.getElementById('pwd-msg');
                 if (msgEl) msgEl.classList.add('hidden');
+                const cur = document.getElementById('pwd-current');
                 if (cur) cur.focus();
             }
         }
