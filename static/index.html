@@ -11462,7 +11462,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (userMenuDivider) userMenuDivider.classList.remove('hidden');
                 if (userMenuEmail) userMenuEmail.textContent = currentUser.email || 'Authenticated User';
 
-                const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
+                const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
                 if (userMenuRole) userMenuRole.textContent = isAdmin ? '👑 Administrator' : '👤 Client Account';
 
                 if (adminCryptoBtn) {
@@ -11552,7 +11552,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const mobileTokenCount = document.getElementById('mobile-token-count');
             if (mobileTokenCount) {
                 if (currentUser) {
-                    const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
+                    const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
                     mobileTokenCount.innerHTML = isAdmin ? 'Sets: &infin; (Admin)' : `Sets: ${currentUser.tokens}`;
                 } else {
                     mobileTokenCount.textContent = 'Sets: 0';
@@ -11617,7 +11617,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // --- BARCODE PRIVACY & SEE-THROUGH ANTI-SCAN CONTROLLER ---
         function applyBarcodeBlurState() {
-            const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000));
+            const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'pro_user');
             const hasAccess = currentUser && (isAdmin || currentUser.tokens > 0);
 
             const overlay = document.getElementById('barcode-blur-overlay');
@@ -12099,7 +12099,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return;
             }
 
-            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
 
             if (isAdmin) {
                 // Unlimited Admin Mode: export directly without gating
@@ -15114,7 +15114,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
 
             const count = parsedBatchRecords.length;
-            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
             if (!isAdmin && currentUser.tokens < count) {
                 showToast(`Insufficient balance: you need ${count} barcode sets, but have ${currentUser.tokens}.`, 'warning');
                 closeBatchModal();

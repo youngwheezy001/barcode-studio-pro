@@ -85,9 +85,9 @@ def restore_users_from_backup(db: Session):
         restored = 0
         for item in data:
             email_clean = item.get("email", "").strip().lower()
-            if not email_clean or email_clean == "youngwheezy001@gmail.com":
+            if not email_clean or email_clean in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]:
                 continue
-            is_adm = email_clean in ADMIN_EMAILS or item.get("role") == "admin"
+            is_adm = email_clean in ADMIN_EMAILS
             existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
             if not existing:
                 new_u = User(
@@ -409,20 +409,21 @@ except Exception:
 ADMIN_EMAILS = [
     e.strip().lower() for e in os.getenv(
         "ADMIN_EMAILS",
-        "mwangilewis205@gmail.com,joyannkarambu@gmail.com"
-    ).split(",") if e.strip() and e.strip().lower() != "youngwheezy001@gmail.com"
+        "mwangilewis205@gmail.com"
+    ).split(",") if e.strip() and e.strip().lower() not in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]
 ]
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "admin2026")
 
 def seed_admin_users():
     db = SessionLocal()
     try:
-        # Explicitly remove youngwheezy001@gmail.com from database
-        yw = db.query(User).filter(func.lower(User.email) == "youngwheezy001@gmail.com").first()
-        if yw:
-            db.delete(yw)
-            db.commit()
-            print("[ADMIN CLEANUP] Removed youngwheezy001@gmail.com from database.")
+        # Explicitly remove unauthorized admin accounts from database
+        for revoked_admin in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]:
+            bad_u = db.query(User).filter(func.lower(User.email) == revoked_admin).first()
+            if bad_u:
+                db.delete(bad_u)
+                db.commit()
+                print(f"[ADMIN CLEANUP] Removed {revoked_admin} from database.")
 
         # Purge any old sandbox/mock test orders
         db.query(CryptoPayment).filter(
@@ -1779,7 +1780,9 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
-    users = db.query(User).filter(func.lower(User.email) != "youngwheezy001@gmail.com").order_by(User.id.asc()).all()
+    users = db.query(User).filter(
+        func.lower(User.email).not_in(["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"])
+    ).order_by(User.id.asc()).all()
 
     # Pre-calculate user order counts and spent totals strictly matching by email and user_id, excluding test data
     orders = db.query(CryptoPayment).filter(

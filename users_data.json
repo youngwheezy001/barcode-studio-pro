@@ -4,11 +4,5 @@
     "hashed_password": "$2b$10$JrO9Vphtu4kPVf8oIqMTHuSKFTr6VN/3a54RTDqTNO2jo/9PQTrfS",
     "role": "admin",
     "tokens": 999999
-  },
-  {
-    "email": "joyannkarambu@gmail.com",
-    "hashed_password": "$2b$10$O.JLSZoMingEMQCqDoBdI.E605uZJ1UsrFkaBWqbhkRWABC9I51tK",
-    "role": "admin",
-    "tokens": 999999
   }
 ]
