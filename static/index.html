@@ -135,6 +135,15 @@
         .calc-btn:hover { color: #2563EB; transform: scale(1.15); }
         .calc-btn { transition: all 0.15s ease-in-out; }
 
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
@@ -142,7 +151,7 @@
         }
     </style>
 </head>
-<body class="bg-appbg text-slate-800 font-sans min-h-screen xl:h-screen flex flex-col overflow-x-hidden xl:overflow-hidden relative select-none">
+<body class="bg-appbg text-slate-800 font-sans min-h-screen xl:h-screen flex flex-col overflow-x-hidden xl:overflow-hidden relative select-none w-full max-w-full">
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
@@ -1641,13 +1650,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
     </div>
 
     <!-- Top Navigation Header -->
-    <header class="bg-brand text-white px-4 sm:px-6 py-2.5 flex justify-between items-center shadow-md relative z-40">
-        <div class="flex items-center gap-3 min-w-0">
-            <div onclick="handleLogoClick()" title="Barcode Studio Pro" class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center font-bold text-white text-xs shadow cursor-pointer select-none transition hover:bg-accent-hover shrink-0">
+    <header class="bg-brand text-white px-3 sm:px-6 py-2 sm:py-2.5 flex justify-between items-center shadow-md relative z-40 max-w-full">
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div onclick="handleLogoClick()" title="Barcode Studio Pro" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-accent flex items-center justify-center font-bold text-white text-[11px] sm:text-xs shadow cursor-pointer select-none transition hover:bg-accent-hover shrink-0">
                 P417
             </div>
             <div class="min-w-0">
-                <h1 class="text-sm font-bold tracking-wide text-white whitespace-nowrap">Barcode Studio Pro</h1>
+                <h1 class="text-xs sm:text-sm font-bold tracking-wide text-white whitespace-nowrap">Barcode Studio<span class="hidden sm:inline"> Pro</span></h1>
             </div>
             <!-- Mode Switcher: AAMVA Barcode vs MRZ Passport -->
             <div class="hidden lg:flex bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl text-xs font-bold ml-2 shadow-inner shrink-0">
@@ -1665,117 +1674,73 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             </div>
         </div>
         
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <!-- Tools Dropdown Menu -->
             <div class="relative" id="header-tools-menu-container">
-                <button type="button" onclick="toggleHeaderToolsMenu(event)" id="header-tools-btn" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm cursor-pointer" title="Open utilities (Scanner, Batch CSV, XML Import)">
-                    <svg class="w-3.5 h-3.5 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                <button type="button" onclick="toggleHeaderToolsMenu(event)" id="header-tools-btn" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer" title="Open utilities">
+                    <svg class="w-3.5 h-3.5 text-accent-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                     <span>Tools</span>
-                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
                 <!-- Tools Dropdown Popover -->
-                <div id="header-tools-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-md">
+                <div id="header-tools-dropdown" class="hidden absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 max-w-[calc(100vw-24px)] bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-md">
                     <button type="button" onclick="openBarcodeScannerModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
                         <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs">📷</span>
                         <div class="flex flex-col">
                             <span class="font-bold text-white">Scan Barcode</span>
-                            <span class="text-[9px] text-slate-400">Camera, Image &amp; MRZ Validator</span>
+                            <span class="text-[9px] text-slate-400">Camera &amp; MRZ Validator</span>
                         </div>
                     </button>
-                    <!-- Studio Verifier & Decoder Tool with Hover Side Submenu -->
-                    <div class="relative group/verifier w-full">
-                        <button type="button" onclick="openZxingModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center justify-between gap-1.5 cursor-pointer">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">🏁</span>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white">Studio Verifier &amp; Decoder</span>
-                                    <span class="text-[9px] text-slate-400">Universal 1D/2D Verification</span>
-                                </div>
-                            </div>
-                            <svg class="w-3.5 h-3.5 text-slate-400 group-hover/verifier:text-amber-400 group-hover/verifier:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        </button>
-
-                        <!-- Side Flyout Submenu on Hover with Zero-Gap Bridge -->
-                        <div class="hidden group-hover/verifier:flex hover:flex absolute right-full top-0 pr-2 w-68 -mr-1 z-50 flex-col">
-                            <div class="w-64 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 flex flex-col gap-1 backdrop-blur-md">
-                                <div class="px-2.5 py-1.5 border-b border-slate-800 text-[10px] uppercase font-bold tracking-wider text-amber-400 flex items-center justify-between">
-                                    <span>Verification Suite</span>
-                                    <span class="text-[9px] text-slate-400 font-mono">1D &bull; 2D</span>
-                                </div>
-                                <button type="button" onclick="event.stopPropagation(); openZxingModalAndAction('active'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                    <span class="text-sm">⚡</span>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-amber-300">Verify Active Studio Barcode</span>
-                                        <span class="text-[9px] text-slate-400">1-click test current canvas barcode</span>
-                                    </div>
-                                </button>
-                                <button type="button" onclick="event.stopPropagation(); openZxingModalAndAction('file'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                    <span class="text-sm">📁</span>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-white">Upload Barcode File</span>
-                                        <span class="text-[9px] text-slate-400">Test image file (&lt;10MB, &lt;10MP)</span>
-                                    </div>
-                                </button>
-                                <button type="button" onclick="event.stopPropagation(); openZxingModalAndAction('url'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                    <span class="text-sm">🌐</span>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-white">Decode from Image URL</span>
-                                        <span class="text-[9px] text-slate-400">Paste public image link</span>
-                                    </div>
-                                </button>
-                                <div class="border-t border-slate-800 my-0.5"></div>
-                                <button type="button" onclick="event.stopPropagation(); openZxingModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                    <span class="text-sm">🔍</span>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-white">Open Full Verifier Modal</span>
-                                        <span class="text-[9px] text-slate-400">All formats &amp; diagnostics</span>
-                                    </div>
-                                </button>
-                            </div>
+                    <button type="button" onclick="openZxingModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
+                        <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">🏁</span>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-white">Verifier &amp; Decoder</span>
+                            <span class="text-[9px] text-slate-400">Universal 1D/2D Test</span>
                         </div>
-                    </div>
+                    </button>
                     <button type="button" onclick="openBatchModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
                         <span class="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center text-xs">📦</span>
                         <div class="flex flex-col">
                             <span class="font-bold text-white">Batch CSV</span>
-                            <span class="text-[9px] text-slate-400">Bulk Generator &amp; ZIP Export</span>
+                            <span class="text-[9px] text-slate-400">Bulk Generator &amp; ZIP</span>
                         </div>
                     </button>
                     <button type="button" onclick="openXmlModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
                         <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">📥</span>
                         <div class="flex flex-col">
                             <span class="font-bold text-white">Import XML</span>
-                            <span class="text-[9px] text-slate-400">AAMVA Scanner XML Parser</span>
+                            <span class="text-[9px] text-slate-400">AAMVA XML Parser</span>
                         </div>
                     </button>
                 </div>
             </div>
 
             <!-- Buy Barcode Sets Navigation Button -->
-            <button type="button" onclick="openTokenModal()" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1.5 cursor-pointer" title="Purchase barcode sets package">
+            <button type="button" onclick="openTokenModal()" class="hidden md:flex text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg transition shadow items-center gap-1.5 cursor-pointer" title="Purchase barcode sets package">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span class="whitespace-nowrap">Buy Sets</span>
             </button>
 
             <!-- User Token Balance Pill -->
-            <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1.5 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition" title="Click to view balance and packages">
-                <span class="text-slate-400">Sets:</span>
+            <div id="user-token-pill" onclick="openTokenModal()" class="hidden items-center gap-1 bg-slate-800 hover:bg-slate-700 cursor-pointer border border-slate-700 px-2 py-1 rounded-lg text-xs font-semibold transition" title="Click to view balance and packages">
+                <span class="text-amber-400 font-bold text-xs">⚡</span>
+                <span class="text-slate-400 hidden xs:inline text-[10px]">Sets:</span>
                 <span id="header-token-count" class="text-emerald-400 font-bold">0</span>
             </div>
 
             <!-- User Account / Admin Profile Dropdown Container -->
             <div class="relative" id="user-menu-container">
                 <div id="user-menu-btn-wrap" class="flex items-center">
-                    <button type="button" id="user-menu-btn" onclick="toggleUserMenu(event)" class="flex items-center gap-1.5 focus:outline-none cursor-pointer">
-                        <span id="role-badge" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-full cursor-pointer hover:border-slate-500 transition max-w-[170px] truncate block">Guest</span>
+                    <button type="button" id="user-menu-btn" onclick="toggleUserMenu(event)" class="flex items-center gap-1 focus:outline-none cursor-pointer">
+                        <span id="role-badge" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold px-2 py-1 rounded-full cursor-pointer hover:border-slate-500 transition max-w-[80px] sm:max-w-[170px] truncate block">Guest</span>
                         <svg id="user-menu-chevron" class="hidden w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
                     <!-- Auth Sign In Button (shown only when logged out) -->
-                    <button id="auth-btn" onclick="openAuthModal()" class="text-xs font-bold bg-accent hover:bg-accent-hover text-white px-3 py-1.5 rounded-lg transition-colors shadow whitespace-nowrap ml-1.5 cursor-pointer">Sign In</button>
+                    <button id="auth-btn" onclick="openAuthModal()" class="text-xs font-bold bg-accent hover:bg-accent-hover text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-colors shadow whitespace-nowrap ml-1 cursor-pointer">Sign In</button>
                 </div>
 
                 <!-- User Dropdown Popover Menu (shown when logged in and clicked) -->
-                <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-64 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-md">
+                <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-60 max-w-[calc(100vw-24px)] bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-md">
                     <!-- User email & role header inside dropdown -->
                     <div class="px-3 py-2 border-b border-slate-800 flex flex-col">
                         <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider" id="user-menu-role">Signed in as</span>
@@ -1860,13 +1825,15 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             
             <!-- Symbology Tab Switcher -->
             <div class="flex bg-slate-100 p-1 rounded-xl border border-bordercol">
-                <button onclick="switchTab('pdf417')" id="tab-pdf417" class="flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    2D PDF417 (AAMVA DL/ID Standard)
+                <button onclick="switchTab('pdf417')" id="tab-pdf417" class="flex-1 bg-white shadow-sm border border-slate-200 text-xs py-2 px-1.5 rounded-lg font-bold text-accent transition-all flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span class="hidden sm:inline">2D PDF417 (AAMVA DL/ID Standard)</span>
+                    <span class="sm:hidden text-[11px]">2D PDF417 (AAMVA)</span>
                 </button>
-                <button onclick="switchTab('code128')" id="tab-code128" class="flex-1 text-slate-500 text-xs py-2 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h2v12H4zm4 0h1v12H8zm3 0h3v12h-3zm5 0h1v12h-1zm3 0h2v12h-2z"></path></svg>
-                    1D Code 128 (GS1 / Logistics Standard)
+                <button onclick="switchTab('code128')" id="tab-code128" class="flex-1 text-slate-500 text-xs py-2 px-1.5 rounded-lg font-bold hover:text-slate-900 transition-all flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h2v12H4zm4 0h1v12H8zm3 0h3v12h-3zm5 0h1v12h-1zm3 0h2v12h-2z"></path></svg>
+                    <span class="hidden sm:inline">1D Code 128 (GS1 / Logistics Standard)</span>
+                    <span class="sm:hidden text-[11px]">1D Code 128 (GS1)</span>
                 </button>
             </div>
 
@@ -1874,30 +1841,28 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
             <div id="form-pdf417" class="flex flex-col gap-2.5">
                 
                 <!-- Jurisdiction & Preset Toolbar -->
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-bordercol flex flex-col gap-2">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 flex-1 min-w-[280px]">
-                            <div class="flex-1 w-full">
-                                <div class="flex items-center justify-between gap-1 mb-0.5">
-                                    <label class="block text-[10px] font-bold text-slate-600 uppercase">Jurisdiction Profile &amp; Revision</label>
-                                    <div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500">
-                                        <span class="text-[9px] uppercase font-bold text-slate-400">Quick Test:</span>
-                                        <button type="button" onclick="loadQuickStatePreset('CT')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test Connecticut (CT)">CT</button>
-                                        <button type="button" onclick="loadQuickStatePreset('CA')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test California (CA)">CA</button>
-                                        <button type="button" onclick="loadQuickStatePreset('TX')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test Texas (TX)">TX</button>
-                                        <button type="button" onclick="loadQuickStatePreset('FL')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test Florida (FL)">FL</button>
-                                        <button type="button" onclick="loadQuickStatePreset('NY')" class="px-1.5 py-0.2 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer" title="Quick Test New York (NY)">NY</button>
-                                    </div>
+                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-xl border border-bordercol flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 w-full">
+                        <div class="w-full">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
+                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Jurisdiction Profile &amp; Revision</label>
+                                <div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500 overflow-x-auto pb-0.5 no-scrollbar">
+                                    <span class="text-[9px] uppercase font-bold text-slate-400 shrink-0">Quick Test:</span>
+                                    <button type="button" onclick="loadQuickStatePreset('CT')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">CT</button>
+                                    <button type="button" onclick="loadQuickStatePreset('CA')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">CA</button>
+                                    <button type="button" onclick="loadQuickStatePreset('TX')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">TX</button>
+                                    <button type="button" onclick="loadQuickStatePreset('FL')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">FL</button>
+                                    <button type="button" onclick="loadQuickStatePreset('NY')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">NY</button>
                                 </div>
-                                <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
                             </div>
-                            <select id="aamva-version" class="hidden">
-                                <option value="AUTO" selected>Auto</option>
-                            </select>
+                            <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
                         </div>
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2.5 rounded-lg transition" title="Load Jonathan Garcia (CT v09 / Format 11) profile">
-                                ⚡ Jonathan Garcia (CT v09)
+                        <select id="aamva-version" class="hidden">
+                            <option value="AUTO" selected>Auto</option>
+                        </select>
+                        <div class="flex items-center gap-1.5 flex-wrap w-full">
+                            <button type="button" onclick="loadJonathanGarciaPreset()" class="text-[11px] bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold py-1.5 px-2 rounded-lg transition" title="Load Jonathan Garcia profile">
+                                ⚡ Jonathan Garcia<span class="hidden sm:inline"> (CT v09)</span>
                             </button>
                             <button type="button" onclick="generateRandomAAMVA()" class="text-[11px] bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-700 font-bold py-1.5 px-2.5 rounded-lg transition" title="Randomize data">
                                 🎲 Randomize
@@ -1907,7 +1872,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </button>
                             <span id="auto-save-status-pill" class="text-[10px] text-slate-500 font-mono flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-slate-200 shadow-xs" title="Form entries are saved locally to your browser in real-time">
                                 <span id="auto-save-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                <span id="auto-save-text">Auto-Save Active</span>
+                                <span id="auto-save-text">Auto-Save</span>
                             </span>
                         </div>
                     </div>
@@ -2667,7 +2632,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                          style="background: radial-gradient(ellipse 110% 95% at 50% 30%, #b2bdcc 0%, #8b97a6 32%, #687483 62%, #4f5b69 86%, #424d5a 100%);">
                         
                         <!-- Authentic CR80 Physical Card Sitting on Stage -->
-                        <div id="studio-cr80-card" class="relative z-10 w-[410px] max-w-[95%] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+                        <div id="studio-cr80-card" class="relative z-10 w-full max-w-[410px] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             
                             <!-- Authentic Physical CR80 Guilloche Security Microprint Overlay -->
                             <div id="card-security-pattern" class="absolute inset-0 pointer-events-none opacity-[0.035] z-0 overflow-hidden" style="background-image: radial-gradient(#1e293b 1px, transparent 1px), radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px; background-position: 0 0, 4px 4px;"></div>
@@ -2742,12 +2707,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <div class="flex justify-between items-end mt-2 relative">
                                         
                                         <!-- Left: 2D Barcode & DMV URL -->
-                                        <div class="flex flex-col items-start max-w-[280px] relative">
+                                        <div class="flex flex-col items-start w-[58%] max-w-[280px] min-w-0 relative">
                                             <div id="card-pdf417-container" class="bg-white rounded p-1 shadow-xs border border-slate-200/60 flex items-center justify-center w-full max-w-[280px] h-[76px] overflow-hidden">
                                                 <canvas id="output-pdf417" class="w-full h-full object-fill transition duration-200"></canvas>
                                             </div>
                                             <canvas id="card-preview-barcode" class="hidden"></canvas>
-                                            <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1">www.expresslane.org</div>
+                                            <div id="studio-portal-url" class="text-[8px] sm:text-[8.5px] font-mono font-bold text-slate-800 tracking-tight mt-1 pl-1 truncate max-w-full">www.expresslane.org</div>
 
                                             <!-- See-Through Anti-Scan Security Overlay for Unregistered/Zero Tokens -->
                                             <div id="barcode-blur-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none select-none">
@@ -2759,7 +2724,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         </div>
 
                                         <!-- Right: State Cursive Watermark, Federal Notice, and Vertical Revision Stamp -->
-                                        <div class="flex flex-col items-end text-right pl-2 max-w-[200px] relative flex-1">
+                                        <div class="flex flex-col items-end text-right pl-1 sm:pl-2 w-[42%] max-w-[190px] min-w-0 relative flex-1">
                                             <div class="flex items-center gap-1.5 w-full justify-end">
                                                 <div class="flex flex-col items-end text-right flex-1">
                                                     <!-- State Watermark (Cursive for Type A / Clean Official Seal Typography for Others) -->
