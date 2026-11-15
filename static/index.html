@@ -1662,41 +1662,43 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <svg class="w-3.5 h-3.5 text-slate-400 group-hover/verifier:text-amber-400 group-hover/verifier:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
 
-                        <!-- Side Flyout Submenu on Hover -->
-                        <div class="hidden group-hover/verifier:flex absolute right-full top-0 mr-1.5 w-64 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 flex-col gap-1 backdrop-blur-md z-50">
-                            <div class="px-2.5 py-1.5 border-b border-slate-800 text-[10px] uppercase font-bold tracking-wider text-amber-400 flex items-center justify-between">
-                                <span>Verification Suite</span>
-                                <span class="text-[9px] text-slate-400 font-mono">1D &bull; 2D</span>
+                        <!-- Side Flyout Submenu on Hover with Zero-Gap Bridge -->
+                        <div class="hidden group-hover/verifier:flex hover:flex absolute right-full top-0 pr-2 w-68 -mr-1 z-50 flex-col">
+                            <div class="w-64 bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 flex flex-col gap-1 backdrop-blur-md">
+                                <div class="px-2.5 py-1.5 border-b border-slate-800 text-[10px] uppercase font-bold tracking-wider text-amber-400 flex items-center justify-between">
+                                    <span>Verification Suite</span>
+                                    <span class="text-[9px] text-slate-400 font-mono">1D &bull; 2D</span>
+                                </div>
+                                <button type="button" onclick="event.stopPropagation(); openZxingModalAndAction('active'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                                    <span class="text-sm">⚡</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-amber-300">Verify Active Studio Barcode</span>
+                                        <span class="text-[9px] text-slate-400">1-click test current canvas barcode</span>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="event.stopPropagation(); openZxingModalAndAction('file'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                                    <span class="text-sm">📁</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-white">Upload Barcode File</span>
+                                        <span class="text-[9px] text-slate-400">Test image file (&lt;10MB, &lt;10MP)</span>
+                                    </div>
+                                </button>
+                                <button type="button" onclick="event.stopPropagation(); openZxingModalAndAction('url'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                                    <span class="text-sm">🌐</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-white">Decode from Image URL</span>
+                                        <span class="text-[9px] text-slate-400">Paste public image link</span>
+                                    </div>
+                                </button>
+                                <div class="border-t border-slate-800 my-0.5"></div>
+                                <button type="button" onclick="event.stopPropagation(); openZxingModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
+                                    <span class="text-sm">🔍</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-white">Open Full Verifier Modal</span>
+                                        <span class="text-[9px] text-slate-400">All formats &amp; diagnostics</span>
+                                    </div>
+                                </button>
                             </div>
-                            <button type="button" onclick="openZxingModalAndAction('active'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                <span class="text-sm">⚡</span>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-amber-300">Verify Active Studio Barcode</span>
-                                    <span class="text-[9px] text-slate-400">1-click test current canvas barcode</span>
-                                </div>
-                            </button>
-                            <button type="button" onclick="openZxingModalAndAction('file'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                <span class="text-sm">📁</span>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white">Upload Barcode File</span>
-                                    <span class="text-[9px] text-slate-400">Test image file (&lt;10MB, &lt;10MP)</span>
-                                </div>
-                            </button>
-                            <button type="button" onclick="openZxingModalAndAction('url'); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                <span class="text-sm">🌐</span>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white">Decode from Image URL</span>
-                                    <span class="text-[9px] text-slate-400">Paste public image link</span>
-                                </div>
-                            </button>
-                            <div class="border-t border-slate-800 my-0.5"></div>
-                            <button type="button" onclick="openZxingModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-1.5 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                                <span class="text-sm">🔍</span>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white">Open Full Verifier Modal</span>
-                                    <span class="text-[9px] text-slate-400">All formats &amp; diagnostics</span>
-                                </div>
-                            </button>
                         </div>
                     </div>
                     <button type="button" onclick="openBatchModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
