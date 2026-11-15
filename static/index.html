@@ -15339,6 +15339,111 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
         }
 
+
+        // =========================================================================
+        // USER PASSWORD CHANGE & SECURITY MODAL CONTROLLER
+        // =========================================================================
+        function openPasswordModal() {
+            if (!currentUser) {
+                showToast('Please sign in to update your account password.', 'info');
+                openAuthModal();
+                return;
+            }
+            const modal = document.getElementById('user-password-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                const cur = document.getElementById('pwd-current');
+                const np = document.getElementById('pwd-new');
+                const cp = document.getElementById('pwd-confirm');
+                if (cur) cur.value = '';
+                if (np) np.value = '';
+                if (cp) cp.value = '';
+                const msgEl = document.getElementById('pwd-msg');
+                if (msgEl) msgEl.classList.add('hidden');
+                if (cur) cur.focus();
+            }
+        }
+
+        function closePasswordModal() {
+            const modal = document.getElementById('user-password-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function handlePasswordChange(e) {
+            if (e) e.preventDefault();
+            const curPass = (document.getElementById('pwd-current')?.value || '').trim();
+            const newPass = (document.getElementById('pwd-new')?.value || '').trim();
+            const confPass = (document.getElementById('pwd-confirm')?.value || '').trim();
+            const msgEl = document.getElementById('pwd-msg');
+            const submitBtn = document.getElementById('pwd-submit-btn');
+
+            if (!curPass) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
+                    msgEl.textContent = 'Please enter your current (previous) password.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (newPass.length < 8) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
+                    msgEl.textContent = 'New password must be at least 8 characters long.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (newPass !== confPass) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
+                    msgEl.textContent = 'New passwords do not match.';
+                    msgEl.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Updating...';
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/user/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+                    body: JSON.stringify({
+                        current_password: curPass,
+                        new_password: newPass,
+                        confirm_password: confPass
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('🎉 Password changed successfully!', 'success');
+                    closePasswordModal();
+                } else {
+                    if (msgEl) {
+                        msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
+                        msgEl.textContent = data.detail || 'Failed to update password.';
+                        msgEl.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                if (msgEl) {
+                    msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
+                    msgEl.textContent = 'Network error while updating password.';
+                    msgEl.classList.remove('hidden');
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Save New Password</span>';
+                }
+            }
+        }
+
 </script>
 </body>
 </html>

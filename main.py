@@ -394,7 +394,7 @@ except Exception:
 ADMIN_EMAILS = [
     e.strip().lower() for e in os.getenv(
         "ADMIN_EMAILS",
-        "mwangilewis205@gmail.com"
+        "mwangilewis205@gmail.com,youngwheezy001@gmail.com,joyannkarambu@gmail.com"
     ).split(",") if e.strip()
 ]
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "admin2026")
@@ -821,13 +821,34 @@ def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depe
         
     add_count = max(1, payload.tokens)
     current_user.tokens += add_count
+    
+    # Record order in CryptoPayment table so it reflects in Admin Orders Ledger & Client Receipts
+    mock_order = CryptoPayment(
+        user_id=current_user.id,
+        user_email=current_user.email,
+        package_id=payload.package_id,
+        tokens=add_count,
+        amount_usd=payload.amount_usd,
+        crypto_currency="MOCK_TEST",
+        network="Sandbox Simulation",
+        wallet_address="Sandbox Wallet",
+        tx_hash=f"mock_{int(datetime.utcnow().timestamp())}_{secrets.token_hex(4)}",
+        status="confirmed",
+        confirmed_at=datetime.utcnow()
+    )
+    db.add(mock_order)
+    db.commit()
+    db.refresh(mock_order)
+    mock_order.invoice_number = f"INV-2026-{mock_order.id:05d}"
     db.commit()
     db.refresh(current_user)
+    
     return {
         "status": "success",
         "message": f"Payment approved (Test Simulation). Successfully credited {add_count} Barcode Sets (Dual PDF417 + Code 128)!",
         "tokens_added": add_count,
-        "tokens_remaining": current_user.tokens
+        "tokens_remaining": current_user.tokens,
+        "invoice_number": mock_order.invoice_number
     }
 
 class CheckoutSessionRequest(BaseModel):
