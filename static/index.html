@@ -214,17 +214,28 @@
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-[11px] text-blue-900">
                     A 6-digit verification code was sent to <strong id="fp-target-email-display">your email</strong>. Valid for 15 minutes.
                 </div>
+                <div id="fp-step2-banner" class="hidden"></div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">6-Digit Verification Code:</label>
                     <input type="text" id="fp-code-input" maxlength="6" placeholder="e.g. 123456" class="w-full bg-slate-50 border border-slate-300 p-2 rounded-lg text-slate-900 text-center font-mono font-bold tracking-widest text-base outline-none focus:ring-2 focus:ring-accent">
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">New Password (min 8 chars):</label>
-                    <input type="password" id="fp-new-password" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 p-2 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                    <div class="relative">
+                        <input type="password" id="fp-new-password" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 p-2 pr-9 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('fp-new-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">Confirm New Password:</label>
-                    <input type="password" id="fp-confirm-password" placeholder="Confirm new password" class="w-full bg-slate-50 border border-slate-300 p-2 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                    <div class="relative">
+                        <input type="password" id="fp-confirm-password" placeholder="Confirm new password" class="w-full bg-slate-50 border border-slate-300 p-2 pr-9 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('fp-confirm-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="fp-step2-msg" class="hidden text-[11px] p-2.5 rounded-lg font-medium"></div>
@@ -971,15 +982,30 @@
             <form onsubmit="handlePasswordChange(event)" class="flex flex-col gap-3 text-xs">
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">Current (Previous) Password:</label>
-                    <input type="password" id="pwd-current" required placeholder="Enter your current password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                    <div class="relative">
+                        <input type="password" id="pwd-current" required placeholder="Enter your current password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-9 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('pwd-current', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">New Password (min 8 chars):</label>
-                    <input type="password" id="pwd-new" required minlength="8" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                    <div class="relative">
+                        <input type="password" id="pwd-new" required minlength="8" placeholder="Enter new strong password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-9 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('pwd-new', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">Confirm New Password:</label>
-                    <input type="password" id="pwd-confirm" required minlength="8" placeholder="Re-type new password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                    <div class="relative">
+                        <input type="password" id="pwd-confirm" required minlength="8" placeholder="Re-type new password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 pr-9 text-slate-900 outline-none focus:ring-2 focus:ring-accent">
+                        <button type="button" onclick="togglePasswordVisibility('pwd-confirm', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5" title="Show/Hide Password">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="pwd-msg" class="hidden text-[11px] p-2 rounded-lg font-medium"></div>
@@ -15201,7 +15227,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
             if (!email || !email.includes('@')) {
                 if (msgEl) {
-                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
                     msgEl.textContent = 'Please enter a valid email address.';
                     msgEl.classList.remove('hidden');
                 }
@@ -15227,12 +15253,36 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     if (step2) step2.classList.remove('hidden');
                     const disp = document.getElementById('fp-target-email-display');
                     if (disp) disp.textContent = email;
+                    
                     const codeInp = document.getElementById('fp-code-input');
-                    if (codeInp) {
+                    const banner = document.getElementById('fp-step2-banner');
+
+                    if (data.dev_code) {
+                        if (codeInp) codeInp.value = data.dev_code;
+                        if (banner) {
+                            banner.className = 'bg-amber-50 border border-amber-300 rounded-lg p-2.5 text-[11px] text-amber-900 flex flex-col gap-1.5 block';
+                            banner.innerHTML = `
+                                <div class="font-bold flex items-center gap-1.5 text-amber-800">
+                                    <span>⚠️ Resend Delivery Sandbox Notice:</span>
+                                </div>
+                                <span class="text-[10px] text-amber-700 leading-snug">Resend free sandbox restricts delivery to account owner (<strong>youngwheezy001@gmail.com</strong>).</span>
+                                <div class="bg-white border border-amber-200 rounded p-1.5 font-mono text-center text-xs font-bold text-slate-900 select-all flex items-center justify-between px-2.5">
+                                    <span class="text-slate-500 font-sans text-[10px] font-semibold">Your 6-Digit Code:</span>
+                                    <span class="text-indigo-600 font-black text-sm tracking-widest">${data.dev_code}</span>
+                                </div>
+                            `;
+                            banner.classList.remove('hidden');
+                        }
+                        showToast('Verification code generated and pre-filled below!', 'info');
+                    } else {
+                        if (banner) banner.classList.add('hidden');
+                        showToast('Verification code dispatched to your email!', 'success');
+                    }
+
+                    if (codeInp && !data.dev_code) {
                         codeInp.value = '';
                         codeInp.focus();
                     }
-                    showToast('Verification code dispatched to your email!', 'success');
                 } else {
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
@@ -15441,6 +15491,19 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<span>Save New Password</span>';
                 }
+            }
+        }
+
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            if (btn) {
+                btn.innerHTML = isPassword
+                    ? '<svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>'
+                    : '<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
             }
         }
 

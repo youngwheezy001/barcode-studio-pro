@@ -2154,8 +2154,22 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
     """
 
     # 1. Resend API
-    resend_key = (os.getenv("RESEND_API_KEY") or RESEND_API_KEY or "").strip()
-    email_from = (os.getenv("EMAIL_FROM") or EMAIL_FROM or "").strip()
+    resend_key = (
+        os.getenv("RESEND_API_KEY") or 
+        os.getenv("resend_api_key") or 
+        os.getenv("RESEND_KEY") or 
+        os.getenv("RESEND_TOKEN") or 
+        RESEND_API_KEY or ""
+    ).strip().strip("'\"")
+    
+    if not resend_key:
+        for k, v in os.environ.items():
+            if "resend" in k.lower() and v.strip().startswith("re_"):
+                resend_key = v.strip().strip("'\"")
+                break
+
+    email_from = (os.getenv("EMAIL_FROM") or EMAIL_FROM or "").strip().strip("'\"")
+    resend_err_msg = None
 
     if resend_key:
         if not email_from or "luxvyne.com" in email_from:
@@ -2176,7 +2190,9 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
             print(f"[RESEND] Sending from '{email_from}' to '{to_email}' -> Status {resp.status_code}: {resp.text}")
             if resp.status_code in [200, 201]:
                 return {"delivered": True, "provider": "resend", "data": resp.json()}
-            elif "not verified" in resp.text.lower() or resp.status_code in [400, 403]:
+            
+            resend_err_msg = resp.text
+            if "not verified" in resp.text.lower() or resp.status_code in [400, 403]:
                 # Fallback to Resend onboarding address
                 retry_resp = httpx.post(
                     "https://api.resend.com/emails",
@@ -2192,7 +2208,9 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                 print(f"[RESEND] Retry with onboarding@resend.dev -> Status {retry_resp.status_code}: {retry_resp.text}")
                 if retry_resp.status_code in [200, 201]:
                     return {"delivered": True, "provider": "resend", "data": retry_resp.json()}
+                resend_err_msg = retry_resp.text
         except Exception as e:
+            resend_err_msg = str(e)
             print(f"Notice: Resend email error: {e}")
 
     # 2. SMTP
@@ -2222,8 +2240,13 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
             print(f"Notice: SMTP email error: {e}")
 
     # 3. Fallback: Logged locally for testing/admin visibility
-    print(f"[SECURITY] Password reset code for {to_email}: {code}")
-    return {"delivered": False, "provider": "console_fallback", "code": code}
+    print(f"[SECURITY] Password reset code for {to_email}: {code} (Delivery pending external verification)")
+    return {
+        "delivered": False, 
+        "provider": "resend_sandbox" if resend_key else "console_fallback", 
+        "code": code,
+        "error_detail": resend_err_msg or ("RESEND_API_KEY not found in Render environment" if not resend_key else None)
+    }
 
 class ForgotPasswordRequest(BaseModel):
     email: str
@@ -2255,12 +2278,12 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
     dispatch_res = dispatch_password_reset_email(clean_email, code)
     resp = {
         "status": "success",
-        "message": f"A 6-digit reset code has been sent to {clean_email}. Please check your inbox (and spam folder).",
-        "provider": dispatch_res.get("provider")
+        "message": f"A 6-digit reset code has been sent to {clean_email}.",
+        "delivered": dispatch_res.get("delivered", False),
+        "provider": dispatch_res.get("provider"),
+        "error_detail": dispatch_res.get("error_detail"),
+        "dev_code": code if not dispatch_res.get("delivered") else None
     }
-    if not dispatch_res.get("delivered"):
-        resp["dev_code"] = code
-        resp["hint"] = "Note: To send real external emails, verify RESEND_API_KEY in Render. Your test reset code is: " + code
     return resp
 
 @app.post("/api/auth/reset-password", summary="Reset password using verification code")
