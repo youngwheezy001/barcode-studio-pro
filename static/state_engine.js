@@ -4,7 +4,7 @@
  */
 
 (function(window) {
-    // 1. Structured State & Revision Hierarchy (86 profiles across 50 States + DC + 13 Canadian Jurisdictions)
+    // 1. Structured State & Revision Hierarchy (85 profiles across 50 States + DC + 12 Provinces)
     
 const STATE_HIERARCHY = {
   "Alabama": {
@@ -442,17 +442,16 @@ const STATE_HIERARCHY = {
           "FIDScan",
           "Veriscan"
         ],
-        "has_icn": false,
+        "has_icn": true,
         "has_dd": true,
         "has_weight_range": false,
-        "has_audit": true,
-        "sample_audit": "20200902_053001_2_690",
+        "has_audit": false,
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "verified": true,
+        "verified": false,
         "is_new": false
       }
     ]
@@ -776,23 +775,12 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
-        "has_rev_date": true,
-        "rev_dates": [
-          {
-            "value": "06202016",
-            "label": "06/20/2016"
-          },
-          {
-            "value": "082619",
-            "label": "08/26/2019"
-          }
-        ],
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "verified": true,
+        "verified": false,
         "is_new": false
       },
       {
@@ -957,23 +945,12 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
-        "has_rev_date": true,
-        "rev_dates": [
-          {
-            "value": "05142021",
-            "label": "05/14/2021"
-          },
-          {
-            "value": "02222016",
-            "label": "02/22/2016"
-          }
-        ],
         "default_dd": "",
         "has_real_id": true,
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "verified": true,
+        "verified": false,
         "is_new": false
       },
       {
@@ -1932,7 +1909,6 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_audit": true,
         "has_suffix": true,
-        "has_veteran": true,
         "has_weight_range": false,
         "default_dd": "",
         "has_real_id": false,
@@ -2232,37 +2208,7 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "is_available": true,
-        "verified": false,
-        "is_new": false
-      }
-    ]
-  },
-  "Northwest Territories": {
-    "is_canada": true,
-    "parent_name": "Northwest Territories",
-    "base_code": "NT",
-    "revisions": [
-      {
-        "slug": "NT",
-        "label": "Northwest Territories",
-        "rev_header": "Standard Revision",
-        "scanners": [
-          "Scandit",
-          "Show-Me ID",
-          "FIDScan",
-          "Veriscan"
-        ],
-        "has_icn": false,
-        "has_dd": false,
-        "has_weight_range": false,
-        "has_audit": false,
-        "default_dd": "",
-        "has_real_id": false,
-        "has_address2": false,
-        "has_race": false,
-        "has_suffix": false,
-        "is_available": true,
+        "is_available": false,
         "verified": false,
         "is_new": false
       }
@@ -2292,7 +2238,7 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "is_available": true,
+        "is_available": false,
         "verified": false,
         "is_new": false
       }
@@ -2418,14 +2364,14 @@ const STATE_HIERARCHY = {
       }
     ]
   },
-  "Yukon": {
+  "The Yukon": {
     "is_canada": true,
-    "parent_name": "Yukon",
+    "parent_name": "The Yukon",
     "base_code": "YT",
     "revisions": [
       {
         "slug": "YT",
-        "label": "Yukon",
+        "label": "The Yukon",
         "rev_header": "Standard Revision",
         "scanners": [
           "Scandit",
@@ -2514,8 +2460,6 @@ const STATE_HIERARCHY = {
         'inputPOB': 'aamva-pob',
         'inputPlaceOfBirth': 'aamva-pob',
         'inputDups': 'aamva-dups',
-        'inputVeteran': 'aamva-veteran',
-        'inputAddress2': 'aamva-street2',
         'inputOption1': 'aamva-nj-opt1',
         'inputOption2': 'aamva-nj-opt2',
         'inputOption3': 'aamva-nj-opt3',
@@ -5082,7 +5026,7 @@ function HI_calculate_DD() {
 
 
 
-function HI_calculate_AUDIT() {
+function HI_calculate_ICN() {
     var el = getTargetElement("inputIssueDate");
     var issueDate = (el && el.value) ? el.value.trim() : "";
     if (issueDate.length != 8) {
@@ -5099,14 +5043,10 @@ function HI_calculate_AUDIT() {
     var dd = ("0" + d.getDate()).slice(-2);
     var formattedDate = mm + dd + d.getFullYear();
 
-    var target = getTargetElement('inputAudit') || getTargetElement('inputICN');
+    var target = getTargetElement('inputICN');
     if (target) {
         target.value = issueDate.slice(-4) + formattedDate.slice(0,4) + "_106336_2_1" + getRandomNumericString(2);
     }
-}
-
-function HI_calculate_ICN() {
-    HI_calculate_AUDIT();
 }
 
 
@@ -5513,7 +5453,6 @@ function NV_calculate_DD() {
     try { if (typeof GA_calculate_ICN_2015 === 'function') window.GA_calculate_ICN_2015 = GA_calculate_ICN_2015; } catch(e) {}
     try { if (typeof GA_calculate_documentNumber === 'function') window.GA_calculate_documentNumber = GA_calculate_documentNumber; } catch(e) {}
     try { if (typeof HI_calculate_DD === 'function') window.HI_calculate_DD = HI_calculate_DD; } catch(e) {}
-    try { if (typeof HI_calculate_AUDIT === 'function') window.HI_calculate_AUDIT = HI_calculate_AUDIT; } catch(e) {}
     try { if (typeof HI_calculate_ICN === 'function') window.HI_calculate_ICN = HI_calculate_ICN; } catch(e) {}
     try { if (typeof HI_calculate_documentNumber === 'function') window.HI_calculate_documentNumber = HI_calculate_documentNumber; } catch(e) {}
     try { if (typeof IA_2011_calculate_DD === 'function') window.IA_2011_calculate_DD = IA_2011_calculate_DD; } catch(e) {}
@@ -8373,7 +8312,6 @@ function runStateCalculation(field, stateSlug) {
         const NO_ICN_SET = new Set([
             'CO', 'CO_2015', 'CO_2022',
             'DC',
-            'HI',
             'NY', 'NY_2017', 'NY_2022',
             'SC',
             'VT',
@@ -8382,7 +8320,6 @@ function runStateCalculation(field, stateSlug) {
         ]);
 
         const NO_DD_SET = new Set([
-            'LA',
             'MI', 'MI_2024',
             'NM',
             'BC', 'NB', 'NL', 'NS', 'NU'
@@ -8425,7 +8362,7 @@ function runStateCalculation(field, stateSlug) {
                 if (typeof window[c] === 'function') { fnName = c; break; }
             }
         } else if (field === 'audit' || field === 'dcj') {
-            const hasAudit = (revInfo && revInfo.has_audit === true) || (slugClean === 'DC' || baseState === 'CO' || baseState === 'WA' || baseState === 'LA' || baseState === 'HI');
+            const hasAudit = (revInfo && revInfo.has_audit === true) || (slugClean === 'DC' || baseState === 'CO' || baseState === 'WA' || baseState === 'LA');
             if (!hasAudit) {
                 const auditEl = getTargetElement('inputAudit');
                 if (auditEl) auditEl.value = '';
@@ -9547,12 +9484,12 @@ function runStateCalculation(field, stateSlug) {
     "eyes": "BRO",
     "hair": "BRO",
     "sample_dl": "H00716258",
-    "sample_icn": "",
+    "sample_icn": "20200902_053001_2_690",
     "sample_dd": "20200826662548377772-ICWH",
-    "sample_audit": "20200902_053001_2_690",
-    "has_icn": false,
+    "sample_audit": "",
+    "has_icn": true,
     "has_dd": true,
-    "has_audit": true
+    "has_audit": false
   },
   "IL": {
     "street": "5620 Pebblebeach Dr",
@@ -9597,7 +9534,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "MA": {
     "street": "105 New Estate Rd",
-    "street2": "NONE",
     "city": "Littleton",
     "zip": "014601131",
     "class": "D",
@@ -9783,7 +9719,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "TN": {
     "street": "219 Gresham Ln",
-    "street2": "",
     "city": "Murfreesboro",
     "zip": "371294127",
     "class": "D",
@@ -9877,9 +9812,7 @@ function runStateCalculation(field, stateSlug) {
     "sample_audit": "P082625148509",
     "has_icn": false,
     "has_dd": true,
-    "has_audit": true,
-    "suffix": "NONE",
-    "veteran": "NO"
+    "has_audit": true
   },
   "WI": {
     "street": "W169N10741 Redwood Ln",
@@ -10110,9 +10043,7 @@ function runStateCalculation(field, stateSlug) {
     "sample_audit": "",
     "has_icn": true,
     "has_dd": true,
-    "has_audit": false,
-    "has_rev_date": true,
-    "rev_date": "06202016"
+    "has_audit": false
   },
   "MD_2021": {
     "street": "1242 Colonial Park Dr",
@@ -10135,7 +10066,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "MN": {
     "street": "4102 Beaver Dam Rd",
-    "street2": "",
     "city": "Eagan",
     "zip": "551222123",
     "class": "D",
@@ -10169,9 +10099,7 @@ function runStateCalculation(field, stateSlug) {
     "sample_audit": "",
     "has_icn": true,
     "has_dd": true,
-    "has_audit": false,
-    "has_rev_date": true,
-    "rev_date": "05142021"
+    "has_audit": false
   },
   "MS_2023": {
     "street": "7504 Oak Cir W",
@@ -10292,7 +10220,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "NV_2008": {
     "street": "9833 Babys Breath Ct",
-    "street2": "",
     "city": "Las Vegas",
     "zip": "891837132",
     "class": "C",
@@ -10313,7 +10240,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "NV_2021": {
     "street": "9833 Babys Breath Ct",
-    "street2": "",
     "city": "Las Vegas",
     "zip": "891837132",
     "class": "C",
@@ -10334,7 +10260,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "NH": {
     "street": "102 Center Rd",
-    "street2": "NONE",
     "city": "Weare",
     "zip": "032814605",
     "class": "D",
@@ -10354,7 +10279,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "NH_2024": {
     "street": "102 Center Rd",
-    "street2": "NONE",
     "city": "Weare",
     "zip": "032814605",
     "class": "D",
@@ -10467,7 +10391,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "OR": {
     "street": "679 S Birch St",
-    "street2": "",
     "city": "Sisters",
     "zip": "97759",
     "class": "C",
@@ -10682,7 +10605,6 @@ function runStateCalculation(field, stateSlug) {
   },
   "AB": {
     "street": "452 Scimitar Bay NW",
-    "street2": "",
     "city": "Calgary",
     "zip": "T3L 1S7",
     "class": "5",
@@ -10792,27 +10714,6 @@ function runStateCalculation(field, stateSlug) {
     "restrictions": "NONE",
     "endorsements": "NONE",
     "sample_dl": "SMITH123456789",
-    "sample_icn": "",
-    "sample_dd": "",
-    "sample_audit": "",
-    "has_icn": false,
-    "has_dd": false,
-    "has_audit": false
-  },
-  "NT": {
-    "street": "4910 52 St",
-    "street2": "",
-    "city": "Yellowknife",
-    "zip": "X1A 2P1",
-    "class": "5",
-    "restrictions": "NONE",
-    "endorsements": "NONE",
-    "height": "175",
-    "weight": "75",
-    "sex": "M",
-    "eyes": "BRO",
-    "hair": "BRO",
-    "sample_dl": "123456",
     "sample_icn": "",
     "sample_dd": "",
     "sample_audit": "",

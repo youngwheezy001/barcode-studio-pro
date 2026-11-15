@@ -14,40 +14,36 @@
 The AAMVA standard specifies data elements for 2D PDF417 barcodes on Driver Licenses and Identification Cards. However, implementation varies significantly by issuing jurisdiction and card revision. The rules below govern both **UI field container visibility** in the frontend and **subfile generation** in the backend.
 
 ### 1.1. Inventory Control Number (ICN / Subfile Element `DCK`)
-- **OMITTED (18 Revisions)**: Neither displayed in the UI form (`containerICN` hidden) nor included in the compiled `AAMVA` subfile:
+- **OMITTED (17 Revisions)**: Neither displayed in the UI form (`containerICN` hidden) nor included in the compiled `AAMVA` subfile:
   - **Colorado** (`CO_2015`, `CO_2022`)
   - **District of Columbia** (`DC`)
-  - **Hawaii** (`HI`)
   - **New York** (`NY_2017`, `NY_2022`)
   - **South Carolina** (`SC`)
   - **Vermont** (`VT`)
   - **Washington** (`WA`, `WA_2025`)
   - **Canadian Provinces**: Alberta (`AB`), British Columbia (`BC`), New Brunswick (`NB`), Newfoundland & Labrador (`NL`), Nova Scotia (`NS`), Nunavut (`NU`), Prince Edward Island (`PE`), Yukon Territory (`YT`)
-- **ACTIVE (68 Revisions)**: Required and dynamically calculated/rendered for all other 44 US states (including Texas `TX`, California `CA`, Florida `FL`, Virginia `VA`, Wyoming `WY`, etc.) and Canadian provinces `MB`, `ON`, `QC`, `SK`.
+- **ACTIVE (69 Revisions)**: Required and dynamically calculated/rendered for all other 45 US states (including Texas `TX`, California `CA`, Florida `FL`, Virginia `VA`, Wyoming `WY`, etc.) and Canadian provinces `MB`, `ON`, `QC`, `SK`.
 
 ### 1.2. Document Discriminator (DD / Subfile Element `DCF`)
-- **OMITTED (9 Revisions)**: Neither displayed in the UI (`containerDD` hidden) nor included in the compiled `AAMVA` subfile:
-  - **Louisiana** (`LA`)
+- **OMITTED (8 Revisions)**: Neither displayed in the UI (`containerDD` hidden) nor included in the compiled `AAMVA` subfile:
   - **Michigan** (`MI`, `MI_2024`)
   - **New Mexico** (`NM`)
   - **Canadian Provinces**: British Columbia (`BC`), New Brunswick (`NB`), Newfoundland & Labrador (`NL`), Nova Scotia (`NS`), Nunavut (`NU`)
-- **ACTIVE (77 Revisions)**: Required across all remaining 47 US states/DC and Canadian provinces.
+- **ACTIVE (78 Revisions)**: Required across all remaining 48 US states/DC and Canadian provinces.
 
 ### 1.3. Audit Information (Audit / Subfile Element `DCJ`)
-- **ACTIVE (7 Revisions)**: Explicitly displayed and calculated via `containerAudit`:
+- **ACTIVE (6 Revisions)**: Explicitly displayed and calculated via `containerAudit`:
   - **Colorado** (`CO_2015`, `CO_2022`): Generates `CODL_0_MMDDYY_XXXXX`
   - **District of Columbia** (`DC`): Generates `MMDDYY_XXXXX`
-  - **Hawaii** (`HI`): Generates `Issue+6d_106336_2_1XX` Audit Info
-  - **Louisiana** (`LA`): Generates 4-digit Audit Info (e.g. `4174`)
+  - **Louisiana** (`LA`): Generates 16-character Audit String
   - **Washington** (`WA`, `WA_2025`): Generates `M` / `P` prefixed audit sequence
   - **Texas** (`TX_2016`, `TX_2020`): Maps the Document Discriminator field as its official card **Audit Number**
-- **OMITTED (79 Revisions)**: All other jurisdictions omit the `DCJ` subfile element.
+- **OMITTED (80 Revisions)**: All other jurisdictions omit the `DCJ` subfile element.
 
 ### 1.4. Special Demographic Features & Extra Form Fields
 - **Real ID Compliance Toggle**: Dynamic star badge for applicable revisions (`OK`, `TN`, `UT_2016`, etc.)
 - **Second Street Address (`inputAddress2`)**: Supported for `MA`, `MN`, `NV`, `NH`, `OR`, `TN`, and `AB`
-- **Revision Date (`inputRevisionDate` / `DDB`)**: Dynamic dropdown with authentic revisions for **Florida (`FL`)**, **Michigan (`MI`, `MI_2024`)**, **Mississippi (`MS`)**, and **Maryland (`MD`)**
-- **Florida (`FL`)**: Revision Date (`03/16/2017`, `05/01/2019`, `03/01/2020`), Safe Driver designation
+- **Florida (`FL`)**: Revision Date (`inputIssueDate`), Safe Driver designation
 - **Georgia (`GA`)**: County Selection (`inputCountry`)
 - **Indiana (`IN`)**: Branch Office Code (`inputOfficeCode`)
 - **Louisiana (`LA`)**: Office Code (`inputOfficeCode`), Parish selection (`inputParish`)
@@ -74,7 +70,7 @@ The AAMVA standard specifies data elements for 2D PDF417 barcodes on Driver Lice
 | **District of Columbia** | Base (`DC`) | **NO (OMITTED)** | **YES** (8 Digits numeric) | **YES** (`MMDDYY_XXXXX`) | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Florida** | Base (`FL`) | **YES** (16 Digits numeric) | **YES** (13-character code) | OMITTED | Revision Date, Safe Driver | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Georgia** | 2015 (`GA_2015`), 2019 (`GA_2019`) | **YES** (16 Digits numeric) | **YES** (18 Digits numeric) | OMITTED | County (`inputCountry`) | Scandit, Show-Me ID, FIDScan, Veriscan |
-| **Hawaii** | Base (`HI`) | **NO (OMITTED)** | **YES** (Issue + 12 chars + `-ICWH`) | **YES** (`Issue+6d_106336_2_1XX`) | Audit Info Calculator | Scandit, Show-Me ID, FIDScan, Veriscan |
+| **Hawaii** | Base (`HI`) | **YES** (16 Digits numeric) | **YES** (Issue + 12 chars + `-ICWH`) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Idaho** | 2016 (`ID`), 2023 (`ID_2023`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Illinois** | Base (`IL`) | **YES** (16 Digits numeric) | **YES** ("Item # / Control #") | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Indiana** | Base (`IN`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Office Code (`inputOfficeCode`) | Scandit, Show-Me ID, FIDScan, Veriscan |
@@ -83,11 +79,11 @@ The AAMVA standard specifies data elements for 2D PDF417 barcodes on Driver Lice
 | **Kentucky** | 2012 (`KY_2012`), 2018 (`KY_2018`) | **YES** (16 Digits numeric) | **YES** (DOE / DD String) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Louisiana** | Base (`LA`) | **YES** (16 Digits numeric) | **NO (OMITTED)** | **YES** (4 Digits e.g. 4174) | Office Code, Parish | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Maine** | Base (`ME`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
-| **Maryland** | 2016/2019 (`MD`), 2021 (`MD_2021`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Revision Date (`06/20/2016`, `08/26/2019`), Soundex | Scandit, Show-Me ID, FIDScan, Veriscan |
+| **Maryland** | 2016/2019 (`MD`), 2021 (`MD_2021`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Massachusetts** | Base (`MA`) | **YES** (`20239` + DL + `0601`) | **YES** (`MMDDYYYY REV ...`) | OMITTED | Second Street (`inputAddress2`) | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Michigan** | 2011/2021 (`MI`), 2024 (`MI_2024`) | **YES** (DL + DOB + Exp Year) | **NO (OMITTED)** | OMITTED | Revision Date (`DDB`), Soundex DL | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Minnesota** | Base (`MN`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Second Street (`inputAddress2`) | Scandit, Show-Me ID, FIDScan, Veriscan |
-| **Mississippi** | 2016/2021 (`MS`), 2023 (`MS_2023`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Revision Date (`05/14/2021`, `02/22/2016`) | Scandit, Show-Me ID, FIDScan, Veriscan |
+| **Mississippi** | 2016/2021 (`MS`), 2023 (`MS_2023`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Missouri** | 2012 (`MO_2012`), 2020 (`MO_2020`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Montana** | Base (`MT`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Nebraska** | 2017 (`NE_2017`), 2021 (`NE_2021`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |

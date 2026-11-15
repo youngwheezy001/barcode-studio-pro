@@ -227,18 +227,10 @@
 
             <!-- Step 2: Enter Code & New Password -->
             <div id="fp-step-2" class="hidden flex flex-col gap-3 text-xs">
-                <div id="fp-step2-banner" class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 flex items-start gap-2.5 shadow-xs">
-                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-sm font-bold">✉️</div>
-                    <div class="flex-1">
-                        <div class="font-bold text-slate-900 text-xs flex items-center justify-between">
-                            <span>Check Your Email Inbox</span>
-                            <span class="text-[9px] bg-blue-200/80 text-blue-900 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
-                        </div>
-                        <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">
-                            A secure 6-digit verification code was sent to <strong id="fp-target-email-display" class="text-slate-900 font-bold">your email</strong>. Please check your inbox and spam folder, then enter the code below.
-                        </p>
-                    </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-[11px] text-blue-900">
+                    A 6-digit verification code was sent to <strong id="fp-target-email-display">your email</strong>. Valid for 15 minutes.
                 </div>
+                <div id="fp-step2-banner" class="hidden"></div>
                 <div>
                     <label class="block font-bold text-slate-700 mb-1 text-[11px]">6-Digit Verification Code:</label>
                     <input type="text" id="fp-code-input" maxlength="6" placeholder="e.g. 123456" class="w-full bg-slate-50 border border-slate-300 p-2 rounded-lg text-slate-900 text-center font-mono font-bold tracking-widest text-base outline-none focus:ring-2 focus:ring-accent">
@@ -1186,7 +1178,7 @@
                             <span>Barcode Studio Pro</span>
                         </div>
                         <p class="text-[10px] text-slate-500">AAMVA PDF417 &amp; Code 128 Engine</p>
-                        <p class="text-[10px] text-slate-500">Support: mwangilewis205@gmail.com</p>
+                        <p class="text-[10px] text-slate-500">Support: youngwheezy001@gmail.com</p>
                     </div>
                     <div class="text-right">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Receipt Number</span>
@@ -1419,7 +1411,7 @@
                 <h4 class="font-bold text-slate-800 text-xs">3. Cryptocurrency &amp; Payment Privacy</h4>
                 <p>Crypto payments are submitted directly via blockchain transaction hashes. We do not collect credit cards, banking details, or billing addresses for cryptocurrency orders.</p>
                 <h4 class="font-bold text-slate-800 text-xs">4. Inquiries</h4>
-                <p>For questions regarding data privacy or to request account deletion, contact our support desk at <a href="mailto:mwangilewis205@gmail.com" class="text-accent underline font-medium">mwangilewis205@gmail.com</a>.</p>
+                <p>For questions regarding data privacy or to request account deletion, contact our support desk at <a href="mailto:youngwheezy001@gmail.com" class="text-accent underline font-medium">youngwheezy001@gmail.com</a>.</p>
             </div>
             <div class="flex justify-end pt-2 border-t border-slate-200">
                 <button onclick="closePrivacyModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
@@ -1467,7 +1459,7 @@
                 <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-col gap-2">
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-semibold">Support Desk Email:</span>
-                        <a href="mailto:mwangilewis205@gmail.com" class="text-accent font-bold hover:underline">mwangilewis205@gmail.com</a>
+                        <a href="mailto:youngwheezy001@gmail.com" class="text-accent font-bold hover:underline">youngwheezy001@gmail.com</a>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-semibold">Response Time:</span>
@@ -1480,7 +1472,7 @@
                 </div>
             </div>
             <div class="flex justify-between items-center pt-2 border-t border-slate-200">
-                <a href="mailto:mwangilewis205@gmail.com?subject=Barcode%20Studio%20Pro%20Support%20Inquiry" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition inline-flex items-center gap-1.5 shadow">
+                <a href="mailto:youngwheezy001@gmail.com?subject=Barcode%20Studio%20Pro%20Support%20Inquiry" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition inline-flex items-center gap-1.5 shadow">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     Send Email
                 </a>
@@ -1990,8 +1982,6 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         <option value="II">II</option>
                                         <option value="III">III</option>
                                         <option value="IV">IV</option>
-                                        <option value="V">V</option>
-                                        <option value="VI">VI</option>
                                     </select>
                                 </div>
                                 <div id="container-limited-term">
@@ -2003,18 +1993,6 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </label>
                                     <select id="aamva-limited-term" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
                                         <option value="No">No</option>
-                                        <option value="Yes">Yes</option>
-                                    </select>
-                                </div>
-                                <div id="container-veteran" class="hidden">
-                                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
-                                        <span>Veteran</span>
-                                        <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
-                                            ⓘ<span class="tooltip-box">Veteran Indicator (DDL)</span>
-                                        </span>
-                                    </label>
-                                    <select id="aamva-veteran" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
-                                        <option value="No" selected>No</option>
                                         <option value="Yes">Yes</option>
                                     </select>
                                 </div>
@@ -2137,21 +2115,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </select>
                                 </div>
 
-                                <div id="container-realid" class="hidden">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                                            <span>Is REAL ID</span>
-                                            <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
-                                                ⓘ<span class="tooltip-box">REAL ID Compliant Document Flag (DDA)</span>
-                                            </span>
-                                        </label>
-                                        <button type="button" onclick="calcField('real_id')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate REAL ID compliance">🧮</button>
-                                    </div>
-                                    <select id="aamva-realid" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
-                                        <option value="">== Select ==</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
+                                <div id="container-realid" class="hidden" style="display: none;">
+                                    <input type="hidden" id="aamva-realid" value="Yes">
                                 </div>
                             </div>
 
@@ -3730,7 +3695,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
                         <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
-                            Contact our support team directly at <a href="mailto:mwangilewis205@gmail.com" class="text-accent font-semibold hover:underline">mwangilewis205@gmail.com</a> for 24/7 dedicated support and custom batch solutions.
+                            Contact our support team directly at <a href="mailto:youngwheezy001@gmail.com" class="text-accent font-semibold hover:underline">youngwheezy001@gmail.com</a> for 24/7 dedicated support and custom batch solutions.
                         </p>
                     </details>
                 </div>
@@ -5363,7 +5328,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const hasRace = revInfo ? (revInfo.has_race === true) : false;
             const hasSuffix = revInfo ? (revInfo.has_suffix === true) : false;
             const hasLimitedTerm = revInfo ? (revInfo.has_limited_term === true) : false;
-            const hasVeteran = revInfo ? (revInfo.has_veteran === true) : false;
             const hasAddress2 = revInfo ? (revInfo.has_address2 === true) : false;
 
             // ICN Container: completely remove if omitted
@@ -5394,8 +5358,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // Revision Date Container (DDB): shown for states that have revision dates (e.g. MI, FL, MS, MD)
-            const hasRevDate = revInfo ? (revInfo.has_rev_date === true || revInfo.has_revision_date === true || (revInfo.rev_dates && revInfo.rev_dates.length > 0)) : (baseCode === 'FL' || baseCode === 'MI' || baseCode === 'MS' || baseCode === 'MD');
+            // Revision Date Container (DDB): shown for states that have revision dates (e.g. MI, FL)
+            const hasRevDate = revInfo ? (revInfo.has_rev_date === true || revInfo.has_revision_date === true) : (baseCode === 'FL' || baseCode === 'MI');
             const revDateContainer = document.getElementById('container-revision-date');
             const revDateSelect = document.getElementById('aamva-revision-date');
             if (revDateContainer) {
@@ -5408,12 +5372,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             baseCode === 'MI' ? [
                                 { value: "01212011", label: "01/21/2011" },
                                 { value: "08162021", label: "08/16/2021" }
-                            ] : baseCode === 'MS' ? [
-                                { value: "05142021", label: "05/14/2021" },
-                                { value: "02222016", label: "02/22/2016" }
-                            ] : baseCode === 'MD' ? [
-                                { value: "06202016", label: "06/20/2016" },
-                                { value: "082619", label: "08/26/2019" }
                             ] : baseCode === 'FL' ? [
                                 { value: "03162017", label: "03/16/2017" },
                                 { value: "05012019", label: "05/01/2019" },
@@ -5427,8 +5385,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         revDateSelect.innerHTML = optsHtml;
                         if (existingVal && Array.from(revDateSelect.options).some(o => o.value === existingVal)) {
                             revDateSelect.value = existingVal;
-                        } else if (dateList.length > 0) {
-                            revDateSelect.value = dateList[0].value;
                         }
                     }
                 } else {
@@ -5438,54 +5394,27 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // REAL ID Container: shown for states with has_real_id
+            // REAL ID Container: streamlined to compliant DDAF in background
             const realidContainer = document.getElementById('container-realid');
-            const realidEl = document.getElementById('aamva-realid');
             if (realidContainer) {
-                if (hasRealId) {
-                    realidContainer.style.display = '';
-                    realidContainer.classList.remove('hidden');
-                    if (realidEl) {
-                        if (slug === 'PA' || slug.startsWith('PA')) {
-                            realidEl.value = (defaults && defaults.realid !== undefined && defaults.realid !== '') ? defaults.realid : '';
-                        } else {
-                            if (defaults && defaults.realid) {
-                                realidEl.value = (defaults.realid === 'T' || defaults.realid === 'Yes' || defaults.realid === '1' || defaults.realid === 'F') ? 'Yes' : (defaults.realid === 'No' || defaults.realid === 'N' ? 'No' : '');
-                            } else {
-                                realidEl.value = 'Yes';
-                            }
-                        }
-                    }
-                } else {
-                    realidContainer.style.display = 'none';
-                    realidContainer.classList.add('hidden');
-                    if (realidEl) realidEl.value = 'Yes';
-                }
+                realidContainer.style.display = 'none';
+                realidContainer.classList.add('hidden');
             }
 
-            // Row DD, Revision Date & REAL ID: manage grid width and hide if all omitted
+            // Row DD & Revision Date: manage grid width and hide if both DD and Rev Date omitted
             const rowDdRealid = document.getElementById('row-dd-realid');
             if (rowDdRealid) {
-                const visibleCount = (hasDd ? 1 : 0) + (hasRevDate ? 1 : 0) + (hasRealId ? 1 : 0);
-                if (visibleCount === 0) {
+                if (!hasDd && !hasRevDate) {
                     rowDdRealid.style.display = 'none';
                 } else {
                     rowDdRealid.style.display = '';
-                    if (visibleCount === 1) {
-                        rowDdRealid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
-                        if (ddContainer) ddContainer.className = hasDd ? 'sm:col-span-2' : '';
-                        if (revDateContainer) revDateContainer.className = hasRevDate ? 'sm:col-span-2' : '';
-                        if (realidContainer) realidContainer.className = hasRealId ? 'sm:col-span-2' : '';
-                    } else if (visibleCount === 2) {
-                        rowDdRealid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
-                        if (ddContainer) ddContainer.className = '';
-                        if (revDateContainer) revDateContainer.className = '';
-                        if (realidContainer) realidContainer.className = '';
+                    if (hasDd && !hasRevDate) {
+                        if (ddContainer) ddContainer.className = 'sm:col-span-2';
+                    } else if (!hasDd && hasRevDate) {
+                        if (revDateContainer) revDateContainer.className = 'sm:col-span-2';
                     } else {
-                        rowDdRealid.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3';
                         if (ddContainer) ddContainer.className = '';
                         if (revDateContainer) revDateContainer.className = '';
-                        if (realidContainer) realidContainer.className = '';
                     }
                 }
             }
@@ -5542,47 +5471,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // Veteran Container (DDL): completely remove if omitted
-            const veteranContainer = document.getElementById('container-veteran');
-            if (veteranContainer) {
-                if (hasVeteran) {
-                    veteranContainer.style.display = '';
-                    veteranContainer.classList.remove('hidden');
-                    const vetEl = document.getElementById('aamva-veteran');
-                    if (vetEl) {
-                        vetEl.value = (defaults && defaults.veteran) ? (defaults.veteran.toUpperCase() === 'YES' ? 'Yes' : 'No') : 'No';
-                    }
-                } else {
-                    veteranContainer.style.display = 'none';
-                    veteranContainer.classList.add('hidden');
-                    const vetEl = document.getElementById('aamva-veteran');
-                    if (vetEl) vetEl.value = 'No';
-                }
-            }
-
-            // Row Suffix, Limited Term & Veteran: manage grid width and hide row if all omitted
+            // Row Suffix & Limited Term: manage grid width and hide row if both omitted
             const rowSuffixLimited = document.getElementById('row-suffix-limited');
             if (rowSuffixLimited) {
-                const countSuffixRow = (hasSuffix ? 1 : 0) + (hasLimitedTerm ? 1 : 0) + (hasVeteran ? 1 : 0);
-                if (countSuffixRow === 0) {
+                if (!hasSuffix && !hasLimitedTerm) {
                     rowSuffixLimited.style.display = 'none';
                 } else {
                     rowSuffixLimited.style.display = '';
-                    if (countSuffixRow === 1) {
-                        rowSuffixLimited.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
-                        if (suffixContainer) suffixContainer.className = hasSuffix ? 'sm:col-span-2' : '';
-                        if (limitedTermContainer) limitedTermContainer.className = hasLimitedTerm ? 'sm:col-span-2' : '';
-                        if (veteranContainer) veteranContainer.className = hasVeteran ? 'sm:col-span-2' : '';
-                    } else if (countSuffixRow === 2) {
-                        rowSuffixLimited.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
-                        if (suffixContainer) suffixContainer.className = '';
-                        if (limitedTermContainer) limitedTermContainer.className = '';
-                        if (veteranContainer) veteranContainer.className = '';
-                    } else {
-                        rowSuffixLimited.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3';
-                        if (suffixContainer) suffixContainer.className = '';
-                        if (limitedTermContainer) limitedTermContainer.className = '';
-                        if (veteranContainer) veteranContainer.className = '';
+                    if (suffixContainer) {
+                        if (hasSuffix && !hasLimitedTerm) suffixContainer.classList.add('sm:col-span-2');
+                        else suffixContainer.classList.remove('sm:col-span-2');
+                    }
+                    if (limitedTermContainer) {
+                        if (hasLimitedTerm && !hasSuffix) limitedTermContainer.classList.add('sm:col-span-2');
+                        else limitedTermContainer.classList.remove('sm:col-span-2');
                     }
                 }
             }
@@ -5593,15 +5495,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (hasAddress2) {
                     orExtras.style.display = '';
                     orExtras.classList.remove('hidden');
-                    const street2El = document.getElementById('aamva-street2');
-                    if (street2El) {
-                        const isNoneDefault = (slug === 'MA' || slug.startsWith('NH'));
-                        if (isNoneDefault) {
-                            if (!street2El.value || street2El.value === '') {
-                                street2El.value = 'NONE';
-                            }
-                        } else if (street2El.value === 'NONE') {
-                            street2El.value = '';
+                    if (slug === 'MA') {
+                        const street2El = document.getElementById('aamva-street2');
+                        if (street2El && (!street2El.value || street2El.value === 'NONE')) {
+                            street2El.value = 'NONE';
                         }
                     }
                 } else {
@@ -5654,6 +5551,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (flExtras) {
                 flExtras.style.display = hasFl ? '' : 'none';
                 if (!hasFl) {
+                    const revDate = document.getElementById('aamva-revision-date'); if (revDate) revDate.value = '';
                     const safeDrv = document.getElementById('aamva-safe-driver'); if (safeDrv) safeDrv.value = 'Yes';
                 }
             }
@@ -5837,26 +5735,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const idEl = document.getElementById('aamva-id');
                 if (idEl && defaults.sample_dl) {
                     idEl.placeholder = defaults.sample_dl;
-                }
-
-                const street2El = document.getElementById('aamva-street2');
-                if (street2El && hasAddress2) {
-                    if (defaults.street2 !== undefined) {
-                        street2El.value = defaults.street2;
-                    } else if (slug === 'MA' || slug.startsWith('NH')) {
-                        street2El.value = 'NONE';
-                    } else {
-                        street2El.value = '';
-                    }
-                }
-
-                if (defaults.rev_date && revDateSelect && hasRevDate) {
-                    revDateSelect.value = defaults.rev_date;
-                }
-
-                const auditEl = document.getElementById('aamva-audit');
-                if (auditEl && hasAudit && defaults.sample_audit) {
-                    auditEl.value = defaults.sample_audit;
                 }
             }
 
@@ -6995,8 +6873,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     if (baseState === 'LA') return '4174';
                     return '082620981133';
                 })(),
-                realId: document.getElementById('aamva-realid') ? document.getElementById('aamva-realid').value : 'Yes',
-                veteran: document.getElementById('aamva-veteran') ? document.getElementById('aamva-veteran').value : 'No'
+                realId: document.getElementById('aamva-realid') ? document.getElementById('aamva-realid').value : 'Yes'
             };
 
             const versionSelect = document.getElementById('aamva-version');
@@ -7066,9 +6943,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
             const revDateVal = (document.getElementById('aamva-revision-date')?.value || '').trim();
             dlElements.push(`DDB${revDateVal || '02102017'}`);
-            if (fields.veteran === 'Yes' && (revInfo ? revInfo.has_veteran : false)) {
-                dlElements.push('DDL1');
-            }
             dlElements.push(`DDK${fields.donor}`);
 
             // Join with LF (\n) and terminate with CR (\r)
@@ -7288,9 +7162,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             dlElementsXml += `    <element id="DDA" name="Compliance Type">F</element>\n` +
                 `    <element id="DDB" name="Card Revision Date">${ddbVal}</element>\n`;
 
-            if (fields.veteran === 'Yes' && (revInfo ? revInfo.has_veteran : false)) {
-                dlElementsXml += `    <element id="DDL" name="Veteran Indicator">1</element>\n`;
-            }
             if (fields.donor === '1') {
                 dlElementsXml += `    <element id="DDK" name="Organ Donor">${fields.donor}</element>\n`;
             }
@@ -9060,9 +8931,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'UT': 'dld.utah.gov', 'VT': 'dmv.vermont.gov', 'VA': 'www.dmvnow.com', 'WA': 'www.dol.wa.gov',
                 'WV': 'transportation.wv.gov/dmv', 'WI': 'wisconsindot.gov', 'WY': 'dot.state.wy.us',
                 'AB': 'www.alberta.ca', 'BC': 'www.icbc.com', 'MB': 'www.mpi.mb.ca', 'NB': 'www.snb.ca',
-                'NL': 'www.gov.nl.ca', 'NS': 'novascotia.ca/sns/access', 'NT': 'inf.gov.nt.ca', 'NU': 'gov.nu.ca',
-                'ON': 'www.ontario.ca/page/drivers-licence', 'PE': 'princeedwardisland.ca',
-                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca', 'YT': 'yukon.ca'
+                'NL': 'www.gov.nl.ca', 'NS': 'novascotia.ca/sns/access', 'ON': 'www.ontario.ca/page/drivers-licence',
+                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca'
             };
 
             const stateWatermark = document.getElementById('studio-state-watermark');
@@ -10636,7 +10506,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         <button onclick="adjustClientTokens(${c.id}, 10, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 10 Sets">+10</button>
                         <button onclick="promptCustomTokenAdjust(${c.id}, '${c.email}', ${c.tokens})" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 rounded text-[11px] font-bold" title="Set exact balance">Custom</button>
                         <button onclick="toggleClientRole(${c.id}, '${c.email}', '${c.role}')" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[11px] font-bold" title="Make Admin">Make Admin</button>
-                        <button onclick="deleteClientAccount(${c.id}, '${c.email}')" class="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded text-[11px] font-bold" title="Delete Client Account">Delete</button>
                     </div>
                 `;
 
@@ -10707,23 +10576,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (currentUser && currentUser.id === userId) {
                     await checkAuth();
                 }
-            } catch (e) {
-                showToast(e.message, 'error');
-            }
-        }
-
-        async function deleteClientAccount(userId, email) {
-            const conf = confirm(`Are you sure you want to permanently delete client account #${userId} (${email})?\nThis action cannot be undone.`);
-            if (!conf) return;
-            try {
-                const res = await fetch(`${API_BASE}/api/admin/clients/${userId}`, {
-                    method: 'DELETE',
-                    headers: getAuthHeader()
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || 'Client deletion failed');
-                showToast(data.message || 'Client account deleted!', 'success');
-                await loadAdminClients();
             } catch (e) {
                 showToast(e.message, 'error');
             }
@@ -11470,7 +11322,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (userMenuDivider) userMenuDivider.classList.remove('hidden');
                 if (userMenuEmail) userMenuEmail.textContent = currentUser.email || 'Authenticated User';
 
-                const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
+                const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
                 if (userMenuRole) userMenuRole.textContent = isAdmin ? '👑 Administrator' : '👤 Client Account';
 
                 if (adminCryptoBtn) {
@@ -11560,7 +11412,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const mobileTokenCount = document.getElementById('mobile-token-count');
             if (mobileTokenCount) {
                 if (currentUser) {
-                    const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
+                    const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
                     mobileTokenCount.innerHTML = isAdmin ? 'Sets: &infin; (Admin)' : `Sets: ${currentUser.tokens}`;
                 } else {
                     mobileTokenCount.textContent = 'Sets: 0';
@@ -11625,7 +11477,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // --- BARCODE PRIVACY & SEE-THROUGH ANTI-SCAN CONTROLLER ---
         function applyBarcodeBlurState() {
-            const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'pro_user');
+            const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000));
             const hasAccess = currentUser && (isAdmin || currentUser.tokens > 0);
 
             const overlay = document.getElementById('barcode-blur-overlay');
@@ -12107,7 +11959,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return;
             }
 
-            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
 
             if (isAdmin) {
                 // Unlimited Admin Mode: export directly without gating
@@ -15122,7 +14974,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
 
             const count = parsedBatchRecords.length;
-            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user';
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
             if (!isAdmin && currentUser.tokens < count) {
                 showToast(`Insufficient balance: you need ${count} barcode sets, but have ${currentUser.tokens}.`, 'warning');
                 closeBatchModal();
@@ -15715,7 +15567,41 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         function renderFpCodeBanner(code, delivered, errorDetail) {
             const banner = document.getElementById('fp-step2-banner');
-            if (banner) banner.classList.remove('hidden');
+            if (!banner) return;
+            if (!code) {
+                banner.classList.add('hidden');
+                return;
+            }
+            if (delivered) {
+                banner.className = 'bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-[11px] text-emerald-900 flex flex-col gap-1.5 block shadow-xs';
+                banner.innerHTML = `
+                    <div class="font-bold flex items-center justify-between text-emerald-800">
+                        <span class="flex items-center gap-1.5"><span>✅</span> <span>Email Sent via Gmail!</span></span>
+                        <span class="text-[9px] bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full font-mono font-bold">Inbox / Spam</span>
+                    </div>
+                    <p class="text-[11px] text-emerald-800 leading-normal m-0">
+                        A 6-digit verification code was delivered to your Gmail inbox. Check your Spam folder if not received in 1 minute.
+                    </p>
+                `;
+            } else {
+                banner.className = 'bg-amber-50 border border-amber-300 rounded-xl p-3 text-[11px] text-amber-900 flex flex-col gap-2 block shadow-xs';
+                banner.innerHTML = `
+                    <div class="font-bold flex items-center justify-between text-amber-800">
+                        <span class="flex items-center gap-1.5"><span>🔑</span> <span>Your Verification Code:</span></span>
+                        <span class="text-[9px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
+                    </div>
+                    <div class="bg-white border border-amber-300/80 rounded-lg p-2 font-mono text-center text-sm font-bold text-slate-900 select-all flex items-center justify-between px-3 shadow-2xs">
+                        <span class="text-slate-500 font-sans text-[11px] font-semibold">6-Digit Code:</span>
+                        <span class="text-accent font-black text-lg tracking-widest">${code}</span>
+                    </div>
+                    <p class="text-[10px] text-amber-800 leading-normal m-0">
+                        ${errorDetail && errorDetail.includes('535') 
+                            ? 'Notice: Gmail authentication requires a 16-character App Password (from myaccount.google.com/apppasswords). Use the 6-digit code above to reset immediately.'
+                            : 'Use the 6-digit code above to reset your password immediately.'}
+                    </p>
+                `;
+            }
+            banner.classList.remove('hidden');
         }
 
         async function requestPasswordResetCode() {
@@ -15745,14 +15631,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
                 });
-                let data = {};
-                try {
-                    data = await res.json();
-                } catch (parseErr) {
-                    const rawText = await res.text().catch(() => '');
-                    data = { detail: rawText || `Server returned HTTP ${res.status}` };
-                }
-
+                const data = await res.json();
                 if (res.ok) {
                     document.getElementById('fp-step-1')?.classList.add('hidden');
                     const step2 = document.getElementById('fp-step-2');
@@ -15761,17 +15640,19 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     if (disp) disp.textContent = email;
                     
                     const codeInp = document.getElementById('fp-code-input');
-                    if (codeInp) {
-                        codeInp.value = '';
-                        codeInp.focus();
+                    const codeVal = data.dev_code || data.code;
+
+                    if (codeVal) {
+                        if (codeInp) codeInp.value = codeVal;
+                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
+                        showToast(`Verification code ready: ${codeVal}`, 'info');
+                    } else {
+                        renderFpCodeBanner(null);
+                        showToast('Verification code dispatched to your email!', 'success');
                     }
-                    renderFpCodeBanner(null, data.delivered, data.error_detail);
-                    showToast('Verification code sent to your email!', 'success');
 
                     const newPass = document.getElementById('fp-new-password');
-                    if (newPass) newPass.value = '';
-                    const confPass = document.getElementById('fp-confirm-password');
-                    if (confPass) confPass.value = '';
+                    if (newPass) newPass.focus();
                 } else {
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
@@ -15782,9 +15663,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             } catch (err) {
                 if (msgEl) {
                     msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
-                    msgEl.textContent = err?.message && !err.message.includes('fetch') 
-                        ? `Error: ${err.message}` 
-                        : 'Connection timed out or network error contacting auth service.';
+                    msgEl.textContent = 'Network error contacting auth service.';
                     msgEl.classList.remove('hidden');
                 }
             } finally {
@@ -15816,25 +15695,20 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
                 });
-                let data = {};
-                try {
-                    data = await res.json();
-                } catch (parseErr) {
-                    const rawText = await res.text().catch(() => '');
-                    data = { detail: rawText || `Server returned HTTP ${res.status}` };
-                }
-
+                const data = await res.json();
                 if (res.ok) {
+                    const codeVal = data.dev_code || data.code;
                     const codeInp = document.getElementById('fp-code-input');
-                    if (codeInp) {
-                        codeInp.value = '';
-                        codeInp.focus();
+                    if (codeVal) {
+                        if (codeInp) codeInp.value = codeVal;
+                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
+                        showToast(`New verification code: ${codeVal}`, 'info');
+                    } else {
+                        showToast('A fresh verification code was sent to your email!', 'success');
                     }
-                    renderFpCodeBanner(null, data.delivered, data.error_detail);
-                    showToast('A fresh verification code was sent to your email!', 'success');
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
-                        msgEl.textContent = 'A fresh 6-digit verification code was sent to your email.';
+                        msgEl.textContent = codeVal ? `New verification code generated: ${codeVal}` : 'A fresh code was sent to your email.';
                         msgEl.classList.remove('hidden');
                     }
                 } else {
@@ -15901,32 +15775,24 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
 
             try {
-                const targetEmail = (fpTargetEmail || document.getElementById('fp-email-input')?.value || '').trim();
                 const res = await fetch('/api/auth/reset-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        email: targetEmail,
+                        email: fpTargetEmail,
                         reset_code: code,
                         code: code,
                         new_password: newPassword,
                         confirm_password: confirmPassword
                     })
                 });
-                let data = {};
-                try {
-                    data = await res.json();
-                } catch (parseErr) {
-                    const rawText = await res.text().catch(() => '');
-                    data = { detail: rawText || `Server returned HTTP ${res.status}` };
-                }
-
+                const data = await res.json();
                 if (res.ok) {
                     showToast('🎉 Password reset successfully! You can now sign in.', 'success');
                     closeForgotPasswordModal();
                     const authEmail = document.getElementById('auth-email');
                     const authPass = document.getElementById('auth-password');
-                    if (authEmail) authEmail.value = targetEmail;
+                    if (authEmail) authEmail.value = fpTargetEmail;
                     if (authPass) authPass.value = newPassword;
                     openAuthModal();
                 } else {
@@ -15939,9 +15805,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             } catch (err) {
                 if (msgEl) {
                     msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
-                    msgEl.textContent = err?.message && !err.message.includes('fetch') 
-                        ? `Error: ${err.message}` 
-                        : 'Network error while resetting password.';
+                    msgEl.textContent = 'Network error while resetting password.';
                     msgEl.classList.remove('hidden');
                 }
             } finally {
