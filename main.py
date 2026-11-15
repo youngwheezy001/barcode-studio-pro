@@ -49,7 +49,13 @@ elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and not SQLALCHEMY_DATA
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True, pool_size=10, max_overflow=20)
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        pool_size=10,
+        max_overflow=20
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -187,7 +193,10 @@ def ensure_db_schema():
                             conn.execute(text(col_sql))
                             conn.commit()
                         except Exception as ex_col:
-                            pass
+                            try:
+                                conn.rollback()
+                            except Exception:
+                                pass
             if "barcode_history" in inspector.get_table_names():
                 bcols = [c['name'] for c in inspector.get_columns('barcode_history')]
                 if 'form_data' not in bcols:
@@ -195,7 +204,10 @@ def ensure_db_schema():
                         conn.execute(text("ALTER TABLE barcode_history ADD COLUMN form_data TEXT"))
                         conn.commit()
                     except Exception as e:
-                        pass
+                        try:
+                            conn.rollback()
+                        except Exception:
+                            pass
             if "crypto_payments" in inspector.get_table_names():
                 cpcols = [c['name'] for c in inspector.get_columns('crypto_payments')]
                 if 'invoice_number' not in cpcols:
@@ -203,7 +215,10 @@ def ensure_db_schema():
                         conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN invoice_number VARCHAR"))
                         conn.commit()
                     except Exception as e:
-                        pass
+                        try:
+                            conn.rollback()
+                        except Exception:
+                            pass
     except Exception as e:
         print(f"Notice: Schema migration check: {e}")
 
@@ -479,7 +494,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except JWTError:
         raise credentials_exception
     
-    user = db.query(User).filter(User.email == email).first()
+    clean_sub = email.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == clean_sub).first()
     if user is None:
         raise credentials_exception
     return user
@@ -498,6 +514,10 @@ class UserResponse(BaseModel):
     tokens: int
     referral_code: Optional[str] = None
     affiliate_balance: Optional[float] = 0.0
+
+    class Config:
+        from_attributes = True
+        orm_mode = True
 
 app = FastAPI(
     title="Barcode Studio Pro API",
@@ -1460,8 +1480,10 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                     order.tx_hash = tx_id
                                     order.status = "confirmed"
                                     order.confirmed_at = datetime.utcnow()
-                                    order.user.tokens += order.tokens
-                                    process_referral_commission(db, order.user, order_type="crypto", amount_usd=float(order.amount_usd))
+                                    purchaser = db.query(User).filter(User.id == order.user_id).first()
+                                    if purchaser:
+                                        purchaser.tokens += order.tokens
+                                        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
                                     db.commit()
                                     db.refresh(order)
                                     sync_users_to_backup(db)
@@ -1482,8 +1504,10 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
     if (allow_sandbox or is_test_user) and order.status == "submitted" and order.tx_hash:
         order.status = "confirmed"
         order.confirmed_at = datetime.utcnow()
-        order.user.tokens += order.tokens
-        process_referral_commission(db, order.user, order_type="crypto", amount_usd=float(order.amount_usd))
+        purchaser = db.query(User).filter(User.id == order.user_id).first()
+        if purchaser:
+            purchaser.tokens += order.tokens
+            process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
         db.commit()
         db.refresh(order)
         sync_users_to_backup(db)
