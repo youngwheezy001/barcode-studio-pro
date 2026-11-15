@@ -1,0 +1,422 @@
+[
+  {
+    "code": "UK",
+    "name": "United Kingdom",
+    "flag": "🇬🇧",
+    "doc_type": "Driving Licence (Photocard)",
+    "standard": "UK Road Traffic Act 1988 • ISO/IEC 7810 ID-1",
+    "issuer": "Driver and Vehicle Licensing Agency (DVLA)",
+    "security_features": [
+      "Optically Variable Ink (OVI)",
+      "Tactile Laser Engraving",
+      "Guilloche Pattern",
+      "UV Fluorescent Crown"
+    ],
+    "optical_codes": [
+      "1D Code 128 (Driver Number)",
+      "2D DataMatrix (Secure Optical Record)"
+    ],
+    "back_image": "intl_templates/uk_back.webp",
+    "front_image": "intl_templates/uk_front.webp",
+    "available": true
+  },
+  {
+    "code": "AU",
+    "name": "Australia",
+    "flag": "🇦🇺",
+    "doc_type": "Driver Licence (National Standard)",
+    "standard": "Austroads National ID-1 Standard",
+    "issuer": "State Department of Transport / Roads & Maritime Services",
+    "security_features": [
+      "Dynamic Holographic Overlay",
+      "Microtext Security Border",
+      "Ghost Portrait",
+      "Polycarbonate Substrate"
+    ],
+    "optical_codes": [
+      "2D PDF417 (Austroads Subfile)",
+      "1D Code 39 (Card Number)"
+    ],
+    "back_image": "intl_templates/au_back.webp",
+    "front_image": "intl_templates/au_front.webp",
+    "available": true
+  },
+  {
+    "code": "NZ",
+    "name": "New Zealand",
+    "flag": "🇳🇿",
+    "doc_type": "Driver Licence / Rawa Raihana",
+    "standard": "NZ Land Transport Act • ISO/IEC 7810 ID-1",
+    "issuer": "Waka Kotahi NZ Transport Agency",
+    "security_features": [
+      "Silver Fern Kinegram",
+      "Laser Perforated Ghost Image",
+      "UV Rainbow Fluorescence",
+      "Microprinting"
+    ],
+    "optical_codes": [
+      "1D Code 128 (Licence Number)",
+      "2D QR / DataMatrix"
+    ],
+    "back_image": "intl_templates/nz_back.webp",
+    "front_image": "intl_templates/nz_front.webp",
+    "available": true
+  },
+  {
+    "code": "DE",
+    "name": "Germany",
+    "flag": "🇩🇪",
+    "doc_type": "Führerschein (EU-Kartenführerschein)",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Kraftfahrt-Bundesamt (KBA) / Fahrerlaubnisbehörde",
+    "security_features": [
+      "IDENTIGRAM Holographic Element",
+      "Optically Variable Surface Relief",
+      "Tactile Laser Engraved Typography",
+      "Guilloche Fine-line Background"
+    ],
+    "optical_codes": [
+      "2D DataMatrix (KBA Registry Optical Tag)",
+      "Machine Readable Optical Zone"
+    ],
+    "back_image": "intl_templates/de_back.webp",
+    "front_image": "intl_templates/de_front.webp",
+    "available": true
+  },
+  {
+    "code": "FR",
+    "name": "France",
+    "flag": "🇫🇷",
+    "doc_type": "Permis de Conduire (Format Carte Bancaire)",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Agence Nationale des Titres Sécurisés (ANTS) / Ministère de l'Intérieur",
+    "security_features": [
+      "Marianne Hologram",
+      "Tactile Laser Engraved Relief",
+      "Micro-Textes 'RÉPUBLIQUE FRANÇAISE'",
+      "Dual-Band UV 365nm Fluorescent Guilloche"
+    ],
+    "optical_codes": [
+      "2D 2D-Doc (CEV Barcode)",
+      "1D Code 128 (Numéro de Dossier)"
+    ],
+    "back_image": "intl_templates/fr_back.webp",
+    "front_image": "intl_templates/fr_front.webp",
+    "available": true
+  },
+  {
+    "code": "ES",
+    "name": "Spain",
+    "flag": "🇪🇸",
+    "doc_type": "Permiso de Conducción",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Dirección General de Tráfico (DGT)",
+    "security_features": [
+      "Holographic Optical Variable Strip",
+      "Laser Perforated Ghost Photo (CLI)",
+      "Tactile Laser Date & DNI",
+      "Ultraviolet Reactive Coat of Arms"
+    ],
+    "optical_codes": [
+      "2D PDF417 / DataMatrix",
+      "1D Code 128 (Expediente DGT)"
+    ],
+    "back_image": "intl_templates/es_back.webp",
+    "front_image": "intl_templates/es_front.webp",
+    "available": true
+  },
+  {
+    "code": "IT",
+    "name": "Italy",
+    "flag": "🇮🇹",
+    "doc_type": "Patente di Guida Europea",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Ministero delle Infrastrutture e dei Trasporti • Motorizzazione Civile",
+    "security_features": [
+      "Poligraphico e Zecca dello Stato DOVID Hologram",
+      "Laser Engraved Tactile Characters",
+      "UV 365nm Optical Fluorescence",
+      "Security Rosette Microprint"
+    ],
+    "optical_codes": [
+      "2D DataMatrix (Archivio Nazionale Veicoli)",
+      "1D Code 128 (Numero Patente)"
+    ],
+    "back_image": "intl_templates/it_back.webp",
+    "front_image": "intl_templates/it_front.webp",
+    "available": true
+  },
+  {
+    "code": "IE",
+    "name": "Ireland",
+    "flag": "🇮🇪",
+    "doc_type": "Irish Driver Licence / Ceadúnas Tiomána",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "National Driver Licence Service (NDLS) / RSA",
+    "security_features": [
+      "Shamrock Hologram Foil",
+      "Tactile Laser Engraved Driver Number",
+      "UV Harp Fluorescent Seal",
+      "Guilloche Anti-Copy Screen"
+    ],
+    "optical_codes": [
+      "1D Code 128 (NDLS Reference)",
+      "2D QR / DataMatrix Verification"
+    ],
+    "back_image": "intl_templates/ie_back.webp",
+    "front_image": "intl_templates/ie_front.webp",
+    "available": true
+  },
+  {
+    "code": "NL",
+    "name": "Netherlands",
+    "flag": "🇳🇱",
+    "doc_type": "Nederlands Rijbewijs",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Dienst Wegverkeer (RDW)",
+    "security_features": [
+      "Clear View Window",
+      "Multiple Laser Image (MLI / CLI)",
+      "Kinegram Optical Variable Device",
+      "High Resolution Microtext 'KONINKRIJK DER NEDERLANDEN'"
+    ],
+    "optical_codes": [
+      "2D DataMatrix (RDW National Register)",
+      "1D Code 128"
+    ],
+    "back_image": "intl_templates/nl_back.webp",
+    "front_image": "intl_templates/nl_front.webp",
+    "available": true
+  },
+  {
+    "code": "PL",
+    "name": "Poland",
+    "flag": "🇵🇱",
+    "doc_type": "Prawo Jazdy",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Ministerstwo Cyfryzacji / Starostwo Powiatowe",
+    "security_features": [
+      "Polska Wytwórnia Papierów Wartościowych Hologram",
+      "Tactile Laser Numbering",
+      "Eagle Coat of Arms UV Fluorescence",
+      "Microprint 'RZECZPOSPOLITA POLSKA'"
+    ],
+    "optical_codes": [
+      "2D 2D-Barcode",
+      "1D Code 128 (PESEL / Dokument)"
+    ],
+    "back_image": "intl_templates/pl_back.webp",
+    "front_image": "intl_templates/pl_front.webp",
+    "available": true
+  },
+  {
+    "code": "BE",
+    "name": "Belgium",
+    "flag": "🇧🇪",
+    "doc_type": "Rijbewijs / Permis de Conduire / Führerschein",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "FOD Mobiliteit en Vervoer / SPF Mobilité et Transports",
+    "security_features": [
+      "Trilingual Security Header",
+      "Diffractive Optically Variable Device",
+      "Laser Engraved Photo Ghost",
+      "UV 365nm Belgian Lion Seal"
+    ],
+    "optical_codes": [
+      "2D DataMatrix",
+      "1D Code 128"
+    ],
+    "back_image": "intl_templates/be_back.webp",
+    "front_image": "intl_templates/be_front.webp",
+    "available": true
+  },
+  {
+    "code": "CZ",
+    "name": "Czech Republic",
+    "flag": "🇨🇿",
+    "doc_type": "Řidičský Průkaz",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Ministerstvo Dopravy České Republiky",
+    "security_features": [
+      "Holographic Strip with Czech Lion Motif",
+      "Tactile Laser Engraved Typography",
+      "Guilloche Background Pattern",
+      "UV Dual-Tone Coat of Arms"
+    ],
+    "optical_codes": [
+      "2D PDF417 / DataMatrix",
+      "1D Code 128"
+    ],
+    "back_image": "intl_templates/cz_back.webp",
+    "front_image": "intl_templates/cz_front.webp",
+    "available": true
+  },
+  {
+    "code": "RO",
+    "name": "Romania",
+    "flag": "🇷🇴",
+    "doc_type": "Permis de Conducere",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Directia Regim Permise de Conducere si Inmatriculare a Vehiculelor (DRPCIV)",
+    "security_features": [
+      "DRPCIV Diffractive Optical Strip",
+      "Laser Perforated Identity Matrix",
+      "Fluorescent Inks under UV Light",
+      "Fine-Line Guilloche Borders"
+    ],
+    "optical_codes": [
+      "1D Code 128 (Serie Permis)",
+      "2D DataMatrix"
+    ],
+    "back_image": "intl_templates/ro_back.webp",
+    "front_image": "intl_templates/ro_front.webp",
+    "available": true
+  },
+  {
+    "code": "UA",
+    "name": "Ukraine",
+    "flag": "🇺🇦",
+    "doc_type": "Посвідчення Водія (Driver's License)",
+    "standard": "Vienna Convention on Road Traffic 1968 • ISO/IEC 7810 ID-1",
+    "issuer": "Головний Сервісний Центр МВС України (MIA Service Center)",
+    "security_features": [
+      "Tryzub Coat of Arms Holographic Element",
+      "Tactile Laser Personal Details",
+      "UV Multicolored Security Fibers",
+      "Microtext 'УКРАЇНА'"
+    ],
+    "optical_codes": [
+      "2D QR Code (Дія Diia Verification Token)",
+      "1D Code 128"
+    ],
+    "back_image": "intl_templates/ua_back.webp",
+    "front_image": "intl_templates/ua_front.webp",
+    "available": true
+  },
+  {
+    "code": "BR",
+    "name": "Brazil",
+    "flag": "🇧🇷",
+    "doc_type": "Carteira de Identidade Nacional (CIN / RG)",
+    "standard": "Decreto nº 10.977/2022 • ISO/IEC 7810 ID-1",
+    "issuer": "Secretaria de Segurança Pública / Instituto de Identificação",
+    "security_features": [
+      "Hologram da República Federativa do Brasil",
+      "Impressão de Segurança em Talho Doce (Intaglio)",
+      "Tinta Óptica Variável (OVI)",
+      "Padrões Antixérox em Microletras"
+    ],
+    "optical_codes": [
+      "2D QR Code (Padrão ICAO / Gov.br)",
+      "Código MRZ TD1"
+    ],
+    "back_image": "intl_templates/br_back.webp",
+    "front_image": "intl_templates/br_front.webp",
+    "available": true
+  },
+  {
+    "code": "MX",
+    "name": "Mexico",
+    "flag": "🇲🇽",
+    "doc_type": "Credencial para Votar / Identificación Oficial",
+    "standard": "Instituto Nacional Electoral (INE) • ISO/IEC 7810 ID-1",
+    "issuer": "Instituto Nacional Electoral (INE)",
+    "security_features": [
+      "Tinta OVI Cambiante de Color",
+      "Elemento Ópticamente Variable (Kinegram)",
+      "Microtexto CURP y Clave de Elector",
+      "Fotografía Fantasma con Datos Variables"
+    ],
+    "optical_codes": [
+      "Código QR Bidimensional de Alta Densidad",
+      "Código de Barras PDF417"
+    ],
+    "back_image": "intl_templates/mx_back.webp",
+    "front_image": "intl_templates/mx_front.webp",
+    "available": true
+  },
+  {
+    "code": "SE",
+    "name": "Sweden",
+    "flag": "🇸🇪",
+    "doc_type": "Körkort (Swedish Driving Licence)",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Transportstyrelsen (Swedish Transport Agency)",
+    "security_features": [
+      "Three Crowns Holographic Diffractive Overlay",
+      "CLI (Changeable Laser Image) Window",
+      "Laser Tactile Engraving",
+      "UV 365nm Fluorescent Patterns"
+    ],
+    "optical_codes": [
+      "1D Code 128 (Referensnummer)",
+      "2D DataMatrix Optical Check"
+    ],
+    "back_image": "intl_templates/se_back.webp",
+    "front_image": "intl_templates/se_front.webp",
+    "available": true
+  },
+  {
+    "code": "AT",
+    "name": "Austria",
+    "flag": "🇦🇹",
+    "doc_type": "Führerschein (Austrian Driving Licence)",
+    "standard": "EU Directive 2006/126/EC • ISO/IEC 7810 ID-1",
+    "issuer": "Bundesministerium für Inneres • Österreichische Staatsdruckerei",
+    "security_features": [
+      "OESD Kinegram Patch",
+      "Laser Engraved Tactile Characters",
+      "UV Dual-Color Bundesadler Seal",
+      "Microprint 'REPUBLIK ÖSTERREICH'"
+    ],
+    "optical_codes": [
+      "2D DataMatrix (Österreichischer Zentraler Führerscheinregister)",
+      "1D Code 128"
+    ],
+    "back_image": "intl_templates/at_back.webp",
+    "front_image": "intl_templates/at_front.webp",
+    "available": true
+  },
+  {
+    "code": "SG",
+    "name": "Singapore",
+    "flag": "🇸🇬",
+    "doc_type": "Singapore Driving Licence",
+    "standard": "Road Traffic Act • ISO/IEC 7810 ID-1",
+    "issuer": "Singapore Police Force • Traffic Police Department",
+    "security_features": [
+      "Merlion Diffractive Holographic Foil",
+      "Laser Tactile NRIC/FIN",
+      "UV Security Guilloche Lines",
+      "Anti-Scan Fine Screen Matrix"
+    ],
+    "optical_codes": [
+      "2D Barcode (SPF Verification)",
+      "1D Code 39 (Licence Serial Number)"
+    ],
+    "back_image": "intl_templates/sg_back.webp",
+    "front_image": "intl_templates/sg_front.webp",
+    "available": true
+  },
+  {
+    "code": "MY",
+    "name": "Malaysia",
+    "flag": "🇲🇾",
+    "doc_type": "Lesen Memandu Malaysia (High Security Photocard)",
+    "standard": "Road Transport Act 1987 • ISO/IEC 7810 ID-1",
+    "issuer": "Jabatan Pengangkutan Jalan (JPJ)",
+    "security_features": [
+      "JPJ Jata Negara Hologram",
+      "Laser Tactile MyKad IC Number",
+      "UV 365nm Security Guilloche",
+      "Microlettering 'JABATAN PENGANGKUTAN JALAN'"
+    ],
+    "optical_codes": [
+      "2D QR Code (JPJ Portal Verification)",
+      "1D Code 128"
+    ],
+    "back_image": "intl_templates/my_back.webp",
+    "front_image": "intl_templates/my_front.webp",
+    "available": true
+  }
+]

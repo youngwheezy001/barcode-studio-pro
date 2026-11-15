@@ -8,6 +8,5 @@ venv/
 .pytest_cache/
 scratch/
 scratch_*.js
-backup_audit_*/
 psd_inventory.txt
 .vscode/

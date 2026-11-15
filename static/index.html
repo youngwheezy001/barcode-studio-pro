@@ -46,6 +46,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <!-- Preload core card background templates for instant switching -->
+    <link rel="preload" as="image" href="card_templates/washington_back.webp" type="image/webp">
+    <link rel="preload" as="image" href="card_templates/california_back.webp" type="image/webp">
+    <link rel="preload" as="image" href="card_templates/texas_back.webp" type="image/webp">
+    <link rel="preload" as="image" href="card_templates/new_york_back.webp" type="image/webp">
+    <link rel="preload" as="image" href="card_templates/florida_back.webp" type="image/webp">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- JsBarcode for 1D barcodes (Code 128) -->
@@ -7629,10 +7635,53 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function getCardRevisionDateString(jurKey, meta, revInfo, stateCodeHint = '') {
-            const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
             const stCode = (stateCodeHint || (jurKey ? jurKey.split('_')[0] : '')).toUpperCase();
 
-            // 1. If user entered an issue date, format according to state convention
+            // 1. Prioritize authentic card revision specification from revInfo.rev_header
+            if (revInfo && revInfo.rev_header && revInfo.rev_header !== 'Standard Revision') {
+                const header = revInfo.rev_header;
+                const dMatch = header.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                if (dMatch) {
+                    let n1 = parseInt(dMatch[1], 10);
+                    let n2 = parseInt(dMatch[2], 10);
+                    let yr = dMatch[3];
+                    let mo = '', da = '';
+                    if (n1 > 12) { da = String(n1).padStart(2, '0'); mo = String(n2).padStart(2, '0'); }
+                    else { mo = String(n1).padStart(2, '0'); da = String(n2).padStart(2, '0'); }
+                    if (stCode === 'AZ') return `Rev ${mo}/${yr}`;
+                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev ${mo}/${da}/${yr}`;
+                    if (stCode === 'ID') return `${mo}/${da}/${yr}`;
+                    return `Rev ${mo}-${da}-${yr}`;
+                }
+                const yMatch = header.match(/\b(20\d\d|19\d\d)\b/);
+                if (yMatch) {
+                    const yr = yMatch[1];
+                    if (stCode === 'AZ') return `Rev 01/${yr}`;
+                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev 01/01/${yr}`;
+                    if (stCode === 'ID') return `01/01/${yr}`;
+                    return `Rev 01-01-${yr}`;
+                }
+            }
+
+            // 2. Check if a specific revision year is in jurKey or revInfo.label (e.g., WA_2025, AL_2022, TX_2023, CT_2024, MS_2023, MD_2021, PA_2022)
+            const slugYrMatch = (jurKey || '').match(/_?(20\d\d)/) || ((revInfo && revInfo.label) ? revInfo.label.match(/\b(20\d\d)\b/) : null);
+            if (slugYrMatch) {
+                const yr = slugYrMatch[1];
+                if (jurKey === 'AL_2022') return 'Rev 04-26-2022';
+                if (jurKey === 'WA_2025') return 'Rev 01-01-2025';
+                if (stCode === 'AZ') return `Rev 01/${yr}`;
+                if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev 01/01/${yr}`;
+                if (stCode === 'ID') return `01/01/${yr}`;
+                return `Rev 01-01-${yr}`;
+            }
+
+            // 3. Check meta.rev if resolved
+            if (meta && meta.rev && meta.rev !== 'REV 03-12-2015') {
+                return meta.rev;
+            }
+
+            // 4. Issue date fallback if user explicitly entered an issue date
+            const rawIss = (document.getElementById('aamva-issued')?.value || document.getElementById('aamva-iss')?.value || '').trim();
             if (rawIss) {
                 let yr = '', mo = '', da = '';
                 if (rawIss.includes('-')) {
@@ -7660,48 +7709,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     if (stCode === 'ID') return `${mo}/${da}/${yr}`;
                     return `Rev ${mo}-${da}-${yr}`;
                 }
-            }
-
-            // 2. Check meta.rev if already resolved
-            if (meta && meta.rev && meta.rev !== 'REV 03-12-2015') {
-                return meta.rev;
-            }
-
-            // 3. Check revInfo.rev_header or revInfo.label from active state hierarchy
-            if (revInfo && revInfo.rev_header) {
-                const header = revInfo.rev_header;
-                const dMatch = header.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-                if (dMatch) {
-                    let n1 = parseInt(dMatch[1], 10);
-                    let n2 = parseInt(dMatch[2], 10);
-                    let yr = dMatch[3];
-                    let mo = '', da = '';
-                    if (n1 > 12) { da = String(n1).padStart(2, '0'); mo = String(n2).padStart(2, '0'); }
-                    else { mo = String(n1).padStart(2, '0'); da = String(n2).padStart(2, '0'); }
-                    if (stCode === 'AZ') return `Rev ${mo}/${yr}`;
-                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev ${mo}/${da}/${yr}`;
-                    if (stCode === 'ID') return `${mo}/${da}/${yr}`;
-                    return `Rev ${mo}-${da}-${yr}`;
-                }
-                const yMatch = header.match(/\b(20\d\d|19\d\d)\b/);
-                if (yMatch) {
-                    const yr = yMatch[1];
-                    if (stCode === 'AZ') return `Rev 01/${yr}`;
-                    if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev 01/01/${yr}`;
-                    if (stCode === 'ID') return `01/01/${yr}`;
-                    return `Rev 01-01-${yr}`;
-                }
-            }
-
-            // 4. Fallback: extract year from jurKey or revInfo.label
-            const slugYr = (jurKey || '').match(/_?(20\d\d)/) || ((revInfo && revInfo.label) ? revInfo.label.match(/\b(20\d\d)\b/) : null);
-            if (slugYr) {
-                const yr = slugYr[1];
-                if (jurKey === 'AL_2022') return 'Rev 04-26-2022';
-                if (stCode === 'AZ') return `Rev 01/${yr}`;
-                if (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') return `Rev 01/01/${yr}`;
-                if (stCode === 'ID') return `01/01/${yr}`;
-                return `Rev 01-01-${yr}`;
             }
 
             if (meta && meta.rev) return meta.rev;

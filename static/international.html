@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International Credential & Card Specification Registry | Barcode Studio Pro</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .cr80-card {
+            aspect-ratio: 1.587 / 1;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .perspective-1000 { perspective: 1000px; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Header Navigation -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2 group">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition">
+                        <span class="text-white text-lg">🪪</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-sm tracking-tight text-white group-hover:text-indigo-400 transition">BARCODE STUDIO PRO</span>
+                            <span class="text-[10px] font-mono font-bold bg-indigo-950/80 text-indigo-400 border border-indigo-700/50 px-1.5 py-0.5 rounded">INTL REGISTRY</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 block -mt-0.5">International Document Standards &amp; Physical Specifications</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <a href="/" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5 border border-slate-700/80">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Back to AAMVA Generator</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-b border-slate-800/80 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-400 text-xs font-mono font-bold mb-4">
+                <span>🌍</span>
+                <span>GLOBAL CREDENTIAL REPOSITORY • 20 SOVEREIGN NATIONS</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+                International Card Specifications &amp; Design Architecture
+            </h1>
+            <p class="mt-3 text-sm sm:text-base text-slate-400 max-w-3xl mx-auto">
+                Comprehensive technical catalog of sovereign photocard driving licences and national identity credentials adhering to EU Directive 2006/126/EC, Vienna Convention 1968, and ISO/IEC 7810 ID-1 standard dimensions.
+            </p>
+
+            <!-- Live Filter Bar -->
+            <div class="mt-8 max-w-xl mx-auto flex items-center gap-3 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 shadow-xl">
+                <div class="relative flex-1">
+                    <input type="text" id="intl-search" placeholder="Search by country, authority, standard or document type..." 
+                           class="w-full bg-slate-950 text-xs text-white rounded-lg pl-9 pr-3 py-2 border border-slate-700/60 focus:outline-none focus:border-indigo-500 placeholder-slate-500 font-medium">
+                    <svg class="w-4 h-4 text-slate-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <div class="text-[11px] font-mono font-bold text-slate-400 px-2" id="results-count">20 Countries</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+        <div id="countries-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Dynamic Country Cards Injected by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-8 px-4 sm:px-6 lg:px-8 mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Barcode Studio Pro Global Registry • Dedicated Specification Vault</span>
+            </div>
+            <div>
+                ISO/IEC 7810 ID-1 (85.60 mm &times; 53.98 mm) &bull; Verified Physical Proportions
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Card Flipping and Filtering Script -->
+    <script>
+        let countriesData = [];
+
+        async function loadInternationalCards() {
+            try {
+                const res = await fetch('/static/intl_cards_data.json');
+                if (!res.ok) throw new Error('Failed to load catalog');
+                countriesData = await res.json();
+                renderCards(countriesData);
+            } catch (err) {
+                console.error('Error loading cards:', err);
+                document.getElementById('countries-grid').innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400 font-mono text-sm">
+                        Unable to load international cards catalogue. Please check server status.
+                    </div>
+                `;
+            }
+        }
+
+        function renderCards(list) {
+            const container = document.getElementById('countries-grid');
+            document.getElementById('results-count').textContent = `${list.length} Countries`;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-500 font-mono text-sm">
+                        No matching sovereign credentials found.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map((c, idx) => {
+                const cardId = `intl-card-${c.code.toLowerCase()}`;
+                const sideId = `intl-side-${c.code.toLowerCase()}`;
+                return `
+                    <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition">
+                        
+                        <!-- Country & Document Header -->
+                        <div class="flex items-start justify-between pb-3 mb-4 border-b border-slate-800">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">${c.flag}</span>
+                                    <h2 class="text-lg font-black text-white tracking-tight">${c.name}</h2>
+                                    <span class="font-mono text-[10px] font-bold text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">${c.code}</span>
+                                </div>
+                                <div class="text-xs font-semibold text-indigo-400 mt-0.5">${c.doc_type}</div>
+                            </div>
+                            <button type="button" onclick="flipCard('${c.code.toLowerCase()}')" 
+                                    class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-sky-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                <span>🔄</span>
+                                <span id="${sideId}">Flip to Back</span>
+                            </button>
+                        </div>
+
+                        <!-- Card Presentation Stage (CR80 ID-1 standard) -->
+                        <div class="perspective-1000 w-full flex justify-center py-2">
+                            <div id="${cardId}" class="cr80-card relative w-full max-w-[390px] rounded-xl overflow-hidden shadow-2xl border border-slate-700/60 select-none bg-white transition-all duration-300"
+                                 style="background: #ffffff url('/static/${c.front_image || c.back_image}') no-repeat center / cover;">
+                                
+                                <!-- Hologram Shimmer Layer -->
+                                <div class="absolute inset-0 pointer-events-none opacity-20 mix-blend-color-dodge select-none"
+                                     style="background: linear-gradient(135deg, transparent 20%, rgba(255, 99, 132, 0.35) 35%, rgba(54, 162, 235, 0.4) 50%, rgba(255, 206, 86, 0.4) 65%, transparent 80%);"></div>
+
+                                <!-- Subtle Microprint Screen -->
+                                <div class="absolute inset-0 pointer-events-none opacity-[0.035]" 
+                                     style="background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Specification Details -->
+                        <div class="mt-5 space-y-3 pt-3 border-t border-slate-800/80 text-xs text-slate-300">
+                            <div>
+                                <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">Issuing Authority</span>
+                                <span class="font-medium text-slate-200">${c.issuer}</span>
+                            </div>
+                            
+                            <div>
+                                <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">Governing Standard</span>
+                                <span class="font-medium text-slate-400">${c.standard}</span>
+                            </div>
+
+                            <!-- Security Features Tags -->
+                            <div>
+                                <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-1.5">Security Architecture</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${c.security_features.map(f => `
+                                        <span class="text-[10px] font-mono bg-purple-950/40 text-purple-300 border border-purple-800/50 px-2 py-0.5 rounded">
+                                            🛡️ ${f}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Optical Codes Tags -->
+                            <div>
+                                <span class="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-1.5">Optical Data Carriers</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${c.optical_codes.map(o => `
+                                        <span class="text-[10px] font-mono bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 px-2 py-0.5 rounded">
+                                            📊 ${o}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const cardSides = {};
+        function flipCard(code) {
+            const current = cardSides[code] || 'front';
+            const next = current === 'front' ? 'back' : 'front';
+            cardSides[code] = next;
+
+            const card = document.getElementById(`intl-card-${code}`);
+            const sideBtn = document.getElementById(`intl-side-${code}`);
+            const country = countriesData.find(c => c.code.toLowerCase() === code);
+
+            if (card && country) {
+                const img = next === 'front' ? country.front_image : country.back_image;
+                card.style.background = `#ffffff url('/static/${img}') no-repeat center / cover`;
+                if (sideBtn) {
+                    sideBtn.textContent = next === 'front' ? 'Flip to Back' : 'Flip to Front';
+                }
+            }
+        }
+
+        // Live Filter Event
+        document.getElementById('intl-search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) {
+                renderCards(countriesData);
+                return;
+            }
+            const filtered = countriesData.filter(c => 
+                c.name.toLowerCase().includes(query) ||
+                c.code.toLowerCase().includes(query) ||
+                c.issuer.toLowerCase().includes(query) ||
+                c.doc_type.toLowerCase().includes(query) ||
+                c.standard.toLowerCase().includes(query) ||
+                c.security_features.some(f => f.toLowerCase().includes(query)) ||
+                c.optical_codes.some(o => o.toLowerCase().includes(query))
+            );
+            renderCards(filtered);
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', loadInternationalCards);
+    </script>
+</body>
+</html>

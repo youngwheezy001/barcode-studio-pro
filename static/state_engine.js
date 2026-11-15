@@ -12229,6 +12229,7 @@ function QC_calculate_ICN() {
         "UK_PASSPORT": "mrz_templates/uk_passport_back.webp"
     };
 
+    const _templateCache = new Map();
     function getJurisdictionCardTemplate(slugOrCode, side) {
         if (!slugOrCode) return null;
         side = side || 'back';
@@ -12237,7 +12238,18 @@ function QC_calculate_ICN() {
         let path = JURISDICTION_TEMPLATE_MAP[s] || JURISDICTION_TEMPLATE_MAP[base];
         if (!path) return null;
         if (side === 'front') {
-            return path.replace('_back.webp', '_front.webp');
+            path = path.replace('_back.webp', '_front.webp');
+        }
+        // In-memory browser image cache pre-decode for instant 0ms painting
+        if (typeof window !== 'undefined' && typeof Image !== 'undefined' && !_templateCache.has(path)) {
+            try {
+                const img = new Image();
+                img.src = path;
+                if (typeof img.decode === 'function') {
+                    img.decode().catch(function() {});
+                }
+                _templateCache.set(path, img);
+            } catch (e) {}
         }
         return path;
     }

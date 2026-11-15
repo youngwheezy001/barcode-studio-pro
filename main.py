@@ -2575,6 +2575,15 @@ def get_mrz_page():
         return FileResponse(str(mrz_file))
     return FileResponse(str(BASE_DIR / "static" / "index.html"))
 
+@app.get("/international", response_class=FileResponse)
+@app.get("/international/", response_class=FileResponse)
+def get_international_page():
+    """Serves the standalone International Card Specification & Registry showcase."""
+    intl_file = BASE_DIR / "static" / "international.html"
+    if intl_file.exists():
+        return FileResponse(str(intl_file))
+    return FileResponse(str(BASE_DIR / "static" / "index.html"))
+
 @app.get("/states")
 @app.get("/states/")
 def get_states_page():
