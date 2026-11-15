@@ -2691,6 +2691,13 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <!-- Alternative Clean Microprint Divider for Modern Optical Cards without Magnetic Stripe -->
                                 <div id="card-top-separator" class="hidden w-full h-[3px] border-y border-slate-300/80 bg-[repeating-linear-gradient(90deg,#94a3b8_0,#94a3b8_2px,#cbd5e1_2px,#cbd5e1_4px)] relative z-10"></div>
 
+                                <!-- Upper Barcode Container for Jurisdictions with Top-Band 2D Barcode (e.g. WA, IL, VA, WV, NY, OR, NC, PA, WI, AB, QC, SK) -->
+                                <div id="card-top-pdf417-container" class="hidden px-3 pt-1 relative z-20">
+                                    <div class="bg-white rounded p-0.5 shadow-xs border border-slate-200/60 flex items-center justify-center w-full h-[62px] overflow-hidden">
+                                        <canvas id="card-top-pdf417" class="w-full h-full object-fill transition duration-200"></canvas>
+                                    </div>
+                                </div>
+
                                 <!-- Card Body Content -->
                                 <div id="card-back-body" class="px-3.5 pt-2 pb-2.5 flex flex-col justify-between flex-1 relative bg-transparent z-10">
                                     
@@ -2872,7 +2879,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Arkansas Authentic Physical CR80 Card-Back View (Capitol Line Art, Top PDF417, Stacked Numbers, Right Vertical Code 128, Circular Ghost Portrait) -->
-                            <div id="card-back-arkansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('arkansas_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-arkansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/arkansas_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top PDF417 Barcode Container (Quiet Zone White Box across the top) -->
                                 <div class="absolute top-2 left-2.5 right-[66px] flex items-center justify-center z-10">
@@ -2932,7 +2939,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Arizona Authentic Physical CR80 Card-Back View (Top 1D Code 128, Magstripe, Guilloche Band, Bottom PDF417) -->
-                            <div id="card-back-arizona-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('arizona_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-arizona-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/arizona_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right) -->
                                 <div class="absolute top-1 right-6 sm:right-8 flex items-center justify-end z-20 overflow-hidden h-[20px] w-[210px]">
@@ -2992,7 +2999,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Alabama Authentic Physical CR80 Card-Back View (Top 1D Code 128, Magstripe, Microprint Line, Great Seal, Bottom PDF417) -->
-                            <div id="card-back-alabama-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('alabama_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-alabama-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/alabama_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Sequence / ICN Number (Left of Top Barcode) -->
                                 <div class="absolute top-1.5 left-4 flex items-center z-20">
@@ -3050,7 +3057,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- California Custom Card Back View (Authentic Pier Substrate Replica) -->
-                            <div id="card-back-california-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('california_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-california-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/california_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right/Center) -->
                                 <div class="absolute top-0 left-[34.15%] w-[55.91%] h-[6.68%] flex items-center justify-center z-20 overflow-hidden">
@@ -3103,7 +3110,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Colorado Custom Card Back View (Authentic State Capitol Substrate Replica) -->
-                            <div id="card-back-colorado-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('colorado_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-colorado-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/colorado_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Magnetic Stripe (Solid Black Hi-Co Stripe across 100% width) -->
                                 <div id="colorado-magstripe" class="absolute top-[8.9%] left-0 w-full h-[23.1%] bg-black/90 z-10 shadow-inner"></div>
@@ -3163,7 +3170,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Florida Custom Card Back View (Authentic Substrate, Hi-Co Stripe, Guilloche, 1D Top Barcode, Gold Medallion & 2D PDF417) -->
-                            <div id="card-back-florida-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('florida_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-florida-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/florida_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Sequence / Audit Number (Left of Top Barcode) -->
                                 <div class="absolute flex items-center select-none z-20" style="left: 3.6%; top: 2.5%; height: 21px;">
@@ -3222,7 +3229,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Georgia Custom Card Back View (Authentic Substrate, DDS Logo, Top Audit & 1D Barcode, Upper-Right 2D PDF417, Demographics & State Capitol Seal) -->
-                            <div id="card-back-georgia-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('georgia_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-georgia-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/georgia_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Left Revision Date (Rev 10/22/2017 above DDS Logo) -->
                                 <div class="absolute flex items-center select-none z-20" style="left: 3.7%; top: 7.8%; height: 16px;">
@@ -3267,7 +3274,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Idaho Custom Card Back View (Authentic Substrate, Top DOB/REV & 1D Barcode, Upper-Right 2D PDF417, Lower-Left Demographics & Centered Legal Disclaimer) -->
-                            <div id="card-back-idaho-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('idaho_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-idaho-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/idaho_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Left DOB and Revision Date -->
                                 <div class="absolute flex items-center select-none z-20" style="left: 3.3%; top: 4.8%; height: 16px;">
@@ -3318,7 +3325,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Kansas Custom Card Back View (Authentic Substrate, Top Rev/DOB, Dotted Turtle Perforation, Top 1D Barcode & Center 2D PDF417, Demographics & Kansas State Box) -->
-                            <div id="card-back-kansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('kansas_back_bg.webp') no-repeat center / cover;">
+                            <div id="card-back-kansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/kansas_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Left Revision Date and DOB (Centered above turtle perforation) -->
                                 <div class="absolute flex flex-col items-center justify-center select-none z-20" style="left: 6.2%; top: 4.8%; width: 22.0%;">
@@ -7847,7 +7854,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#fafaf8 url("arkansas_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#fafaf8 url("card_templates/arkansas_back.webp") no-repeat center / cover';
                 }
 
                 // Populate Arkansas DOB (Formatted MM/DD/YYYY)
@@ -7947,7 +7954,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#fafaf8 url("arizona_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#fafaf8 url("card_templates/arizona_back.webp") no-repeat center / cover';
                 }
 
                 // Populate Arizona DOB (Formatted MM/DD/YYYY)
@@ -8044,7 +8051,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff url("alabama_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#ffffff url("card_templates/alabama_back.webp") no-repeat center / cover';
                 }
 
                 // Populate Alabama Cardholder Full Name
@@ -8154,7 +8161,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff url("california_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#ffffff url("card_templates/california_back.webp") no-repeat center / cover';
                 }
 
                 // California Classifications
@@ -8242,7 +8249,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff url("colorado_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#ffffff url("card_templates/colorado_back.webp") no-repeat center / cover';
                 }
 
                 // Colorado Classifications
@@ -8333,7 +8340,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff url("florida_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#ffffff url("card_templates/florida_back.webp") no-repeat center / cover';
                 }
 
                 // Florida Demographics: Restrictions, Endorsements, Class
@@ -8429,7 +8436,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff url("georgia_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#ffffff url("card_templates/georgia_back.webp") no-repeat center / cover';
                 }
 
                 // Georgia Revision Date
@@ -8526,7 +8533,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.remove('hidden');
                 if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#ffffff url("idaho_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#ffffff url("card_templates/idaho_back.webp") no-repeat center / cover';
                 }
 
                 // Idaho DOB (Top Left)
@@ -8620,7 +8627,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (idahoView) idahoView.classList.add('hidden');
                 if (kansasView) kansasView.classList.remove('hidden');
                 if (cardEl) {
-                    cardEl.style.background = '#fafaf8 url("kansas_back_bg.webp") no-repeat center / cover';
+                    cardEl.style.background = '#fafaf8 url("card_templates/kansas_back.webp") no-repeat center / cover';
                 }
 
                 // Kansas Revision Date (Top Left above turtle)
@@ -8822,6 +8829,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (secPattern) {
                     const tint = (meta && meta.security_tint) ? meta.security_tint : '#1e293b';
                     secPattern.style.backgroundImage = `radial-gradient(${tint} 1px, transparent 1px), radial-gradient(${tint} 1px, transparent 1px)`;
+                }
+            }
+
+            // Dynamic State Layout: Upper-Band 2D Barcode (e.g. WA, IL, VA, WV, NY, OR, NC, PA, WI, AB, QC, SK)
+            const cardTopPdf = document.getElementById('card-top-pdf417-container');
+            const cardBottomPdf = document.getElementById('card-pdf417-container');
+            const stateLayout = (typeof getJurisdictionCardLayout === 'function') ? getJurisdictionCardLayout(jurKey || stateCode) : null;
+            const isUpperPdf = stateLayout && stateLayout.pdf417 && stateLayout.pdf417.y < 35;
+
+            if (cardTopPdf && cardBottomPdf) {
+                if (isUpperPdf && standardView && !standardView.classList.contains('hidden')) {
+                    cardTopPdf.classList.remove('hidden');
+                    cardBottomPdf.classList.add('hidden');
+                } else {
+                    cardTopPdf.classList.add('hidden');
+                    cardBottomPdf.classList.remove('hidden');
                 }
             }
 
@@ -9549,6 +9572,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     const sctx = curSc.getContext('2d');
                     if (sctx) sctx.clearRect(0, 0, curSc.width, curSc.height);
                 }
+                const topSc = document.getElementById('card-top-pdf417');
+                if (topSc && topSc.getContext) {
+                    const tctx = topSc.getContext('2d');
+                    if (tctx) tctx.clearRect(0, 0, topSc.width, topSc.height);
+                }
                 const cpb = document.getElementById('card-preview-barcode');
                 if (cpb && cpb.getContext) {
                     const bctx = cpb.getContext('2d');
@@ -9577,7 +9605,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'KS': 'kansas-pdf417',
                 'HI': 'eng-pdf417'
             };
-            const activeCanvasId = stateCanvasMap[stateCode];
+            let activeCanvasId = stateCanvasMap[stateCode];
+            if (!activeCanvasId) {
+                const sLayout = (typeof getJurisdictionCardLayout === 'function') ? getJurisdictionCardLayout(jurEl?.value || stateCode) : null;
+                if (sLayout && sLayout.pdf417 && sLayout.pdf417.y < 35) {
+                    activeCanvasId = 'card-top-pdf417';
+                }
+            }
 
             try {
                 if (barcode2DType === 'qrcode') {
