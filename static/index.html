@@ -5358,8 +5358,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // Revision Date Container (DDB): shown for states that have revision dates (e.g. MI, FL)
-            const hasRevDate = revInfo ? (revInfo.has_rev_date === true || revInfo.has_revision_date === true) : (baseCode === 'FL' || baseCode === 'MI');
+            // Revision Date Container (DDB): shown for states that have revision dates (e.g. MI, FL, MS, MD)
+            const hasRevDate = revInfo ? (revInfo.has_rev_date === true || revInfo.has_revision_date === true || (revInfo.rev_dates && revInfo.rev_dates.length > 0)) : (baseCode === 'FL' || baseCode === 'MI' || baseCode === 'MS' || baseCode === 'MD');
             const revDateContainer = document.getElementById('container-revision-date');
             const revDateSelect = document.getElementById('aamva-revision-date');
             if (revDateContainer) {
@@ -5372,6 +5372,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             baseCode === 'MI' ? [
                                 { value: "01212011", label: "01/21/2011" },
                                 { value: "08162021", label: "08/16/2021" }
+                            ] : baseCode === 'MS' ? [
+                                { value: "05142021", label: "05/14/2021" },
+                                { value: "02222016", label: "02/22/2016" }
+                            ] : baseCode === 'MD' ? [
+                                { value: "06202016", label: "06/20/2016" },
+                                { value: "082619", label: "08/26/2019" }
                             ] : baseCode === 'FL' ? [
                                 { value: "03162017", label: "03/16/2017" },
                                 { value: "05012019", label: "05/01/2019" },
@@ -5385,6 +5391,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         revDateSelect.innerHTML = optsHtml;
                         if (existingVal && Array.from(revDateSelect.options).some(o => o.value === existingVal)) {
                             revDateSelect.value = existingVal;
+                        } else if (dateList.length > 0) {
+                            revDateSelect.value = dateList[0].value;
                         }
                     }
                 } else {
@@ -5495,10 +5503,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (hasAddress2) {
                     orExtras.style.display = '';
                     orExtras.classList.remove('hidden');
-                    if (slug === 'MA') {
-                        const street2El = document.getElementById('aamva-street2');
-                        if (street2El && (!street2El.value || street2El.value === 'NONE')) {
-                            street2El.value = 'NONE';
+                    const street2El = document.getElementById('aamva-street2');
+                    if (street2El) {
+                        const isNoneDefault = (slug === 'MA' || slug.startsWith('NH'));
+                        if (isNoneDefault) {
+                            if (!street2El.value || street2El.value === '') {
+                                street2El.value = 'NONE';
+                            }
+                        } else if (street2El.value === 'NONE') {
+                            street2El.value = '';
                         }
                     }
                 } else {
@@ -5551,7 +5564,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (flExtras) {
                 flExtras.style.display = hasFl ? '' : 'none';
                 if (!hasFl) {
-                    const revDate = document.getElementById('aamva-revision-date'); if (revDate) revDate.value = '';
                     const safeDrv = document.getElementById('aamva-safe-driver'); if (safeDrv) safeDrv.value = 'Yes';
                 }
             }
@@ -5735,6 +5747,26 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const idEl = document.getElementById('aamva-id');
                 if (idEl && defaults.sample_dl) {
                     idEl.placeholder = defaults.sample_dl;
+                }
+
+                const street2El = document.getElementById('aamva-street2');
+                if (street2El && hasAddress2) {
+                    if (defaults.street2 !== undefined) {
+                        street2El.value = defaults.street2;
+                    } else if (slug === 'MA' || slug.startsWith('NH')) {
+                        street2El.value = 'NONE';
+                    } else {
+                        street2El.value = '';
+                    }
+                }
+
+                if (defaults.rev_date && revDateSelect && hasRevDate) {
+                    revDateSelect.value = defaults.rev_date;
+                }
+
+                const auditEl = document.getElementById('aamva-audit');
+                if (auditEl && hasAudit && defaults.sample_audit) {
+                    auditEl.value = defaults.sample_audit;
                 }
             }
 
