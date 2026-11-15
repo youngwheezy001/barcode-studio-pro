@@ -1,7 +1,19 @@
 [
   {
     "email": "mwangilewis205@gmail.com",
-    "hashed_password": "$2b$10$3q.NMi8FT/51tgEssUR2Y.7xNsnKeI4woFlp8w9/Fb/Xks/DB2kbW",
+    "hashed_password": "$2b$10$vm2U/zAayHMrDc1pg0ywFeBqh551wkjFjSsAih/BitGvhHhsgsjrq",
+    "role": "admin",
+    "tokens": 999999
+  },
+  {
+    "email": "youngwheezy001@gmail.com",
+    "hashed_password": "$2b$10$LIc/oMC7jmur.QiZ3zxrJuqehrIimDYweUb4VuR9s.JzWBzlZvSxa",
+    "role": "admin",
+    "tokens": 999999
+  },
+  {
+    "email": "joyannkarambu@gmail.com",
+    "hashed_password": "$2b$10$dP8E8pg6Y1EZbKjfCRU2hu.vapeFQk2jrzh0Xm3nbESP14Ks6Nc2e",
     "role": "admin",
     "tokens": 999999
   }

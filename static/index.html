@@ -9052,8 +9052,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'UT': 'dld.utah.gov', 'VT': 'dmv.vermont.gov', 'VA': 'www.dmvnow.com', 'WA': 'www.dol.wa.gov',
                 'WV': 'transportation.wv.gov/dmv', 'WI': 'wisconsindot.gov', 'WY': 'dot.state.wy.us',
                 'AB': 'www.alberta.ca', 'BC': 'www.icbc.com', 'MB': 'www.mpi.mb.ca', 'NB': 'www.snb.ca',
-                'NL': 'www.gov.nl.ca', 'NS': 'novascotia.ca/sns/access', 'ON': 'www.ontario.ca/page/drivers-licence',
-                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca'
+                'NL': 'www.gov.nl.ca', 'NS': 'novascotia.ca/sns/access', 'NT': 'inf.gov.nt.ca', 'NU': 'gov.nu.ca',
+                'ON': 'www.ontario.ca/page/drivers-licence', 'PE': 'princeedwardisland.ca',
+                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca', 'YT': 'yukon.ca'
             };
 
             const stateWatermark = document.getElementById('studio-state-watermark');
@@ -15752,7 +15753,14 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
                 });
-                const data = await res.json();
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    const rawText = await res.text().catch(() => '');
+                    data = { detail: rawText || `Server returned HTTP ${res.status}` };
+                }
+
                 if (res.ok) {
                     document.getElementById('fp-step-1')?.classList.add('hidden');
                     const step2 = document.getElementById('fp-step-2');
@@ -15784,7 +15792,9 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             } catch (err) {
                 if (msgEl) {
                     msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
-                    msgEl.textContent = 'Network error contacting auth service.';
+                    msgEl.textContent = err?.message && !err.message.includes('fetch') 
+                        ? `Error: ${err.message}` 
+                        : 'Connection timed out or network error contacting auth service.';
                     msgEl.classList.remove('hidden');
                 }
             } finally {
@@ -15816,7 +15826,14 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
                 });
-                const data = await res.json();
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    const rawText = await res.text().catch(() => '');
+                    data = { detail: rawText || `Server returned HTTP ${res.status}` };
+                }
+
                 if (res.ok) {
                     const codeVal = data.dev_code || data.code;
                     const codeInp = document.getElementById('fp-code-input');
@@ -15896,24 +15913,32 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
 
             try {
+                const targetEmail = (fpTargetEmail || document.getElementById('fp-email-input')?.value || '').trim();
                 const res = await fetch('/api/auth/reset-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        email: fpTargetEmail,
+                        email: targetEmail,
                         reset_code: code,
                         code: code,
                         new_password: newPassword,
                         confirm_password: confirmPassword
                     })
                 });
-                const data = await res.json();
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    const rawText = await res.text().catch(() => '');
+                    data = { detail: rawText || `Server returned HTTP ${res.status}` };
+                }
+
                 if (res.ok) {
                     showToast('🎉 Password reset successfully! You can now sign in.', 'success');
                     closeForgotPasswordModal();
                     const authEmail = document.getElementById('auth-email');
                     const authPass = document.getElementById('auth-password');
-                    if (authEmail) authEmail.value = fpTargetEmail;
+                    if (authEmail) authEmail.value = targetEmail;
                     if (authPass) authPass.value = newPassword;
                     openAuthModal();
                 } else {
@@ -15926,7 +15951,9 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             } catch (err) {
                 if (msgEl) {
                     msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
-                    msgEl.textContent = 'Network error while resetting password.';
+                    msgEl.textContent = err?.message && !err.message.includes('fetch') 
+                        ? `Error: ${err.message}` 
+                        : 'Network error while resetting password.';
                     msgEl.classList.remove('hidden');
                 }
             } finally {

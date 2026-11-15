@@ -4,7 +4,7 @@
  */
 
 (function(window) {
-    // 1. Structured State & Revision Hierarchy (85 profiles across 50 States + DC + 12 Provinces)
+    // 1. Structured State & Revision Hierarchy (86 profiles across 50 States + DC + 13 Canadian Jurisdictions)
     
 const STATE_HIERARCHY = {
   "Alabama": {
@@ -2232,7 +2232,37 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "is_available": false,
+        "is_available": true,
+        "verified": false,
+        "is_new": false
+      }
+    ]
+  },
+  "Northwest Territories": {
+    "is_canada": true,
+    "parent_name": "Northwest Territories",
+    "base_code": "NT",
+    "revisions": [
+      {
+        "slug": "NT",
+        "label": "Northwest Territories",
+        "rev_header": "Standard Revision",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan"
+        ],
+        "has_icn": false,
+        "has_dd": false,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "",
+        "has_real_id": false,
+        "has_address2": false,
+        "has_race": false,
+        "has_suffix": false,
+        "is_available": true,
         "verified": false,
         "is_new": false
       }
@@ -2262,7 +2292,7 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "has_suffix": false,
-        "is_available": false,
+        "is_available": true,
         "verified": false,
         "is_new": false
       }
@@ -2388,14 +2418,14 @@ const STATE_HIERARCHY = {
       }
     ]
   },
-  "The Yukon": {
+  "Yukon": {
     "is_canada": true,
-    "parent_name": "The Yukon",
+    "parent_name": "Yukon",
     "base_code": "YT",
     "revisions": [
       {
         "slug": "YT",
-        "label": "The Yukon",
+        "label": "Yukon",
         "rev_header": "Standard Revision",
         "scanners": [
           "Scandit",
@@ -10762,6 +10792,27 @@ function runStateCalculation(field, stateSlug) {
     "restrictions": "NONE",
     "endorsements": "NONE",
     "sample_dl": "SMITH123456789",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
+  },
+  "NT": {
+    "street": "4910 52 St",
+    "street2": "",
+    "city": "Yellowknife",
+    "zip": "X1A 2P1",
+    "class": "5",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "175",
+    "weight": "75",
+    "sex": "M",
+    "eyes": "BRO",
+    "hair": "BRO",
+    "sample_dl": "123456",
     "sample_icn": "",
     "sample_dd": "",
     "sample_audit": "",

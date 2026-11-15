@@ -6,8 +6,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import secrets
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body, BackgroundTasks
+from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -174,25 +174,36 @@ def ensure_db_schema():
             inspector = inspect(engine)
             if "users" in inspector.get_table_names():
                 cols = [c['name'] for c in inspector.get_columns('users')]
-                if 'referral_code' not in cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR"))
-                if 'referred_by_id' not in cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN referred_by_id INTEGER"))
-                if 'affiliate_balance' not in cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN affiliate_balance FLOAT DEFAULT 0.0"))
-                if 'reset_code' not in cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN reset_code VARCHAR"))
-                if 'reset_code_expires_at' not in cols:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP"))
+                user_alters = [
+                    ('referral_code', 'ALTER TABLE users ADD COLUMN referral_code VARCHAR'),
+                    ('referred_by_id', 'ALTER TABLE users ADD COLUMN referred_by_id INTEGER'),
+                    ('affiliate_balance', 'ALTER TABLE users ADD COLUMN affiliate_balance FLOAT DEFAULT 0.0'),
+                    ('reset_code', 'ALTER TABLE users ADD COLUMN reset_code VARCHAR'),
+                    ('reset_code_expires_at', 'ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP')
+                ]
+                for col_name, col_sql in user_alters:
+                    if col_name not in cols:
+                        try:
+                            conn.execute(text(col_sql))
+                            conn.commit()
+                        except Exception as ex_col:
+                            pass
             if "barcode_history" in inspector.get_table_names():
                 bcols = [c['name'] for c in inspector.get_columns('barcode_history')]
                 if 'form_data' not in bcols:
-                    conn.execute(text("ALTER TABLE barcode_history ADD COLUMN form_data TEXT"))
+                    try:
+                        conn.execute(text("ALTER TABLE barcode_history ADD COLUMN form_data TEXT"))
+                        conn.commit()
+                    except Exception as e:
+                        pass
             if "crypto_payments" in inspector.get_table_names():
                 cpcols = [c['name'] for c in inspector.get_columns('crypto_payments')]
                 if 'invoice_number' not in cpcols:
-                    conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN invoice_number VARCHAR"))
-            conn.commit()
+                    try:
+                        conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN invoice_number VARCHAR"))
+                        conn.commit()
+                    except Exception as e:
+                        pass
     except Exception as e:
         print(f"Notice: Schema migration check: {e}")
 
@@ -479,7 +490,13 @@ app = FastAPI(
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.exception_handler(RateLimitExceeded)
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Too many requests. Please wait a minute before requesting another code."}
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -2143,8 +2160,7 @@ def get_gmail_smtp_credentials():
         os.getenv("SMTP_USER") or 
         os.getenv("SMTP_USERNAME") or 
         os.getenv("EMAIL_HOST_USER") or 
-        os.getenv("MAIL_USERNAME") or 
-        SMTP_USER or ""
+        os.getenv("MAIL_USERNAME") or ""
     ).strip().strip("'\"")
     
     password = (
@@ -2157,14 +2173,12 @@ def get_gmail_smtp_credentials():
         os.getenv("SMTP_PASS") or 
         os.getenv("SMTP_PASSWORD") or 
         os.getenv("EMAIL_HOST_PASSWORD") or 
-        os.getenv("MAIL_PASSWORD") or 
-        SMTP_PASS or ""
+        os.getenv("MAIL_PASSWORD") or ""
     ).strip().strip("'\"").replace(" ", "")  # Google 16-character App Passwords are generated with spaces (e.g. 'abcd efgh ijkl mnop')
 
     host = (
         os.getenv("SMTP_HOST") or 
-        os.getenv("SMTP_SERVER") or 
-        SMTP_HOST or ""
+        os.getenv("SMTP_SERVER") or ""
     ).strip().strip("'\"")
     
     # Auto-detect Gmail host if user email is gmail
@@ -2174,123 +2188,132 @@ def get_gmail_smtp_credentials():
         elif user:
             host = "smtp.gmail.com"
 
-    port_raw = os.getenv("SMTP_PORT", str(SMTP_PORT)).strip().strip("'\"")
+    port_raw = os.getenv("SMTP_PORT", "465").strip().strip("'\"")
     port = int(port_raw) if port_raw.isdigit() else 465
 
     return host, port, user, password
 
 def dispatch_password_reset_email(to_email: str, code: str) -> dict:
-    """Dispatches password reset verification email exclusively via Google Gmail SMTP."""
-    subject = f"Your Password Reset Code: {code} - Barcode Studio Pro"
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; margin: 0;">
-      <div style="max-width: 520px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
-        <div style="margin-bottom: 24px;">
-          <h2 style="color: #38bdf8; margin: 0 0 6px 0; font-size: 20px;">Barcode Studio Pro</h2>
-          <p style="color: #94a3b8; font-size: 13px; margin: 0;">Account Security Verification</p>
-        </div>
-        <p style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 20px;">
-          You requested to reset the password for your account associated with <strong>{to_email}</strong>.
-        </p>
-        <div style="background: #0f172a; border: 2px dashed #38bdf8; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
-          <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: bold; letter-spacing: 1px; display: block; margin-bottom: 6px;">Your 6-Digit Verification Code:</span>
-          <span style="font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #38bdf8; font-family: monospace;">{code}</span>
-        </div>
-        <p style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
-          This code expires in <strong>15 minutes</strong>. If you did not request this password reset, you can safely ignore this email; your credentials remain secure.
-        </p>
-        <div style="border-top: 1px solid #334155; margin-top: 24px; padding-top: 16px; font-size: 11px; color: #64748b; text-align: center;">
-          Barcode Studio Pro &bull; Official AAMVA PDF417 &amp; Code 128 Engine
-        </div>
-      </div>
-    </body>
-    </html>
-    """
+    """Dispatches password reset verification email via Google HTTPS Relay or Gmail SMTP with safe fallback."""
+    try:
+        subject = f"Your Password Reset Code: {code} - Barcode Studio Pro"
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; margin: 0;">
+          <div style="max-width: 520px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
+            <div style="margin-bottom: 24px;">
+              <h2 style="color: #38bdf8; margin: 0 0 6px 0; font-size: 20px;">Barcode Studio Pro</h2>
+              <p style="color: #94a3b8; font-size: 13px; margin: 0;">Account Security Verification</p>
+            </div>
+            <p style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 20px;">
+              You requested to reset the password for your account associated with <strong>{to_email}</strong>.
+            </p>
+            <div style="background: #0f172a; border: 2px dashed #38bdf8; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
+              <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: bold; letter-spacing: 1px; display: block; margin-bottom: 6px;">Your 6-Digit Verification Code:</span>
+              <span style="font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #38bdf8; font-family: monospace;">{code}</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
+              This code expires in <strong>15 minutes</strong>. If you did not request this password reset, you can safely ignore this email; your credentials remain secure.
+            </p>
+            <div style="border-top: 1px solid #334155; margin-top: 24px; padding-top: 16px; font-size: 11px; color: #64748b; text-align: center;">
+              Barcode Studio Pro &bull; Official AAMVA PDF417 &amp; Code 128 Engine
+            </div>
+          </div>
+        </body>
+        </html>
+        """
 
-    # =========================================================================
-    # METHOD 1: GOOGLE APPS SCRIPT / HTTPS WEBHOOK RELAY (PORT 443 - NEVER BLOCKED BY RENDER)
-    # =========================================================================
-    gmail_relay_url = (os.getenv("GMAIL_RELAY_URL") or os.getenv("GOOGLE_WEBHOOK_URL") or "").strip().strip("'\"")
-    if gmail_relay_url:
-        try:
-            print(f"[GMAIL RELAY] Dispatching email to '{to_email}' via Google HTTPS Relay...")
-            payload = json.dumps({
-                "to": to_email,
-                "subject": subject,
-                "html": html_content,
-                "code": code
-            }).encode("utf-8")
-            req = urllib.request.Request(
-                gmail_relay_url,
-                data=payload,
-                headers={"Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/1.0"}
-            )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                status = resp.status if hasattr(resp, "status") else 200
-                print(f"[GMAIL RELAY SUCCESS] Dispatched to '{to_email}' with HTTP {status}!")
-                return {"delivered": True, "provider": "gmail_relay"}
-        except Exception as e:
-            print(f"[GMAIL RELAY ERROR] Failed to send via Google relay: {e}")
-
-    # =========================================================================
-    # METHOD 2: DIRECT GOOGLE / GMAIL SMTP (PORTS 465 / 587)
-    # =========================================================================
-    smtp_host, smtp_port, smtp_user, smtp_pass = get_gmail_smtp_credentials()
-    smtp_err_msg = None
-
-    if smtp_user and smtp_pass:
-        if not smtp_host:
-            smtp_host = "smtp.gmail.com"
-
-        sender_from = f"Barcode Studio Pro <{smtp_user}>"
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = sender_from
-        msg["To"] = to_email
-        msg.attach(MIMEText(html_content, "html"))
-
-        # Try Port 465 (SSL direct) first, fallback to Port 587 (STARTTLS)
-        candidate_ports = [465, 587] if smtp_port in [465, 587] else [smtp_port, 465, 587]
-        candidate_ports = list(dict.fromkeys(candidate_ports))
-
-        for p in candidate_ports:
+        # =========================================================================
+        # METHOD 1: GOOGLE APPS SCRIPT / HTTPS WEBHOOK RELAY (PORT 443 - NEVER BLOCKED BY RENDER)
+        # =========================================================================
+        gmail_relay_url = (os.getenv("GMAIL_RELAY_URL") or os.getenv("GOOGLE_WEBHOOK_URL") or "").strip().strip("'\"")
+        if gmail_relay_url:
             try:
-                print(f"[GMAIL SMTP] Sending to '{to_email}' via {smtp_host}:{p} using account '{smtp_user}'...")
-                if p == 465:
-                    server = smtplib.SMTP_SSL(smtp_host, p, timeout=8)
-                else:
-                    server = smtplib.SMTP(smtp_host, p, timeout=8)
-                    server.starttls()
-                server.login(smtp_user, smtp_pass)
-                server.sendmail(smtp_user, [to_email], msg.as_string())
-                server.quit()
-                print(f"[GMAIL SMTP SUCCESS] Successfully delivered reset email to '{to_email}' via {smtp_host}:{p}!")
-                return {"delivered": True, "provider": "gmail_smtp", "sender": smtp_user}
-            except smtplib.SMTPAuthenticationError as auth_err:
-                smtp_err_msg = (
-                    f"Gmail SMTP Authentication Failed (535): Invalid username or password. "
-                    f"Notice: Google requires a 16-character App Password (from myaccount.google.com/apppasswords), "
-                    f"not your standard Google account password. Detail: {auth_err}"
+                print(f"[GMAIL RELAY] Dispatching email to '{to_email}' via Google HTTPS Relay...")
+                payload = json.dumps({
+                    "to": to_email,
+                    "subject": subject,
+                    "html": html_content,
+                    "code": code
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    gmail_relay_url,
+                    data=payload,
+                    headers={"Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/1.0"}
                 )
-                print(f"[GMAIL SMTP AUTH ERROR] {smtp_err_msg}")
-                break
+                with urllib.request.urlopen(req, timeout=6) as resp:
+                    status = resp.status if hasattr(resp, "status") else 200
+                    print(f"[GMAIL RELAY SUCCESS] Dispatched to '{to_email}' with HTTP {status}!")
+                    return {"delivered": True, "provider": "gmail_relay"}
             except Exception as e:
-                smtp_err_msg = str(e)
-                print(f"[GMAIL SMTP ERROR] Port {p} failed: {e}")
-    else:
-        smtp_err_msg = "Google Gmail credentials (SMTP_USER / SMTP_PASS) not configured in Render environment variables."
-        print(f"[GMAIL SMTP NOTICE] {smtp_err_msg}")
+                print(f"[GMAIL RELAY ERROR] Failed to send via Google relay: {e}")
 
-    # Fallback response: Surface code to UI for instant testing/reset
-    print(f"[SECURITY] Password reset code for {to_email}: {code} (Surfacing to user UI)")
-    return {
-        "delivered": False, 
-        "provider": "gmail_smtp", 
-        "code": code,
-        "error_detail": smtp_err_msg or "Failed to connect to Gmail SMTP. Please check Render SMTP_USER and SMTP_PASS."
-    }
+        # =========================================================================
+        # METHOD 2: DIRECT GOOGLE / GMAIL SMTP (PORTS 465 / 587)
+        # =========================================================================
+        smtp_host, smtp_port, smtp_user, smtp_pass = get_gmail_smtp_credentials()
+        smtp_err_msg = None
+
+        if smtp_user and smtp_pass:
+            if not smtp_host:
+                smtp_host = "smtp.gmail.com"
+
+            sender_from = f"Barcode Studio Pro <{smtp_user}>"
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = sender_from
+            msg["To"] = to_email
+            msg.attach(MIMEText(html_content, "html"))
+
+            # Try Port 465 (SSL direct) first, fallback to Port 587 (STARTTLS)
+            candidate_ports = [465, 587] if smtp_port in [465, 587] else [smtp_port, 465, 587]
+            candidate_ports = list(dict.fromkeys(candidate_ports))
+
+            for p in candidate_ports:
+                try:
+                    print(f"[GMAIL SMTP] Sending to '{to_email}' via {smtp_host}:{p} using account '{smtp_user}'...")
+                    if p == 465:
+                        server = smtplib.SMTP_SSL(smtp_host, p, timeout=4)
+                    else:
+                        server = smtplib.SMTP(smtp_host, p, timeout=4)
+                        server.starttls()
+                    server.login(smtp_user, smtp_pass)
+                    server.sendmail(smtp_user, [to_email], msg.as_string())
+                    server.quit()
+                    print(f"[GMAIL SMTP SUCCESS] Successfully delivered reset email to '{to_email}' via {smtp_host}:{p}!")
+                    return {"delivered": True, "provider": "gmail_smtp", "sender": smtp_user}
+                except smtplib.SMTPAuthenticationError as auth_err:
+                    smtp_err_msg = (
+                        f"Gmail SMTP Authentication Failed (535): Invalid username or password. "
+                        f"Notice: Google requires a 16-character App Password (from myaccount.google.com/apppasswords), "
+                        f"not your standard Google account password. Detail: {auth_err}"
+                    )
+                    print(f"[GMAIL SMTP AUTH ERROR] {smtp_err_msg}")
+                    break
+                except Exception as e:
+                    smtp_err_msg = str(e)
+                    print(f"[GMAIL SMTP ERROR] Port {p} failed: {e}")
+        else:
+            smtp_err_msg = "Google Gmail credentials (SMTP_USER / SMTP_PASS) not configured in Render environment variables."
+            print(f"[GMAIL SMTP NOTICE] {smtp_err_msg}")
+
+        # Fallback response: Surface code to UI for instant testing/reset
+        print(f"[SECURITY] Password reset code for {to_email}: {code} (Surfacing to user UI)")
+        return {
+            "delivered": False, 
+            "provider": "gmail_smtp", 
+            "code": code,
+            "error_detail": smtp_err_msg or "Failed to connect to Gmail SMTP. Verification code is ready on screen."
+        }
+    except Exception as top_err:
+        print(f"[DISPATCH ERROR] Unexpected error in dispatch_password_reset_email: {top_err}")
+        return {
+            "delivered": False,
+            "provider": "fallback",
+            "code": code,
+            "error_detail": str(top_err)
+        }
 
 class ForgotPasswordRequest(BaseModel):
     email: str
@@ -2310,7 +2333,10 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
     if not user and clean_email in ADMIN_EMAILS:
         user = User(email=clean_email, hashed_password=get_password_hash("admin2026"), role="admin", tokens=999999)
         db.add(user)
-        db.commit()
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
 
     if not user:
         raise HTTPException(
@@ -2320,11 +2346,24 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
 
     # Generate secure 6-digit numeric code
     code = f"{secrets.randbelow(900000) + 100000}"
-    user.reset_code = code
-    user.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=15)
-    db.commit()
+    try:
+        user.reset_code = code
+        user.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=15)
+        db.commit()
+    except Exception as db_err:
+        db.rollback()
+        ensure_db_schema()
+        user = db.query(User).filter(func.lower(User.email) == clean_email).first()
+        user.reset_code = code
+        user.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=15)
+        db.commit()
 
-    dispatch_res = dispatch_password_reset_email(clean_email, code)
+    try:
+        dispatch_res = dispatch_password_reset_email(clean_email, code)
+    except Exception as e:
+        print(f"[AUTH ERROR] Failed during email dispatch: {e}")
+        dispatch_res = {"delivered": False, "provider": "error", "error_detail": str(e), "code": code}
+
     resp = {
         "status": "success",
         "message": f"A 6-digit reset code has been sent to {clean_email}." if dispatch_res.get("delivered") else f"Verification code generated for {clean_email}.",

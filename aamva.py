@@ -332,6 +332,85 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "9 or 10 digits", "dl_regex": r"^[0-9]{9,10}$"
     },
+    # Canadian Provinces & Territories (10 Provinces + 3 Territories)
+    "AB": {
+        "issuer_name": "Alberta", "state_code": "AB", "iin": "604431",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "1 to 7 digits or ######-###", "dl_regex": r"^[0-9]{1,7}(-[0-9]{3})?$"
+    },
+    "BC": {
+        "issuer_name": "British Columbia", "state_code": "BC", "iin": "604435",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "7 digits", "dl_regex": r"^[0-9]{7}$"
+    },
+    "MB": {
+        "issuer_name": "Manitoba", "state_code": "MB", "iin": "604439",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "14 alphanumeric characters", "dl_regex": r"^[A-Z0-9]{9,14}$"
+    },
+    "NB": {
+        "issuer_name": "New Brunswick", "state_code": "NB", "iin": "604443",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "7 digits", "dl_regex": r"^[0-9]{7}$"
+    },
+    "NL": {
+        "issuer_name": "Newfoundland and Labrador", "state_code": "NL", "iin": "604447",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "1 letter + 9 digits or 10 alphanumeric", "dl_regex": r"^[A-Z0-9]{8,10}$"
+    },
+    "NS": {
+        "issuer_name": "Nova Scotia", "state_code": "NS", "iin": "604449",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "14 alphanumeric characters", "dl_regex": r"^[A-Z0-9]{14}$"
+    },
+    "NT": {
+        "issuer_name": "Northwest Territories", "state_code": "NT", "iin": "604434",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "5 to 6 digits", "dl_regex": r"^[0-9]{5,6}$"
+    },
+    "NU": {
+        "issuer_name": "Nunavut", "state_code": "NU", "iin": "604433",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "6 to 9 digits", "dl_regex": r"^[0-9]{6,9}$"
+    },
+    "ON": {
+        "issuer_name": "Ontario", "state_code": "ON", "iin": "604427",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "1 letter + 14 digits or L####-#####-#####", "dl_regex": r"^([A-Z][0-9]{14}|[A-Z][0-9]{4}-[0-9]{5}-[0-9]{5})$"
+    },
+    "PE": {
+        "issuer_name": "Prince Edward Island", "state_code": "PE", "iin": "604453",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "6 digits", "dl_regex": r"^[0-9]{6}$"
+    },
+    "QC": {
+        "issuer_name": "Quebec", "state_code": "QC", "iin": "604455",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "1 letter + 12 digits or L####-######-##", "dl_regex": r"^([A-Z][0-9]{12}|[A-Z][0-9]{4}-[0-9]{6}-[0-9]{2})$"
+    },
+    "SK": {
+        "issuer_name": "Saskatchewan", "state_code": "SK", "iin": "604457",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "8 digits", "dl_regex": r"^[0-9]{8}$"
+    },
+    "YT": {
+        "issuer_name": "Yukon", "state_code": "YT", "iin": "604429",
+        "aamva_version": "08", "data_format": "16", "jurver": "00",
+        "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
+        "dl_desc": "1 to 6 digits", "dl_regex": r"^[0-9]{1,6}$"
+    },
     "GENERIC": {
         "issuer_name": "Generic Standard", "state_code": "GENERIC", "iin": "636000",
         "aamva_version": "09", "data_format": "11", "jurver": "00",
@@ -1141,6 +1220,19 @@ STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
         "sample_dd": "",
         "sample_audit": "",
         "sample_dl": ""
+    },
+    "NT": {
+        "label": "Northwest Territories",
+        "uses_icn": False,
+        "uses_dd": False,
+        "uses_audit": False,
+        "dd_label": "Document Discriminator (DD)",
+        "icn_label": "ICN (Not used in Northwest Territories - Omitted)",
+        "audit_label": "Audit Information",
+        "sample_icn": "",
+        "sample_dd": "",
+        "sample_audit": "",
+        "sample_dl": "123456"
     },
     "NU": {
         "label": "Nunavut",
