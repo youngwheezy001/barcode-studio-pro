@@ -5104,6 +5104,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
+        // Populate state dropdown immediately upon definition
+        populateStateDropdown();
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('aamva-jurisdiction');
+            if (select && select.options.length === 0) {
+                populateStateDropdown();
+            }
+        });
+
         function autoSyncExpiryDate() {
             const issuedEl = document.getElementById('aamva-issued');
             const expEl = document.getElementById('aamva-exp');
@@ -7118,6 +7127,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const fmtDateIso = (d) => (d && d.length === 8) ? `${d.substring(4,8)}-${d.substring(0,2)}-${d.substring(2,4)}` : d;
             const sexMap = { '1': 'M', '2': 'F', '9': 'X' };
             const jurKey = (document.getElementById('aamva-jurisdiction') && document.getElementById('aamva-jurisdiction').value) || fields.state || '';
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
             const allowIcn = (typeof stateUsesIcn === "function") ? stateUsesIcn(jurKey) : (profile ? profile.usesIcn !== false : true);
 
             // Format human height for <user> e.g. 5'1" or 5'9"
@@ -7540,26 +7550,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         let currentCardSide = 'back';
         let currentMagHeight = '0.33';
-
-        function toggleCardSide() {
-            const backFace = document.getElementById('card-face-back');
-            const frontFace = document.getElementById('card-face-front');
-            const label = document.getElementById('card-side-label');
-
-            if (currentCardSide === 'back') {
-                currentCardSide = 'front';
-                if (backFace) backFace.classList.add('hidden');
-                if (frontFace) frontFace.classList.remove('hidden');
-                if (label) label.textContent = 'Card Front';
-                updateCardFrontDetails();
-            } else {
-                currentCardSide = 'back';
-                if (frontFace) frontFace.classList.add('hidden');
-                if (backFace) backFace.classList.remove('hidden');
-                if (label) label.textContent = 'Card Back';
-                renderCardPreview();
-            }
-        }
 
         function toggleMagstripeHeight() {
             const magEl = document.getElementById('card-magstripe');
@@ -9539,11 +9529,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // --- UNBLURRED, 100% SCANNABLE RENDERING ENGINE (AUTHENTIC AAMVA STANDARDS) ---
         function renderPDF417() {
             const canvas = document.getElementById('output-pdf417');
-            const payload = document.getElementById('input-pdf417').value;
-            const cols = parseInt(document.getElementById('tune-cols').value, 10) || 12;
-            const ecc = parseInt(document.getElementById('tune-ecc').value, 10) || 5;
-            const scale = parseFloat(document.getElementById('tune-scale').value) || 2.0;
-            const ratio = parseInt(document.getElementById('tune-ratio').value, 10) || 3;
+            const payload = document.getElementById('input-pdf417')?.value || '';
+            const cols = parseInt(document.getElementById('tune-cols')?.value, 10) || 12;
+            const ecc = parseInt(document.getElementById('tune-ecc')?.value, 10) || 5;
+            const scale = parseFloat(document.getElementById('tune-scale')?.value) || 2.0;
+            const ratio = parseInt(document.getElementById('tune-ratio')?.value, 10) || 3;
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
 
             // If payload is empty, blank out all barcode canvases
             if (!payload || !payload.trim()) {
@@ -9569,8 +9561,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return;
             }
 
-            const jurEl = document.getElementById('aamva-jurisdiction');
-            const stateEl = document.getElementById('aamva-state');
             let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
             if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
 
@@ -15335,7 +15325,6 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         // --- INTERACTIVE CARD SIDE FLIP (FRONT / BACK TEMPLATE SWITCHER) ---
-        let currentCardSide = 'back';
         function toggleCardSide() {
             currentCardSide = (currentCardSide === 'back') ? 'front' : 'back';
             const btnLabel = document.getElementById('card-side-label');
@@ -15356,8 +15345,8 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 });
                 
                 // Populate front demographic values from form
-                const fn = (document.getElementById('aamva-first-name')?.value || 'JOHN').toUpperCase();
-                const ln = (document.getElementById('aamva-last-name')?.value || 'DOE').toUpperCase();
+                const fn = (document.getElementById('aamva-first')?.value || document.getElementById('aamva-first-name')?.value || 'JOHN').toUpperCase();
+                const ln = (document.getElementById('aamva-last')?.value || document.getElementById('aamva-last-name')?.value || 'DOE').toUpperCase();
                 const idVal = (document.getElementById('aamva-id')?.value || 'WDL987654321').toUpperCase();
                 const dob = (document.getElementById('aamva-dob')?.value || '1990-01-01');
                 const exp = (document.getElementById('aamva-exp')?.value || '2028-01-01');
