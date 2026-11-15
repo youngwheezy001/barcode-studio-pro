@@ -1957,6 +1957,9 @@ def generate_aamva_payload(
         if weight: dl_elements.append(f"DAW{weight}")
         
     if street: dl_elements.append(f"DAG{street}")
+    street2 = str(user_data.get("street2") or user_data.get("address2") or "").strip()
+    if street2 and street2.upper() != "NONE":
+        dl_elements.append(f"DAH{street2.upper()}")
     if city: dl_elements.append(f"DAI{city}")
     if state: dl_elements.append(f"DAJ{state}")
     if zip_code: dl_elements.append(f"DAK{zip_code}")
@@ -1968,6 +1971,9 @@ def generate_aamva_payload(
     rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or "02102017").strip()
     dl_elements.append(f"DDB{rev_date}")
     dl_elements.append(f"DDK{donor}")
+    veteran = str(user_data.get("veteran", "No")).strip()
+    if veteran in ["Yes", "Y", "1"]:
+        dl_elements.append("DDL1")
     
     dl_subfile = "DL" + "\n".join(dl_elements) + "\r"
     
@@ -2131,6 +2137,9 @@ def generate_scanner_xml(
     if hair: dl_elements.append(f"DAZ{hair}")
     if weight: dl_elements.append(f"DAW{weight}")
     if street: dl_elements.append(f"DAG{street.upper()}")
+    street2 = str(user_data.get("street2") or user_data.get("address2") or "").strip()
+    if street2 and street2.upper() != "NONE":
+        dl_elements.append(f"DAH{street2.upper()}")
     if city: dl_elements.append(f"DAI{city.upper()}")
     if state: dl_elements.append(f"DAJ{state.upper()}")
     if zip_code: dl_elements.append(f"DAK{zip_code}")
@@ -2142,6 +2151,9 @@ def generate_scanner_xml(
     rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or "02102017").strip()
     dl_elements.append(f"DDB{rev_date}")
     dl_elements.append(f"DDK{donor}")
+    veteran = str(user_data.get("veteran", "No")).strip()
+    if veteran in ["Yes", "Y", "1"]:
+        dl_elements.append("DDL1")
     
     dl_subfile = "DL" + "\n".join(dl_elements) + "\r"
     zc_subfile = f"ZCA{zc_field_a}\r" if profile["aamva_version"] == "09" else f"ZCA{zc_field_a}\nB{zc_field_b}\r"
@@ -2184,16 +2196,18 @@ def generate_scanner_xml(
             
     dl_elements_xml += (
         f"    <element id=\"DAG\" name=\"Address - Street 1\">{street.upper()}</element>\n"
-        f"    <element id=\"DAI\" name=\"Address - City\">{city.upper()}</element>\n"
-        f"    <element id=\"DAJ\" name=\"Address - Jurisdiction Code\">{state.upper()}</element>\n"
-        f"    <element id=\"DAK\" name=\"Address - Postal Code\">{zip_code}</element>\n"
+        + (f"    <element id=\"DAH\" name=\"Address - Street 2\">{street2.upper()}</element>\n" if street2 and street2.upper() != "NONE" else "")
+        + f"    <element id=\"DAI\" name=\"Address - City\">{city.upper()}</element>\n"
+        + f"    <element id=\"DAJ\" name=\"Address - Jurisdiction Code\">{state.upper()}</element>\n"
+        + f"    <element id=\"DAK\" name=\"Address - Postal Code\">{zip_code}</element>\n"
         + (f"    <element id=\"DCF\" name=\"{profile.get('dd_label', 'Document Discriminator')}\">{dcf}</element>\n" if dcf else "")
         + "    <element id=\"DCG\" name=\"Country Identification\">USA</element>\n"
         + (f"    <element id=\"DCJ\" name=\"{profile.get('audit_label', 'Audit Information')}\">{audit}</element>\n" if audit else "")
         + (f"    <element id=\"DCK\" name=\"{profile.get('icn_label', 'Inventory control number')}\">{dck}</element>\n" if dck else "") +
         "    <element id=\"DDA\" name=\"Compliance Type\">F</element>\n"
         "    <element id=\"DDB\" name=\"Card Revision Date\">02102017</element>\n"
-        + (f"    <element id=\"DDK\" name=\"Organ Donor\">{donor}</element>\n" if str(donor).strip() == "1" else "") +
+        + (f"    <element id=\"DDK\" name=\"Organ Donor\">{donor}</element>\n" if str(donor).strip() == "1" else "")
+        + (f"    <element id=\"DDL\" name=\"Veteran\">1</element>\n" if veteran in ["Yes", "Y", "1"] else "") +
         "  </subfile>\n"
     )
     

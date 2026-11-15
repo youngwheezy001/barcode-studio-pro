@@ -302,7 +302,7 @@ def restore_orders_from_backup(db: Session):
         restored = 0
         for item in data:
             email = (item.get("user_email") or "").strip().lower()
-            if not email or email.endswith("@barcodestudio.pro") or item.get("crypto_currency") == "MOCK_TEST":
+            if not email or email.endswith("@barcodestudio.pro") or item.get("crypto_currency") == "MOCK_TEST" or email in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]:
                 continue
             existing = db.query(CryptoPayment).filter(CryptoPayment.id == item["id"]).first()
             if not existing:
@@ -440,10 +440,11 @@ def seed_admin_users():
                 db.commit()
                 print(f"[ADMIN CLEANUP] Removed {revoked_admin} from database.")
 
-        # Purge any old sandbox/mock test orders
+        # Purge any old sandbox/mock test orders and revoked test orders
         db.query(CryptoPayment).filter(
             (func.lower(CryptoPayment.user_email).like("%@barcodestudio.pro")) |
-            (CryptoPayment.crypto_currency == "MOCK_TEST")
+            (CryptoPayment.crypto_currency == "MOCK_TEST") |
+            (func.lower(CryptoPayment.user_email).in_(["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]))
         ).delete(synchronize_session=False)
         db.commit()
 
@@ -1721,7 +1722,10 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
-    query = db.query(CryptoPayment)
+    query = db.query(CryptoPayment).filter(
+        CryptoPayment.crypto_currency != "MOCK_TEST",
+        func.lower(CryptoPayment.user_email).not_in(["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"])
+    )
     if q and q.strip():
         term = f"%{q.strip().lower()}%"
         query = query.filter(
@@ -2217,6 +2221,8 @@ def convert_affiliate_to_tokens(current_user: User = Depends(get_current_user), 
 
 # --- PASSWORD RESET VIA EMAIL & NOTIFICATIONS ---
 import smtplib
+import urllib.request
+import urllib.error
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -2321,6 +2327,9 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                 with urllib.request.urlopen(resend_req, timeout=3) as r_resp:
                     print(f"[RESEND SUCCESS] Successfully delivered reset email to '{to_email}' via Resend API!")
                     return {"delivered": True, "provider": "resend"}
+            except urllib.error.HTTPError as r_err:
+                err_body = r_err.read().decode('utf-8', errors='ignore')
+                print(f"[RESEND NOTICE] HTTP {r_err.code}: {err_body}")
             except Exception as r_err:
                 print(f"[RESEND NOTICE] {r_err}")
 

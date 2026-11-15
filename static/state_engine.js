@@ -442,10 +442,11 @@ const STATE_HIERARCHY = {
           "FIDScan",
           "Veriscan"
         ],
-        "has_icn": true,
+        "has_icn": false,
         "has_dd": true,
         "has_weight_range": false,
-        "has_audit": false,
+        "has_audit": true,
+        "sample_audit": "20200902_053001_2_690",
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
@@ -775,6 +776,11 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "06202016", "label": "06/20/2016"},
+          {"value": "08262019", "label": "08/26/2019"}
+        ],
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
@@ -796,6 +802,10 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "12052021", "label": "12/05/2021"}
+        ],
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
@@ -945,6 +955,11 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "02222016", "label": "02/22/2016"},
+          {"value": "05142021", "label": "05/14/2021"}
+        ],
         "default_dd": "",
         "has_real_id": true,
         "has_address2": false,
@@ -967,6 +982,10 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "09152023", "label": "09/15/2023"}
+        ],
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
@@ -1531,7 +1550,7 @@ const STATE_HIERARCHY = {
         "has_weight_range": false,
         "has_audit": false,
         "default_dd": "",
-        "has_address2": false,
+        "has_address2": true,
         "has_race": false,
         "has_suffix": false,
         "is_new": false
@@ -1555,7 +1574,7 @@ const STATE_HIERARCHY = {
         "has_weight_range": false,
         "has_audit": false,
         "default_dd": "",
-        "has_address2": false,
+        "has_address2": true,
         "has_race": false,
         "has_suffix": false,
         "is_new": false
@@ -1914,6 +1933,7 @@ const STATE_HIERARCHY = {
         "has_real_id": false,
         "has_address2": false,
         "has_race": false,
+        "has_veteran": true,
         "is_new": true
       }
     ]
