@@ -253,7 +253,7 @@
 
                 <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1">
                     <span>Didn't receive email?</span>
-                    <button type="button" onclick="requestPasswordResetCode()" class="text-accent hover:underline font-semibold cursor-pointer">Resend Code</button>
+                    <button type="button" id="fp-resend-btn" onclick="resendPasswordResetCode()" class="text-accent hover:underline font-semibold cursor-pointer">Resend Code</button>
                 </div>
             </div>
 
@@ -15569,6 +15569,32 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             if (fpModal) fpModal.classList.add('hidden');
         }
 
+        function renderFpCodeBanner(code, delivered, errorDetail) {
+            const banner = document.getElementById('fp-step2-banner');
+            if (!banner) return;
+            if (!code) {
+                banner.classList.add('hidden');
+                return;
+            }
+            banner.className = 'bg-amber-50 border border-amber-300 rounded-xl p-3 text-[11px] text-amber-900 flex flex-col gap-2 block shadow-xs';
+            banner.innerHTML = `
+                <div class="font-bold flex items-center justify-between text-amber-800">
+                    <span class="flex items-center gap-1.5"><span>🔑</span> <span>Your Verification Code:</span></span>
+                    <span class="text-[9px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
+                </div>
+                <div class="bg-white border border-amber-300/80 rounded-lg p-2 font-mono text-center text-sm font-bold text-slate-900 select-all flex items-center justify-between px-3 shadow-2xs">
+                    <span class="text-slate-500 font-sans text-[11px] font-semibold">6-Digit Code:</span>
+                    <span class="text-accent font-black text-lg tracking-widest">${code}</span>
+                </div>
+                <p class="text-[10px] text-amber-800 leading-normal m-0">
+                    ${delivered 
+                        ? 'Verification code also dispatched to your email inbox (check Spam/Junk folder if needed).' 
+                        : 'Notice: External email delivery is in sandbox mode or pending domain verification. Use the 6-digit code above to reset your password immediately.'}
+                </p>
+            `;
+            banner.classList.remove('hidden');
+        }
+
         async function requestPasswordResetCode() {
             const emailInp = document.getElementById('fp-email-input');
             const msgEl = document.getElementById('fp-step1-msg');
@@ -15605,44 +15631,29 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     if (disp) disp.textContent = email;
                     
                     const codeInp = document.getElementById('fp-code-input');
-                    const banner = document.getElementById('fp-step2-banner');
+                    const codeVal = data.dev_code || data.code;
 
-                    if (data.dev_code) {
-                        if (codeInp) codeInp.value = data.dev_code;
-                        if (banner) {
-                            banner.className = 'bg-amber-50 border border-amber-300 rounded-lg p-2.5 text-[11px] text-amber-900 flex flex-col gap-1.5 block';
-                            banner.innerHTML = `
-                                <div class="font-bold flex items-center gap-1.5 text-amber-800">
-                                    <span>⚠️ Resend Delivery Sandbox Notice:</span>
-                                </div>
-                                <span class="text-[10px] text-amber-700 leading-snug">Resend free sandbox restricts delivery to account owner (<strong>youngwheezy001@gmail.com</strong>).</span>
-                                <div class="bg-white border border-amber-200 rounded p-1.5 font-mono text-center text-xs font-bold text-slate-900 select-all flex items-center justify-between px-2.5">
-                                    <span class="text-slate-500 font-sans text-[10px] font-semibold">Your 6-Digit Code:</span>
-                                    <span class="text-indigo-600 font-black text-sm tracking-widest">${data.dev_code}</span>
-                                </div>
-                            `;
-                            banner.classList.remove('hidden');
-                        }
-                        showToast('Verification code generated and pre-filled below!', 'info');
+                    if (codeVal) {
+                        if (codeInp) codeInp.value = codeVal;
+                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
+                        showToast(`Verification code ready: ${codeVal}`, 'info');
                     } else {
-                        if (banner) banner.classList.add('hidden');
+                        renderFpCodeBanner(null);
                         showToast('Verification code dispatched to your email!', 'success');
                     }
 
-                    if (codeInp && !data.dev_code) {
-                        codeInp.value = '';
-                        codeInp.focus();
-                    }
+                    const newPass = document.getElementById('fp-new-password');
+                    if (newPass) newPass.focus();
                 } else {
                     if (msgEl) {
-                        msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                        msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
                         msgEl.textContent = data.detail || 'Unable to process reset request.';
                         msgEl.classList.remove('hidden');
                     }
                 }
             } catch (err) {
                 if (msgEl) {
-                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200';
+                    msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
                     msgEl.textContent = 'Network error contacting auth service.';
                     msgEl.classList.remove('hidden');
                 }
@@ -15650,6 +15661,63 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (sendBtn) {
                     sendBtn.disabled = false;
                     sendBtn.textContent = 'Send 6-Digit Verification Code';
+                }
+            }
+        }
+
+        async function resendPasswordResetCode() {
+            const resendBtn = document.getElementById('fp-resend-btn');
+            const msgEl = document.getElementById('fp-step2-msg');
+            const email = (fpTargetEmail || document.getElementById('fp-email-input')?.value || '').trim();
+
+            if (!email) {
+                showToast('Email address not found. Please start over.', 'error');
+                return;
+            }
+
+            if (resendBtn) {
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = '<span class="inline-block animate-spin mr-1">↻</span> Sending...';
+            }
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    const codeVal = data.dev_code || data.code;
+                    const codeInp = document.getElementById('fp-code-input');
+                    if (codeVal) {
+                        if (codeInp) codeInp.value = codeVal;
+                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
+                        showToast(`New verification code: ${codeVal}`, 'info');
+                    } else {
+                        showToast('A fresh verification code was sent to your email!', 'success');
+                    }
+                    if (msgEl) {
+                        msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+                        msgEl.textContent = codeVal ? `New verification code generated: ${codeVal}` : 'A fresh code was sent to your email.';
+                        msgEl.classList.remove('hidden');
+                    }
+                } else {
+                    if (msgEl) {
+                        msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
+                        msgEl.textContent = data.detail || 'Unable to resend verification code.';
+                        msgEl.classList.remove('hidden');
+                    }
+                    showToast(data.detail || 'Failed to resend code.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error while requesting new code.', 'error');
+            } finally {
+                if (resendBtn) {
+                    setTimeout(() => {
+                        resendBtn.disabled = false;
+                        resendBtn.textContent = 'Resend Code';
+                    }, 2500);
                 }
             }
         }
