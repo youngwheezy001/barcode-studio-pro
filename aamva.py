@@ -764,13 +764,13 @@ STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
     "LA": {
         "label": "Louisiana",
         "uses_icn": True,
-        "uses_dd": True,
+        "uses_dd": False,
         "uses_audit": True,
         "dd_label": "Document Discriminator (DD)",
         "icn_label": "Inventory Control Number (ICN)",
-        "audit_label": "Louisiana Audit Number",
+        "audit_label": "Audit info",
         "sample_icn": "0070031972215065",
-        "sample_dd": "4372782319947690",
+        "sample_dd": "",
         "sample_audit": "4174",
         "sample_dl": "007343439"
     },
@@ -1965,7 +1965,8 @@ def generate_aamva_payload(
     if audit: dl_elements.append(f"DCJ{audit}")
     if dck: dl_elements.append(f"DCK{dck}")
     dl_elements.append("DDAF")
-    dl_elements.append("DDB02102017")
+    rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or "02102017").strip()
+    dl_elements.append(f"DDB{rev_date}")
     dl_elements.append(f"DDK{donor}")
     
     dl_subfile = "DL" + "\n".join(dl_elements) + "\r"
@@ -2138,7 +2139,8 @@ def generate_scanner_xml(
     if audit: dl_elements.append(f"DCJ{audit}")
     if dck: dl_elements.append(f"DCK{dck}")
     dl_elements.append("DDAF")
-    dl_elements.append("DDB02102017")
+    rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or "02102017").strip()
+    dl_elements.append(f"DDB{rev_date}")
     dl_elements.append(f"DDK{donor}")
     
     dl_subfile = "DL" + "\n".join(dl_elements) + "\r"

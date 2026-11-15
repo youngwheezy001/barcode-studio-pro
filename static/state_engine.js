@@ -358,6 +358,12 @@ const STATE_HIERARCHY = {
         "has_race": false,
         "has_safe_driver": true,
         "has_revision_date": true,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "03162017", "label": "03/16/2017"},
+          {"value": "05012019", "label": "05/01/2019"},
+          {"value": "03012020", "label": "03/01/2020"}
+        ],
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
@@ -698,7 +704,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "LA",
         "label": "Louisiana",
-        "rev_header": "Rev. 02/10/2015)",
+        "rev_header": "Rev. 02/10/2015",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -706,9 +712,11 @@ const STATE_HIERARCHY = {
           "Veriscan"
         ],
         "has_icn": true,
-        "has_dd": true,
+        "has_dd": false,
         "has_weight_range": false,
         "has_audit": true,
+        "sample_audit": "4174",
+        "sample_icn": "0070031972215065",
         "default_dd": "",
         "has_real_id": false,
         "has_address2": false,
@@ -846,6 +854,12 @@ const STATE_HIERARCHY = {
         "has_dd": false,
         "has_weight_range": false,
         "has_audit": false,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "01212011", "label": "01/21/2011"},
+          {"value": "08162021", "label": "08/16/2021"}
+        ],
+        "sample_icn": "D000429497042197001152024",
         "default_dd": "",
         "has_real_id": true,
         "has_address2": false,
@@ -868,6 +882,11 @@ const STATE_HIERARCHY = {
         "has_dd": false,
         "has_weight_range": false,
         "has_audit": false,
+        "has_rev_date": true,
+        "rev_dates": [
+          {"value": "01022024", "label": "01/02/2024"}
+        ],
+        "sample_icn": "D000429497042197001152024",
         "default_dd": "",
         "has_real_id": true,
         "has_address2": false,

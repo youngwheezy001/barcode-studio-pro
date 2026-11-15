@@ -77,11 +77,11 @@ The AAMVA standard specifies data elements for 2D PDF417 barcodes on Driver Lice
 | **Iowa** | 2011 (`IA_2011`), 2017 (`IA_2017`) | **YES** (16 Digits numeric) | **YES** (Alphanumeric 16 chars) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Kansas** | Base (`KS`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Kentucky** | 2012 (`KY_2012`), 2018 (`KY_2018`) | **YES** (16 Digits numeric) | **YES** (DOE / DD String) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
-| **Louisiana** | Base (`LA`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | **YES** (16-char Audit string) | Office Code, Parish | Scandit, Show-Me ID, FIDScan, Veriscan |
+| **Louisiana** | Base (`LA`) | **YES** (16 Digits numeric) | **NO (OMITTED)** | **YES** (4 Digits e.g. 4174) | Office Code, Parish | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Maine** | Base (`ME`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Maryland** | 2016/2019 (`MD`), 2021 (`MD_2021`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Massachusetts** | Base (`MA`) | **YES** (`20239` + DL + `0601`) | **YES** (`MMDDYYYY REV ...`) | OMITTED | Second Street (`inputAddress2`) | Scandit, Show-Me ID, FIDScan, Veriscan |
-| **Michigan** | 2011/2021 (`MI`), 2024 (`MI_2024`) | **YES** (DL + DOB + `2801`) | **NO (OMITTED)** | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
+| **Michigan** | 2011/2021 (`MI`), 2024 (`MI_2024`) | **YES** (DL + DOB + Exp Year) | **NO (OMITTED)** | OMITTED | Revision Date (`DDB`), Soundex DL | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Minnesota** | Base (`MN`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Second Street (`inputAddress2`) | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Mississippi** | 2016/2021 (`MS`), 2023 (`MS_2023`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Missouri** | 2012 (`MO_2012`), 2020 (`MO_2020`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |

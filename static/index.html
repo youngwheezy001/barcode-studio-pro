@@ -2100,6 +2100,21 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <div id="dd-format-hint" class="mt-1 flex items-center text-[10px] text-slate-400 font-medium"></div>
                                 </div>
 
+                                <!-- Card Revision Date (DDB) -->
+                                <div id="container-revision-date" class="hidden">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                            <span>Revision date</span>
+                                            <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                                ⓘ<span class="tooltip-box">Card Revision Date (DDB)</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <select id="aamva-revision-date" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
+                                        <option value="">== Select ==</option>
+                                    </select>
+                                </div>
+
                                 <div id="container-realid" class="hidden" style="display: none;">
                                     <input type="hidden" id="aamva-realid" value="Yes">
                                 </div>
@@ -2314,21 +2329,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Florida Extras -->
-                            <div id="container-florida-extras" class="grid grid-cols-2 gap-2" style="display: none;">
-                                <div>
-                                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
-                                        <span>Revision date</span>
-                                        <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
-                                            ⓘ<span class="tooltip-box">Florida Revision Date</span>
-                                        </span>
-                                    </label>
-                                    <select id="aamva-revision-date" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
-                                        <option value="">== Select ==</option>
-                                        <option value="03162017">03/16/2017</option>
-                                        <option value="05012019">05/01/2019</option>
-                                        <option value="03012020">03/01/2020</option>
-                                    </select>
-                                </div>
+                            <div id="container-florida-extras" style="display: none;">
                                 <div>
                                     <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
                                         <span>Safe Driver</span>
@@ -5357,7 +5358,42 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // REAL ID Container: completely remove if omitted
+            // Revision Date Container (DDB): shown for states that have revision dates (e.g. MI, FL)
+            const hasRevDate = revInfo ? (revInfo.has_rev_date === true || revInfo.has_revision_date === true) : (baseCode === 'FL' || baseCode === 'MI');
+            const revDateContainer = document.getElementById('container-revision-date');
+            const revDateSelect = document.getElementById('aamva-revision-date');
+            if (revDateContainer) {
+                if (hasRevDate) {
+                    revDateContainer.style.display = '';
+                    revDateContainer.classList.remove('hidden');
+                    if (revDateSelect) {
+                        const existingVal = revDateSelect.value;
+                        const dateList = (revInfo && revInfo.rev_dates) ? revInfo.rev_dates : (
+                            baseCode === 'MI' ? [
+                                { value: "01212011", label: "01/21/2011" },
+                                { value: "08162021", label: "08/16/2021" }
+                            ] : baseCode === 'FL' ? [
+                                { value: "03162017", label: "03/16/2017" },
+                                { value: "05012019", label: "05/01/2019" },
+                                { value: "03012020", label: "03/01/2020" }
+                            ] : []
+                        );
+                        let optsHtml = '<option value="">== Select ==</option>';
+                        dateList.forEach(d => {
+                            optsHtml += `<option value="${d.value}">${d.label}</option>`;
+                        });
+                        revDateSelect.innerHTML = optsHtml;
+                        if (existingVal && Array.from(revDateSelect.options).some(o => o.value === existingVal)) {
+                            revDateSelect.value = existingVal;
+                        }
+                    }
+                } else {
+                    revDateContainer.style.display = 'none';
+                    revDateContainer.classList.add('hidden');
+                    if (revDateSelect) revDateSelect.value = '';
+                }
+            }
+
             // REAL ID Container: streamlined to compliant DDAF in background
             const realidContainer = document.getElementById('container-realid');
             if (realidContainer) {
@@ -5365,15 +5401,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 realidContainer.classList.add('hidden');
             }
 
-            // Row DD: manage grid width and hide if DD omitted for this jurisdiction (e.g. NM, BC)
+            // Row DD & Revision Date: manage grid width and hide if both DD and Rev Date omitted
             const rowDdRealid = document.getElementById('row-dd-realid');
             if (rowDdRealid) {
-                if (!hasDd) {
+                if (!hasDd && !hasRevDate) {
                     rowDdRealid.style.display = 'none';
                 } else {
                     rowDdRealid.style.display = '';
-                    if (ddContainer) {
-                        ddContainer.classList.add('sm:col-span-2');
+                    if (hasDd && !hasRevDate) {
+                        if (ddContainer) ddContainer.className = 'sm:col-span-2';
+                    } else if (!hasDd && hasRevDate) {
+                        if (revDateContainer) revDateContainer.className = 'sm:col-span-2';
+                    } else {
+                        if (ddContainer) ddContainer.className = '';
+                        if (revDateContainer) revDateContainer.className = '';
                     }
                 }
             }
@@ -6263,9 +6304,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const hasAudit = revInfo ? (revInfo.has_audit === true) : (profile.usesAudit === true);
                 if (el) {
                     if (hasAudit) {
-                        const sampleAud = (revInfo && revInfo.sample_audit) || profile.sample_audit || `CODL_0_051224_${Math.floor(10000 + Math.random() * 90000)}`;
-                        el.value = sampleAud;
-                        if (!isBatch) showToast('Calculated Audit Information!', 'info');
+                        if (baseCode === 'LA') {
+                            el.value = (revInfo && revInfo.sample_audit) || '4174';
+                            if (!isBatch) showToast('Calculated authentic Louisiana 4-digit Audit Info!', 'info');
+                        } else {
+                            const sampleAud = (revInfo && revInfo.sample_audit) || profile.sample_audit || `CODL_0_051224_${Math.floor(10000 + Math.random() * 90000)}`;
+                            el.value = sampleAud;
+                            if (!isBatch) showToast('Calculated Audit Information!', 'info');
+                        }
                     } else {
                         el.value = '';
                         if (!isBatch) showToast(`${revInfo ? revInfo.label : profile.name} standard cards omit Audit Information (DCJ).`, 'info');
@@ -6304,6 +6350,19 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (!hasIcn) {
                     if (dckEl) dckEl.value = '';
                     if (!isBatch) showToast(`${profile.name} standard cards omit ICN (DCK). Tag cleared per AAMVA Section D.2.`, 'info');
+                } else if (baseCode === 'LA') {
+                    const laOffice = (document.getElementById('aamva-la-office')?.value || '003').padStart(3, '0').slice(-3);
+                    const r10 = String(Math.floor(1000000000 + Math.random() * 9000000000));
+                    dckEl.value = `007${laOffice}${r10}`;
+                    if (!isBatch) showToast('Calculated authentic Louisiana 16-digit ICN!', 'info');
+                } else if (baseCode === 'MI') {
+                    const cleanDl = (currentDl || 'D000429497042').replace(/\s+/g, '').toUpperCase();
+                    const dobVal = (document.getElementById('aamva-dob')?.value || '01151970').replace(/\s+/g, '');
+                    const yyyymmdd = (dobVal.length === 8) ? `${dobVal.slice(4, 8)}${dobVal.slice(0, 4)}` : '19700115';
+                    const expVal = (document.getElementById('aamva-exp')?.value || '01152024').replace(/\s+/g, '');
+                    const expYear = (expVal.length === 8) ? expVal.slice(4, 8) : '2024';
+                    dckEl.value = `${cleanDl}${yyyymmdd}${expYear}`;
+                    if (!isBatch) showToast('Calculated authentic Michigan ICN!', 'info');
                 } else if (baseCode === 'CT') {
                     dckEl.value = `${currentDl || '188892143'}CTBRRL01`;
                     if (!isBatch) showToast('Calculated Connecticut Inventory Control Number!', 'info');
@@ -6882,7 +6941,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const allowIcn = (typeof stateUsesIcn === "function") ? stateUsesIcn(jKey) : (!NO_ICN_SET.has(jKey.toUpperCase()) && !NO_ICN_SET.has(baseCode.toUpperCase()));
             if (fields.dck && allowIcn) dlElements.push(`DCK${fields.dck}`);
             dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
-            dlElements.push(`DDB02102017`);
+            const revDateVal = (document.getElementById('aamva-revision-date')?.value || '').trim();
+            dlElements.push(`DDB${revDateVal || '02102017'}`);
             dlElements.push(`DDK${fields.donor}`);
 
             // Join with LF (\n) and terminate with CR (\r)
@@ -7098,8 +7158,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (fields.dck && allowIcn) {
                 dlElementsXml += `    <element id="DCK" name="Inventory control number">${fields.dck}</element>\n`;
             }
+            const ddbVal = (document.getElementById('aamva-revision-date')?.value || '').trim() || '02102017';
             dlElementsXml += `    <element id="DDA" name="Compliance Type">F</element>\n` +
-                `    <element id="DDB" name="Card Revision Date">02102017</element>\n`;
+                `    <element id="DDB" name="Card Revision Date">${ddbVal}</element>\n`;
 
             if (fields.donor === '1') {
                 dlElementsXml += `    <element id="DDK" name="Organ Donor">${fields.donor}</element>\n`;
