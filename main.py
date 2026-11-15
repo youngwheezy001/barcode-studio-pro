@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from pathlib import Path
 from dotenv import load_dotenv
+import secrets
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body
 from fastapi.responses import FileResponse, RedirectResponse
@@ -120,6 +121,8 @@ class User(Base):
     referral_code = Column(String, unique=True, index=True, nullable=True)
     referred_by_id = Column(Integer, nullable=True)
     affiliate_balance = Column(Float, default=0.0)
+    reset_code = Column(String, nullable=True)
+    reset_code_expires_at = Column(DateTime, nullable=True)
 
 class BarcodeHistory(Base):
     __tablename__ = "barcode_history"
@@ -176,6 +179,10 @@ def ensure_db_schema():
                     conn.execute(text("ALTER TABLE users ADD COLUMN referred_by_id INTEGER"))
                 if 'affiliate_balance' not in cols:
                     conn.execute(text("ALTER TABLE users ADD COLUMN affiliate_balance FLOAT DEFAULT 0.0"))
+                if 'reset_code' not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN reset_code VARCHAR"))
+                if 'reset_code_expires_at' not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP"))
             if "barcode_history" in inspector.get_table_names():
                 bcols = [c['name'] for c in inspector.get_columns('barcode_history')]
                 if 'form_data' not in bcols:
@@ -2080,6 +2087,162 @@ def convert_affiliate_to_tokens(current_user: User = Depends(get_current_user), 
         "tokens_added": tokens_to_add,
         "new_token_balance": current_user.tokens,
         "remaining_affiliate_balance": current_user.affiliate_balance
+    }
+
+
+# --- PASSWORD RESET VIA EMAIL & NOTIFICATIONS ---
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+SMTP_HOST = os.getenv("SMTP_HOST", os.getenv("SMTP_SERVER", ""))
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER", os.getenv("SMTP_USERNAME", ""))
+SMTP_PASS = os.getenv("SMTP_PASS", os.getenv("SMTP_PASSWORD", ""))
+EMAIL_FROM = os.getenv("EMAIL_FROM", "Barcode Studio Pro <support@luxvyne.com>")
+
+def dispatch_password_reset_email(to_email: str, code: str) -> dict:
+    """Dispatches password reset verification email via Resend API or SMTP, with fallback."""
+    subject = f"Your Password Reset Code: {code} - Barcode Studio Pro"
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; margin: 0;">
+      <div style="max-width: 520px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
+        <div style="margin-bottom: 24px;">
+          <h2 style="color: #38bdf8; margin: 0 0 6px 0; font-size: 20px;">Barcode Studio Pro</h2>
+          <p style="color: #94a3b8; font-size: 13px; margin: 0;">Account Security Verification</p>
+        </div>
+        <p style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 20px;">
+          You requested to reset the password for your account associated with <strong>{to_email}</strong>.
+        </p>
+        <div style="background: #0f172a; border: 2px dashed #38bdf8; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
+          <span style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: bold; letter-spacing: 1px; display: block; margin-bottom: 6px;">Your 6-Digit Verification Code:</span>
+          <span style="font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #38bdf8; font-family: monospace;">{code}</span>
+        </div>
+        <p style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
+          This code expires in <strong>15 minutes</strong>. If you did not request this password reset, you can safely ignore this email; your credentials remain secure.
+        </p>
+        <div style="border-top: 1px solid #334155; margin-top: 24px; padding-top: 16px; font-size: 11px; color: #64748b; text-align: center;">
+          Barcode Studio Pro &bull; Official AAMVA PDF417 &amp; Code 128 Engine
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+    # 1. Resend API
+    if RESEND_API_KEY:
+        try:
+            resp = httpx.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "from": EMAIL_FROM,
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html_content
+                },
+                timeout=10.0
+            )
+            if resp.status_code in [200, 201]:
+                return {"delivered": True, "provider": "resend"}
+        except Exception as e:
+            print(f"Notice: Resend email error: {e}")
+
+    # 2. SMTP
+    if SMTP_HOST and SMTP_PASS:
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = EMAIL_FROM
+            msg["To"] = to_email
+            msg.attach(MIMEText(html_content, "html"))
+
+            if SMTP_PORT == 465:
+                server = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=10)
+            else:
+                server = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10)
+                server.starttls()
+            if SMTP_USER:
+                server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(EMAIL_FROM, [to_email], msg.as_string())
+            server.quit()
+            return {"delivered": True, "provider": "smtp"}
+        except Exception as e:
+            print(f"Notice: SMTP email error: {e}")
+
+    # 3. Fallback: Logged locally for testing/admin visibility
+    print(f"[SECURITY] Password reset code for {to_email}: {code} (No external email provider configured yet)")
+    return {"delivered": False, "provider": "console_fallback", "code": code}
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    reset_code: str
+    new_password: str
+    confirm_password: str
+
+@app.post("/api/auth/forgot-password", summary="Request password reset code via email")
+@limiter.limit("5/minute")
+def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    clean_email = payload.email.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == clean_email).first()
+    if not user:
+        return {
+            "status": "success",
+            "message": "If an account exists with this email, a 6-digit verification code has been dispatched."
+        }
+
+    # Generate secure 6-digit numeric code
+    code = f"{secrets.randbelow(900000) + 100000}"
+    user.reset_code = code
+    user.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=15)
+    db.commit()
+
+    dispatch_res = dispatch_password_reset_email(clean_email, code)
+    resp = {
+        "status": "success",
+        "message": f"A 6-digit reset code has been sent to {clean_email}. Please check your inbox (and spam folder).",
+        "provider": dispatch_res.get("provider")
+    }
+    if not dispatch_res.get("delivered"):
+        resp["dev_code"] = code
+        resp["hint"] = "Note: To send real external emails, add RESEND_API_KEY or SMTP credentials in Render. Your test reset code is: " + code
+    return resp
+
+@app.post("/api/auth/reset-password", summary="Reset password using verification code")
+@limiter.limit("5/minute")
+def reset_password_with_code(request: Request, payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    clean_email = payload.email.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid request. Account not found.")
+
+    if not user.reset_code or user.reset_code != payload.reset_code.strip():
+        raise HTTPException(status_code=400, detail="Invalid verification code. Please check your code or request a new one.")
+
+    if user.reset_code_expires_at and datetime.utcnow() > user.reset_code_expires_at:
+        raise HTTPException(status_code=400, detail="Verification code has expired. Please request a new code.")
+
+    if len(payload.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters long.")
+
+    if payload.new_password != payload.confirm_password:
+        raise HTTPException(status_code=400, detail="New passwords do not match.")
+
+    user.hashed_password = get_password_hash(payload.new_password)
+    user.reset_code = None
+    user.reset_code_expires_at = None
+    db.commit()
+    sync_users_to_backup(db)
+
+    return {
+        "status": "success",
+        "message": "Password updated successfully! You can now sign in with your new password."
     }
 
 # --- USER PASSWORD CHANGE & SECURITY ---
