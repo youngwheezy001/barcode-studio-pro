@@ -1982,6 +1982,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         <option value="II">II</option>
                                         <option value="III">III</option>
                                         <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                        <option value="VI">VI</option>
                                     </select>
                                 </div>
                                 <div id="container-limited-term">
@@ -1993,6 +1995,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </label>
                                     <select id="aamva-limited-term" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
                                         <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div id="container-veteran" class="hidden">
+                                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-1 mb-1">
+                                        <span>Veteran</span>
+                                        <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                            ⓘ<span class="tooltip-box">Veteran Indicator (DDL)</span>
+                                        </span>
+                                    </label>
+                                    <select id="aamva-veteran" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
+                                        <option value="No" selected>No</option>
                                         <option value="Yes">Yes</option>
                                     </select>
                                 </div>
@@ -2115,8 +2129,21 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </select>
                                 </div>
 
-                                <div id="container-realid" class="hidden" style="display: none;">
-                                    <input type="hidden" id="aamva-realid" value="Yes">
+                                <div id="container-realid" class="hidden">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                                            <span>Is REAL ID</span>
+                                            <span class="tooltip-wrapper relative cursor-pointer text-slate-400 hover:text-slate-600">
+                                                ⓘ<span class="tooltip-box">REAL ID Compliant Document Flag (DDA)</span>
+                                            </span>
+                                        </label>
+                                        <button type="button" onclick="calcField('real_id')" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate REAL ID compliance">🧮</button>
+                                    </div>
+                                    <select id="aamva-realid" class="w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" onchange="compileAAMVA()">
+                                        <option value="">== Select ==</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -5328,6 +5355,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const hasRace = revInfo ? (revInfo.has_race === true) : false;
             const hasSuffix = revInfo ? (revInfo.has_suffix === true) : false;
             const hasLimitedTerm = revInfo ? (revInfo.has_limited_term === true) : false;
+            const hasVeteran = revInfo ? (revInfo.has_veteran === true) : false;
             const hasAddress2 = revInfo ? (revInfo.has_address2 === true) : false;
 
             // ICN Container: completely remove if omitted
@@ -5402,27 +5430,54 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // REAL ID Container: streamlined to compliant DDAF in background
+            // REAL ID Container: shown for states with has_real_id
             const realidContainer = document.getElementById('container-realid');
+            const realidEl = document.getElementById('aamva-realid');
             if (realidContainer) {
-                realidContainer.style.display = 'none';
-                realidContainer.classList.add('hidden');
+                if (hasRealId) {
+                    realidContainer.style.display = '';
+                    realidContainer.classList.remove('hidden');
+                    if (realidEl) {
+                        if (slug === 'PA' || slug.startsWith('PA')) {
+                            realidEl.value = (defaults && defaults.realid !== undefined && defaults.realid !== '') ? defaults.realid : '';
+                        } else {
+                            if (defaults && defaults.realid) {
+                                realidEl.value = (defaults.realid === 'T' || defaults.realid === 'Yes' || defaults.realid === '1' || defaults.realid === 'F') ? 'Yes' : (defaults.realid === 'No' || defaults.realid === 'N' ? 'No' : '');
+                            } else {
+                                realidEl.value = 'Yes';
+                            }
+                        }
+                    }
+                } else {
+                    realidContainer.style.display = 'none';
+                    realidContainer.classList.add('hidden');
+                    if (realidEl) realidEl.value = 'Yes';
+                }
             }
 
-            // Row DD & Revision Date: manage grid width and hide if both DD and Rev Date omitted
+            // Row DD, Revision Date & REAL ID: manage grid width and hide if all omitted
             const rowDdRealid = document.getElementById('row-dd-realid');
             if (rowDdRealid) {
-                if (!hasDd && !hasRevDate) {
+                const visibleCount = (hasDd ? 1 : 0) + (hasRevDate ? 1 : 0) + (hasRealId ? 1 : 0);
+                if (visibleCount === 0) {
                     rowDdRealid.style.display = 'none';
                 } else {
                     rowDdRealid.style.display = '';
-                    if (hasDd && !hasRevDate) {
-                        if (ddContainer) ddContainer.className = 'sm:col-span-2';
-                    } else if (!hasDd && hasRevDate) {
-                        if (revDateContainer) revDateContainer.className = 'sm:col-span-2';
-                    } else {
+                    if (visibleCount === 1) {
+                        rowDdRealid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+                        if (ddContainer) ddContainer.className = hasDd ? 'sm:col-span-2' : '';
+                        if (revDateContainer) revDateContainer.className = hasRevDate ? 'sm:col-span-2' : '';
+                        if (realidContainer) realidContainer.className = hasRealId ? 'sm:col-span-2' : '';
+                    } else if (visibleCount === 2) {
+                        rowDdRealid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
                         if (ddContainer) ddContainer.className = '';
                         if (revDateContainer) revDateContainer.className = '';
+                        if (realidContainer) realidContainer.className = '';
+                    } else {
+                        rowDdRealid.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3';
+                        if (ddContainer) ddContainer.className = '';
+                        if (revDateContainer) revDateContainer.className = '';
+                        if (realidContainer) realidContainer.className = '';
                     }
                 }
             }
@@ -5479,20 +5534,47 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // Row Suffix & Limited Term: manage grid width and hide row if both omitted
+            // Veteran Container (DDL): completely remove if omitted
+            const veteranContainer = document.getElementById('container-veteran');
+            if (veteranContainer) {
+                if (hasVeteran) {
+                    veteranContainer.style.display = '';
+                    veteranContainer.classList.remove('hidden');
+                    const vetEl = document.getElementById('aamva-veteran');
+                    if (vetEl) {
+                        vetEl.value = (defaults && defaults.veteran) ? (defaults.veteran.toUpperCase() === 'YES' ? 'Yes' : 'No') : 'No';
+                    }
+                } else {
+                    veteranContainer.style.display = 'none';
+                    veteranContainer.classList.add('hidden');
+                    const vetEl = document.getElementById('aamva-veteran');
+                    if (vetEl) vetEl.value = 'No';
+                }
+            }
+
+            // Row Suffix, Limited Term & Veteran: manage grid width and hide row if all omitted
             const rowSuffixLimited = document.getElementById('row-suffix-limited');
             if (rowSuffixLimited) {
-                if (!hasSuffix && !hasLimitedTerm) {
+                const countSuffixRow = (hasSuffix ? 1 : 0) + (hasLimitedTerm ? 1 : 0) + (hasVeteran ? 1 : 0);
+                if (countSuffixRow === 0) {
                     rowSuffixLimited.style.display = 'none';
                 } else {
                     rowSuffixLimited.style.display = '';
-                    if (suffixContainer) {
-                        if (hasSuffix && !hasLimitedTerm) suffixContainer.classList.add('sm:col-span-2');
-                        else suffixContainer.classList.remove('sm:col-span-2');
-                    }
-                    if (limitedTermContainer) {
-                        if (hasLimitedTerm && !hasSuffix) limitedTermContainer.classList.add('sm:col-span-2');
-                        else limitedTermContainer.classList.remove('sm:col-span-2');
+                    if (countSuffixRow === 1) {
+                        rowSuffixLimited.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+                        if (suffixContainer) suffixContainer.className = hasSuffix ? 'sm:col-span-2' : '';
+                        if (limitedTermContainer) limitedTermContainer.className = hasLimitedTerm ? 'sm:col-span-2' : '';
+                        if (veteranContainer) veteranContainer.className = hasVeteran ? 'sm:col-span-2' : '';
+                    } else if (countSuffixRow === 2) {
+                        rowSuffixLimited.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
+                        if (suffixContainer) suffixContainer.className = '';
+                        if (limitedTermContainer) limitedTermContainer.className = '';
+                        if (veteranContainer) veteranContainer.className = '';
+                    } else {
+                        rowSuffixLimited.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3';
+                        if (suffixContainer) suffixContainer.className = '';
+                        if (limitedTermContainer) limitedTermContainer.className = '';
+                        if (veteranContainer) veteranContainer.className = '';
                     }
                 }
             }
@@ -6905,7 +6987,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     if (baseState === 'LA') return '4174';
                     return '082620981133';
                 })(),
-                realId: document.getElementById('aamva-realid') ? document.getElementById('aamva-realid').value : 'Yes'
+                realId: document.getElementById('aamva-realid') ? document.getElementById('aamva-realid').value : 'Yes',
+                veteran: document.getElementById('aamva-veteran') ? document.getElementById('aamva-veteran').value : 'No'
             };
 
             const versionSelect = document.getElementById('aamva-version');
@@ -6975,6 +7058,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
             const revDateVal = (document.getElementById('aamva-revision-date')?.value || '').trim();
             dlElements.push(`DDB${revDateVal || '02102017'}`);
+            if (fields.veteran === 'Yes' && (revInfo ? revInfo.has_veteran : false)) {
+                dlElements.push('DDL1');
+            }
             dlElements.push(`DDK${fields.donor}`);
 
             // Join with LF (\n) and terminate with CR (\r)
@@ -7194,6 +7280,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             dlElementsXml += `    <element id="DDA" name="Compliance Type">F</element>\n` +
                 `    <element id="DDB" name="Card Revision Date">${ddbVal}</element>\n`;
 
+            if (fields.veteran === 'Yes' && (revInfo ? revInfo.has_veteran : false)) {
+                dlElementsXml += `    <element id="DDL" name="Veteran Indicator">1</element>\n`;
+            }
             if (fields.donor === '1') {
                 dlElementsXml += `    <element id="DDK" name="Organ Donor">${fields.donor}</element>\n`;
             }

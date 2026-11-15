@@ -1932,6 +1932,7 @@ const STATE_HIERARCHY = {
         "has_dd": true,
         "has_audit": true,
         "has_suffix": true,
+        "has_veteran": true,
         "has_weight_range": false,
         "default_dd": "",
         "has_real_id": false,
@@ -2483,6 +2484,8 @@ const STATE_HIERARCHY = {
         'inputPOB': 'aamva-pob',
         'inputPlaceOfBirth': 'aamva-pob',
         'inputDups': 'aamva-dups',
+        'inputVeteran': 'aamva-veteran',
+        'inputAddress2': 'aamva-street2',
         'inputOption1': 'aamva-nj-opt1',
         'inputOption2': 'aamva-nj-opt2',
         'inputOption3': 'aamva-nj-opt3',
@@ -9844,7 +9847,9 @@ function runStateCalculation(field, stateSlug) {
     "sample_audit": "P082625148509",
     "has_icn": false,
     "has_dd": true,
-    "has_audit": true
+    "has_audit": true,
+    "suffix": "NONE",
+    "veteran": "NO"
   },
   "WI": {
     "street": "W169N10741 Redwood Ln",

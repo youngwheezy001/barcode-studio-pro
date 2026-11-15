@@ -1986,6 +1986,9 @@ def generate_aamva_payload(
         default_rev = "03162017"
     rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or default_rev).strip()
     dl_elements.append(f"DDB{rev_date}")
+    veteran = str(user_data.get("veteran", "")).strip().upper()
+    if veteran in ("YES", "1", "TRUE"):
+        dl_elements.append("DDL1")
     dl_elements.append(f"DDK{donor}")
     
     dl_subfile = "DL" + "\n".join(dl_elements) + "\r"
@@ -2173,6 +2176,9 @@ def generate_scanner_xml(
         default_rev = "03162017"
     rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or default_rev).strip()
     dl_elements.append(f"DDB{rev_date}")
+    veteran = str(user_data.get("veteran", "")).strip().upper()
+    if veteran in ("YES", "1", "TRUE"):
+        dl_elements.append("DDL1")
     dl_elements.append(f"DDK{donor}")
     
     dl_subfile = "DL" + "\n".join(dl_elements) + "\r"
