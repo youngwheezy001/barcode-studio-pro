@@ -10,6 +10,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, 
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
 import io
@@ -487,6 +488,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -496,6 +498,9 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Permissions-Policy"] = "camera=(self), microphone=()"
+    if request.url.path.startswith("/static/") or any(request.url.path.endswith(ext) for ext in [".js", ".css", ".png", ".svg", ".jpg", ".ico", ".woff2"]):
+        if "Cache-Control" not in response.headers:
+            response.headers["Cache-Control"] = "public, max-age=86400"
     return response
 
 # ============================================================
@@ -524,7 +529,10 @@ def get_root():
     """Serves the primary Single Page Application interface."""
     index_file = BASE_DIR / "static" / "index.html"
     if index_file.exists():
-        return FileResponse(str(index_file))
+        return FileResponse(
+            str(index_file),
+            headers={"Cache-Control": "public, max-age=0, must-revalidate"}
+        )
     return Response(content="Barcode Studio Pro", media_type="text/plain")
 
 @app.head("/", include_in_schema=False)
