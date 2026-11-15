@@ -14927,15 +14927,17 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         function openZxingModalAndAction(action) {
             openZxingModal();
+            closeHeaderToolsMenu();
             if (action === 'active') {
                 setTimeout(() => {
                     decodeActiveStudioBarcode();
-                }, 120);
+                }, 80);
             } else if (action === 'file') {
-                setTimeout(() => {
-                    const fi = document.getElementById('zxing-file-input');
-                    if (fi) fi.click();
-                }, 120);
+                // Must be synchronous to satisfy browser user-activation security policies
+                const fi = document.getElementById('zxing-file-input');
+                if (fi) {
+                    try { fi.click(); } catch (e) { setTimeout(() => fi.click(), 50); }
+                }
             } else if (action === 'url') {
                 setTimeout(() => {
                     const ui = document.getElementById('zxing-url-input');
@@ -14943,7 +14945,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                         ui.focus();
                         ui.select();
                     }
-                }, 120);
+                }, 80);
             }
         }
 
@@ -15016,33 +15018,69 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             if (loadBtn) loadBtn.classList.add('hidden');
         }
 
-        async function decodeImageElement(imgElement) {
+        async function decodeBarcodeFromSource(source) {
             const spinner = document.getElementById('zxing-spinner');
             const panel = document.getElementById('zxing-result-panel');
             if (spinner) spinner.classList.remove('hidden');
             if (panel) panel.classList.add('hidden');
 
             try {
-                if (window.ZXing) {
-                    const reader = getZXingMultiReader();
-                    try {
-                        const res = await reader.decode(imgElement);
-                        if (res && res.getText()) {
-                            displayZxingSuccess(res.getText(), res.getBarcodeFormat() ? String(res.getBarcodeFormat()) : 'Universal');
-                            return;
-                        }
-                    } catch (e1) {
-                        try {
-                            const pdfReader = getZXingPdf417Reader();
-                            const res2 = await pdfReader.decode(imgElement);
-                            if (res2 && res2.getText()) {
-                                displayZxingSuccess(res2.getText(), 'PDF_417');
-                                return;
-                            }
-                        } catch (e2) {}
-                    }
+                if (!window.ZXing) {
+                    displayZxingError('ZXing universal library is still loading. Please try again in a few seconds.');
+                    return;
                 }
-                displayZxingError('No readable barcode pattern found in the image.');
+
+                const reader = getZXingMultiReader();
+                const pdfReader = getZXingPdf417Reader();
+
+                let res = null;
+
+                const tryReader = async (r, target) => {
+                    if (!r) return null;
+                    try {
+                        if (typeof target === 'string') {
+                            if (typeof r.decodeFromImageUrl === 'function') {
+                                return await r.decodeFromImageUrl(target);
+                            }
+                        } else if (target instanceof HTMLImageElement) {
+                            if (typeof r.decodeFromImageElement === 'function') {
+                                return await r.decodeFromImageElement(target);
+                            } else if (typeof r.decodeFromImageUrl === 'function') {
+                                return await r.decodeFromImageUrl(target.src);
+                            }
+                        } else if (target instanceof HTMLCanvasElement) {
+                            if (typeof r.decodeFromCanvas === 'function') {
+                                return await r.decodeFromCanvas(target);
+                            } else if (typeof r.decodeFromImageUrl === 'function') {
+                                return await r.decodeFromImageUrl(target.toDataURL('image/png'));
+                            }
+                        }
+                    } catch (e) {
+                        return null;
+                    }
+                    return null;
+                };
+
+                // 1. First attempt: BrowserMultiFormatReader
+                res = await tryReader(reader, source);
+
+                // 2. Fallback attempt: dedicated BrowserPDF417Reader
+                if (!res && pdfReader) {
+                    res = await tryReader(pdfReader, source);
+                }
+
+                if (res && res.getText && res.getText()) {
+                    let fmtName = 'Universal 1D/2D';
+                    try {
+                        if (res.getBarcodeFormat) {
+                            fmtName = String(res.getBarcodeFormat()).replace('BarcodeFormat.', '');
+                        }
+                    } catch (e) {}
+                    displayZxingSuccess(res.getText(), fmtName);
+                    return;
+                }
+
+                displayZxingError('Could not find a valid 1D or 2D barcode in this image. Ensure the barcode is clearly visible, oriented properly, and has good contrast.');
             } catch (err) {
                 displayZxingError(err.message || 'Error occurred while decoding barcode.');
             }
@@ -15050,35 +15088,45 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         function decodeActiveStudioBarcode() {
             let canvas = document.getElementById('output-pdf417');
-            if (!canvas || canvas.width === 0) {
-                canvas = document.getElementById('card-preview-barcode');
+            if (typeof currentTab !== 'undefined' && currentTab === 'code128') {
+                const c128 = document.getElementById('hidden-code128-canvas');
+                if (c128 && c128.width > 0) canvas = c128;
             }
             if (!canvas || canvas.width === 0) {
-                showToast('No active barcode rendered yet in the studio.', 'error');
+                const card = document.getElementById('studio-cr80-card');
+                if (card) {
+                    const canvases = card.querySelectorAll('canvas');
+                    for (const c of canvases) {
+                        if (c.width > 0 && c.offsetParent !== null) {
+                            canvas = c;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!canvas || canvas.width === 0) {
+                showToast('No active barcode rendered yet in the studio canvas.', 'warning');
                 return;
             }
 
-            const img = new Image();
-            img.onload = () => {
-                decodeImageElement(img);
-            };
-            img.src = canvas.toDataURL('image/png');
+            try {
+                const dataUrl = canvas.toDataURL('image/png');
+                decodeBarcodeFromSource(dataUrl);
+            } catch (err) {
+                decodeBarcodeFromSource(canvas);
+            }
         }
 
         function decodeZxingFile() {
             const fileInput = document.getElementById('zxing-file-input');
             if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-                showToast('Please choose an image file first.', 'error');
+                showToast('Please select a barcode image file first.', 'warning');
                 return;
             }
             const file = fileInput.files[0];
             const reader = new FileReader();
             reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    decodeImageElement(img);
-                };
-                img.src = e.target.result;
+                decodeBarcodeFromSource(e.target.result);
             };
             reader.readAsDataURL(file);
         }
@@ -15087,18 +15135,10 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const urlInput = document.getElementById('zxing-url-input');
             const url = (urlInput?.value || '').trim();
             if (!url) {
-                showToast('Please enter an image URL.', 'error');
+                showToast('Please enter a public image URL.', 'warning');
                 return;
             }
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                decodeImageElement(img);
-            };
-            img.onerror = () => {
-                displayZxingError('Unable to load image from URL (Cross-Origin CORS blocked or invalid image URL). Try saving and uploading the file directly.');
-            };
-            img.src = url;
+            decodeBarcodeFromSource(url);
         }
 
         function copyZxingResult() {
