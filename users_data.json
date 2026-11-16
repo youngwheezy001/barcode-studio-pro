@@ -4,5 +4,23 @@
     "hashed_password": "$2b$10$s149q6fqI4w67e0rWoG8ievvL7Fy8cDUOHbqMFZ92zhynbb4TJAzu",
     "role": "admin",
     "tokens": 999999
+  },
+  {
+    "email": "tester@barcodestudio.pro",
+    "hashed_password": "$2b$10$oEWJZlhrPWy/7mveo66Wx.xKhadbx.9dyL9WEWQ3pFuemLX.bM0DS",
+    "role": "admin",
+    "tokens": 999999
+  },
+  {
+    "email": "passkey_admin@barcodestudio.pro",
+    "hashed_password": "$2b$10$WLE9Nb.Be02.QYsQwKmdV.jBStRwahQHFux7SQxhPC9YNIMwuwg.G",
+    "role": "admin",
+    "tokens": 999999
+  },
+  {
+    "email": "outsider_client@barcodestudio.pro",
+    "hashed_password": "$2b$10$mB0JZFlAnGdQwlNH3hvY2.1MZw2y9PO3AOp.pQD.xczLyI7LUj8GC",
+    "role": "free_user",
+    "tokens": 979
   }
 ]

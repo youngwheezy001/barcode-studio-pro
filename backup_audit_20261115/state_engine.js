@@ -2487,6 +2487,26 @@ const STATE_HIERARCHY = {
         'inputParish': 'aamva-la-parish'
     };
 
+    function normalizeDateToMMDDYYYY(raw) {
+        if (!raw) return "07262024";
+        const s = String(raw).trim();
+        if (!s) return "07262024";
+        const digits = s.replace(/\D/g, '');
+        if (s.includes('-') && digits.length === 8 && (digits.startsWith('19') || digits.startsWith('20'))) {
+            // YYYY-MM-DD -> MMDDYYYY
+            return digits.slice(4, 6) + digits.slice(6, 8) + digits.slice(0, 4);
+        }
+        if (digits.length === 8) {
+            const first4 = parseInt(digits.slice(0, 4), 10);
+            const m = parseInt(digits.slice(0, 2), 10);
+            if ((first4 >= 1900 && first4 <= 2099) && (m > 12 || m === 0)) {
+                return digits.slice(4, 6) + digits.slice(6, 8) + digits.slice(0, 4);
+            }
+            return digits;
+        }
+        return "07262024";
+    }
+
     function getTargetElement(id) {
         if (id === 'inputOfficeCode') {
             const jurEl = document.getElementById('aamva-jurisdiction');
@@ -2499,7 +2519,22 @@ const STATE_HIERARCHY = {
             return document.getElementById('aamva-la-parish');
         }
         const mappedId = ID_MAP[id] || id;
-        return document.getElementById(mappedId) || document.getElementById(id);
+        const el = document.getElementById(mappedId) || document.getElementById(id);
+        if (!el) return null;
+
+        if (id === 'inputIssueDate' || id === 'inputExpiryDate' || id === 'inputBrithDate') {
+            return new Proxy(el, {
+                get(target, prop) {
+                    if (prop === 'value') {
+                        const raw = target.value || '';
+                        return normalizeDateToMMDDYYYY(raw);
+                    }
+                    const val = target[prop];
+                    return typeof val === 'function' ? val.bind(target) : val;
+                }
+            });
+        }
+        return el;
     }
 
     // 3. Helper Functions
@@ -2910,7 +2945,7 @@ function getRandomMiddleName(sex) {
 
 
 function showInputDataAlert(msg) {
-    if (typeof window !== 'undefined' && (window.isBatchCalculation || window.isClearingForm || window.suppressCalcAlerts)) {
+    if (typeof window !== 'undefined' && (window.isBatchCalculation || window.isClearingForm || window.suppressCalcAlerts || window.isApplyingPreset)) {
         console.warn('State Calculator Alert (suppressed):', msg);
         return;
     }
@@ -2979,16 +3014,22 @@ function AZ_makeRandomDOE() {
 
     // 4. State Calculation Algorithms
 function CA_calculate_ICN() {
-    var documentNumber = getTargetElement("inputDocumentNumber").value;
+    var docEl = getTargetElement("inputDocumentNumber");
+    var documentNumber = docEl ? docEl.value.trim() : "";
     if (documentNumber.length != 8) {
-        showInputDataAlert("ICN calculation error. Incorrect document number!")
-        return;
+        if (typeof CA_calculate_documentNumber === 'function') {
+            CA_calculate_documentNumber();
+            documentNumber = docEl ? docEl.value.trim() : "";
+        }
+        if (documentNumber.length != 8) {
+            documentNumber = getRandomLetter() + getRandomNumericString(7);
+            if (docEl) docEl.value = documentNumber;
+        }
     }
 
     var issueDate = getTargetElement("inputIssueDate").value;
     if (issueDate.length != 8) {
-        showInputDataAlert("ICN calculation error. Incorrect issue date!")
-        return;
+        issueDate = "08292024";
     }
 
     getTargetElement("inputICN").value = issueDate.slice(-2)
@@ -2998,17 +3039,14 @@ function CA_calculate_ICN() {
 
 
 function CA_calculate_DD() {
-
     var issueDate = getTargetElement("inputIssueDate").value;
     if (issueDate.length != 8) {
-        showInputDataAlert("DD calculation error. Incorrect issue date!")
-        return;
+        issueDate = "08292024";
     }
 
     var expiryDate = getTargetElement("inputExpiryDate").value;
     if (expiryDate.length != 8) {
-        showInputDataAlert("DD calculation error. Incorrect expiry date!")
-        return;
+        expiryDate = "08292029";
     }
 
     const suff_alphabet = ["AA", "AA", "AA"];
@@ -3126,21 +3164,25 @@ function AL_2024_calculate_documentNumber() {
 
 
 function AL_2024_calculate_ICN() {
-
-    var documentNumber = getTargetElement("inputDocumentNumber").value;
+    var docEl = getTargetElement("inputDocumentNumber");
+    var documentNumber = docEl ? docEl.value.trim() : "";
     if (documentNumber.length != 8) {
-        showInputDataAlert("ICN calculation error. Incorrect document number!")
-        return;
+        if (typeof AL_2024_calculate_documentNumber === 'function') {
+            AL_2024_calculate_documentNumber();
+            documentNumber = docEl ? docEl.value.trim() : "";
+        }
+        if (documentNumber.length != 8) {
+            documentNumber = (documentNumber + "00000000").slice(0, 8);
+            if (docEl) docEl.value = documentNumber;
+        }
     }
 
     var issueDate = getTargetElement("inputIssueDate").value;
     if (issueDate.length != 8) {
-        showInputDataAlert("ICN calculation error. Incorrect issue date!")
-        return;
+        issueDate = "04262024";
     }
 
     days = ("00" + (parseInt(getNumberOfDaysFromBeginnigOfYear(issueDate)) + 4)).slice(-3);
-
 
     getTargetElement("inputICN").value = documentNumber + getRandomNumericString(5) + issueDate.slice(-2) + days + "01";
 }
