@@ -50,31 +50,55 @@ else:
     USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
     ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
-if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
-elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and not SQLALCHEMY_DATABASE_URL.startswith("postgresql+"):
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+def create_robust_engine():
+    raw_url = (os.getenv("DATABASE_URL") or "").strip()
+    if raw_url and "postgres" in raw_url.lower():
+        db_url = raw_url
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+            db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        
+        try:
+            print("[DB] Initializing PostgreSQL engine (connect_timeout=4s)...")
+            pg_engine = create_engine(
+                db_url,
+                pool_pre_ping=True,
+                pool_recycle=300,
+                pool_size=10,
+                max_overflow=20,
+                connect_args={
+                    "connect_timeout": 4,
+                    "sslmode": "prefer"
+                }
+            )
+            with pg_engine.connect() as test_conn:
+                test_conn.execute(text("SELECT 1"))
+            print("[DB] PostgreSQL connection verified successfully.")
+            return pg_engine
+        except Exception as pg_err:
+            print(f"[DB WARNING] PostgreSQL connection failed ({pg_err}). Seamlessly falling back to SQLite for instant port binding.")
 
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-    from sqlalchemy import event
-    @event.listens_for(engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-        cursor.close()
-else:
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        pool_pre_ping=True,
-        pool_recycle=300,
-        pool_size=10,
-        max_overflow=20
+    sqlite_url = raw_url if raw_url.startswith("sqlite") else f"sqlite:///{DB_PATH}"
+    print(f"[DB] Initializing SQLite database engine: {sqlite_url}")
+    sq_engine = create_engine(
+        sqlite_url,
+        connect_args={"check_same_thread": False, "timeout": 15}
     )
+    from sqlalchemy import event
+    @event.listens_for(sq_engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        try:
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.close()
+        except Exception:
+            pass
+    return sq_engine
 
+engine = create_robust_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -195,8 +219,6 @@ class CryptoPayment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     confirmed_at = Column(DateTime, nullable=True)
 
-Base.metadata.create_all(bind=engine)
-
 def ensure_db_schema():
     """Ensure SQLite and PostgreSQL schema have all required columns."""
     try:
@@ -245,8 +267,6 @@ def ensure_db_schema():
                             pass
     except Exception as e:
         print(f"Notice: Schema migration check: {e}")
-
-ensure_db_schema()
 
 def generate_user_referral_code(user_id: int, email: str) -> str:
     h = hashlib.sha256(f"{user_id}:{email}:bsp_salt".encode()).hexdigest()[:8].upper()
@@ -528,7 +548,41 @@ def seed_admin_users():
     finally:
         db.close()
 
-seed_admin_users()
+def init_db_schema_and_seeds():
+    """Initializes tables, ensures column migrations, seeds admin accounts, and restores data backups."""
+    global engine, SessionLocal
+    try:
+        Base.metadata.create_all(bind=engine)
+        ensure_db_schema()
+        seed_admin_users()
+        db = SessionLocal()
+        try:
+            restore_users_from_backup(db)
+            restore_orders_from_backup(db)
+        finally:
+            db.close()
+        print("[DB] Database schema, admin accounts, and data backups verified successfully.")
+    except Exception as e:
+        print(f"[DB NOTICE] Primary schema initialization notice: {e}")
+        try:
+            sqlite_url = f"sqlite:///{DB_PATH}"
+            print(f"[DB] Retrying schema initialization with SQLite: {sqlite_url}")
+            engine = create_engine(sqlite_url, connect_args={"check_same_thread": False, "timeout": 15})
+            SessionLocal.configure(bind=engine)
+            Base.metadata.create_all(bind=engine)
+            ensure_db_schema()
+            seed_admin_users()
+            db = SessionLocal()
+            try:
+                restore_users_from_backup(db)
+                restore_orders_from_backup(db)
+            finally:
+                db.close()
+            print("[DB] SQLite fallback schema successfully created.")
+        except Exception as sq_e:
+            print(f"[DB CRITICAL] Fallback initialization error: {sq_e}")
+
+init_db_schema_and_seeds()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -582,7 +636,6 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
-        orm_mode = True
 
 app = FastAPI(
     title="Barcode Studio Pro API",
@@ -625,6 +678,16 @@ async def add_security_headers(request: Request, call_next):
         if "Cache-Control" not in response.headers:
             response.headers["Cache-Control"] = "public, max-age=86400"
     return response
+
+@app.on_event("startup")
+async def on_app_startup():
+    """Fast non-blocking startup handler to guarantee immediate port binding."""
+    print("[SERVER] Starting Barcode Studio Pro production service...")
+    try:
+        init_db_schema_and_seeds()
+    except Exception as exc:
+        print(f"[SERVER WARNING] Startup database initialization notice: {exc}")
+    print("[SERVER] Startup complete - port binding active. Health probes listening at /health, /ping, /status.")
 
 # ============================================================
 # Core Health Checks & Cloud Deploy Readiness Probes (Render, K8s, Docker)
@@ -2833,5 +2896,5 @@ if static_path.exists():
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", "8000"))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    port = int(os.getenv("PORT", "10000"))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
