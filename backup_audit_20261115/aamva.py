@@ -21,7 +21,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "7 or 8 digits", "dl_regex": r"^[0-9]{7,8}$"
     },
     "AK": {
-        "issuer_name": "Alaska", "state_code": "AK", "iin": "636038",
+        "issuer_name": "Alaska", "state_code": "AK", "iin": "636059",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "7 digits", "dl_regex": r"^[0-9]{7}$"
@@ -33,7 +33,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "1 letter + 8 digits or 9 digits", "dl_regex": r"^([A-Z][0-9]{8}|[0-9]{9})$"
     },
     "AR": {
-        "issuer_name": "Arkansas", "state_code": "AR", "iin": "636028",
+        "issuer_name": "Arkansas", "state_code": "AR", "iin": "636021",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "9 digits (starts with 9)", "dl_regex": r"^[0-9]{9}$"
@@ -63,7 +63,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "7 digits (1-7 digits)", "dl_regex": r"^[0-9]{1,7}$"
     },
     "DC": {
-        "issuer_name": "District of Columbia", "state_code": "DC", "iin": "636047",
+        "issuer_name": "District of Columbia", "state_code": "DC", "iin": "636043",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "7 digits or 9 digits", "dl_regex": r"^([0-9]{7}|[0-9]{9})$"
@@ -81,13 +81,13 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "9 digits", "dl_regex": r"^[0-9]{9}$"
     },
     "HI": {
-        "issuer_name": "Hawaii", "state_code": "HI", "iin": "636048",
+        "issuer_name": "Hawaii", "state_code": "HI", "iin": "636047",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 8 digits or 9 digits", "dl_regex": r"^([A-Z][0-9]{8}|[0-9]{9})$"
     },
     "ID": {
-        "issuer_name": "Idaho", "state_code": "ID", "iin": "636041",
+        "issuer_name": "Idaho", "state_code": "ID", "iin": "636050",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "9 digits or 2 letters + 6 digits + 1 letter", "dl_regex": r"^([0-9]{9}|[A-Z]{2}[0-9]{6}[A-Z])$"
@@ -105,7 +105,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "1 letter + 9 digits or 10 digits", "dl_regex": r"^([A-Z][0-9]{9}|[0-9]{10})$"
     },
     "IA": {
-        "issuer_name": "Iowa", "state_code": "IA", "iin": "636019",
+        "issuer_name": "Iowa", "state_code": "IA", "iin": "636018",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "9 digits or 3 digits + 2 letters + 4 digits", "dl_regex": r"^([0-9]{9}|[0-9]{3}[A-Z]{2}[0-9]{4})$"
@@ -117,7 +117,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "1 letter + 8 digits or 9 digits", "dl_regex": r"^([A-Z][0-9]{8}|[0-9]{9})$"
     },
     "KY": {
-        "issuer_name": "Kentucky", "state_code": "KY", "iin": "636040",
+        "issuer_name": "Kentucky", "state_code": "KY", "iin": "636046",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": None, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 8 digits or 9 digits", "dl_regex": r"^([A-Z][0-9]{8}|[0-9]{9})$"
@@ -129,7 +129,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "9 digits (starts with 00 or 01)", "dl_regex": r"^[0-9]{9}$"
     },
     "ME": {
-        "issuer_name": "Maine", "state_code": "ME", "iin": "636042",
+        "issuer_name": "Maine", "state_code": "ME", "iin": "636041",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "7 digits or 8 digits", "dl_regex": r"^[0-9]{7,8}$"
@@ -147,25 +147,25 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "1 letter + 8 digits (starts with S) or 9 digits", "dl_regex": r"^([A-Z][0-9]{8}|[0-9]{9})$"
     },
     "MI": {
-        "issuer_name": "Michigan", "state_code": "MI", "iin": "636034",
+        "issuer_name": "Michigan", "state_code": "MI", "iin": "636032",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 12 digits", "dl_regex": r"^[A-Z][0-9]{12}$"
     },
     "MI_2024": {
-        "issuer_name": "Michigan (2024)", "state_code": "MI", "iin": "636034",
+        "issuer_name": "Michigan (2024)", "state_code": "MI", "iin": "636032",
         "aamva_version": "09", "data_format": "11", "jurver": "00",
         "v9_effective_year": 2024, "uses_offsets": True, "drop_empty_tags": True,
         "dl_desc": "1 letter + 12 digits", "dl_regex": r"^[A-Z][0-9]{12}$"
     },
     "MN": {
-        "issuer_name": "Minnesota", "state_code": "MN", "iin": "636039",
+        "issuer_name": "Minnesota", "state_code": "MN", "iin": "636038",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 12 digits", "dl_regex": r"^[A-Z][0-9]{12}$"
     },
     "MS": {
-        "issuer_name": "Mississippi", "state_code": "MS", "iin": "636050",
+        "issuer_name": "Mississippi", "state_code": "MS", "iin": "636051",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "9 digits", "dl_regex": r"^[0-9]{9}$"
@@ -195,7 +195,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "10 digits or 12 digits", "dl_regex": r"^([0-9]{10}|[0-9]{12})$"
     },
     "NH": {
-        "issuer_name": "New Hampshire", "state_code": "NH", "iin": "636043",
+        "issuer_name": "New Hampshire", "state_code": "NH", "iin": "636039",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "2 digits + 3 letters + 5 digits", "dl_regex": r"^[0-9]{2}[A-Z]{3}[0-9]{5}$"
@@ -231,19 +231,19 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "8 to 12 digits", "dl_regex": r"^[0-9]{8,12}$"
     },
     "ND": {
-        "issuer_name": "North Dakota", "state_code": "ND", "iin": "636032",
+        "issuer_name": "North Dakota", "state_code": "ND", "iin": "636034",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "3 letters + 6 digits or 9 digits", "dl_regex": r"^([A-Z]{3}[0-9]{6}|[0-9]{9})$"
     },
     "OH": {
-        "issuer_name": "Ohio", "state_code": "OH", "iin": "636025",
+        "issuer_name": "Ohio", "state_code": "OH", "iin": "636023",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "2 letters + 6 digits", "dl_regex": r"^[A-Z]{2}[0-9]{6}$"
     },
     "OK": {
-        "issuer_name": "Oklahoma", "state_code": "OK", "iin": "636056",
+        "issuer_name": "Oklahoma", "state_code": "OK", "iin": "636058",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 9 digits or 9 digits", "dl_regex": r"^([A-Z][0-9]{9}|[0-9]{9})$"
@@ -255,7 +255,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "7 digits", "dl_regex": r"^[0-9]{1,9}$"
     },
     "PA": {
-        "issuer_name": "Pennsylvania", "state_code": "PA", "iin": "636024",
+        "issuer_name": "Pennsylvania", "state_code": "PA", "iin": "636025",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "8 digits", "dl_regex": r"^[0-9]{8}$"
@@ -273,7 +273,7 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "9 digits", "dl_regex": r"^[0-9]{9}$"
     },
     "SD": {
-        "issuer_name": "South Dakota", "state_code": "SD", "iin": "636044",
+        "issuer_name": "South Dakota", "state_code": "SD", "iin": "636042",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "8 or 9 digits", "dl_regex": r"^[0-9]{8,9}$"
@@ -291,25 +291,25 @@ STATE_AAMVA_PROFILES: Dict[str, Dict[str, Any]] = {
         "dl_desc": "8 digits", "dl_regex": r"^[0-9]{8}$"
     },
     "UT": {
-        "issuer_name": "Utah", "state_code": "UT", "iin": "636045",
+        "issuer_name": "Utah", "state_code": "UT", "iin": "636040",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "9 digits (4 to 10 digits)", "dl_regex": r"^[0-9]{4,10}$"
     },
     "VT": {
-        "issuer_name": "Vermont", "state_code": "VT", "iin": "636027",
+        "issuer_name": "Vermont", "state_code": "VT", "iin": "636024",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2022, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "8 digits or 7 digits + 'A'", "dl_regex": r"^([0-9]{8}|[0-9]{7}[A-Z])$"
     },
     "VA": {
-        "issuer_name": "Virginia", "state_code": "VA", "iin": "636021",
+        "issuer_name": "Virginia", "state_code": "VA", "iin": "636000",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": 2021, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "1 letter + 8 digits or 9 digits", "dl_regex": r"^([A-Z][0-9]{8}|[0-9]{9})$"
     },
     "WA": {
-        "issuer_name": "Washington", "state_code": "WA", "iin": "636046",
+        "issuer_name": "Washington", "state_code": "WA", "iin": "636045",
         "aamva_version": "08", "data_format": "16", "jurver": "00",
         "v9_effective_year": None, "uses_offsets": False, "drop_empty_tags": False,
         "dl_desc": "12 alphanumeric characters (e.g. WDLYXY3PA0TB)", "dl_regex": r"^[A-Z0-9*]{12}$"
@@ -1903,8 +1903,25 @@ def generate_aamva_payload(
     
     # State-aware Document Discriminator, ICN, and Audit resolution
     dcf, dck, audit = resolve_state_identifiers(state_code, user_data, profile, dl_id)
-    sex = str(user_data.get("sex", "1")).strip()
-    height = str(user_data.get("height", "061 IN")).strip().upper()
+    
+    raw_sex = str(user_data.get("sex") or "1").strip().upper()
+    if raw_sex in ["1", "M", "MALE"]:
+        sex = "1"
+    elif raw_sex in ["2", "F", "FEMALE"]:
+        sex = "2"
+    elif raw_sex in ["9", "X", "NON-BINARY", "NONBINARY", "OTHER"]:
+        sex = "9"
+    else:
+        sex = "1"
+
+    raw_height = str(user_data.get("height") or "061 IN").strip().upper()
+    if raw_height.isdigit():
+        height = f"{int(raw_height):03d} IN"
+    elif re.match(r"^\d{2,3}\s*(IN|INCHES)?$", raw_height):
+        h_num = re.sub(r"[^\d]", "", raw_height)
+        height = f"{int(h_num):03d} IN"
+    else:
+        height = raw_height
     eyes = str(user_data.get("eyes", "BLK")).strip().upper()
     hair = str(user_data.get("hair", "")).strip().upper()
     weight = str(user_data.get("weight", "")).strip().upper()
@@ -2026,8 +2043,24 @@ def generate_scanner_xml(
     
     # State-aware Document Discriminator, ICN, and Audit resolution
     dcf, dck, audit = resolve_state_identifiers(state_code, user_data, profile, dl_id)
-    sex = str(user_data.get("sex", "1")).strip()
-    height = str(user_data.get("height", "061 IN")).strip().upper()
+    raw_sex = str(user_data.get("sex") or "1").strip().upper()
+    if raw_sex in ["1", "M", "MALE"]:
+        sex = "1"
+    elif raw_sex in ["2", "F", "FEMALE"]:
+        sex = "2"
+    elif raw_sex in ["9", "X", "NON-BINARY", "NONBINARY", "OTHER"]:
+        sex = "9"
+    else:
+        sex = "1"
+
+    raw_height = str(user_data.get("height") or "061 IN").strip().upper()
+    if raw_height.isdigit():
+        height = f"{int(raw_height):03d} IN"
+    elif re.match(r"^\d{2,3}\s*(IN|INCHES)?$", raw_height):
+        h_num = re.sub(r"[^\d]", "", raw_height)
+        height = f"{int(h_num):03d} IN"
+    else:
+        height = raw_height
     eyes = str(user_data.get("eyes", "BLK")).strip().upper()
     hair = str(user_data.get("hair", "")).strip().upper()
     weight = str(user_data.get("weight", "")).strip().upper()

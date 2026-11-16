@@ -10901,7 +10901,12 @@ function runStateCalculation(field, stateSlug) {
     function getStateDemographicDefaults(slug) {
         if (!slug) return null;
         const s = slug.toUpperCase();
-        return STATE_DEMOGRAPHIC_DEFAULTS[s] || STATE_DEMOGRAPHIC_DEFAULTS[s.split('_')[0]] || null;
+        const def = STATE_DEMOGRAPHIC_DEFAULTS[s] || STATE_DEMOGRAPHIC_DEFAULTS[s.split('_')[0]] || null;
+        if (!def) return null;
+        let normalizedSex = "1";
+        if (def.sex === "2" || def.sex === "F" || def.sex === "Female") normalizedSex = "2";
+        else if (def.sex === "9" || def.sex === "X") normalizedSex = "9";
+        return Object.assign({}, def, { sex: normalizedSex });
     }
 
     window.STATE_DEMOGRAPHIC_DEFAULTS = STATE_DEMOGRAPHIC_DEFAULTS;

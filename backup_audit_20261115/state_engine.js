@@ -10901,7 +10901,12 @@ function runStateCalculation(field, stateSlug) {
     function getStateDemographicDefaults(slug) {
         if (!slug) return null;
         const s = slug.toUpperCase();
-        return STATE_DEMOGRAPHIC_DEFAULTS[s] || STATE_DEMOGRAPHIC_DEFAULTS[s.split('_')[0]] || null;
+        const def = STATE_DEMOGRAPHIC_DEFAULTS[s] || STATE_DEMOGRAPHIC_DEFAULTS[s.split('_')[0]] || null;
+        if (!def) return null;
+        let normalizedSex = "1";
+        if (def.sex === "2" || def.sex === "F" || def.sex === "Female") normalizedSex = "2";
+        else if (def.sex === "9" || def.sex === "X") normalizedSex = "9";
+        return Object.assign({}, def, { sex: normalizedSex });
     }
 
     window.STATE_DEMOGRAPHIC_DEFAULTS = STATE_DEMOGRAPHIC_DEFAULTS;
@@ -11891,13 +11896,13 @@ function QC_calculate_ICN() {
         "class_label": "CLASS: C",
         "disclaimer": "Property of State of Wyoming • Return to 5300 Bishop Blvd Cheyenne WY 82009",
         "donor": "DONOR ALLIANCE WY",
-        "layout": "type_b",
+        "layout": "type_a",
         "watermark": "WYOMING",
         "rev": "Rev. 08/2018",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
         "watermark_style": "seal",
-        "barcode_1d_pos": "bottom",
+        "barcode_1d_pos": "top",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafaf9 50%, #f3f3f0 100%)",
         "security_tint": "#d5d5cd"
