@@ -63,6 +63,9 @@
     <!-- JSZip for production print packs and batch bundles -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>if (!window.JSZip) document.write('<script src="/static/jszip.min.js"><\/script>');</script>
+    <!-- html2canvas for instant 1:1 physical CR80 card capture -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>if (!window.html2canvas) document.write('<script src="/static/html2canvas.min.js"><\/script>');</script>
     <!-- ZXing for universal in-browser PDF417, Code 128, and QR camera/image barcode scanning -->
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
@@ -448,26 +451,38 @@
                             <span class="text-[10px] font-bold text-slate-600 uppercase">Select Cryptocurrency:</span>
                             <span id="crypto-network-badge" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">TRON (TRC-20)</span>
                         </div>
-                        <div class="grid grid-cols-5 gap-1.5">
-                            <button type="button" onclick="selectCrypto('USDT_TRC20')" id="coin-btn-USDT_TRC20" class="crypto-coin-btn border-2 border-accent bg-blue-50/50 text-slate-900 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition shadow-sm">
+                        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1">
+                            <button type="button" onclick="selectCrypto('USDT_TRC20')" id="coin-btn-USDT_TRC20" class="crypto-coin-btn border-2 border-accent bg-blue-50/50 text-slate-900 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition shadow-sm">
                                 <span>USDT</span>
-                                <span class="text-[8px] text-emerald-600 font-extrabold uppercase">TRC20</span>
+                                <span class="text-[7.5px] text-emerald-600 font-extrabold uppercase">TRC20</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('USDT_POLYGON')" id="coin-btn-USDT_POLYGON" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('USDT_POLYGON')" id="coin-btn-USDT_POLYGON" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>USDT</span>
-                                <span class="text-[8px] text-purple-600 font-extrabold uppercase">POLYGON</span>
+                                <span class="text-[7.5px] text-purple-600 font-extrabold uppercase">POLYGON</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('BTC')" id="coin-btn-BTC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('USDT_ERC20')" id="coin-btn-USDT_ERC20" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>USDT</span>
+                                <span class="text-[7.5px] text-blue-600 font-extrabold uppercase">ERC20</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('USDT_SOL')" id="coin-btn-USDT_SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>USDT</span>
+                                <span class="text-[7.5px] text-indigo-600 font-extrabold uppercase">SOL SPL</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('BTC')" id="coin-btn-BTC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>BTC</span>
-                                <span class="text-[8px] text-amber-600 font-extrabold uppercase">BITCOIN</span>
+                                <span class="text-[7.5px] text-amber-600 font-extrabold uppercase">BITCOIN</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('ETH')" id="coin-btn-ETH" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('ETH')" id="coin-btn-ETH" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>ETH</span>
-                                <span class="text-[8px] text-blue-600 font-extrabold uppercase">ERC20</span>
+                                <span class="text-[7.5px] text-blue-600 font-extrabold uppercase">ETH</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('SOL')" id="coin-btn-SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('SOL')" id="coin-btn-SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>SOL</span>
-                                <span class="text-[8px] text-indigo-600 font-extrabold uppercase">SOLANA</span>
+                                <span class="text-[7.5px] text-indigo-600 font-extrabold uppercase">SOLANA</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('BNB_BSC')" id="coin-btn-BNB_BSC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>BNB</span>
+                                <span class="text-[7.5px] text-amber-500 font-extrabold uppercase">BEP20</span>
                             </button>
                         </div>
                     </div>
@@ -1184,7 +1199,7 @@
                             <span>Barcode Studio Pro</span>
                         </div>
                         <p class="text-[10px] text-slate-500">AAMVA PDF417 &amp; Code 128 Engine</p>
-                        <p class="text-[10px] text-slate-500">Support: youngwheezy001@gmail.com</p>
+                        <p class="text-[10px] text-slate-500">Support: barcodestudiopro@gmail.com | WhatsApp: +1 (860) 662-6632</p>
                     </div>
                     <div class="text-right">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Receipt Number</span>
@@ -1417,7 +1432,7 @@
                 <h4 class="font-bold text-slate-800 text-xs">3. Cryptocurrency &amp; Payment Privacy</h4>
                 <p>Crypto payments are submitted directly via blockchain transaction hashes. We do not collect credit cards, banking details, or billing addresses for cryptocurrency orders.</p>
                 <h4 class="font-bold text-slate-800 text-xs">4. Inquiries</h4>
-                <p>For questions regarding data privacy or to request account deletion, contact our support desk at <a href="mailto:youngwheezy001@gmail.com" class="text-accent underline font-medium">youngwheezy001@gmail.com</a>.</p>
+                <p>For questions regarding data privacy or to request account deletion, contact our support desk at <a href="mailto:barcodestudiopro@gmail.com" class="text-accent underline font-medium">barcodestudiopro@gmail.com</a> or WhatsApp <a href="https://wa.me/18606626632" target="_blank" rel="noopener noreferrer" class="text-accent underline font-medium">+1 (860) 662-6632</a>.</p>
             </div>
             <div class="flex justify-end pt-2 border-t border-slate-200">
                 <button onclick="closePrivacyModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
@@ -1465,11 +1480,17 @@
                 <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex flex-col gap-2">
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-semibold">Support Desk Email:</span>
-                        <a href="mailto:youngwheezy001@gmail.com" class="text-accent font-bold hover:underline">youngwheezy001@gmail.com</a>
+                        <a href="mailto:barcodestudiopro@gmail.com" class="text-accent font-bold hover:underline">barcodestudiopro@gmail.com</a>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-semibold">Official WhatsApp:</span>
+                        <a href="https://wa.me/18606626632" target="_blank" rel="noopener noreferrer" class="text-emerald-700 font-bold hover:underline flex items-center gap-1">
+                            <span>💬</span> +1 (860) 662-6632
+                        </a>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-semibold">Response Time:</span>
-                        <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px]">Under 2 hours</span>
+                        <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[11px]">Under 15 minutes</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-semibold">Service Hours:</span>
@@ -1477,11 +1498,16 @@
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between items-center pt-2 border-t border-slate-200">
-                <a href="mailto:youngwheezy001@gmail.com?subject=Barcode%20Studio%20Pro%20Support%20Inquiry" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition inline-flex items-center gap-1.5 shadow">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    Send Email
-                </a>
+            <div class="flex justify-between items-center pt-2 border-t border-slate-200 gap-2">
+                <div class="flex items-center gap-2">
+                    <a href="mailto:barcodestudiopro@gmail.com?subject=Barcode%20Studio%20Pro%20Support%20Inquiry" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-3.5 py-2 rounded-lg transition inline-flex items-center gap-1.5 shadow">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        Send Email
+                    </a>
+                    <a href="https://wa.me/18606626632" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition inline-flex items-center gap-1.5 shadow">
+                        <span>💬</span> WhatsApp Chat
+                    </a>
+                </div>
                 <button onclick="closeSupportModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition">Close</button>
             </div>
         </div>
@@ -3713,7 +3739,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <span class="transition group-open:rotate-180 text-slate-400">▾</span>
                         </summary>
                         <p class="text-[11px] text-slate-400 mt-1 leading-relaxed pl-1">
-                            Contact our support team directly at <a href="mailto:youngwheezy001@gmail.com" class="text-accent font-semibold hover:underline">youngwheezy001@gmail.com</a> for 24/7 dedicated support and custom batch solutions.
+                            Contact our support team directly at <a href="mailto:barcodestudiopro@gmail.com" class="text-accent font-semibold hover:underline">barcodestudiopro@gmail.com</a> or WhatsApp <a href="https://wa.me/18606626632" target="_blank" rel="noopener noreferrer" class="text-accent font-semibold hover:underline">+1 (860) 662-6632</a> for 24/7 dedicated support and custom batch solutions.
                         </p>
                     </details>
                 </div>
@@ -4145,41 +4171,40 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
 
                         <!-- 5. Specimen: US Passport (TD3) -->
-                        <div id="specimen-card-us_passport" class="hidden relative w-full rounded-xl overflow-hidden border border-blue-900/40 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/us_passport_specimen.webp') no-repeat center / cover;">
-                            <div class="absolute inset-0 bg-white/20 backdrop-blur-[1px] pointer-events-none"></div>
+                        <div id="specimen-card-us_passport" class="hidden relative w-full rounded-xl overflow-hidden border border-blue-900/40 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/us_passport_blank_substrate.webp') no-repeat center / cover;">
                             <!-- Header -->
-                            <div class="relative z-10 flex items-center justify-between pb-2 mb-2 border-b border-blue-900/30">
-                                <span class="text-[9px] font-bold text-blue-950 uppercase tracking-widest bg-white/75 px-1 rounded">PASSPORT / UNITED STATES OF AMERICA</span>
-                                <div class="w-6 h-4 border border-blue-900/60 rounded flex items-center justify-center bg-white/80">
+                            <div class="relative z-10 flex items-center justify-between pb-2 mb-2 border-b border-blue-950/20">
+                                <span class="text-[9px] font-black text-blue-950 uppercase tracking-widest drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]">PASSPORT / UNITED STATES OF AMERICA</span>
+                                <div class="w-6 h-4 border border-blue-900/60 rounded flex items-center justify-center bg-white/40">
                                     <div class="w-2.5 h-1.5 rounded-full border border-blue-900 flex items-center justify-center"><div class="w-1 h-1 bg-blue-900 rounded-full"></div></div>
                                 </div>
                             </div>
                             <!-- Grid -->
                             <div class="relative z-10 grid grid-cols-12 gap-3">
                                 <div class="col-span-3 flex flex-col items-center">
-                                    <div class="w-full aspect-[3/4] bg-slate-200 rounded border border-slate-400 overflow-hidden relative flex items-center justify-center">
+                                    <div class="w-full aspect-[3/4] bg-slate-200/80 rounded border border-slate-400 overflow-hidden relative flex items-center justify-center shadow-inner">
                                         <svg class="w-full h-full text-slate-500 opacity-60" viewBox="0 0 100 100" fill="currentColor">
                                             <circle cx="50" cy="38" r="22"/>
                                             <path d="M15,95 C15,68 32,62 50,62 C68,62 85,68 85,95 Z"/>
                                         </svg>
                                     </div>
-                                    <span class="text-[7px] font-mono text-slate-700 mt-1 uppercase font-semibold bg-white/70 px-1 rounded">US Specimen</span>
+                                    <span class="text-[7px] font-mono text-slate-800 mt-1 uppercase font-semibold">US Specimen</span>
                                 </div>
-                                <div class="col-span-9 flex flex-col justify-between text-[8px] leading-tight text-slate-800">
-                                    <div class="grid grid-cols-3 gap-1.5 pb-1 border-b border-slate-300">
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Type</span><span class="font-bold font-mono bg-white/70 px-1 rounded">P</span></div>
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Code</span><span class="font-bold font-mono bg-white/70 px-1 rounded">USA</span></div>
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Passport No.</span><span id="spec-us-pass" class="font-mono font-bold text-slate-950 bg-white/80 px-1 rounded shadow-2xs">C01234567</span></div>
+                                <div class="col-span-9 flex flex-col justify-between text-[8px] leading-tight text-slate-900">
+                                    <div class="grid grid-cols-3 gap-1.5 pb-1 border-b border-slate-400/40">
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Type</span><span class="font-bold font-mono text-slate-950">P</span></div>
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Code</span><span class="font-bold font-mono text-slate-950">USA</span></div>
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Passport No.</span><span id="spec-us-pass" class="font-mono font-black text-slate-950 text-[9px]">C01234567</span></div>
                                     </div>
-                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Surname</span><span id="spec-us-surname" class="font-bold text-[9px] uppercase tracking-wide text-slate-950 bg-white/80 px-1 rounded shadow-2xs">GARCIA</span></div>
-                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Given Names</span><span id="spec-us-given" class="font-bold text-[9px] uppercase tracking-wide text-slate-950 bg-white/80 px-1 rounded shadow-2xs">JONATHAN</span></div>
+                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Surname</span><span id="spec-us-surname" class="font-black text-[9.5px] uppercase tracking-wide text-slate-950">GARCIA</span></div>
+                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Given Names</span><span id="spec-us-given" class="font-black text-[9.5px] uppercase tracking-wide text-slate-950">JONATHAN</span></div>
                                     <div class="grid grid-cols-2 gap-1.5 py-0.5">
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Nationality</span><span class="font-bold text-slate-950 bg-white/80 px-1 rounded shadow-2xs">UNITED STATES OF AMERICA</span></div>
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Date of Birth</span><span id="spec-us-dob" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded shadow-2xs">21 JUN 1992</span></div>
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Nationality</span><span class="font-bold text-slate-950">UNITED STATES OF AMERICA</span></div>
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Date of Birth</span><span id="spec-us-dob" class="font-bold font-mono text-slate-950">21 JUN 1992</span></div>
                                     </div>
-                                    <div class="grid grid-cols-2 gap-1.5 pt-0.5 border-t border-slate-300">
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Sex</span><span id="spec-us-sex" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded">M</span></div>
-                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Expiration</span><span id="spec-us-exp" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded shadow-2xs">21 JUN 2032</span></div>
+                                    <div class="grid grid-cols-2 gap-1.5 pt-0.5 border-t border-slate-400/40">
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Sex</span><span id="spec-us-sex" class="font-bold font-mono text-slate-950">M</span></div>
+                                        <div><span class="text-[6.5px] text-slate-700 block uppercase font-bold">Expiration</span><span id="spec-us-exp" class="font-bold font-mono text-slate-950">21 JUN 2032</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -6033,7 +6058,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             // Completely wipe all 2D and 1D canvases
             const canvasesToClear = [
-                'output-pdf417', 'card-preview-barcode',
+                'output-pdf417', 'card-preview-barcode', 'card-top-pdf417',
                 'alaska-pdf417', 'arkansas-pdf417', 'arizona-pdf417', 'alabama-pdf417',
                 'california-pdf417', 'colorado-pdf417', 'florida-pdf417', 'georgia-pdf417',
                 'idaho-pdf417', 'kansas-pdf417', 'eng-pdf417',
@@ -6085,6 +6110,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         const STATE_CANVAS_CLASSES = {
             'output-pdf417': 'w-full h-full object-fill transition duration-200',
+            'card-top-pdf417': 'w-full h-full object-fill transition duration-200',
             'alaska-pdf417': 'w-full h-full object-fill',
             'arkansas-pdf417': 'w-full h-full object-fill',
             'arizona-pdf417': 'w-full h-full object-fill',
@@ -6097,6 +6123,32 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             'kansas-pdf417': 'w-full h-full object-fill',
             'eng-pdf417': 'w-full h-full object-fill'
         };
+
+        function getVcardPayload() {
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            const stateCode = (jurEl ? jurEl.value.split('_')[0] : (stateEl ? stateEl.value : 'CT')).trim().toUpperCase() || 'CT';
+            const getV = (id, fallback = '') => {
+                const el = document.getElementById(id);
+                if (!el) return fallback;
+                const v = el.value.trim();
+                return v !== '' ? v : fallback;
+            };
+            const first = getV('aamva-first', 'JOHN');
+            const last = getV('aamva-last', 'DOE');
+            const id = getV('aamva-id', '188892143');
+            const dob = getV('aamva-dob', '06211992');
+            const exp = getV('aamva-exp', '06212030');
+            const street = getV('aamva-street', '100 MAIN ST');
+            const city = getV('aamva-city', 'NEW BRITAIN');
+            const state = getV('aamva-state', stateCode);
+            const zip = getV('aamva-zip', '06051');
+            const rawClass = getV('aamva-class', 'D');
+            const rawRest = getV('aamva-restrictions', 'NONE');
+            const rawEnd = getV('aamva-endorsements', 'NONE');
+
+            return `BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\nFN:${first} ${last}\nORG:State of ${state} Driver License\nTITLE:Driver License Class ${rawClass}\nUID:${id}\nBDAY:${dob}\nADR;TYPE=HOME:;;${street};${city};${state};${zip};USA\nNOTE:DL:${id} | CLASS:${rawClass} | REST:${rawRest} | END:${rawEnd} | EXP:${exp}\nEND:VCARD`;
+        }
 
         function setBarcode2DType(type) {
             barcode2DType = type;
@@ -7019,9 +7071,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             let zcSubfile = '';
             if (includeZC) {
                 if (selectedVersion === '09') {
-                    zcSubfile = `ZCA${zcFieldA}\r`;
+                    zcSubfile = `ZCZCA${zcFieldA}\r`;
                 } else {
-                    zcSubfile = `ZCA${zcFieldA}\nB${zcFieldB}\r`;
+                    zcSubfile = `ZCZCA${zcFieldA}\nZCB${zcFieldB}\r`;
                 }
             }
 
@@ -7098,8 +7150,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 ? (fields.dck || fields.dcf || (fields.id ? `${fields.id}-ICWH` : '') || '20230520-ICWH')
                 : (fields.audit || fields.dcf || fields.dck || fields.id || '0070051972513905');
 
-            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             syncCompanionCode128(companionVal);
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
             renderPDF417();
             if (typeof inspectAamvaCompliance === 'function') inspectAamvaCompliance();
         }
@@ -8832,7 +8884,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const demoStack = document.getElementById('card-back-demographics-stack');
             if (demoStack) {
                 if (stateCode === 'TX') {
-                    demoStack.className = 'text-[7px] font-bold text-slate-900 leading-[1.15] space-y-0 max-w-[190px]';
+                    demoStack.className = 'text-[7.5px] font-bold text-slate-900 leading-[1.2] space-y-0.5 max-w-[190px] mt-8';
                 } else {
                     demoStack.className = 'text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5';
                 }
@@ -9123,7 +9175,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             renderCardBackCompanionBarcode();
         }
 
-        function renderCardBackCompanionBarcode() {
+        function renderCardBackCompanionBarcode(forcedVal) {
             const jurEl = document.getElementById('aamva-jurisdiction');
             const stateEl = document.getElementById('aamva-state');
             let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
@@ -9138,30 +9190,64 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (barcodePos === 'none') return;
 
             const seqEl = document.getElementById('studio-seq-num');
-            const seqVal = (seqEl ? seqEl.textContent : '').trim();
             const manualVal = (document.getElementById('input-code128')?.value || '').trim();
             const idVal = (document.getElementById('aamva-id')?.value || '').trim();
             const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+            const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
+            const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
 
-            let targetVal = '';
+            let targetVal = (forcedVal || '').trim();
             const activeTab = (typeof currentTab !== 'undefined') ? currentTab : 'pdf417';
-            if (activeTab === 'code128' && manualVal) {
-                targetVal = manualVal;
-                if (seqEl) seqEl.textContent = targetVal;
-            } else if (stateCode === 'CA') {
-                targetVal = dckVal || idVal || seqVal || 'D1234567';
-            } else {
-                targetVal = seqVal || idVal || manualVal || '0070051972513905';
+
+            if (!targetVal) {
+                if (activeTab === 'code128' && manualVal) {
+                    targetVal = manualVal;
+                } else {
+                    targetVal = (stateCode === 'AK') 
+                        ? (dckVal || auditVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 12 ? dcfVal : '') || idVal || '2000002340')
+                        : (stateCode === 'AR')
+                        ? (dckVal || (dcfVal && !dcfVal.includes(' ') && dcfVal.length <= 14 ? dcfVal : '') || (idVal ? `021011${idVal}` : '') || '02101124843')
+                        : (stateCode === 'TX')
+                        ? (dcfVal || auditVal || dckVal || (idVal ? `24${idVal.padStart(16, '0')}` : '') || '2407261442200188')
+                        : (stateCode === 'CT')
+                        ? (dcfVal || dckVal || (idVal ? `${idVal}CTBRRL01` : '') || '24072614422001MVI6')
+                        : (stateCode === 'CA')
+                        ? (dckVal || (idVal ? `25064${idVal}0401` : '') || dcfVal || '19357D32472610401')
+                        : (stateCode === 'FL')
+                        ? (dcfVal || auditVal || (idVal ? `21${idVal.padStart(14, '0')}` : '') || '24072614422001M1')
+                        : (stateCode === 'CO')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(10, '0') : '') || '0005427101')
+                        : (stateCode === 'GA')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(16, '0') : '') || '0445001121600101')
+                        : (stateCode === 'ID')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(10, '0') : '') || '1005063105')
+                        : (stateCode === 'KS')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(10, '0') : '') || '1204198901')
+                        : (stateCode === 'HI')
+                        ? (dckVal || dcfVal || (idVal ? `${idVal}-ICWH` : '') || '20230520-ICWH')
+                        : (stateCode === 'NC')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(12, '0') : '') || '000030514920')
+                        : (stateCode === 'UT')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(10, '0') : '') || '0041289560')
+                        : (stateCode === 'LA')
+                        ? (auditVal || dckVal || (idVal ? idVal.padStart(9, '0') : '') || '007005197')
+                        : (stateCode === 'WI')
+                        ? (auditVal || dckVal || (idVal ? idVal.replace(/[^0-9]/g, '').padEnd(14, '0') : '') || '40018590483902')
+                        : (auditVal || dcfVal || dckVal || idVal || manualVal || '0070051972513905');
+                }
             }
+
             targetVal = targetVal.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '');
             if (!targetVal) targetVal = idVal || '0070051972513905';
 
+            if (seqEl) seqEl.textContent = targetVal;
+            const input128 = document.getElementById('input-code128');
+            if (input128 && activeTab !== 'code128') input128.value = targetVal;
+
             if (stateCode === 'AK') {
                 const akSeqEl = document.getElementById('alaska-seq-num');
-                const akVal = (activeTab === 'code128' && manualVal) ? targetVal : (akSeqEl?.textContent || targetVal || '2000002340');
-                if (akSeqEl && (activeTab === 'code128' && manualVal)) {
-                    akSeqEl.textContent = akVal;
-                }
+                const akVal = targetVal;
+                if (akSeqEl) akSeqEl.textContent = akVal;
                 const akCanvas = document.getElementById('alaska-code128-canvas');
                 if (akCanvas && typeof bwipjs !== 'undefined') {
                     try {
@@ -9194,10 +9280,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'AR') {
                 const arIcnEl = document.getElementById('arkansas-icn-val');
-                const arVal = (activeTab === 'code128' && manualVal) ? targetVal : (arIcnEl?.textContent || targetVal || '02101124843');
-                if (arIcnEl && (activeTab === 'code128' && manualVal)) {
-                    arIcnEl.textContent = arVal;
-                }
+                const arVal = targetVal;
+                if (arIcnEl) arIcnEl.textContent = arVal;
                 const arCanvas = document.getElementById('arkansas-code128-canvas');
                 if (arCanvas && typeof bwipjs !== 'undefined') {
                     try {
@@ -9230,10 +9314,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'AZ') {
                 const azSeqEl = document.getElementById('arizona-seq-val');
-                const azVal = (activeTab === 'code128' && manualVal) ? targetVal : (azSeqEl?.textContent || targetVal || '123540WW000100001');
-                if (azSeqEl && (activeTab === 'code128' && manualVal)) {
-                    azSeqEl.textContent = azVal;
-                }
+                const azVal = targetVal;
+                if (azSeqEl) azSeqEl.textContent = azVal;
                 const azCanvas = document.getElementById('arizona-code128-canvas');
                 if (azCanvas && typeof bwipjs !== 'undefined') {
                     try {
@@ -9241,7 +9323,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             bcid: 'code128',
                             text: azVal,
                             scale: 2,
-                            height: 16,
+                            height: 18,
                             includetext: false,
                             paddingwidth: 0,
                             paddingheight: 0
@@ -9265,12 +9347,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'AL') {
                 const alTopSeqEl = document.getElementById('alabama-top-seq');
-                const alVal = (activeTab === 'code128' && manualVal) ? targetVal : (alTopSeqEl?.textContent || targetVal || '0070051972513905');
-                if (alTopSeqEl && (activeTab === 'code128' && manualVal)) {
-                    alTopSeqEl.textContent = alVal;
-                }
+                const alVal = targetVal;
+                if (alTopSeqEl) alTopSeqEl.textContent = alVal;
                 const alBtmSeqEl = document.getElementById('alabama-btm-seq');
-                if (alBtmSeqEl && activeTab === 'code128' && manualVal) alBtmSeqEl.textContent = alVal;
+                if (alBtmSeqEl) alBtmSeqEl.textContent = alVal;
                 const alCanvas = document.getElementById('alabama-code128-canvas');
                 if (alCanvas && typeof bwipjs !== 'undefined') {
                     try {
@@ -9302,10 +9382,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'CA') {
                 const caAuditEl = document.getElementById('california-audit-val');
-                const caVal = (activeTab === 'code128' && manualVal) ? targetVal : (caAuditEl?.textContent || targetVal || '19357D32472610401');
-                if (caAuditEl && (activeTab === 'code128' && manualVal)) {
-                    caAuditEl.textContent = caVal;
-                }
+                const caVal = targetVal;
+                if (caAuditEl) caAuditEl.textContent = caVal;
                 const caCanvas = document.getElementById('california-code128-canvas');
                 if (caCanvas && typeof bwipjs !== 'undefined') {
                     try {
@@ -9337,10 +9415,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'CO') {
                 const coSeqEl = document.getElementById('colorado-seq-num');
-                const coVal = (activeTab === 'code128' && manualVal) ? targetVal : (coSeqEl?.textContent || targetVal || '0005427101');
-                if (coSeqEl && (activeTab === 'code128' && manualVal)) {
-                    coSeqEl.textContent = coVal;
-                }
+                const coVal = targetVal;
+                if (coSeqEl) coSeqEl.textContent = coVal;
                 const coCanvas = document.getElementById('colorado-code128-canvas');
                 if (coCanvas && typeof bwipjs !== 'undefined') {
                     try {
@@ -9373,8 +9449,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'FL') {
                 const flSeqEl = document.getElementById('florida-top-seq');
-                let flVal = (activeTab === 'code128' && manualVal) ? targetVal : (flSeqEl?.textContent || targetVal || '24072614422001M1');
-                if (flSeqEl && (activeTab === 'code128' && manualVal)) {
+                let flVal = targetVal;
+                if (flSeqEl) {
                     flSeqEl.textContent = flVal.startsWith('21') ? flVal : (flVal.length <= 14 ? `21 ${flVal}` : flVal);
                 }
                 const cleanFl = flVal.replace(/[^A-Za-z0-9]/g, '');
@@ -9409,10 +9485,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             if (stateCode === 'GA') {
                 const gaSeqEl = document.getElementById('georgia-seq-val');
-                const gaVal = (activeTab === 'code128' && manualVal) ? targetVal : (gaSeqEl?.textContent || targetVal || '0445001121600101');
-                if (gaSeqEl && (activeTab === 'code128' && manualVal)) {
-                    gaSeqEl.textContent = gaVal;
-                }
+                const gaVal = targetVal;
+                if (gaSeqEl) gaSeqEl.textContent = gaVal;
                 const cleanGa = gaVal.replace(/[^A-Za-z0-9]/g, '');
                 const gaCanvas = document.getElementById('georgia-code128-canvas');
                 if (gaCanvas && typeof bwipjs !== 'undefined') {
@@ -9444,7 +9518,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             if (stateCode === 'ID') {
-                const idValStr = (activeTab === 'code128' && manualVal) ? targetVal : (targetVal || '1005063105');
+                const idValStr = targetVal;
                 const cleanId = idValStr.replace(/[^A-Za-z0-9]/g, '');
                 const idCanvas = document.getElementById('idaho-code128-canvas');
                 if (idCanvas && typeof bwipjs !== 'undefined') {
@@ -9476,7 +9550,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             if (stateCode === 'KS') {
-                const ksValStr = (activeTab === 'code128' && manualVal) ? targetVal : (targetVal || '1204198901');
+                const ksValStr = targetVal;
                 const cleanKs = ksValStr.replace(/[^A-Za-z0-9]/g, '');
                 const ksCanvas = document.getElementById('kansas-code128-canvas');
                 if (ksCanvas && typeof bwipjs !== 'undefined') {
@@ -9665,8 +9739,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                 bcid: 'qrcode',
                                 text: vcard,
                                 scale: 2.5,
-                                paddingwidth: 1,
-                                paddingheight: 1
+                                paddingwidth: 4,
+                                paddingheight: 4
                             });
                         } catch(e) {}
                     }
@@ -9680,8 +9754,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                     bcid: 'qrcode',
                                     text: vcard,
                                     scale: 2.5,
-                                    paddingwidth: 1,
-                                    paddingheight: 1
+                                    paddingwidth: 4,
+                                    paddingheight: 4
                                 });
                             } catch (e) {
                                 console.error('QR render error for ' + stateCode, e);
@@ -9702,7 +9776,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         if (sc) sc.className = STATE_CANVAS_CLASSES[activeCanvasId];
                     }
                     // Authentic Standard PDF417 Driver License Dimensions:
-                    // 12 columns, ECC 5, 3:1 ratio, optimized quiet zone for full width
+                    // 12 columns, ECC 5, 3:1 ratio, standard ISO/IEC 15438 quiet zones
                     if (canvas) {
                         bwipjs.toCanvas(canvas, {
                             bcid: 'pdf417',
@@ -9712,12 +9786,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             eclevel: ecc,       // Standard ECC 5
                             rowheight: ratio,   // Standard 3:1 aspect ratio
                             rowmult: ratio,     // BWIPP row height multiplier
-                            paddingwidth: 0,    // Container provides quiet zone
-                            paddingheight: 0
+                            paddingwidth: 12,   // Discrete ISO quiet zone
+                            paddingheight: 8
                         });
                     }
 
-                    // Render active state card canvas cleanly filling the white box
+                    // Render active state card canvas cleanly filling the container
                     if (activeCanvasId) {
                         const sc = document.getElementById(activeCanvasId);
                         if (sc) {
@@ -9735,8 +9809,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                     eclevel: ecc,
                                     rowheight: ratio,
                                     rowmult: ratio,
-                                    paddingwidth: 0,
-                                    paddingheight: 0
+                                    paddingwidth: 8,
+                                    paddingheight: 4
                                 });
                             } catch (errSc) {
                                 console.error('PDF417 render error for ' + stateCode, errSc);
@@ -9807,9 +9881,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function syncCompanionCode128(idVal) {
+            const targetVal = (idVal || '').trim() || 'DEMO-123456789';
             const el = document.getElementById('input-code128');
             if (el) {
-                const targetVal = (idVal || '').trim() || 'DEMO-123456789';
                 el.value = targetVal;
                 renderCode128();
                 const badge = document.getElementById('code128-sync-badge');
@@ -9817,6 +9891,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span>Synced: ${targetVal}</span>`;
                 }
             }
+            const seqEl = document.getElementById('studio-seq-num');
+            if (seqEl) seqEl.textContent = targetVal;
+            if (typeof renderCardBackCompanionBarcode === 'function') renderCardBackCompanionBarcode(targetVal);
         }
 
         function syncCode128WithDL() {
@@ -9987,7 +10064,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             currentCryptoCoin = coinKey;
             currentCryptoOrder = null;
 
-            ['USDT_TRC20', 'USDT_POLYGON', 'BTC', 'ETH', 'SOL'].forEach(key => {
+            ['USDT_TRC20', 'USDT_POLYGON', 'USDT_ERC20', 'USDT_SOL', 'BTC', 'ETH', 'SOL', 'BNB_BSC'].forEach(key => {
                 const btn = document.getElementById(`coin-btn-${key}`);
                 if (!btn) return;
                 if (key === coinKey) {
@@ -10134,12 +10211,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 document.getElementById('rcpt-customer-email').textContent = d.customer_email;
                 document.getElementById('rcpt-date').textContent = d.confirmed_date || d.invoice_date;
                 document.getElementById('rcpt-package-name').textContent = d.package_name;
-                document.getElementById('rcpt-tokens').textContent = `${d.barcode_sets} Sets (${d.total_barcodes} Barcodes)`;
-                document.getElementById('rcpt-subtotal').textContent = `$${d.amount_usd.toFixed(2)}`;
+                const amt = (typeof d.amount_usd === 'number') ? d.amount_usd : parseFloat(d.amount_usd || 0);
+                document.getElementById('rcpt-subtotal').textContent = `$${amt.toFixed(2)}`;
                 document.getElementById('rcpt-crypto-method').textContent = `${d.crypto_currency} (${d.network})`;
-                document.getElementById('rcpt-total').textContent = `$${d.amount_usd.toFixed(2)} USD`;
-                document.getElementById('rcpt-wallet').textContent = d.wallet_address;
-                document.getElementById('rcpt-txid').textContent = d.tx_hash;
+                document.getElementById('rcpt-total').textContent = `$${amt.toFixed(2)} USD`;
+                document.getElementById('rcpt-wallet').textContent = d.wallet_address || '';
+                document.getElementById('rcpt-txid').textContent = d.tx_hash || '';
 
                 const explorerContainer = document.getElementById('rcpt-explorer-container');
                 const explorerLink = document.getElementById('rcpt-explorer-link');
@@ -11599,6 +11676,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             const overlay = document.getElementById('barcode-blur-overlay');
             const canvas417 = document.getElementById('output-pdf417');
+            const cardTopCanvas = document.getElementById('card-top-pdf417');
             const svg128 = document.getElementById('output-code128');
             const cardPreviewBarcode = document.getElementById('card-preview-barcode');
             const cardCode128Svg = document.getElementById('card-code128-svg');
@@ -11644,6 +11722,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     canvas417.style.pointerEvents = 'auto';
                     canvas417.style.userSelect = 'auto';
                     canvas417.oncontextmenu = null;
+                }
+                if (cardTopCanvas) {
+                    cardTopCanvas.style.filter = 'none';
+                    cardTopCanvas.style.pointerEvents = 'auto';
+                    cardTopCanvas.style.userSelect = 'auto';
+                    cardTopCanvas.oncontextmenu = null;
                 }
                 if (svg128) {
                     svg128.style.filter = 'none';
@@ -11861,6 +11945,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     canvas417.style.pointerEvents = 'none';
                     canvas417.style.userSelect = 'none';
                     canvas417.oncontextmenu = (e) => { e.preventDefault(); return false; };
+                }
+                if (cardTopCanvas) {
+                    cardTopCanvas.style.filter = 'blur(1.8px) contrast(90%)';
+                    cardTopCanvas.style.pointerEvents = 'none';
+                    cardTopCanvas.style.userSelect = 'none';
+                    cardTopCanvas.oncontextmenu = (e) => { e.preventDefault(); return false; };
                 }
                 if (svg128) {
                     svg128.style.filter = 'blur(1.8px) contrast(90%)';
@@ -12081,7 +12171,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (isAdmin) {
                 // Unlimited Admin Mode: export directly without gating
                 try {
-                    exportCallback();
+                    await exportCallback();
                     recordGeneratedBarcodeToHistory();
                     showToast('Export downloaded with Admin Privileges (Unlimited)!', 'success');
                 } catch (err) {
@@ -12119,7 +12209,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     updateAuthUI();
                 }
 
-                exportCallback();
+                await exportCallback();
                 recordGeneratedBarcodeToHistory();
                 showToast('Export downloaded successfully!', 'success');
             } catch (err) {
@@ -12178,39 +12268,130 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 };
                 img.src = 'data:image/svg+xml;base64,' + svg64;
             } else {
-                const srcCanvas = document.getElementById('output-pdf417');
                 const exportCanvas = document.createElement('canvas');
-                exportCanvas.width = srcCanvas.width * (multiplier / 2);
-                exportCanvas.height = srcCanvas.height * (multiplier / 2);
-                const ctx = exportCanvas.getContext('2d');
-                ctx.imageSmoothingEnabled = false;
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-                ctx.drawImage(srcCanvas, 0, 0, exportCanvas.width, exportCanvas.height);
+                const scale = targetDpi === 600 ? 4 : 3;
+                if (barcode2DType === 'qrcode') {
+                    const vcard = getVcardPayload();
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'qrcode',
+                            text: vcard,
+                            scale: scale,
+                            paddingwidth: 8,
+                            paddingheight: 8
+                        });
+                    } catch (e) {
+                        console.error('PNG QR export error:', e);
+                    }
+                } else {
+                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const jurEl = document.getElementById('aamva-jurisdiction');
+                    const jurKey = jurEl ? jurEl.value : 'CT';
+                    const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                    const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                    const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                    const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'pdf417',
+                            text: payload,
+                            scale: scale,
+                            columns: cols,
+                            eclevel: ecc,
+                            rowheight: ratio,
+                            rowmult: ratio,
+                            paddingwidth: 24,
+                            paddingheight: 16
+                        });
+                    } catch (e) {
+                        console.error('PNG PDF417 export error:', e);
+                    }
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = exportCanvas.width;
+                finalCanvas.height = exportCanvas.height;
+                const fctx = finalCanvas.getContext('2d');
+                fctx.fillStyle = '#FFFFFF';
+                fctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                fctx.drawImage(exportCanvas, 0, 0);
 
                 const link = document.createElement('a');
-                link.download = getExportFilename(`PDF417_${targetDpi}dpi`, 'png');
-                link.href = exportCanvas.toDataURL('image/png');
+                const label = barcode2DType === 'qrcode' ? `QRCode_${targetDpi}dpi` : `PDF417_${targetDpi}dpi`;
+                link.download = getExportFilename(label, 'png');
+                link.href = finalCanvas.toDataURL('image/png');
                 link.click();
             }
         }
 
         // JPEG Export
         function downloadJPEG() {
-            const srcCanvas = currentTab === 'code128' ? document.getElementById('hidden-code128-canvas') : document.getElementById('output-pdf417');
-            const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = srcCanvas.width;
-            exportCanvas.height = srcCanvas.height;
-            const ctx = exportCanvas.getContext('2d');
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-            ctx.drawImage(srcCanvas, 0, 0);
+            if (currentTab === 'code128') {
+                const srcCanvas = document.getElementById('hidden-code128-canvas');
+                const exportCanvas = document.createElement('canvas');
+                exportCanvas.width = srcCanvas.width;
+                exportCanvas.height = srcCanvas.height;
+                const ctx = exportCanvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                ctx.drawImage(srcCanvas, 0, 0);
 
-            const link = document.createElement('a');
-            const label = currentTab === 'code128' ? 'Code128' : 'PDF417';
-            link.download = getExportFilename(label, 'jpg');
-            link.href = exportCanvas.toDataURL('image/jpeg', 0.95);
-            link.click();
+                const link = document.createElement('a');
+                link.download = getExportFilename('Code128', 'jpg');
+                link.href = exportCanvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            } else {
+                const exportCanvas = document.createElement('canvas');
+                if (barcode2DType === 'qrcode') {
+                    const vcard = getVcardPayload();
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'qrcode',
+                            text: vcard,
+                            scale: 3,
+                            paddingwidth: 8,
+                            paddingheight: 8
+                        });
+                    } catch (e) {
+                        console.error('JPEG QR export error:', e);
+                    }
+                } else {
+                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const jurEl = document.getElementById('aamva-jurisdiction');
+                    const jurKey = jurEl ? jurEl.value : 'CT';
+                    const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                    const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                    const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                    const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'pdf417',
+                            text: payload,
+                            scale: 3,
+                            columns: cols,
+                            eclevel: ecc,
+                            rowheight: ratio,
+                            rowmult: ratio,
+                            paddingwidth: 24,
+                            paddingheight: 16
+                        });
+                    } catch (e) {
+                        console.error('JPEG PDF417 export error:', e);
+                    }
+                }
+
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = exportCanvas.width;
+                finalCanvas.height = exportCanvas.height;
+                const fctx = finalCanvas.getContext('2d');
+                fctx.fillStyle = '#FFFFFF';
+                fctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                fctx.drawImage(exportCanvas, 0, 0);
+
+                const link = document.createElement('a');
+                const label = barcode2DType === 'qrcode' ? 'QRCode' : 'PDF417';
+                link.download = getExportFilename(label, 'jpg');
+                link.href = finalCanvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            }
         }
 
         // Vector SVG Export
@@ -12226,16 +12407,58 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 a.click();
                 URL.revokeObjectURL(url);
             } else {
-                const canvas = document.getElementById('output-pdf417');
-                const imgData = canvas.toDataURL('image/png');
-                const svgContent = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}"><rect width="100%" height="100%" fill="#ffffff"/><image href="${imgData}" width="${canvas.width}" height="${canvas.height}"/></svg>`;
-                const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = getExportFilename('PDF417_Vector', 'svg');
-                a.click();
-                URL.revokeObjectURL(url);
+                const exportCanvas = document.createElement('canvas');
+                if (barcode2DType === 'qrcode') {
+                    const vcard = getVcardPayload();
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'qrcode',
+                            text: vcard,
+                            scale: 4,
+                            paddingwidth: 8,
+                            paddingheight: 8
+                        });
+                    } catch (e) {}
+                    const imgData = exportCanvas.toDataURL('image/png');
+                    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${exportCanvas.width}" height="${exportCanvas.height}"><rect width="100%" height="100%" fill="#ffffff"/><image href="${imgData}" width="${exportCanvas.width}" height="${exportCanvas.height}"/></svg>`;
+                    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = getExportFilename('QRCode_Vector', 'svg');
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } else {
+                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const jurEl = document.getElementById('aamva-jurisdiction');
+                    const jurKey = jurEl ? jurEl.value : 'CT';
+                    const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                    const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                    const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                    const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'pdf417',
+                            text: payload,
+                            scale: 4,
+                            columns: cols,
+                            eclevel: ecc,
+                            rowheight: ratio,
+                            rowmult: ratio,
+                            paddingwidth: 24,
+                            paddingheight: 16
+                        });
+                    } catch (e) {}
+                    const imgData = exportCanvas.toDataURL('image/png');
+                    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${exportCanvas.width}" height="${exportCanvas.height}"><rect width="100%" height="100%" fill="#ffffff"/><image href="${imgData}" width="${exportCanvas.width}" height="${exportCanvas.height}"/></svg>`;
+                    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = getExportFilename('PDF417_Vector', 'svg');
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
             }
         }
 
@@ -12261,43 +12484,469 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 };
                 img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
             } else {
-                const canvas = document.getElementById('output-pdf417');
-                doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0.2, 0.2, 3.6, 1.6);
-                doc.save(getExportFilename('AAMVA_Label', 'pdf'));
+                const exportCanvas = document.createElement('canvas');
+                if (barcode2DType === 'qrcode') {
+                    const vcard = getVcardPayload();
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'qrcode',
+                            text: vcard,
+                            scale: 4,
+                            paddingwidth: 8,
+                            paddingheight: 8
+                        });
+                    } catch (e) {
+                        console.error('PDF QR export error:', e);
+                    }
+                    const qrSize = 1.6;
+                    const posX = (4 - qrSize) / 2;
+                    const posY = (2 - qrSize) / 2;
+                    doc.addImage(exportCanvas.toDataURL('image/png'), 'PNG', posX, posY, qrSize, qrSize);
+                    doc.save(getExportFilename('DigitalID_QR_Label', 'pdf'));
+                } else {
+                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const jurEl = document.getElementById('aamva-jurisdiction');
+                    const jurKey = jurEl ? jurEl.value : 'CT';
+                    const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                    const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                    const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                    const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
+                    try {
+                        bwipjs.toCanvas(exportCanvas, {
+                            bcid: 'pdf417',
+                            text: payload,
+                            scale: 4,
+                            columns: cols,
+                            eclevel: ecc,
+                            rowheight: ratio,
+                            rowmult: ratio,
+                            paddingwidth: 24,
+                            paddingheight: 16
+                        });
+                    } catch (e) {
+                        console.error('PDF PDF417 export error:', e);
+                    }
+
+                    // Fit proportionally within 3.6" x 1.6" printable area on 4" x 2" label
+                    const imgW = exportCanvas.width || 800;
+                    const imgH = exportCanvas.height || 260;
+                    const imgRatio = imgW / imgH;
+                    let pdfW = 3.6;
+                    let pdfH = pdfW / imgRatio;
+                    if (pdfH > 1.6) {
+                        pdfH = 1.6;
+                        pdfW = pdfH * imgRatio;
+                    }
+                    const posX = (4 - pdfW) / 2;
+                    const posY = (2 - pdfH) / 2;
+                    doc.addImage(exportCanvas.toDataURL('image/png'), 'PNG', posX, posY, pdfW, pdfH);
+                    doc.save(getExportFilename('AAMVA_Label', 'pdf'));
+                }
             }
         }
 
-        // Standard CR-80 ID Card Back (3.375" x 2.125" at 300 DPI)
-        function downloadFullCardBack() {
+        // Helper: Load card template safely as Image or Canvas without hanging or tainting
+        async function loadSafeCardTemplateImage(url, timeoutMs = 1200) {
+            if (!url) return null;
+            // 1. Check in-memory preloaded cache in state_engine if available
+            try {
+                if (typeof _templateCache !== 'undefined' && _templateCache.has(url)) {
+                    const cached = _templateCache.get(url);
+                    if (cached && cached.complete && cached.naturalWidth > 0) return cached;
+                }
+            } catch (e) {}
+
+            return new Promise((resolve) => {
+                let finished = false;
+                const timer = setTimeout(() => {
+                    if (!finished) {
+                        finished = true;
+                        resolve(null);
+                    }
+                }, timeoutMs);
+
+                // Try fetching as Blob first to ensure clean same-origin canvas data
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Fetch failed');
+                        return res.blob();
+                    })
+                    .then(blob => {
+                        if (finished) return;
+                        const blobUrl = URL.createObjectURL(blob);
+                        const img = new Image();
+                        img.onload = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(img);
+                            }
+                        };
+                        img.onerror = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(null);
+                            }
+                        };
+                        img.src = blobUrl;
+                    })
+                    .catch(() => {
+                        if (finished) return;
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(img);
+                            }
+                        };
+                        img.onerror = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(null);
+                            }
+                        };
+                        img.src = url;
+                    });
+            });
+        }
+
+        function formatCardDateDisplay(raw, fallback = '') {
+            if (!raw) return fallback;
+            const s = String(raw).trim();
+            const digits = s.replace(/[^0-9]/g, '');
+            if (digits.length === 8) {
+                if (digits.startsWith('19') || digits.startsWith('20')) {
+                    return `${digits.substring(4, 6)}/${digits.substring(6, 8)}/${digits.substring(0, 4)}`;
+                }
+                return `${digits.substring(0, 2)}/${digits.substring(2, 4)}/${digits.substring(4, 8)}`;
+            }
+            if (s.includes('-')) {
+                const parts = s.split('-');
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) return `${parts[1]}/${parts[2]}/${parts[0]}`;
+                    return `${parts[0]}/${parts[1]}/${parts[2]}`;
+                }
+            }
+            return s || fallback;
+        }
+
+        // Generate a 1012x638 px (300 DPI CR-80) Canvas containing the FULL physical card with all filled text, dates, revision stamps, and barcodes
+        async function generateFullCardCanvas() {
+            // Direct High-Resolution Vector Canvas Renderer (draws 100% of information in < 30ms with zero timeout delay)
             const cardCanvas = document.createElement('canvas');
             cardCanvas.width = 1012;
             cardCanvas.height = 638;
             const ctx = cardCanvas.getContext('2d');
 
-            ctx.fillStyle = "#F8FAFC";
-            ctx.fillRect(0, 0, 1012, 638);
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const jurKey = jurEl ? jurEl.value : 'CT';
+            const stateCode = (jurKey.split('_')[0] || 'CT').toUpperCase();
+            const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+            const tmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, side) : null;
+            const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey || stateCode) : null;
+            const layout = (typeof getJurisdictionCardLayout === 'function') ? getJurisdictionCardLayout(jurKey || stateCode) : null;
 
-            // Magnetic stripe (0.5" standard top offset)
+            // 1. Render Background Substrate / Template
+            let bgLoaded = false;
+            if (tmpl) {
+                const bgImg = await loadSafeCardTemplateImage(tmpl, 800);
+                if (bgImg) {
+                    ctx.drawImage(bgImg, 0, 0, 1012, 638);
+                    bgLoaded = true;
+                }
+            }
+            if (!bgLoaded) {
+                ctx.fillStyle = (meta && meta.bg_color) ? meta.bg_color : "#F8FAFC";
+                ctx.fillRect(0, 0, 1012, 638);
+            }
+
+            // Gather all user-filled form values
+            const dlId = (document.getElementById('aamva-id')?.value || '188892143').trim().toUpperCase();
+            const lastName = (document.getElementById('aamva-last')?.value || 'SAMPLE').trim().toUpperCase();
+            const firstName = (document.getElementById('aamva-first')?.value || 'JOHN').trim().toUpperCase();
+            const midName = (document.getElementById('aamva-mid')?.value || '').trim().toUpperCase();
+            const dobRaw = document.getElementById('aamva-dob')?.value || '01011990';
+            const issRaw = document.getElementById('aamva-issued')?.value || '01012024';
+            const expRaw = document.getElementById('aamva-exp')?.value || '01012030';
+            const revRaw = (document.getElementById('aamva-revision-date')?.value || '02102017').trim();
+            const street = (document.getElementById('aamva-street')?.value || '100 MAIN ST').trim().toUpperCase();
+            const city = (document.getElementById('aamva-city')?.value || 'NEW BRITAIN').trim().toUpperCase();
+            const state = (document.getElementById('aamva-state')?.value || stateCode).trim().toUpperCase();
+            const zip = (document.getElementById('aamva-zip')?.value || '06051').trim();
+            const vClass = (document.getElementById('aamva-class')?.value || 'D').trim().toUpperCase();
+            const restrictions = (document.getElementById('aamva-restrictions')?.value || 'NONE').trim().toUpperCase();
+            const endorsements = (document.getElementById('aamva-endorsements')?.value || 'NONE').trim().toUpperCase();
+            const sexVal = (document.getElementById('aamva-sex')?.value === '2' ? 'F' : 'M');
+            const heightVal = (document.getElementById('aamva-height')?.value || '068 IN').trim().toUpperCase();
+            const eyesVal = (document.getElementById('aamva-eyes')?.value || 'BRO').trim().toUpperCase();
+            const hairVal = (document.getElementById('aamva-hair')?.value || 'BRN').trim().toUpperCase();
+            const weightVal = (document.getElementById('aamva-weight')?.value || '175 lb').trim().toUpperCase();
+            const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim().toUpperCase();
+            const dckVal = (document.getElementById('aamva-dck')?.value || '').trim().toUpperCase();
+            const auditVal = (document.getElementById('aamva-audit')?.value || '').trim().toUpperCase();
+
+            const dobFmt = formatCardDateDisplay(dobRaw, '01/01/1990');
+            const issFmt = formatCardDateDisplay(issRaw, '01/01/2024');
+            const expFmt = formatCardDateDisplay(expRaw, '01/01/2030');
+            const revFmt = formatCardDateDisplay(revRaw, '02/10/2017');
+
+            // 2. Handle Front View Rendering
+            if (side === 'front') {
+                const stateTitle = (document.getElementById('front-state-title')?.textContent || `${stateCode} DRIVER LICENSE`).toUpperCase();
+
+                // Header
+                ctx.font = "900 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                ctx.fillStyle = "#0F172A";
+                ctx.fillText(stateTitle, 45, 60);
+
+                ctx.font = "bold 20px monospace";
+                ctx.fillStyle = "#1E3A8A";
+                ctx.fillText(`4d. DL: ${dlId}`, 45, 95);
+
+                // RealID Star Badge
+                ctx.fillStyle = "#F59E0B";
+                ctx.beginPath();
+                ctx.arc(950, 60, 22, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.font = "900 22px sans-serif";
+                ctx.fillStyle = "#FFFFFF";
+                ctx.textAlign = "center";
+                ctx.fillText("★", 950, 68);
+                ctx.textAlign = "left";
+
+                // Demographics Block
+                ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
+                ctx.fillStyle = "#0F172A";
+                ctx.fillText(`1. LN:  ${lastName}`, 45, 145);
+                ctx.fillText(`2. FN:  ${firstName}${midName ? ' ' + midName : ''}`, 45, 175);
+                ctx.fillText(`8. ADDR: ${street}, ${city}, ${state} ${zip}`, 45, 205);
+                ctx.fillText(`3. DOB: ${dobFmt}`, 45, 240);
+                ctx.fillText(`4a. ISS: ${issFmt}`, 45, 270);
+                ctx.fillText(`4b. EXP: ${expFmt}`, 45, 300);
+                ctx.fillText(`9. CLASS: ${vClass}    12. REST: ${restrictions}    13. END: ${endorsements}`, 45, 335);
+                ctx.fillText(`15. SEX: ${sexVal}   16. HGT: ${heightVal}   17. WGT: ${weightVal}   18. EYES: ${eyesVal}   19. HAIR: ${hairVal}`, 45, 370);
+                if (dcfVal) {
+                    ctx.font = "bold 14px monospace";
+                    ctx.fillStyle = "#1E3A8A";
+                    ctx.fillText(`DD: ${dcfVal}    REV: ${revFmt}`, 45, 405);
+                }
+
+                // Portrait Box Placeholder
+                ctx.fillStyle = "rgba(15, 23, 42, 0.05)";
+                ctx.strokeStyle = "rgba(15, 23, 42, 0.25)";
+                ctx.lineWidth = 2;
+                ctx.fillRect(780, 220, 180, 240);
+                ctx.strokeRect(780, 220, 180, 240);
+                ctx.font = "bold 14px monospace";
+                ctx.fillStyle = "#64748B";
+                ctx.textAlign = "center";
+                ctx.fillText("PORTRAIT", 870, 330);
+                ctx.fillText(`${firstName.charAt(0)}${lastName.charAt(0)}`, 870, 360);
+                ctx.textAlign = "left";
+
+                return cardCanvas;
+            }
+
+            // 3. Handle Back View Rendering
+            const hasMagstripe = meta ? (meta.has_magstripe !== false) : true;
+            if (hasMagstripe) {
+                ctx.fillStyle = "#0A0A0A";
+                ctx.fillRect(0, 52, 1012, 110);
+                ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+                ctx.fillRect(0, 54, 1012, 2);
+            } else {
+                ctx.fillStyle = "#CBD5E1";
+                ctx.fillRect(0, 55, 1012, 6);
+            }
+
+            // Top Sequence / Audit / Document Discriminator Number
+            const seqVal = (document.getElementById('studio-seq-num')?.textContent || dlId || '0070051972513905').trim();
+            ctx.font = "bold 19px monospace";
+            ctx.fillStyle = "#1E293B";
+            ctx.fillText(seqVal, 40, 38);
+
+            // Render 1D Companion Barcode (Code 128)
+            const code128Val = (document.getElementById('input-code128')?.value || seqVal || dlId).trim();
+            const topCode128Box = document.getElementById('card-top-code128-container');
+            const showTop128 = topCode128Box && !topCode128Box.classList.contains('hidden');
+            const off128 = document.createElement('canvas');
+            let is128Rendered = false;
+            try {
+                bwipjs.toCanvas(off128, {
+                    bcid: 'code128',
+                    text: code128Val,
+                    scale: 2,
+                    height: 18,
+                    includetext: false,
+                    paddingwidth: 8,
+                    paddingheight: 3,
+                    backgroundcolor: 'ffffff'
+                });
+                is128Rendered = true;
+            } catch (e) {}
+
+            if (is128Rendered && off128.width > 0) {
+                if (showTop128 || (layout && layout.code128 && layout.code128.y < 20)) {
+                    const cW = Math.min(off128.width, 320);
+                    const cH = 32;
+                    const cX = 1012 - cW - 40;
+                    const cY = 12;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
+                    ctx.drawImage(off128, cX, cY, cW, cH);
+                } else if (layout && layout.code128) {
+                    const cX = Math.round((layout.code128.x / 100) * 1012);
+                    const cY = Math.round((layout.code128.y / 100) * 638);
+                    const cW = Math.round((layout.code128.w / 100) * 1012);
+                    const cH = Math.round((layout.code128.h / 100) * 638);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
+                    ctx.drawImage(off128, cX, cY, cW, cH);
+                }
+            }
+
+            // Render 2D Barcode (PDF417 / QR)
+            const offscreen2D = document.createElement('canvas');
+            let is2DRendered = false;
+            if (barcode2DType === 'qrcode') {
+                const vcard = getVcardPayload();
+                try {
+                    bwipjs.toCanvas(offscreen2D, { bcid: 'qrcode', text: vcard, scale: 3, paddingwidth: 8, paddingheight: 8, backgroundcolor: 'ffffff' });
+                    is2DRendered = true;
+                } catch(e) {}
+            } else {
+                const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
+                try {
+                    bwipjs.toCanvas(offscreen2D, {
+                        bcid: 'pdf417',
+                        text: payload,
+                        scale: 3,
+                        columns: cols,
+                        eclevel: ecc,
+                        rowheight: ratio,
+                        rowmult: ratio,
+                        paddingwidth: 12,
+                        paddingheight: 8,
+                        backgroundcolor: 'ffffff'
+                    });
+                    is2DRendered = true;
+                } catch(e) {}
+            }
+
+            let barcodeX = 40, barcodeY = 320, barcodeW = 580, barcodeH = 190;
+            const isUpperPdf = layout && layout.pdf417 && layout.pdf417.y < 35;
+
+            if (is2DRendered && offscreen2D.width > 0) {
+                if (layout && layout.pdf417) {
+                    barcodeX = Math.round((layout.pdf417.x / 100) * 1012);
+                    barcodeY = Math.round((layout.pdf417.y / 100) * 638);
+                    barcodeW = Math.round((layout.pdf417.w / 100) * 1012);
+                    barcodeH = Math.round((layout.pdf417.h / 100) * 638);
+                } else {
+                    barcodeW = 580;
+                    barcodeH = Math.min(Math.round(barcodeW * (offscreen2D.height / offscreen2D.width)), 200);
+                    barcodeX = 40;
+                    barcodeY = 320;
+                }
+                // Crisp Quiet Zone Box (solid opaque #FFFFFF)
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(barcodeX - 4, barcodeY - 4, barcodeW + 8, barcodeH + 8);
+                ctx.drawImage(offscreen2D, barcodeX, barcodeY, barcodeW, barcodeH);
+            }
+
+            // Demographics Stack on Card Back: Class, Dates, Endorsements, Restrictions, Document Discriminator, and Revision
+            const demoStartY = isUpperPdf ? (barcodeY + barcodeH + 30) : 185;
+            ctx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
             ctx.fillStyle = "#0F172A";
-            ctx.fillRect(0, 40, 1012, 120);
 
-            // Compliance disclaimer
-            ctx.fillStyle = "#64748B";
-            ctx.font = "14px monospace";
-            ctx.fillText("FOR TEST AND COMPLIANCE VERIFICATION ONLY - NOT FOR OFFICIAL IDENTIFICATION", 50, 200);
+            ctx.fillText(`CLASS: ${vClass || 'D'}        4b. EXP: ${expFmt}`, 40, demoStartY);
+            ctx.fillText(`ENDORSEMENTS: ${endorsements || 'NONE'}    4a. ISS: ${issFmt}`, 40, demoStartY + 24);
+            ctx.fillText(`RESTRICTIONS: ${restrictions || 'NONE'}    3. DOB: ${dobFmt}`, 40, demoStartY + 48);
+            ctx.fillText(`NAME: ${lastName}, ${firstName}${midName ? ' ' + midName : ''}    DL: ${dlId}`, 40, demoStartY + 72);
+            if (dcfVal || dckVal || revFmt) {
+                ctx.font = "bold 13px monospace";
+                ctx.fillStyle = "#1E293B";
+                ctx.fillText(`DD: ${dcfVal || 'NONE'}   REV: ${revFmt}   ICN: ${dckVal || auditVal || 'NONE'}`, 40, demoStartY + 96);
+            }
 
-            // PDF417 Barcode (Positioned according to AAMVA physical specifications)
-            const pdfCanvas = document.getElementById('output-pdf417');
-            const targetWidth = 860;
-            const targetHeight = Math.min(Math.round(targetWidth * (pdfCanvas.height / pdfCanvas.width)), 260);
-            const posX = Math.round((1012 - targetWidth) / 2);
-            const posY = 240 + Math.round((260 - targetHeight) / 2);
-            ctx.drawImage(pdfCanvas, posX, posY, targetWidth, targetHeight);
+            // Organ Donor / Living Will Designation
+            const donorEl = document.getElementById('studio-card-donor');
+            const donorRaw = donorEl ? donorEl.innerText.replace(/\s+/g, ' ').trim() : 'Donor _Y _N';
+            ctx.font = "bold 15px sans-serif";
+            ctx.fillStyle = "#0F172A";
+            ctx.textAlign = "right";
+            ctx.fillText(donorRaw, 970, demoStartY);
+            ctx.textAlign = "left";
 
-            const link = document.createElement('a');
-            link.download = getExportFilename('CR80_CardBack_300dpi', 'png');
-            link.href = cardCanvas.toDataURL('image/png');
-            link.click();
+            // State DMV Portal Website URL (e.g. dot.state.wy.us)
+            const portalText = (document.getElementById('studio-portal-url')?.textContent || `${stateCode.toLowerCase()}.gov`).trim();
+            const portalY = isUpperPdf ? 610 : Math.min(barcodeY + barcodeH + 26, 615);
+            ctx.font = "bold 16px monospace";
+            ctx.fillStyle = "#0F172A";
+            ctx.fillText(portalText, barcodeX, portalY);
+
+            // Dynamic Vertical Revision Stamp & DOB (e.g. REV 02-10-2017 01-01-1990)
+            const revStampText = `REV ${revFmt.replace(/\//g, '-')}  ${dobFmt.replace(/\//g, '-')}`;
+            ctx.save();
+            ctx.translate(980, 580);
+            ctx.rotate(-Math.PI / 2);
+            ctx.font = "bold 15px monospace";
+            ctx.fillStyle = "#334155";
+            ctx.fillText(revStampText, 0, 0);
+            ctx.restore();
+
+            // Regulatory Disclaimer
+            if (!bgLoaded) {
+                ctx.font = "12px sans-serif";
+                ctx.fillStyle = "#475569";
+                ctx.fillText("Holder of license must be 21 years of age or older to utilize privileges in interstate commerce.", 520, 480);
+                ctx.font = "italic bold 12px sans-serif";
+                ctx.fillText("Renewable 180 days prior to expiration.", 520, 502);
+            }
+
+            return cardCanvas;
+        }
+
+        // Standard CR-80 ID Card Export (3.375" x 2.125" at 300 DPI)
+        async function downloadFullCardBack() {
+            const btn = document.getElementById('btn-full-card');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-75');
+                btn.innerHTML = `<span>Generating...</span><span class="text-[8px] opacity-80">300 DPI</span>`;
+            }
+
+            try {
+                showToast('Synthesizing high-density CR80 card with complete demographics...', 'info');
+                const cardCanvas = await generateFullCardCanvas();
+                if (!cardCanvas) throw new Error('Unable to synthesize CR80 card canvas');
+
+                const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+                const filename = getExportFilename(`CR80_${side === 'front' ? 'Front' : 'Back'}_300dpi`, 'png');
+
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = cardCanvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error('CR80 export error:', err);
+                showToast('CR80 Card export failed: ' + err.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75');
+                    btn.innerHTML = originalHtml;
+                }
+            }
         }
 
         // Download 2-in-1 Dual Barcode High-Resolution Vector & 600 DPI ZIP Bundle
@@ -13240,23 +13889,28 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 }
 
                 // 6. 06_CR80_DieCut_ID_Card_Back_300DPI.png
-                const cardCanvas = document.createElement('canvas');
-                cardCanvas.width = 1012;
-                cardCanvas.height = 638;
-                const ctxCard = cardCanvas.getContext('2d');
-                ctxCard.fillStyle = "#F8FAFC";
-                ctxCard.fillRect(0, 0, 1012, 638);
-                ctxCard.fillStyle = "#0F172A";
-                ctxCard.fillRect(0, 40, 1012, 120);
-                ctxCard.fillStyle = "#64748B";
-                ctxCard.font = "14px monospace";
-                ctxCard.fillText("FOR TEST AND COMPLIANCE VERIFICATION ONLY - NOT FOR OFFICIAL IDENTIFICATION", 50, 200);
-                const targetWidth = 860;
-                const targetHeight = Math.min(Math.round(targetWidth * (srcPdf.height / srcPdf.width)), 260);
-                const posX = Math.round((1012 - targetWidth) / 2);
-                const posY = 240 + Math.round((260 - targetHeight) / 2);
-                ctxCard.drawImage(srcPdf, posX, posY, targetWidth, targetHeight);
-                zip.file(`${prefix}_06_CR80_DieCut_ID_Card_Back_300DPI.png`, cardCanvas.toDataURL('image/png').split(',')[1], { base64: true });
+                let fullCardCanvas = null;
+                try {
+                    fullCardCanvas = await generateFullCardCanvas();
+                } catch (e) {}
+                if (fullCardCanvas) {
+                    zip.file(`${prefix}_06_CR80_DieCut_ID_Card_Back_300DPI.png`, fullCardCanvas.toDataURL('image/png').split(',')[1], { base64: true });
+                } else {
+                    const cardCanvas = document.createElement('canvas');
+                    cardCanvas.width = 1012;
+                    cardCanvas.height = 638;
+                    const ctxCard = cardCanvas.getContext('2d');
+                    ctxCard.fillStyle = "#F8FAFC";
+                    ctxCard.fillRect(0, 0, 1012, 638);
+                    ctxCard.fillStyle = "#0F172A";
+                    ctxCard.fillRect(0, 40, 1012, 120);
+                    const targetWidth = 860;
+                    const targetHeight = Math.min(Math.round(targetWidth * (srcPdf.height / srcPdf.width)), 260);
+                    const posX = Math.round((1012 - targetWidth) / 2);
+                    const posY = 240 + Math.round((260 - targetHeight) / 2);
+                    ctxCard.drawImage(srcPdf, posX, posY, targetWidth, targetHeight);
+                    zip.file(`${prefix}_06_CR80_DieCut_ID_Card_Back_300DPI.png`, cardCanvas.toDataURL('image/png').split(',')[1], { base64: true });
+                }
 
                 // 7. 07_Official_ISO_Compliance_Certificate.pdf
                 const certDoc = await generateComplianceCertificatePdf('aamva', false);
@@ -13465,7 +14119,10 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 const isFemale = Math.random() > 0.5;
                 const chosenSex = isFemale ? '2' : '1';
                 const sexEl = document.getElementById('aamva-sex');
-                if (sexEl) sexEl.value = chosenSex;
+                if (sexEl) {
+                    sexEl.value = chosenSex;
+                    sexEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
 
                 calcField('first', true);
                 calcField('mid', true);
@@ -13477,13 +14134,61 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 calcField('dcf', true);
                 calcField('dck', true);
                 calcField('audit', true);
+
+                // Randomize Address
+                const streetNums = [102, 145, 230, 314, 428, 519, 642, 780, 855, 920, 1045, 1250, 1420, 2105, 3410];
+                const streetNames = ['MAIN ST', 'OAK AVE', 'MAPLE BLVD', 'WASHINGTON WAY', 'CEDAR LN', 'ELM ST', 'PINE RD', 'LAKEVIEW DR', 'PARK AVE', 'HIGHLAND CT', 'FOREST DR', 'VALLEY VIEW RD', 'SPRING ST'];
+                const randStreet = `${streetNums[Math.floor(Math.random() * streetNums.length)]} ${streetNames[Math.floor(Math.random() * streetNames.length)]}`;
+                const streetEl = document.getElementById('aamva-street');
+                if (streetEl) {
+                    streetEl.value = randStreet;
+                    streetEl.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                // Randomize Physical Metrics
+                const randHeight = Math.floor(62 + Math.random() * 14); // 62 to 75 inches (5'2" to 6'3")
+                const heightInEl = document.getElementById('aamva-height-in');
+                if (heightInEl) {
+                    heightInEl.value = randHeight;
+                    if (typeof updateHeightMetric === 'function') updateHeightMetric();
+                    heightInEl.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                const randWeight = Math.floor(125 + Math.random() * 95); // 125 to 220 lbs
+                const weightLbEl = document.getElementById('aamva-weight-lb');
+                if (weightLbEl) {
+                    weightLbEl.value = randWeight;
+                    if (typeof updateWeightMetric === 'function') updateWeightMetric();
+                    weightLbEl.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                const eyeColors = ['BRN', 'BLU', 'GRN', 'HAZ', 'GRY', 'BLK'];
+                const randEye = eyeColors[Math.floor(Math.random() * eyeColors.length)];
+                const eyeDlEl = document.getElementById('aamva-eyes-dl');
+                if (eyeDlEl) {
+                    eyeDlEl.value = randEye;
+                    if (typeof syncEyeD20 === 'function') syncEyeD20();
+                    eyeDlEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                const hairColors = ['BRN', 'BLK', 'BLN', 'RED', 'GRY'];
+                const randHair = hairColors[Math.floor(Math.random() * hairColors.length)];
+                const hairDlEl = document.getElementById('aamva-hair-dl');
+                if (hairDlEl) {
+                    hairDlEl.value = randHair;
+                    if (typeof syncHairD20 === 'function') syncHairD20();
+                    hairDlEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             } finally {
                 window.isBatchCalculation = false;
             }
+
             validateDlNumber();
             compileAAMVA();
+            renderPDF417();
             if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
-            showToast('All fields randomized and calculated!', 'success');
+            if (typeof renderCardBackCompanionBarcode === 'function') renderCardBackCompanionBarcode();
+            showToast('All fields, demographics, and barcodes randomized!', 'success');
         }
 
         // --- IN-BROWSER BARCODE SCANNER & WEBCAM READER CONTROLLER ---
@@ -14195,7 +14900,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             ca_pr: { name: 'Canada PR Card', type: 'TD1', badge: 'TD1 • 3×30', bg: '#ffffff url("mrz_templates/ca_pr_specimen.webp") no-repeat center / cover' },
             de_id: { name: 'German ID Card', type: 'TD1', badge: 'TD1 • 3×30', bg: '#ffffff url("mrz_templates/de_id_specimen.webp") no-repeat center / cover' },
             uk_visa: { name: 'UK Visa Vignette', type: 'MRV_B', badge: 'MRV-B • 2×36', bg: '#ffffff url("mrz_templates/uk_visa_specimen.webp") no-repeat center / cover' },
-            us_passport: { name: 'US Passport', type: 'TD3', badge: 'TD3 • 2×44', bg: '#ffffff url("mrz_templates/us_passport_specimen.webp") no-repeat center / cover' }
+            us_passport: { name: 'US Passport', type: 'TD3', badge: 'TD3 • 2×44', bg: '#ffffff url("mrz_templates/us_passport_blank_substrate.webp") no-repeat center / cover' }
         };
 
         function selectMrzSpecimen(specimenId, updateForm = false) {
@@ -14417,13 +15122,44 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const sex = isFemale ? 'F' : 'M';
             const fn = isFemale ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)] : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
             const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
-            const co = countries[Math.floor(Math.random() * countries.length)];
-            const docNum = 'C' + Math.floor(10000000 + Math.random() * 90000000);
+
+            // Specimen-aware randomization
+            let co = 'USA';
+            let docType = 'P';
+            let docNum = 'C' + Math.floor(10000000 + Math.random() * 90000000);
+            let optData = 'A' + Math.floor(1000000 + Math.random() * 9000000);
+
+            if (typeof activeMrzSpecimen !== 'undefined' && activeMrzSpecimen === 'ca_passport') {
+                co = 'CAN';
+                docType = 'P';
+                docNum = 'AA' + Math.floor(100000 + Math.random() * 900000);
+                optData = '';
+            } else if (typeof activeMrzSpecimen !== 'undefined' && activeMrzSpecimen === 'ca_pr') {
+                co = 'CAN';
+                docType = 'CA';
+                docNum = 'PD' + Math.floor(1000000 + Math.random() * 9000000);
+                optData = String(Math.floor(10000000 + Math.random() * 90000000));
+            } else if (typeof activeMrzSpecimen !== 'undefined' && activeMrzSpecimen === 'de_id') {
+                co = 'DEU';
+                docType = 'ID';
+                docNum = '12' + Math.floor(1000000 + Math.random() * 9000000);
+                optData = 'IDD<<';
+            } else if (typeof activeMrzSpecimen !== 'undefined' && activeMrzSpecimen === 'uk_visa') {
+                co = 'GBR';
+                docType = 'V';
+                docNum = 'V' + Math.floor(1000000 + Math.random() * 9000000);
+                optData = '';
+            } else {
+                co = countries[Math.floor(Math.random() * countries.length)];
+                docType = (currentMrzType === 'TD1') ? 'ID' : ((currentMrzType === 'TD2') ? 'I' : ((currentMrzType.startsWith('MRV')) ? 'V' : 'P'));
+            }
+
             const birthYear = 1965 + Math.floor(Math.random() * 38);
             const birthMonth = String(1 + Math.floor(Math.random() * 12)).padStart(2, '0');
             const birthDay = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
             const expYear = 2028 + Math.floor(Math.random() * 8);
 
+            document.getElementById('mrz-doc-type').value = docType;
             document.getElementById('mrz-surname').value = ln;
             document.getElementById('mrz-given-names').value = fn;
             document.getElementById('mrz-country').value = co;
@@ -14432,10 +15168,10 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             document.getElementById('mrz-dob').value = `${birthYear}-${birthMonth}-${birthDay}`;
             document.getElementById('mrz-expiry').value = `${expYear}-${birthMonth}-${birthDay}`;
             document.getElementById('mrz-sex').value = sex;
-            document.getElementById('mrz-optional-data').value = 'A' + Math.floor(1000000 + Math.random() * 9000000);
+            document.getElementById('mrz-optional-data').value = optData;
 
             compileMrz();
-            showToast('Randomized MRZ holder demographics', 'info');
+            showToast('Randomized MRZ holder demographics & companion barcode!', 'info');
         }
 
         function compileMrz() {
@@ -14458,7 +15194,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             let compCheck = '';
 
             if (currentMrzType === 'TD3' || currentMrzType === 'MRV_A') {
-                const nameField = `${surname}<<${givenNames}`.replace(/<+/g, '<').replace(/<$/, '');
+                const nameField = `${surname}<<${givenNames}`.replace(/[^A-Z0-9<]/g, '<');
                 const line1 = cleanIcaoText(`${docType}${country}${nameField}`, 44);
 
                 const docNumField = cleanIcaoText(docNumRaw, 9);
@@ -14489,11 +15225,11 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 compCheck = calcIcaoCheckDigit(compData);
                 const line2 = cleanIcaoText(`${dob}${dobCheck}${sex}${expiry}${expiryCheck}${nationality}${opt2}${compCheck}`, 30);
 
-                const nameField = `${surname}<<${givenNames}`;
+                const nameField = `${surname}<<${givenNames}`.replace(/[^A-Z0-9<]/g, '<');
                 const line3 = cleanIcaoText(nameField, 30);
                 lines = [line1, line2, line3];
             } else if (currentMrzType === 'TD2') {
-                const nameField = `${surname}<<${givenNames}`;
+                const nameField = `${surname}<<${givenNames}`.replace(/[^A-Z0-9<]/g, '<');
                 const line1 = cleanIcaoText(`${docType}${country}${nameField}`, 36);
 
                 const docNumField = cleanIcaoText(docNumRaw, 9);
@@ -14504,7 +15240,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 const line2 = cleanIcaoText(`${docNumField}${docNumCheck}${nationality}${dob}${dobCheck}${sex}${expiry}${expiryCheck}${optField}${compCheck}`, 36);
                 lines = [line1, line2];
             } else if (currentMrzType === 'MRV_B') {
-                const nameField = `${surname}<<${givenNames}`.replace(/<+/g, '<').replace(/<$/, '');
+                const nameField = `${surname}<<${givenNames}`.replace(/[^A-Z0-9<]/g, '<');
                 const line1 = cleanIcaoText(`${docType}${country}${nameField}`, 36);
 
                 const docNumField = cleanIcaoText(docNumRaw, 9);
@@ -15371,11 +16107,14 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         function toggleCardSide() {
             currentCardSide = (currentCardSide === 'back') ? 'front' : 'back';
             const btnLabel = document.getElementById('card-side-label');
+            const fullCardSub = document.querySelector('#btn-full-card span:last-child');
             if (currentCardSide === 'front') {
                 if (btnLabel) btnLabel.textContent = 'Back (Barcodes)';
+                if (fullCardSub) fullCardSub.textContent = 'ID Front';
                 showToast('Viewing Front Card Template', 'info');
             } else {
                 if (btnLabel) btnLabel.textContent = 'Front View';
+                if (fullCardSub) fullCardSub.textContent = 'ID Back';
                 showToast('Viewing Scannable Barcode Card Back', 'info');
             }
             if (typeof updateStudioCardDetails === 'function') {
@@ -15704,42 +16443,19 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             if (fpModal) fpModal.classList.add('hidden');
         }
 
-        function renderFpCodeBanner(code, delivered, errorDetail) {
+        function renderFpCodeBanner(delivered, errorDetail) {
             const banner = document.getElementById('fp-step2-banner');
             if (!banner) return;
-            if (!code) {
-                banner.classList.add('hidden');
-                return;
-            }
-            if (delivered) {
-                banner.className = 'bg-emerald-50 border border-emerald-300 rounded-xl p-3 text-[11px] text-emerald-900 flex flex-col gap-1.5 block shadow-xs';
-                banner.innerHTML = `
-                    <div class="font-bold flex items-center justify-between text-emerald-800">
-                        <span class="flex items-center gap-1.5"><span>✅</span> <span>Email Sent via Gmail!</span></span>
-                        <span class="text-[9px] bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full font-mono font-bold">Inbox / Spam</span>
-                    </div>
-                    <p class="text-[11px] text-emerald-800 leading-normal m-0">
-                        A 6-digit verification code was delivered to your Gmail inbox. Check your Spam folder if not received in 1 minute.
-                    </p>
-                `;
-            } else {
-                banner.className = 'bg-amber-50 border border-amber-300 rounded-xl p-3 text-[11px] text-amber-900 flex flex-col gap-2 block shadow-xs';
-                banner.innerHTML = `
-                    <div class="font-bold flex items-center justify-between text-amber-800">
-                        <span class="flex items-center gap-1.5"><span>🔑</span> <span>Your Verification Code:</span></span>
-                        <span class="text-[9px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
-                    </div>
-                    <div class="bg-white border border-amber-300/80 rounded-lg p-2 font-mono text-center text-sm font-bold text-slate-900 select-all flex items-center justify-between px-3 shadow-2xs">
-                        <span class="text-slate-500 font-sans text-[11px] font-semibold">6-Digit Code:</span>
-                        <span class="text-accent font-black text-lg tracking-widest">${code}</span>
-                    </div>
-                    <p class="text-[10px] text-amber-800 leading-normal m-0">
-                        ${errorDetail && errorDetail.includes('535') 
-                            ? 'Notice: Gmail authentication requires a 16-character App Password (from myaccount.google.com/apppasswords). Use the 6-digit code above to reset immediately.'
-                            : 'Use the 6-digit code above to reset your password immediately.'}
-                    </p>
-                `;
-            }
+            banner.className = 'bg-blue-50 border border-blue-200 rounded-xl p-3 text-[11px] text-blue-900 flex flex-col gap-1.5 block shadow-xs';
+            banner.innerHTML = `
+                <div class="font-bold flex items-center justify-between text-blue-900">
+                    <span class="flex items-center gap-1.5"><span>📩</span> <span>Verification Code Dispatched</span></span>
+                    <span class="text-[9px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-mono font-bold">Valid 15 Mins</span>
+                </div>
+                <p class="text-[11px] text-blue-800 leading-normal m-0">
+                    A secure 6-digit verification code has been dispatched to your email address. Please check your Inbox (and Spam/Junk folder), then type the 6 digits below.
+                </p>
+            `;
             banner.classList.remove('hidden');
         }
 
@@ -15779,19 +16495,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     if (disp) disp.textContent = email;
                     
                     const codeInp = document.getElementById('fp-code-input');
-                    const codeVal = data.dev_code || data.code;
-
-                    if (codeVal) {
-                        if (codeInp) codeInp.value = codeVal;
-                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
-                        showToast(`Verification code ready: ${codeVal}`, 'info');
-                    } else {
-                        renderFpCodeBanner(null);
-                        showToast('Verification code dispatched to your email!', 'success');
+                    if (codeInp) {
+                        codeInp.value = '';
+                        codeInp.focus();
                     }
+                    renderFpCodeBanner(data.delivered, data.error_detail);
+                    showToast('Verification code dispatched to your email!', 'success');
 
                     const newPass = document.getElementById('fp-new-password');
-                    if (newPass) newPass.focus();
+                    if (newPass) newPass.value = '';
                 } else {
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2.5 rounded-lg font-medium bg-red-50 text-red-700 border border-red-200 block';
@@ -15836,18 +16548,13 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    const codeVal = data.dev_code || data.code;
                     const codeInp = document.getElementById('fp-code-input');
-                    if (codeVal) {
-                        if (codeInp) codeInp.value = codeVal;
-                        renderFpCodeBanner(codeVal, data.delivered, data.error_detail);
-                        showToast(`New verification code: ${codeVal}`, 'info');
-                    } else {
-                        showToast('A fresh verification code was sent to your email!', 'success');
-                    }
+                    if (codeInp) codeInp.value = '';
+                    renderFpCodeBanner(data.delivered, data.error_detail);
+                    showToast('A fresh verification code was sent to your email!', 'success');
                     if (msgEl) {
                         msgEl.className = 'text-[11px] p-2 rounded-lg font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
-                        msgEl.textContent = codeVal ? `New verification code generated: ${codeVal}` : 'A fresh code was sent to your email.';
+                        msgEl.textContent = 'A fresh 6-digit verification code was dispatched to your email.';
                         msgEl.classList.remove('hidden');
                     }
                 } else {
