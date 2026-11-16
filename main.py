@@ -404,6 +404,26 @@ CRYPTO_CONFIGS = {
         "memo_required": False,
         "note": "Send only USDT on Polygon (MATIC) network. Gas fee is typically under $0.02."
     },
+    "USDT_ERC20": {
+        "name": "USDT (ERC-20)",
+        "symbol": "USDT",
+        "network": "Ethereum (ERC-20)",
+        "badge": "Ethereum USDT",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_USDT_ERC20_WALLET", "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84"),
+        "memo_required": False,
+        "note": "Send only USDT via Ethereum (ERC-20) network to this address."
+    },
+    "USDT_SOL": {
+        "name": "USDT (Solana)",
+        "symbol": "USDT",
+        "network": "Solana (SPL)",
+        "badge": "Sub-Second Finality",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_USDT_SOL_WALLET", "MzDTwreVpgA4Ub9n54DVZaUcjkqDYCisYaZuoP6642B"),
+        "memo_required": False,
+        "note": "Send only USDT via Solana network to this address."
+    },
     "BTC": {
         "name": "Bitcoin (BTC)",
         "symbol": "BTC",
@@ -433,6 +453,16 @@ CRYPTO_CONFIGS = {
         "wallet": os.getenv("CRYPTO_SOL_WALLET", "MzDTwreVpgA4Ub9n54DVZaUcjkqDYCisYaZuoP6642B"),
         "memo_required": False,
         "note": "Send SOL directly on Solana network. Instant ~1-second finality."
+    },
+    "BNB_BSC": {
+        "name": "BNB (BEP-20)",
+        "symbol": "BNB",
+        "network": "BNB Smart Chain (BSC)",
+        "badge": "Fast & Low Gas",
+        "recommended": False,
+        "wallet": os.getenv("CRYPTO_BNB_WALLET", "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84"),
+        "memo_required": False,
+        "note": "Send BNB via BNB Smart Chain (BEP-20) network to this address."
     }
 }
 
@@ -1565,14 +1595,85 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
         except Exception as e:
             print(f"TronGrid auto-detect polling note: {e}")
 
-    # 2. Polygon (USDT / POL)
-    elif "POLYGON" in net:
+    # 2. Bitcoin (BTC)
+    elif "BTC" in net:
         try:
-            pass
-        except Exception:
-            pass
+            url = f"https://blockstream.info/api/address/{order.wallet_address}/txs"
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.get(url, headers={"User-Agent": "BarcodeStudioPro/2.0"})
+                if resp.status_code == 200:
+                    txs = resp.json()
+                    order_ts_sec = int(order.created_at.timestamp()) - 120
+                    for tx in txs:
+                        tx_id = tx.get("txid", "")
+                        status = tx.get("status", {})
+                        block_time = status.get("block_time", int(datetime.utcnow().timestamp()))
+                        if block_time >= order_ts_sec:
+                            for vout in tx.get("vout", []):
+                                if (vout.get("scriptpubkey_address") or "").strip().lower() == expected_wallet:
+                                    exists = db.query(CryptoPayment).filter(
+                                        CryptoPayment.tx_hash == tx_id,
+                                        CryptoPayment.status == "confirmed",
+                                        CryptoPayment.id != order.id
+                                    ).first()
+                                    if not exists:
+                                        order.tx_hash = tx_id
+                                        order.status = "confirmed"
+                                        order.confirmed_at = datetime.utcnow()
+                                        purchaser = db.query(User).filter(User.id == order.user_id).first()
+                                        if purchaser:
+                                            purchaser.tokens += order.tokens
+                                            process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
+                                        db.commit()
+                                        db.refresh(order)
+                                        sync_users_to_backup(db)
+                                        sync_orders_to_backup(db)
+                                        return True, tx_id, f"Auto-detected Bitcoin transfer ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
+        except Exception as e:
+            print(f"BTC auto-detect polling note: {e}")
 
-    # 3. Test & Sandbox confirmation support
+    # 3. Solana (SOL / SPL USDT)
+    elif "SOL" in net:
+        try:
+            rpc_url = "https://api.mainnet-beta.solana.com"
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "getSignaturesForAddress",
+                "params": [order.wallet_address, {"limit": 10}]
+            }
+            order_ts_sec = int(order.created_at.timestamp()) - 120
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.post(rpc_url, json=payload, headers={"User-Agent": "BarcodeStudioPro/2.0"})
+                if resp.status_code == 200:
+                    res_data = resp.json().get("result", [])
+                    for item in res_data:
+                        sig = item.get("signature", "")
+                        b_time = item.get("blockTime", int(datetime.utcnow().timestamp()))
+                        err = item.get("err")
+                        if not err and b_time >= order_ts_sec:
+                            exists = db.query(CryptoPayment).filter(
+                                CryptoPayment.tx_hash == sig,
+                                CryptoPayment.status == "confirmed",
+                                CryptoPayment.id != order.id
+                            ).first()
+                            if not exists:
+                                order.tx_hash = sig
+                                order.status = "confirmed"
+                                order.confirmed_at = datetime.utcnow()
+                                purchaser = db.query(User).filter(User.id == order.user_id).first()
+                                if purchaser:
+                                    purchaser.tokens += order.tokens
+                                    process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
+                                db.commit()
+                                db.refresh(order)
+                                sync_users_to_backup(db)
+                                sync_orders_to_backup(db)
+                                return True, sig, f"Auto-detected Solana transfer ({sig[:12]}...) on-chain! Added {order.tokens} tokens."
+        except Exception as e:
+            print(f"Solana auto-detect polling note: {e}")
+
+    # 4. Test & Sandbox confirmation support
     allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
     is_test_user = order.user_email.endswith("@barcodestudio.pro") or (order.user_email in ADMIN_EMAILS)
     if (allow_sandbox or is_test_user) and order.status == "submitted" and order.tx_hash:
@@ -1585,6 +1686,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
         db.commit()
         db.refresh(order)
         sync_users_to_backup(db)
+        sync_orders_to_backup(db)
         return True, order.tx_hash, f"Confirmed payment! Credited {order.tokens} tokens."
 
     return False, "", "Awaiting incoming blockchain transfer..."
@@ -1611,6 +1713,7 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
     # Attempt automatic blockchain detection
     confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, db)
     if confirmed:
+        db.refresh(current_user)
         return {
             "status": "confirmed",
             "message": msg,
@@ -1649,9 +1752,12 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
     explorer_base = {
         "USDT_TRC20": "https://tronscan.org/#/transaction/",
         "USDT_POLYGON": "https://polygonscan.com/tx/",
+        "USDT_ERC20": "https://etherscan.io/tx/",
+        "USDT_SOL": "https://solscan.io/tx/",
         "BTC": "https://mempool.space/tx/",
         "ETH": "https://etherscan.io/tx/",
-        "SOL": "https://solscan.io/tx/"
+        "SOL": "https://solscan.io/tx/",
+        "BNB_BSC": "https://bscscan.com/tx/"
     }
     base_url = explorer_base.get(order.crypto_currency, "https://tronscan.org/#/transaction/")
     explorer_url = f"{base_url}{order.tx_hash}" if order.tx_hash and not order.tx_hash.startswith("stripe_") else None

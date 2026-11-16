@@ -1980,9 +1980,9 @@ def generate_aamva_payload(
     zc_subfile = ""
     if include_zc:
         if profile["aamva_version"] == "09":
-            zc_subfile = f"ZCA{zc_field_a}\r"
+            zc_subfile = f"ZCZCA{zc_field_a}\r"
         else:
-            zc_subfile = f"ZCA{zc_field_a}\nB{zc_field_b}\r"
+            zc_subfile = f"ZCZCA{zc_field_a}\nZCB{zc_field_b}\r"
             
     offsets = calculate_aamva_v9_offsets(dl_subfile, zc_subfile if include_zc else None)
     

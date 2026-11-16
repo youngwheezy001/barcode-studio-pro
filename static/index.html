@@ -451,26 +451,38 @@
                             <span class="text-[10px] font-bold text-slate-600 uppercase">Select Cryptocurrency:</span>
                             <span id="crypto-network-badge" class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">TRON (TRC-20)</span>
                         </div>
-                        <div class="grid grid-cols-5 gap-1.5">
-                            <button type="button" onclick="selectCrypto('USDT_TRC20')" id="coin-btn-USDT_TRC20" class="crypto-coin-btn border-2 border-accent bg-blue-50/50 text-slate-900 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition shadow-sm">
+                        <div class="grid grid-cols-4 sm:grid-cols-8 gap-1">
+                            <button type="button" onclick="selectCrypto('USDT_TRC20')" id="coin-btn-USDT_TRC20" class="crypto-coin-btn border-2 border-accent bg-blue-50/50 text-slate-900 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition shadow-sm">
                                 <span>USDT</span>
-                                <span class="text-[8px] text-emerald-600 font-extrabold uppercase">TRC20</span>
+                                <span class="text-[7.5px] text-emerald-600 font-extrabold uppercase">TRC20</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('USDT_POLYGON')" id="coin-btn-USDT_POLYGON" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('USDT_POLYGON')" id="coin-btn-USDT_POLYGON" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>USDT</span>
-                                <span class="text-[8px] text-purple-600 font-extrabold uppercase">POLYGON</span>
+                                <span class="text-[7.5px] text-purple-600 font-extrabold uppercase">POLYGON</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('BTC')" id="coin-btn-BTC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('USDT_ERC20')" id="coin-btn-USDT_ERC20" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>USDT</span>
+                                <span class="text-[7.5px] text-blue-600 font-extrabold uppercase">ERC20</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('USDT_SOL')" id="coin-btn-USDT_SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>USDT</span>
+                                <span class="text-[7.5px] text-indigo-600 font-extrabold uppercase">SOL SPL</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('BTC')" id="coin-btn-BTC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>BTC</span>
-                                <span class="text-[8px] text-amber-600 font-extrabold uppercase">BITCOIN</span>
+                                <span class="text-[7.5px] text-amber-600 font-extrabold uppercase">BITCOIN</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('ETH')" id="coin-btn-ETH" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('ETH')" id="coin-btn-ETH" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>ETH</span>
-                                <span class="text-[8px] text-blue-600 font-extrabold uppercase">ERC20</span>
+                                <span class="text-[7.5px] text-blue-600 font-extrabold uppercase">ETH</span>
                             </button>
-                            <button type="button" onclick="selectCrypto('SOL')" id="coin-btn-SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition">
+                            <button type="button" onclick="selectCrypto('SOL')" id="coin-btn-SOL" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
                                 <span>SOL</span>
-                                <span class="text-[8px] text-indigo-600 font-extrabold uppercase">SOLANA</span>
+                                <span class="text-[7.5px] text-indigo-600 font-extrabold uppercase">SOLANA</span>
+                            </button>
+                            <button type="button" onclick="selectCrypto('BNB_BSC')" id="coin-btn-BNB_BSC" class="crypto-coin-btn border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 py-1.5 px-0.5 rounded-lg text-[11px] font-bold flex flex-col items-center gap-0.5 transition">
+                                <span>BNB</span>
+                                <span class="text-[7.5px] text-amber-500 font-extrabold uppercase">BEP20</span>
                             </button>
                         </div>
                     </div>
@@ -7059,9 +7071,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             let zcSubfile = '';
             if (includeZC) {
                 if (selectedVersion === '09') {
-                    zcSubfile = `ZCA${zcFieldA}\r`;
+                    zcSubfile = `ZCZCA${zcFieldA}\r`;
                 } else {
-                    zcSubfile = `ZCA${zcFieldA}\nB${zcFieldB}\r`;
+                    zcSubfile = `ZCZCA${zcFieldA}\nZCB${zcFieldB}\r`;
                 }
             }
 
@@ -10052,7 +10064,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             currentCryptoCoin = coinKey;
             currentCryptoOrder = null;
 
-            ['USDT_TRC20', 'USDT_POLYGON', 'BTC', 'ETH', 'SOL'].forEach(key => {
+            ['USDT_TRC20', 'USDT_POLYGON', 'USDT_ERC20', 'USDT_SOL', 'BTC', 'ETH', 'SOL', 'BNB_BSC'].forEach(key => {
                 const btn = document.getElementById(`coin-btn-${key}`);
                 if (!btn) return;
                 if (key === coinKey) {
@@ -10199,12 +10211,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 document.getElementById('rcpt-customer-email').textContent = d.customer_email;
                 document.getElementById('rcpt-date').textContent = d.confirmed_date || d.invoice_date;
                 document.getElementById('rcpt-package-name').textContent = d.package_name;
-                document.getElementById('rcpt-tokens').textContent = `${d.barcode_sets} Sets (${d.total_barcodes} Barcodes)`;
-                document.getElementById('rcpt-subtotal').textContent = `$${d.amount_usd.toFixed(2)}`;
+                const amt = (typeof d.amount_usd === 'number') ? d.amount_usd : parseFloat(d.amount_usd || 0);
+                document.getElementById('rcpt-subtotal').textContent = `$${amt.toFixed(2)}`;
                 document.getElementById('rcpt-crypto-method').textContent = `${d.crypto_currency} (${d.network})`;
-                document.getElementById('rcpt-total').textContent = `$${d.amount_usd.toFixed(2)} USD`;
-                document.getElementById('rcpt-wallet').textContent = d.wallet_address;
-                document.getElementById('rcpt-txid').textContent = d.tx_hash;
+                document.getElementById('rcpt-total').textContent = `$${amt.toFixed(2)} USD`;
+                document.getElementById('rcpt-wallet').textContent = d.wallet_address || '';
+                document.getElementById('rcpt-txid').textContent = d.tx_hash || '';
 
                 const explorerContainer = document.getElementById('rcpt-explorer-container');
                 const explorerLink = document.getElementById('rcpt-explorer-link');
@@ -12294,12 +12306,18 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     } catch (e) {
                         console.error('PNG PDF417 export error:', e);
                     }
-                }
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = exportCanvas.width;
+                finalCanvas.height = exportCanvas.height;
+                const fctx = finalCanvas.getContext('2d');
+                fctx.fillStyle = '#FFFFFF';
+                fctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                fctx.drawImage(exportCanvas, 0, 0);
 
                 const link = document.createElement('a');
                 const label = barcode2DType === 'qrcode' ? `QRCode_${targetDpi}dpi` : `PDF417_${targetDpi}dpi`;
                 link.download = getExportFilename(label, 'png');
-                link.href = exportCanvas.toDataURL('image/png');
+                link.href = finalCanvas.toDataURL('image/png');
                 link.click();
             }
         }
@@ -12596,54 +12614,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             });
         }
 
-        // Generate a 1012x638 px (300 DPI CR-80) Canvas containing the FULL physical card with all filled text, dates, revision stamps, and barcodes
-        async function generateFullCardCanvas() {
-            const cardEl = document.getElementById('studio-cr80-card');
-            
-            // Method 1: Try html2canvas capture of the active live DOM card
-            if (typeof html2canvas === 'function' && cardEl) {
-                const foil = document.getElementById('card-holographic-foil');
-                const lock = document.getElementById('card-barcode-lock-overlay');
-                const blur = document.getElementById('barcode-blur-overlay');
-                const oldFoil = foil ? foil.style.display : '';
-                const oldLock = lock ? lock.style.display : '';
-                const oldBlur = blur ? blur.style.display : '';
-                if (foil) foil.style.display = 'none';
-                if (lock) lock.style.display = 'none';
-                if (blur) blur.style.display = 'none';
-
-                try {
-                    const domCanvas = await Promise.race([
-                        html2canvas(cardEl, {
-                            scale: 2.8,
-                            useCORS: true,
-                            allowTaint: false,
-                            backgroundColor: null,
-                            logging: false
-                        }),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('html2canvas timed out')), 2200))
-                    ]);
-
-                    if (domCanvas && domCanvas.width > 100 && domCanvas.height > 100) {
-                        const targetCanvas = document.createElement('canvas');
-                        targetCanvas.width = 1012;
-                        targetCanvas.height = 638;
-                        const tCtx = targetCanvas.getContext('2d');
-                        tCtx.imageSmoothingEnabled = true;
-                        tCtx.imageSmoothingQuality = 'high';
-                        tCtx.drawImage(domCanvas, 0, 0, 1012, 638);
-                        return targetCanvas;
-                    }
-                } catch (err) {
-                    console.warn('html2canvas capture skipped/fallback engaged:', err);
-                } finally {
-                    if (foil) foil.style.display = oldFoil;
-                    if (lock) lock.style.display = oldLock;
-                    if (blur) blur.style.display = oldBlur;
+        function formatCardDateDisplay(raw, fallback = '') {
+            if (!raw) return fallback;
+            const s = String(raw).trim();
+            const digits = s.replace(/[^0-9]/g, '');
+            if (digits.length === 8) {
+                if (digits.startsWith('19') || digits.startsWith('20')) {
+                    return `${digits.substring(4, 6)}/${digits.substring(6, 8)}/${digits.substring(0, 4)}`;
+                }
+                return `${digits.substring(0, 2)}/${digits.substring(2, 4)}/${digits.substring(4, 8)}`;
+            }
+            if (s.includes('-')) {
+                const parts = s.split('-');
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) return `${parts[1]}/${parts[2]}/${parts[0]}`;
+                    return `${parts[0]}/${parts[1]}/${parts[2]}`;
                 }
             }
+            return s || fallback;
+        }
 
-            // Method 2: Robust Direct Vector Canvas Renderer (draws 100% of information)
+        // Generate a 1012x638 px (300 DPI CR-80) Canvas containing the FULL physical card with all filled text, dates, revision stamps, and barcodes
+        async function generateFullCardCanvas() {
+            // Direct High-Resolution Vector Canvas Renderer (draws 100% of information in < 30ms with zero timeout delay)
             const cardCanvas = document.createElement('canvas');
             cardCanvas.width = 1012;
             cardCanvas.height = 638;
@@ -12660,7 +12653,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             // 1. Render Background Substrate / Template
             let bgLoaded = false;
             if (tmpl) {
-                const bgImg = await loadSafeCardTemplateImage(tmpl, 1000);
+                const bgImg = await loadSafeCardTemplateImage(tmpl, 800);
                 if (bgImg) {
                     ctx.drawImage(bgImg, 0, 0, 1012, 638);
                     bgLoaded = true;
@@ -12671,16 +12664,39 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 ctx.fillRect(0, 0, 1012, 638);
             }
 
+            // Gather all user-filled form values
+            const dlId = (document.getElementById('aamva-id')?.value || '188892143').trim().toUpperCase();
+            const lastName = (document.getElementById('aamva-last')?.value || 'SAMPLE').trim().toUpperCase();
+            const firstName = (document.getElementById('aamva-first')?.value || 'JOHN').trim().toUpperCase();
+            const midName = (document.getElementById('aamva-mid')?.value || '').trim().toUpperCase();
+            const dobRaw = document.getElementById('aamva-dob')?.value || '01011990';
+            const issRaw = document.getElementById('aamva-issued')?.value || '01012024';
+            const expRaw = document.getElementById('aamva-exp')?.value || '01012030';
+            const revRaw = (document.getElementById('aamva-revision-date')?.value || '02102017').trim();
+            const street = (document.getElementById('aamva-street')?.value || '100 MAIN ST').trim().toUpperCase();
+            const city = (document.getElementById('aamva-city')?.value || 'NEW BRITAIN').trim().toUpperCase();
+            const state = (document.getElementById('aamva-state')?.value || stateCode).trim().toUpperCase();
+            const zip = (document.getElementById('aamva-zip')?.value || '06051').trim();
+            const vClass = (document.getElementById('aamva-class')?.value || 'D').trim().toUpperCase();
+            const restrictions = (document.getElementById('aamva-restrictions')?.value || 'NONE').trim().toUpperCase();
+            const endorsements = (document.getElementById('aamva-endorsements')?.value || 'NONE').trim().toUpperCase();
+            const sexVal = (document.getElementById('aamva-sex')?.value === '2' ? 'F' : 'M');
+            const heightVal = (document.getElementById('aamva-height')?.value || '068 IN').trim().toUpperCase();
+            const eyesVal = (document.getElementById('aamva-eyes')?.value || 'BRO').trim().toUpperCase();
+            const hairVal = (document.getElementById('aamva-hair')?.value || 'BRN').trim().toUpperCase();
+            const weightVal = (document.getElementById('aamva-weight')?.value || '175 lb').trim().toUpperCase();
+            const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim().toUpperCase();
+            const dckVal = (document.getElementById('aamva-dck')?.value || '').trim().toUpperCase();
+            const auditVal = (document.getElementById('aamva-audit')?.value || '').trim().toUpperCase();
+
+            const dobFmt = formatCardDateDisplay(dobRaw, '01/01/1990');
+            const issFmt = formatCardDateDisplay(issRaw, '01/01/2024');
+            const expFmt = formatCardDateDisplay(expRaw, '01/01/2030');
+            const revFmt = formatCardDateDisplay(revRaw, '02/10/2017');
+
             // 2. Handle Front View Rendering
             if (side === 'front') {
                 const stateTitle = (document.getElementById('front-state-title')?.textContent || `${stateCode} DRIVER LICENSE`).toUpperCase();
-                const dlNum = document.getElementById('front-card-dl')?.textContent || (document.getElementById('aamva-id')?.value || 'DL00000000');
-                const last = document.getElementById('front-card-last')?.textContent || (document.getElementById('aamva-last')?.value || 'SAMPLE');
-                const first = document.getElementById('front-card-first')?.textContent || (document.getElementById('aamva-first')?.value || 'JOHN');
-                const dob = document.getElementById('front-card-dob')?.textContent || (document.getElementById('aamva-dob')?.value || '01/01/1990');
-                const exp = document.getElementById('front-card-exp')?.textContent || (document.getElementById('aamva-exp')?.value || '01/01/2028');
-                const cls = document.getElementById('front-card-class')?.textContent || (document.getElementById('aamva-class')?.value || 'D');
-                const sex = document.getElementById('front-card-sex')?.textContent || (document.getElementById('aamva-sex')?.value || 'M');
 
                 // Header
                 ctx.font = "900 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
@@ -12689,7 +12705,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 ctx.font = "bold 20px monospace";
                 ctx.fillStyle = "#1E3A8A";
-                ctx.fillText(`4d. DL: ${dlNum}`, 45, 95);
+                ctx.fillText(`4d. DL: ${dlId}`, 45, 95);
 
                 // RealID Star Badge
                 ctx.fillStyle = "#F59E0B";
@@ -12702,26 +12718,34 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 ctx.fillText("★", 950, 68);
                 ctx.textAlign = "left";
 
-                // Demographics Box
-                const demoY = 360;
-                ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
+                // Demographics Block
+                ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
                 ctx.fillStyle = "#0F172A";
-                ctx.fillText(`1. LN:  ${last}`, 45, demoY);
-                ctx.fillText(`2. FN:  ${first}`, 45, demoY + 36);
-                ctx.fillText(`3. DOB: ${dob}`, 45, demoY + 72);
-                ctx.fillText(`4b. EXP: ${exp}`, 45, demoY + 108);
-                ctx.fillText(`9. CLASS: ${cls}    15. SEX: ${sex}`, 45, demoY + 144);
+                ctx.fillText(`1. LN:  ${lastName}`, 45, 145);
+                ctx.fillText(`2. FN:  ${firstName}${midName ? ' ' + midName : ''}`, 45, 175);
+                ctx.fillText(`8. ADDR: ${street}, ${city}, ${state} ${zip}`, 45, 205);
+                ctx.fillText(`3. DOB: ${dobFmt}`, 45, 240);
+                ctx.fillText(`4a. ISS: ${issFmt}`, 45, 270);
+                ctx.fillText(`4b. EXP: ${expFmt}`, 45, 300);
+                ctx.fillText(`9. CLASS: ${vClass}    12. REST: ${restrictions}    13. END: ${endorsements}`, 45, 335);
+                ctx.fillText(`15. SEX: ${sexVal}   16. HGT: ${heightVal}   17. WGT: ${weightVal}   18. EYES: ${eyesVal}   19. HAIR: ${hairVal}`, 45, 370);
+                if (dcfVal) {
+                    ctx.font = "bold 14px monospace";
+                    ctx.fillStyle = "#1E3A8A";
+                    ctx.fillText(`DD: ${dcfVal}    REV: ${revFmt}`, 45, 405);
+                }
 
                 // Portrait Box Placeholder
                 ctx.fillStyle = "rgba(15, 23, 42, 0.05)";
                 ctx.strokeStyle = "rgba(15, 23, 42, 0.25)";
                 ctx.lineWidth = 2;
-                ctx.fillRect(800, 320, 160, 220);
-                ctx.strokeRect(800, 320, 160, 220);
+                ctx.fillRect(780, 220, 180, 240);
+                ctx.strokeRect(780, 220, 180, 240);
                 ctx.font = "bold 14px monospace";
                 ctx.fillStyle = "#64748B";
                 ctx.textAlign = "center";
-                ctx.fillText("PORTRAIT", 880, 435);
+                ctx.fillText("PORTRAIT", 870, 330);
+                ctx.fillText(`${firstName.charAt(0)}${lastName.charAt(0)}`, 870, 360);
                 ctx.textAlign = "left";
 
                 return cardCanvas;
@@ -12730,22 +12754,60 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             // 3. Handle Back View Rendering
             const hasMagstripe = meta ? (meta.has_magstripe !== false) : true;
             if (hasMagstripe) {
-                // Magnetic Stripe
                 ctx.fillStyle = "#0A0A0A";
                 ctx.fillRect(0, 52, 1012, 110);
                 ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
                 ctx.fillRect(0, 54, 1012, 2);
             } else {
-                // Clean microprint divider
                 ctx.fillStyle = "#CBD5E1";
                 ctx.fillRect(0, 55, 1012, 6);
             }
 
             // Top Sequence / Audit / Document Discriminator Number
-            const seqVal = (document.getElementById('studio-seq-num')?.textContent || document.getElementById('aamva-id')?.value || '0070051972513905').trim();
+            const seqVal = (document.getElementById('studio-seq-num')?.textContent || dlId || '0070051972513905').trim();
             ctx.font = "bold 19px monospace";
             ctx.fillStyle = "#1E293B";
             ctx.fillText(seqVal, 40, 38);
+
+            // Render 1D Companion Barcode (Code 128)
+            const code128Val = (document.getElementById('input-code128')?.value || seqVal || dlId).trim();
+            const topCode128Box = document.getElementById('card-top-code128-container');
+            const showTop128 = topCode128Box && !topCode128Box.classList.contains('hidden');
+            const off128 = document.createElement('canvas');
+            let is128Rendered = false;
+            try {
+                bwipjs.toCanvas(off128, {
+                    bcid: 'code128',
+                    text: code128Val,
+                    scale: 2,
+                    height: 18,
+                    includetext: false,
+                    paddingwidth: 8,
+                    paddingheight: 3,
+                    backgroundcolor: 'ffffff'
+                });
+                is128Rendered = true;
+            } catch (e) {}
+
+            if (is128Rendered && off128.width > 0) {
+                if (showTop128 || (layout && layout.code128 && layout.code128.y < 20)) {
+                    const cW = Math.min(off128.width, 320);
+                    const cH = 32;
+                    const cX = 1012 - cW - 40;
+                    const cY = 12;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
+                    ctx.drawImage(off128, cX, cY, cW, cH);
+                } else if (layout && layout.code128) {
+                    const cX = Math.round((layout.code128.x / 100) * 1012);
+                    const cY = Math.round((layout.code128.y / 100) * 638);
+                    const cW = Math.round((layout.code128.w / 100) * 1012);
+                    const cH = Math.round((layout.code128.h / 100) * 638);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
+                    ctx.drawImage(off128, cX, cY, cW, cH);
+                }
+            }
 
             // Render 2D Barcode (PDF417 / QR)
             const offscreen2D = document.createElement('canvas');
@@ -12753,7 +12815,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (barcode2DType === 'qrcode') {
                 const vcard = getVcardPayload();
                 try {
-                    bwipjs.toCanvas(offscreen2D, { bcid: 'qrcode', text: vcard, scale: 3, paddingwidth: 4, paddingheight: 4 });
+                    bwipjs.toCanvas(offscreen2D, { bcid: 'qrcode', text: vcard, scale: 3, paddingwidth: 8, paddingheight: 8, backgroundcolor: 'ffffff' });
                     is2DRendered = true;
                 } catch(e) {}
             } else {
@@ -12771,8 +12833,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         eclevel: ecc,
                         rowheight: ratio,
                         rowmult: ratio,
-                        paddingwidth: 8,
-                        paddingheight: 4
+                        paddingwidth: 12,
+                        paddingheight: 8,
+                        backgroundcolor: 'ffffff'
                     });
                     is2DRendered = true;
                 } catch(e) {}
@@ -12793,68 +12856,31 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     barcodeX = 40;
                     barcodeY = 320;
                 }
-                // Quiet Zone Box
+                // Crisp Quiet Zone Box (solid opaque #FFFFFF)
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(barcodeX - 4, barcodeY - 4, barcodeW + 8, barcodeH + 8);
                 ctx.drawImage(offscreen2D, barcodeX, barcodeY, barcodeW, barcodeH);
             }
 
-            // Render 1D Companion Barcode (Code 128)
-            const code128Val = (document.getElementById('input-code128')?.value || seqVal || document.getElementById('aamva-id')?.value || '188892143').trim();
-            const topCode128Box = document.getElementById('card-top-code128-container');
-            const showTop128 = topCode128Box && !topCode128Box.classList.contains('hidden');
-            const off128 = document.createElement('canvas');
-            let is128Rendered = false;
-            try {
-                bwipjs.toCanvas(off128, {
-                    bcid: 'code128',
-                    text: code128Val,
-                    scale: 2,
-                    height: 18,
-                    includetext: false,
-                    paddingwidth: 8,
-                    paddingheight: 3
-                });
-                is128Rendered = true;
-            } catch (e) {}
-
-            if (is128Rendered && off128.width > 0) {
-                if (showTop128 || (layout && layout.code128 && layout.code128.y < 20)) {
-                    // Top companion barcode
-                    const cW = Math.min(off128.width, 320);
-                    const cH = 32;
-                    const cX = 1012 - cW - 40;
-                    const cY = 12;
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
-                    ctx.drawImage(off128, cX, cY, cW, cH);
-                } else if (layout && layout.code128) {
-                    const cX = Math.round((layout.code128.x / 100) * 1012);
-                    const cY = Math.round((layout.code128.y / 100) * 638);
-                    const cW = Math.round((layout.code128.w / 100) * 1012);
-                    const cH = Math.round((layout.code128.h / 100) * 638);
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
-                    ctx.drawImage(off128, cX, cY, cW, cH);
-                }
-            }
-
-            // Demographics Stack: Class, Endorsements, Restrictions
-            const classText = `${document.getElementById('studio-lbl-class')?.textContent || 'CLASS:'} ${document.getElementById('studio-card-class')?.textContent || 'Class D'}`;
-            const endText = `${document.getElementById('studio-lbl-end')?.textContent || 'ENDORSEMENTS:'} ${document.getElementById('studio-card-endorsements')?.textContent || 'NONE'}`;
-            const restText = `${document.getElementById('studio-lbl-rest')?.textContent || 'RESTRICTIONS:'} ${document.getElementById('studio-card-restrictions')?.textContent || 'NONE'}`;
-
-            const demoStartY = isUpperPdf ? (barcodeY + barcodeH + 45) : 210;
-            ctx.font = "bold 17px -apple-system, BlinkMacSystemFont, sans-serif";
+            // Demographics Stack on Card Back: Class, Dates, Endorsements, Restrictions, Document Discriminator, and Revision
+            const demoStartY = isUpperPdf ? (barcodeY + barcodeH + 30) : 185;
+            ctx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
             ctx.fillStyle = "#0F172A";
-            ctx.fillText(classText, 40, demoStartY);
-            ctx.fillText(endText, 40, demoStartY + 30);
-            ctx.fillText(restText, 40, demoStartY + 60);
+
+            ctx.fillText(`CLASS: ${vClass || 'D'}        4b. EXP: ${expFmt}`, 40, demoStartY);
+            ctx.fillText(`ENDORSEMENTS: ${endorsements || 'NONE'}    4a. ISS: ${issFmt}`, 40, demoStartY + 24);
+            ctx.fillText(`RESTRICTIONS: ${restrictions || 'NONE'}    3. DOB: ${dobFmt}`, 40, demoStartY + 48);
+            ctx.fillText(`NAME: ${lastName}, ${firstName}${midName ? ' ' + midName : ''}    DL: ${dlId}`, 40, demoStartY + 72);
+            if (dcfVal || dckVal || revFmt) {
+                ctx.font = "bold 13px monospace";
+                ctx.fillStyle = "#1E293B";
+                ctx.fillText(`DD: ${dcfVal || 'NONE'}   REV: ${revFmt}   ICN: ${dckVal || auditVal || 'NONE'}`, 40, demoStartY + 96);
+            }
 
             // Organ Donor / Living Will Designation
             const donorEl = document.getElementById('studio-card-donor');
             const donorRaw = donorEl ? donorEl.innerText.replace(/\s+/g, ' ').trim() : 'Donor _Y _N';
-            ctx.font = "bold 16px sans-serif";
+            ctx.font = "bold 15px sans-serif";
             ctx.fillStyle = "#0F172A";
             ctx.textAlign = "right";
             ctx.fillText(donorRaw, 970, demoStartY);
@@ -12862,25 +12888,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             // State DMV Portal Website URL (e.g. dot.state.wy.us)
             const portalText = (document.getElementById('studio-portal-url')?.textContent || `${stateCode.toLowerCase()}.gov`).trim();
-            const portalY = isUpperPdf ? 600 : Math.min(barcodeY + barcodeH + 28, 615);
-            ctx.font = "bold 18px monospace";
+            const portalY = isUpperPdf ? 610 : Math.min(barcodeY + barcodeH + 26, 615);
+            ctx.font = "bold 16px monospace";
             ctx.fillStyle = "#0F172A";
             ctx.fillText(portalText, barcodeX, portalY);
 
-            // Vertical Revision Stamp & DOB (e.g. REV 11-14-2018 06-21-1992)
-            const revStampEl = document.getElementById('studio-rev-stamp');
-            const revStampText = (revStampEl ? revStampEl.textContent.replace(/\s+/g, ' ').trim() : 'REV 01-01-2020').trim();
-            if (revStampText) {
-                ctx.save();
-                ctx.translate(980, 580);
-                ctx.rotate(-Math.PI / 2);
-                ctx.font = "bold 15px monospace";
-                ctx.fillStyle = "#334155";
-                ctx.fillText(revStampText, 0, 0);
-                ctx.restore();
-            }
+            // Dynamic Vertical Revision Stamp & DOB (e.g. REV 02-10-2017 01-01-1990)
+            const revStampText = `REV ${revFmt.replace(/\//g, '-')}  ${dobFmt.replace(/\//g, '-')}`;
+            ctx.save();
+            ctx.translate(980, 580);
+            ctx.rotate(-Math.PI / 2);
+            ctx.font = "bold 15px monospace";
+            ctx.fillStyle = "#334155";
+            ctx.fillText(revStampText, 0, 0);
+            ctx.restore();
 
-            // Regulatory Disclaimer (if substrate does not already include it)
+            // Regulatory Disclaimer
             if (!bgLoaded) {
                 ctx.font = "12px sans-serif";
                 ctx.fillStyle = "#475569";
