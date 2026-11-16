@@ -4394,6 +4394,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             AZ: { name: "Arizona", iin: "636026", version: "08", format: "16", jurver: "00", stateName: "Arizona", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 8 digits or 9 digits", dlRegex: /^([A-Z][0-9]{8}|[0-9]{9})$/, genDL: () => "D" + Math.floor(10000000 + Math.random() * 90000000) },
             AR: { name: "Arkansas", iin: "636021", version: "08", format: "16", jurver: "00", stateName: "Arkansas", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, dlDesc: "9 digits (starts with 9)", dlRegex: /^[0-9]{9}$/, genDL: () => "9" + Math.floor(10000000 + Math.random() * 90000000) },
             CA: { name: "California", iin: "636014", version: "08", format: "16", jurver: "00", stateName: "California", v9_effective_year: null, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 7 digits", dlRegex: /^[A-Z][0-9]{7}$/, genDL: () => "Y" + Math.floor(1000000 + Math.random() * 9000000) },
+            CA_2024: { name: "California (2024)", iin: "636014", version: "08", format: "16", jurver: "00", stateName: "California", revHeader: "Rev. 2024", v9_effective_year: null, uses_offsets: false, drop_empty_tags: false, dlDesc: "1 letter + 7 digits", dlRegex: /^[A-Z][0-9]{7}$/, genDL: () => "Y" + Math.floor(1000000 + Math.random() * 9000000) },
             CO: { name: "Colorado", iin: "636020", version: "08", format: "16", jurver: "00", stateName: "Colorado", v9_effective_year: 2021, uses_offsets: false, drop_empty_tags: false, usesIcn: false, usesDd: true, usesAudit: true, dlDesc: "9 digits or 1 letter + 6 digits", dlRegex: /^([0-9]{9}|[A-Z][0-9]{6})$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             CT: { name: "Connecticut", iin: "636006", version: "09", format: "11", jurver: "00", stateName: "Connecticut", v9_effective_year: 2020, uses_offsets: true, drop_empty_tags: true, dlDesc: "9 digits", dlRegex: /^[0-9]{9}$/, genDL: () => String(Math.floor(100000000 + Math.random() * 900000000)) },
             DE: { name: "Delaware", iin: "636011", version: "08", format: "16", jurver: "00", stateName: "Delaware", v9_effective_year: 2022, uses_offsets: false, drop_empty_tags: false, dlDesc: "7 digits (1-7 digits)", dlRegex: /^[0-9]{1,7}$/, genDL: () => String(Math.floor(1000000 + Math.random() * 9000000)) },
@@ -4961,6 +4962,18 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     uses_offsets: ver === '09',
                     drop_empty_tags: ver === '09',
                     resolved_by: 'manual'
+                };
+            }
+
+            // If the state never adopted v09 (e.g. CA, WA, KY), strictly enforce v08
+            if (profile && profile.v9_effective_year === null) {
+                const v = profile.version || '08';
+                return {
+                    aamva_version: v,
+                    data_format: profile.format || '16',
+                    uses_offsets: false,
+                    drop_empty_tags: false,
+                    resolved_by: 'state_legacy_v08'
                 };
             }
 
@@ -5880,7 +5893,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // Live DL Number Format Validation & Feedback
         function validateDlNumber() {
             const jKey = document.getElementById('aamva-jurisdiction').value;
-            const profile = STATE_PROFILES[jKey] || STATE_PROFILES.GENERIC;
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
+            const baseCode = revInfo ? revInfo.base_code : (jKey ? jKey.split('_')[0].toUpperCase() : 'CT');
+            const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
             const el = document.getElementById('aamva-id');
             const hintEl = document.getElementById('dl-format-hint');
             if (!el || !hintEl) return;
@@ -6898,7 +6913,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (window.isClearingForm) return;
             if (typeof triggerAutoSave === 'function') triggerAutoSave();
             const jKey = document.getElementById('aamva-jurisdiction').value;
-            const profile = STATE_PROFILES[jKey] || STATE_PROFILES.GENERIC;
+            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
+            const baseState = revInfo ? revInfo.base_code : (jKey ? jKey.split('_')[0].toUpperCase() : 'CT');
+            const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseState] || STATE_PROFILES.GENERIC;
+            const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
 
             const getVal = (id, fallback = '') => {
                 const el = document.getElementById(id);
@@ -6906,10 +6924,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const v = el.value.trim();
                 return v !== '' ? v : fallback;
             };
-
-            const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
-            const baseState = revInfo ? revInfo.base_code : jKey.split('_')[0];
-            const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
 
             const defFirst = (defs && defs.first) || (profile && profile.defaultFirst) || 'JOHN';
             const defLast = (defs && defs.last) || (profile && profile.defaultLast) || 'DOE';
@@ -9811,7 +9825,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             rowheight: ratio,   // Standard 3:1 aspect ratio
                             rowmult: ratio,     // BWIPP row height multiplier
                             paddingwidth: 12,   // Discrete ISO quiet zone
-                            paddingheight: 8
+                            paddingheight: 8,
+                            backgroundcolor: 'ffffff'
                         });
                     }
 
@@ -9834,7 +9849,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                     rowheight: ratio,
                                     rowmult: ratio,
                                     paddingwidth: 8,
-                                    paddingheight: 4
+                                    paddingheight: 4,
+                                    backgroundcolor: 'ffffff'
                                 });
                             } catch (errSc) {
                                 console.error('PDF417 render error for ' + stateCode, errSc);
@@ -12312,7 +12328,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             text: vcard,
                             scale: scale,
                             paddingwidth: 8,
-                            paddingheight: 8
+                            paddingheight: 8,
+                            backgroundcolor: 'ffffff'
                         });
                     } catch (e) {
                         console.error('PNG QR export error:', e);
@@ -12335,7 +12352,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             rowheight: ratio,
                             rowmult: ratio,
                             paddingwidth: 24,
-                            paddingheight: 16
+                            paddingheight: 16,
+                            backgroundcolor: 'ffffff'
                         });
                     } catch (e) {
                         console.error('PNG PDF417 export error:', e);
@@ -12384,7 +12402,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             text: vcard,
                             scale: 3,
                             paddingwidth: 8,
-                            paddingheight: 8
+                            paddingheight: 8,
+                            backgroundcolor: 'ffffff'
                         });
                     } catch (e) {
                         console.error('JPEG QR export error:', e);
@@ -12407,7 +12426,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             rowheight: ratio,
                             rowmult: ratio,
                             paddingwidth: 24,
-                            paddingheight: 16
+                            paddingheight: 16,
+                            backgroundcolor: 'ffffff'
                         });
                     } catch (e) {
                         console.error('JPEG PDF417 export error:', e);
@@ -12529,15 +12549,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             text: vcard,
                             scale: 4,
                             paddingwidth: 8,
-                            paddingheight: 8
+                            paddingheight: 8,
+                            backgroundcolor: 'ffffff'
                         });
                     } catch (e) {
                         console.error('PDF QR export error:', e);
                     }
+                    const finalCanvas = document.createElement('canvas');
+                    finalCanvas.width = exportCanvas.width;
+                    finalCanvas.height = exportCanvas.height;
+                    const fctx = finalCanvas.getContext('2d');
+                    fctx.fillStyle = '#FFFFFF';
+                    fctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                    fctx.drawImage(exportCanvas, 0, 0);
+
                     const qrSize = 1.6;
                     const posX = (4 - qrSize) / 2;
                     const posY = (2 - qrSize) / 2;
-                    doc.addImage(exportCanvas.toDataURL('image/png'), 'PNG', posX, posY, qrSize, qrSize);
+                    doc.addImage(finalCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', posX, posY, qrSize, qrSize);
                     doc.save(getExportFilename('DigitalID_QR_Label', 'pdf'));
                 } else {
                     const payload = (document.getElementById('input-pdf417')?.value || '').trim();
@@ -12557,15 +12586,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             rowheight: ratio,
                             rowmult: ratio,
                             paddingwidth: 24,
-                            paddingheight: 16
+                            paddingheight: 16,
+                            backgroundcolor: 'ffffff'
                         });
                     } catch (e) {
                         console.error('PDF PDF417 export error:', e);
                     }
 
+                    const finalCanvas = document.createElement('canvas');
+                    finalCanvas.width = exportCanvas.width;
+                    finalCanvas.height = exportCanvas.height;
+                    const fctx = finalCanvas.getContext('2d');
+                    fctx.fillStyle = '#FFFFFF';
+                    fctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                    fctx.drawImage(exportCanvas, 0, 0);
+
                     // Fit proportionally within 3.6" x 1.6" printable area on 4" x 2" label
-                    const imgW = exportCanvas.width || 800;
-                    const imgH = exportCanvas.height || 260;
+                    const imgW = finalCanvas.width || 800;
+                    const imgH = finalCanvas.height || 260;
                     const imgRatio = imgW / imgH;
                     let pdfW = 3.6;
                     let pdfH = pdfW / imgRatio;
@@ -12575,7 +12613,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     }
                     const posX = (4 - pdfW) / 2;
                     const posY = (2 - pdfH) / 2;
-                    doc.addImage(exportCanvas.toDataURL('image/png'), 'PNG', posX, posY, pdfW, pdfH);
+                    doc.addImage(finalCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', posX, posY, pdfW, pdfH);
                     doc.save(getExportFilename('AAMVA_Label', 'pdf'));
                 }
             }
