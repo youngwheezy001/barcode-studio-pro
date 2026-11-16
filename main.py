@@ -372,6 +372,17 @@ TOKEN_PACKAGES = {
     "enterprise_250": {"tokens": 200, "sets": 200, "price": 159.00, "amount_usd": 159.00, "competitor_price": 169.00, "name": "XXL - 200 Barcode Sets", "badge": "Save $10.00", "desc": "200x AAMVA PDF417 + 200x Code 128 Pairs"}
 }
 
+def get_safe_trc20_wallet() -> str:
+    w = (os.getenv("CRYPTO_USDT_TRC20_WALLET") or "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H").strip()
+    if len(w) == 34 and w.startswith("T"):
+        return w
+    print(f"[SECURITY GUARD] Malformed TRON wallet detected in environment ('{w}'). Enforcing official 34-char wallet 'TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H'.")
+    return "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H"
+
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "barcodestudiopro@gmail.com")
+SUPPORT_WHATSAPP = os.getenv("SUPPORT_WHATSAPP", "+1 (860) 662-6632")
+SUPPORT_WHATSAPP_LINK = "https://wa.me/18606626632"
+
 CRYPTO_CONFIGS = {
     "USDT_TRC20": {
         "name": "USDT (TRC-20)",
@@ -379,7 +390,7 @@ CRYPTO_CONFIGS = {
         "network": "TRON (TRC-20)",
         "badge": "Lowest Fee & Instant",
         "recommended": True,
-        "wallet": os.getenv("CRYPTO_USDT_TRC20_WALLET", "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H"),
+        "wallet": get_safe_trc20_wallet(),
         "memo_required": False,
         "note": "Send only USDT via TRON (TRC-20) network to this address. Minimal network fee (~$1)."
     },
@@ -449,26 +460,25 @@ ADMIN_EMAILS = [
     e.strip().lower() for e in os.getenv(
         "ADMIN_EMAILS",
         "mwangilewis205@gmail.com"
-    ).split(",") if e.strip() and e.strip().lower() not in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]
+    ).split(",") if e.strip()
 ]
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "admin2026")
 
 def seed_admin_users():
     db = SessionLocal()
     try:
-        # Explicitly remove unauthorized admin accounts from database
-        for revoked_admin in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]:
-            bad_u = db.query(User).filter(func.lower(User.email) == revoked_admin).first()
-            if bad_u:
-                db.delete(bad_u)
+        # Demote unauthorized accounts if not in ADMIN_EMAILS (never delete customer accounts)
+        elevated_users = db.query(User).filter(User.role == "admin").all()
+        for u in elevated_users:
+            if u.email.lower() not in ADMIN_EMAILS:
+                u.role = "user"
                 db.commit()
-                print(f"[ADMIN CLEANUP] Removed {revoked_admin} from database.")
 
-        # Purge any old sandbox/mock test orders and revoked test orders
+        # Purge any automated test/mock sandbox orders while preserving authentic customer orders
         db.query(CryptoPayment).filter(
             (func.lower(CryptoPayment.user_email).like("%@barcodestudio.pro")) |
             (CryptoPayment.crypto_currency == "MOCK_TEST") |
-            (func.lower(CryptoPayment.user_email).in_(["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]))
+            (func.lower(CryptoPayment.user_email).in_(["wozepeh36122931@gmail.com", "comrad4byte@gmail.com"]))
         ).delete(synchronize_session=False)
         db.commit()
 
@@ -1480,21 +1490,25 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
 
     # 1. TRON (TRC-20 USDT)
     if "TRC20" in net or "TRON" in net:
-        url = f"https://apilist.tronscanapi.com/api/token_trc20/transfers?limit=25&start=0&direction=2&relatedAddress={order.wallet_address}"
+        raw_wallet = (order.wallet_address or "").strip()
+        active_wallet = raw_wallet if (len(raw_wallet) == 34 and raw_wallet.startswith("T")) else get_safe_trc20_wallet()
+        order_ts_ms = int(order.created_at.timestamp() * 1000) - 120000
+
+        # Multi-node check: 1. Tronscan API
         try:
+            url = f"https://apilist.tronscanapi.com/api/token_trc20/transfers?limit=25&start=0&direction=2&relatedAddress={active_wallet}"
             async with httpx.AsyncClient(timeout=8.0) as client:
                 resp = await client.get(url, headers={"User-Agent": "BarcodeStudioPro/2.0"})
                 if resp.status_code == 200:
                     data = resp.json()
                     transfers = data.get("token_transfers", [])
-                    order_ts_ms = int(order.created_at.timestamp() * 1000) - 60000
                     for t in transfers:
                         tx_id = t.get("transaction_id", "")
                         to_addr = (t.get("to_address") or "").strip().lower()
                         block_ts = int(t.get("block_ts", 0))
                         amt = float(t.get("quant", 0)) / 1000000.0
 
-                        if to_addr == expected_wallet and block_ts >= order_ts_ms:
+                        if to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
                             if abs(amt - expected_usd) <= 0.05:
                                 exists = db.query(CryptoPayment).filter(
                                     CryptoPayment.tx_hash == tx_id,
@@ -1514,7 +1528,42 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                     sync_users_to_backup(db)
                                     return True, tx_id, f"Auto-detected TRON USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
         except Exception as e:
-            print(f"TRON auto-detect polling note: {e}")
+            print(f"Tronscan auto-detect polling note: {e}")
+
+        # Multi-node check: 2. TronGrid API Fallback
+        try:
+            tg_url = f"https://api.trongrid.io/v1/accounts/{active_wallet}/transactions/trc20?limit=25"
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.get(tg_url, headers={"User-Agent": "BarcodeStudioPro/2.0"})
+                if resp.status_code == 200:
+                    data = resp.json()
+                    for t in data.get("data", []):
+                        tx_id = t.get("transaction_id", "")
+                        to_addr = (t.get("to") or "").strip().lower()
+                        block_ts = int(t.get("block_timestamp", 0))
+                        amt = float(t.get("value", 0)) / 1000000.0
+
+                        if to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
+                            if abs(amt - expected_usd) <= 0.05:
+                                exists = db.query(CryptoPayment).filter(
+                                    CryptoPayment.tx_hash == tx_id,
+                                    CryptoPayment.status == "confirmed",
+                                    CryptoPayment.id != order.id
+                                ).first()
+                                if not exists:
+                                    order.tx_hash = tx_id
+                                    order.status = "confirmed"
+                                    order.confirmed_at = datetime.utcnow()
+                                    purchaser = db.query(User).filter(User.id == order.user_id).first()
+                                    if purchaser:
+                                        purchaser.tokens += order.tokens
+                                        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
+                                    db.commit()
+                                    db.refresh(order)
+                                    sync_users_to_backup(db)
+                                    return True, tx_id, f"Auto-detected TRC-20 USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
+        except Exception as e:
+            print(f"TronGrid auto-detect polling note: {e}")
 
     # 2. Polygon (USDT / POL)
     elif "POLYGON" in net:
@@ -1626,7 +1675,9 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
         "explorer_url": explorer_url,
         "status": order.status.upper(),
         "merchant": "Barcode Studio Pro Technologies LLC",
-        "support_email": os.getenv("SUPPORT_EMAIL", "mwangilewis205@gmail.com")
+        "support_email": os.getenv("SUPPORT_EMAIL", "barcodestudiopro@gmail.com"),
+        "support_whatsapp": os.getenv("SUPPORT_WHATSAPP", "+1 (860) 662-6632"),
+        "support_whatsapp_link": "https://wa.me/18606626632"
     }
 
 # --- BATCH CSV / BULK GENERATION ENDPOINTS ---
@@ -1748,7 +1799,7 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
 
     query = db.query(CryptoPayment).filter(
         CryptoPayment.crypto_currency != "MOCK_TEST",
-        func.lower(CryptoPayment.user_email).not_in(["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"])
+        func.lower(CryptoPayment.user_email).not_in(["wozepeh36122931@gmail.com", "comrad4byte@gmail.com"])
     )
     if q and q.strip():
         term = f"%{q.strip().lower()}%"
@@ -2524,12 +2575,10 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
 
     resp = {
         "status": "success",
-        "message": f"A 6-digit reset code has been sent to {clean_email}." if dispatch_res.get("delivered") else f"A 6-digit reset code has been dispatched to {clean_email}.",
+        "message": f"A 6-digit verification code has been dispatched to your email ({clean_email}). Please check your inbox and spam folder.",
         "delivered": dispatch_res.get("delivered", False),
         "provider": dispatch_res.get("provider")
     }
-    if os.getenv("ENVIRONMENT") == "development" or not os.getenv("RENDER") or not dispatch_res.get("delivered"):
-        resp["dev_code"] = code
     return resp
 
 @app.post("/api/auth/reset-password", summary="Reset password using verification code")
