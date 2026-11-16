@@ -4982,20 +4982,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const codeMatch = revHeader.match(/\((\d{2})\d{2}\)/);
             if (codeMatch) {
                 const c = codeMatch[1];
-                let v = '08';
-                if (c === '04') v = '04';
-                else if (c === '05') v = '05';
-                else if (c === '07') v = '07';
+                let v = null;
+                if (c === '07') v = '07';
                 else if (c === '08') v = '08';
                 else if (c === '09' || c === '10') v = '09';
                 
-                return {
-                    aamva_version: v,
-                    data_format: formatMap[v] || (v === '09' ? '11' : '16'),
-                    uses_offsets: (v === '09'),
-                    drop_empty_tags: (v === '09'),
-                    resolved_by: 'state_revision_spec'
-                };
+                if (v) {
+                    return {
+                        aamva_version: v,
+                        data_format: formatMap[v] || (v === '09' ? '11' : '16'),
+                        uses_offsets: (v === '09'),
+                        drop_empty_tags: (v === '09'),
+                        resolved_by: 'state_revision_spec'
+                    };
+                }
             }
 
             // 2. Year from revision slug or label
@@ -7064,21 +7064,28 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (fields.suffix && fields.suffix !== 'NONE' && (revInfo ? revInfo.has_suffix : false)) {
                 dlElements.push(`DCU${fields.suffix}`);
             }
-            dlElements.push(`DCA${fields.vClass || 'D'}`);
+            const cleanClass = (fields.vClass && fields.vClass !== 'NONE') ? fields.vClass : 'D';
+            dlElements.push(`DCA${cleanClass}`);
             dlElements.push(`DCB${fields.restrictions || 'NONE'}`);
             dlElements.push(`DCD${fields.endorsements || 'NONE'}`);
             if (fields.issued) dlElements.push(`DBD${fields.issued}`);
             if (fields.dob) dlElements.push(`DBB${fields.dob}`);
             if (fields.exp) dlElements.push(`DBA${fields.exp}`);
             dlElements.push(`DBC${fields.sex}`);
-            if (fields.height) dlElements.push(`DAU${fields.height}`);
+            if (fields.height) {
+                let ht = fields.height.trim();
+                const htDigits = ht.replace(/[^\d]/g, '');
+                if (htDigits) {
+                    ht = `${htDigits.padStart(3, '0')} in`;
+                }
+                dlElements.push(`DAU${ht}`);
+            }
             if (fields.eyes) dlElements.push(`DAY${fields.eyes}`);
             if (fields.hair) dlElements.push(`DAZ${fields.hair}`);
             if (fields.weight && baseState !== 'DC' && (!revInfo || revInfo.has_weight !== false)) {
-                if (revInfo && revInfo.has_weight_range) {
-                    dlElements.push(`DCE${fields.weight}`);
-                } else {
-                    dlElements.push(`DAW${fields.weight}`);
+                const cleanW = String(fields.weight).replace(/[^\d]/g, '');
+                if (cleanW) {
+                    dlElements.push(`DAW${cleanW.padStart(3, '0')}`);
                 }
             }
             if (fields.race && revInfo && revInfo.has_race) {
@@ -7088,7 +7095,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (fields.street2 && (revInfo ? revInfo.has_address2 : false)) dlElements.push(`DAH${fields.street2}`);
             if (fields.city) dlElements.push(`DAI${fields.city}`);
             if (fields.state) dlElements.push(`DAJ${fields.state}`);
-            if (fields.zip) dlElements.push(`DAK${fields.zip}`);
+            if (fields.zip) {
+                const cleanZip = fields.zip.trim();
+                dlElements.push(`DAK${cleanZip.length < 11 ? cleanZip.padEnd(11, ' ') : cleanZip}`);
+            }
             if (fields.dcf && (!revInfo || revInfo.has_dd !== false)) dlElements.push(`DCF${fields.dcf}`);
             dlElements.push(`DCGUSA`);
             if (fields.audit && (revInfo ? revInfo.has_audit : profile.usesAudit)) dlElements.push(`DCJ${fields.audit}`);
@@ -7108,10 +7118,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             // 2. Secondary Subfile: ZC (Security / Audit Track)
             let zcSubfile = '';
             if (includeZC) {
+                const zcVal = (zcFieldA && zcFieldA !== '000000000') ? zcFieldA : 'NONE';
                 if (selectedVersion === '09') {
-                    zcSubfile = `ZCZCA${zcFieldA}\r`;
+                    zcSubfile = `ZCZCA${zcVal}\r`;
                 } else {
-                    zcSubfile = `ZCZCA${zcFieldA}\nZCB${zcFieldB}\r`;
+                    zcSubfile = `ZCZCA${zcVal}\nZCB${zcFieldB || '000000000'}\r`;
                 }
             }
 
