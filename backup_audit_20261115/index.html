@@ -2697,9 +2697,9 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <!-- Alternative Clean Microprint Divider for Modern Optical Cards without Magnetic Stripe -->
                                 <div id="card-top-separator" class="hidden w-full h-[3px] border-y border-slate-300/80 bg-[repeating-linear-gradient(90deg,#94a3b8_0,#94a3b8_2px,#cbd5e1_2px,#cbd5e1_4px)] relative z-10"></div>
 
-                                <!-- Upper Barcode Container for Jurisdictions with Top-Band 2D Barcode (e.g. WA, IL, VA, WV, NY, OR, NC, PA, WI, AB, QC, SK) -->
-                                <div id="card-top-pdf417-container" class="hidden px-3 pt-1 relative z-20">
-                                    <div class="bg-white rounded p-0.5 shadow-xs border border-slate-200/60 flex items-center justify-center w-full h-[62px] overflow-hidden">
+                                <!-- Upper Barcode Container for Jurisdictions with Top-Band 2D Barcode (e.g. WA, IL, VA, WV, NY, OR, NC, PA, WI, AB, QC, SK, CT, IA, UT, ME, RI) -->
+                                <div id="card-top-pdf417-container" class="hidden px-3 pt-1 relative z-20 flex items-center justify-center">
+                                    <div id="card-top-pdf417-box" class="bg-white rounded p-0.5 shadow-xs border border-slate-200/60 flex items-center justify-center w-full h-[62px] overflow-hidden">
                                         <canvas id="card-top-pdf417" class="w-full h-full object-fill transition duration-200"></canvas>
                                     </div>
                                 </div>
@@ -2714,12 +2714,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </div>
 
                                     <!-- Middle Metadata Row -->
-                                    <div class="flex justify-between items-start">
+                                    <div id="card-back-demographics-row" class="flex justify-between items-start">
                                         <!-- Left: Class, Endorsements, Restrictions -->
-                                        <div class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5">
-                                            <div><span id="studio-lbl-class">CLASS:</span> <span id="studio-card-class" class="font-semibold text-slate-800">Driver's license</span></div>
-                                            <div><span id="studio-lbl-end">ENDORSEMENTS:</span> <span id="studio-card-endorsements" class="font-semibold text-slate-800">None</span></div>
-                                            <div><span id="studio-lbl-rest">RESTRICTIONS:</span> <span id="studio-card-restrictions" class="font-semibold text-slate-800">None</span></div>
+                                        <div id="card-back-demographics-stack" class="text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5">
+                                            <div id="studio-row-class"><span id="studio-lbl-class">CLASS:</span> <span id="studio-card-class" class="font-semibold text-slate-800">Driver's license</span></div>
+                                            <div id="studio-row-end"><span id="studio-lbl-end">ENDORSEMENTS:</span> <span id="studio-card-endorsements" class="font-semibold text-slate-800">None</span></div>
+                                            <div id="studio-row-rest"><span id="studio-lbl-rest">RESTRICTIONS:</span> <span id="studio-card-restrictions" class="font-semibold text-slate-800">None</span></div>
                                         </div>
 
                                         <!-- Right: Donor & Living Will -->
@@ -2731,10 +2731,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </div>
 
                                     <!-- Lower Section: Barcode on Left, Gold Watermark & Federal Notice on Right -->
-                                    <div class="flex justify-between items-end mt-2 relative">
+                                    <div id="card-back-lower-row" class="flex justify-between items-end mt-2 relative">
                                         
                                         <!-- Left: 2D Barcode & DMV URL -->
-                                        <div class="flex flex-col items-start w-[58%] max-w-[280px] min-w-0 relative">
+                                        <div id="card-pdf417-wrapper" class="flex flex-col items-start w-[58%] max-w-[280px] min-w-0 relative">
                                             <div id="card-pdf417-container" class="bg-white rounded p-1 shadow-xs border border-slate-200/60 flex items-center justify-center w-full max-w-[280px] h-[76px] overflow-hidden">
                                                 <canvas id="output-pdf417" class="w-full h-full object-fill transition duration-200"></canvas>
                                             </div>
@@ -3169,8 +3169,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </div>
                                 </div>
 
-                                <!-- State Rights Disclaimer (Centered/Right above Barcode) -->
-                                <div class="absolute font-sans text-[6px] sm:text-[6.5px] font-bold text-slate-900 select-none z-20 pointer-events-none" style="left: 49.5%; top: 56.8%;">
+                                <!-- State Rights Disclaimer (Centered/Right above Barcode - suppressed duplicate since pre-printed on substrate) -->
+                                <div class="hidden absolute font-sans text-[6px] sm:text-[6.5px] font-bold text-slate-900 select-none z-20 pointer-events-none" style="left: 49.5%; top: 56.8%;">
                                     The state of FL retains all property rights herein.
                                 </div>
 
@@ -3188,8 +3188,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
 
                                 <!-- Bottom 2D PDF417 Barcode Container (Spanning from right of vertical DOB to right edge) -->
-                                <div id="florida-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
-                                     style="left: 31.0%; top: 74.5%; width: 65.1%; height: 19.6%; padding: 1px 1px;">
+                                <div id="florida-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white/95 rounded-[2px]" 
+                                     style="left: 33.5%; top: 73.0%; width: 63.0%; height: 21.0%; padding: 0;">
                                     <canvas id="florida-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
@@ -3258,8 +3258,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 </div>
 
                                 <!-- Center 2D PDF417 Barcode Container (Underneath top 1D barcode) -->
-                                <div id="idaho-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-white rounded-[2px]" 
-                                     style="left: 33.3%; top: 13.3%; width: 59.1%; height: 37.3%; padding: 1px 1px;">
+                                <div id="idaho-pdf417-container" class="absolute flex items-center justify-center z-20 overflow-hidden bg-transparent rounded-[2px]" 
+                                     style="left: 33.3%; top: 13.3%; width: 59.1%; height: 37.3%; padding: 0;">
                                     <canvas id="idaho-pdf417" class="w-full h-full object-fill"></canvas>
                                 </div>
 
@@ -3281,8 +3281,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     </span>
                                 </div>
 
-                                <!-- Bottom Centered Legal Disclaimer -->
-                                <div class="absolute inset-x-0 flex items-center justify-center select-none z-20 pointer-events-none text-center px-6" style="bottom: 4.5%;">
+                                <!-- Bottom Centered Legal Disclaimer (Suppressed duplicate since already printed on authentic substrate) -->
+                                <div class="hidden absolute inset-x-0 flex items-center justify-center select-none z-20 pointer-events-none text-center px-6" style="bottom: 4.5%;">
                                     <p id="idaho-disclaimer" class="font-sans text-[6.5px] sm:text-[7px] font-semibold text-slate-800 leading-[1.25] max-w-[80%]">
                                         Machine readable bar codes contain no personal information other than the<br>
                                         full legal name and the human readable information printed on the card
@@ -5083,6 +5083,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // Populate state dropdown immediately upon definition
         populateStateDropdown();
         document.addEventListener('DOMContentLoaded', () => {
+            if (typeof preloadCardTemplates === 'function') {
+                preloadCardTemplates();
+            }
             const select = document.getElementById('aamva-jurisdiction');
             if (select && select.options.length === 0) {
                 populateStateDropdown();
@@ -8764,19 +8767,74 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             }
 
-            // Dynamic State Layout: Upper-Band 2D Barcode (e.g. WA, IL, VA, WV, NY, OR, NC, PA, WI, AB, QC, SK)
+            // Dynamic State Layout: Upper-Band 2D Barcode (e.g. WA, IL, VA, WV, NY, OR, NC, PA, WI, AB, QC, SK, CT, IA, UT, ME, RI)
             const cardTopPdf = document.getElementById('card-top-pdf417-container');
+            const cardTopPdfBox = document.getElementById('card-top-pdf417-box');
             const cardBottomPdf = document.getElementById('card-pdf417-container');
             const stateLayout = (typeof getJurisdictionCardLayout === 'function') ? getJurisdictionCardLayout(jurKey || stateCode) : null;
             const isUpperPdf = stateLayout && stateLayout.pdf417 && stateLayout.pdf417.y < 35;
+
+            const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+            const tmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, side) : null;
 
             if (cardTopPdf && cardBottomPdf) {
                 if (isUpperPdf && standardView && !standardView.classList.contains('hidden')) {
                     cardTopPdf.classList.remove('hidden');
                     cardBottomPdf.classList.add('hidden');
+                    if (cardTopPdfBox) {
+                        if (stateLayout && stateLayout.pdf417 && stateLayout.pdf417.w < 70) {
+                            cardTopPdfBox.style.width = `${stateLayout.pdf417.w}%`;
+                            cardTopPdf.classList.add('justify-end');
+                            cardTopPdf.classList.remove('justify-center');
+                        } else {
+                            cardTopPdfBox.style.width = '100%';
+                            cardTopPdf.classList.remove('justify-end');
+                            cardTopPdf.classList.add('justify-center');
+                        }
+                        if (tmpl) {
+                            cardTopPdfBox.style.backgroundColor = 'transparent';
+                            cardTopPdfBox.style.borderColor = 'transparent';
+                            cardTopPdfBox.style.boxShadow = 'none';
+                        } else {
+                            cardTopPdfBox.style.backgroundColor = '#ffffff';
+                            cardTopPdfBox.style.borderColor = 'rgba(226, 232, 240, 0.6)';
+                            cardTopPdfBox.style.boxShadow = '';
+                        }
+                    }
                 } else {
                     cardTopPdf.classList.add('hidden');
                     cardBottomPdf.classList.remove('hidden');
+                }
+            }
+
+            // Lower Barcode Row Alignment & Barcode Wrapper Styling
+            const cardLowerRow = document.getElementById('card-back-lower-row');
+            if (cardLowerRow) {
+                if (stateCode === 'TX') {
+                    cardLowerRow.classList.add('flex-row-reverse');
+                } else {
+                    cardLowerRow.classList.remove('flex-row-reverse');
+                }
+            }
+            if (cardBottomPdf) {
+                if (tmpl) {
+                    cardBottomPdf.style.backgroundColor = 'transparent';
+                    cardBottomPdf.style.borderColor = 'transparent';
+                    cardBottomPdf.style.boxShadow = 'none';
+                } else {
+                    cardBottomPdf.style.backgroundColor = '#ffffff';
+                    cardBottomPdf.style.borderColor = 'rgba(226, 232, 240, 0.6)';
+                    cardBottomPdf.style.boxShadow = '';
+                }
+            }
+
+            // Demographics Stack Compact Alignment
+            const demoStack = document.getElementById('card-back-demographics-stack');
+            if (demoStack) {
+                if (stateCode === 'TX') {
+                    demoStack.className = 'text-[7px] font-bold text-slate-900 leading-[1.15] space-y-0 max-w-[190px]';
+                } else {
+                    demoStack.className = 'text-[8px] sm:text-[8.5px] font-bold text-slate-900 leading-[1.3] space-y-0.5';
                 }
             }
 
@@ -8810,7 +8868,16 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const agencyTag = document.getElementById('card-top-agency-tag');
             const barcodePos = (meta && meta.barcode_1d_pos) ? meta.barcode_1d_pos : (isTypeA ? 'top' : 'bottom');
             if (barcodePos === 'top' || (typeof barcodePos === 'string' && barcodePos.startsWith('top'))) {
-                if (topBarcodeContainer) topBarcodeContainer.classList.remove('hidden');
+                if (topBarcodeContainer) {
+                    topBarcodeContainer.classList.remove('hidden');
+                    if (tmpl) {
+                        topBarcodeContainer.classList.remove('bg-white/90', 'border', 'border-slate-200/50', 'shadow-2xs');
+                        topBarcodeContainer.classList.add('bg-transparent', 'border-0', 'shadow-none');
+                    } else {
+                        topBarcodeContainer.classList.remove('bg-transparent', 'border-0', 'shadow-none');
+                        topBarcodeContainer.classList.add('bg-white/90', 'border', 'border-slate-200/50', 'shadow-2xs');
+                    }
+                }
                 if (bottomBarcodeContainer) bottomBarcodeContainer.classList.add('hidden');
                 if (agencyTag) agencyTag.classList.add('hidden');
             } else if (barcodePos === 'bottom' || (typeof barcodePos === 'string' && barcodePos.startsWith('bottom'))) {
@@ -8969,7 +9036,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const wmLineL = document.getElementById('studio-wm-line-left');
             const wmLineR = document.getElementById('studio-wm-line-right');
             const isScript = meta ? (meta.watermark_style === 'script') : isTypeA;
-            if (stateWatermark) {
+            if (tmpl) {
+                if (stateWatermark) stateWatermark.classList.add('hidden');
+                if (wmLineL) wmLineL.classList.add('hidden');
+                if (wmLineR) wmLineR.classList.add('hidden');
+            } else if (stateWatermark) {
+                stateWatermark.classList.remove('hidden');
                 const wmText = (meta && meta.watermark) ? meta.watermark : (STATE_NAMES[stateCode] || stateCode);
                 stateWatermark.textContent = wmText;
                 if (isScript) {
@@ -8996,13 +9068,18 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 portalUrl.textContent = (meta && meta.url) ? meta.url : (STATE_URLS[stateCode] || `www.dmv.${stateCode.toLowerCase()}.gov`);
             }
 
-            // Legal & Regulatory Disclaimer
+            // Legal & Regulatory Disclaimer (Suppressed when authentic substrate already has official regulatory disclaimer)
             const discEl = document.getElementById('studio-card-disclaimer');
             if (discEl) {
-                if (meta && meta.disclaimer) {
-                    discEl.innerHTML = meta.disclaimer.replace(/ \u2022 /g, ' &bull; ').replace(/(Renewable \d+ days.*$)/i, '<br><span class="italic font-bold">$1</span>');
+                if (tmpl) {
+                    discEl.classList.add('hidden');
                 } else {
-                    discEl.innerHTML = `Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br><span class="italic font-bold">Renewable 180 days prior to expiration.</span>`;
+                    discEl.classList.remove('hidden');
+                    if (meta && meta.disclaimer) {
+                        discEl.innerHTML = meta.disclaimer.replace(/ \u2022 /g, ' &bull; ').replace(/(Renewable \d+ days.*$)/i, '<br><span class="italic font-bold">$1</span>');
+                    } else {
+                        discEl.innerHTML = `Holder of license must be 21 years of age or older to utilize the privileges of this license in interstate commerce pursuant to 49 Code of Federal Regulations 391.11.<br><span class="italic font-bold">Renewable 180 days prior to expiration.</span>`;
+                    }
                 }
             }
 
