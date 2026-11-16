@@ -6914,8 +6914,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (typeof triggerAutoSave === 'function') triggerAutoSave();
             const jKey = document.getElementById('aamva-jurisdiction').value;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
-            const baseState = revInfo ? revInfo.base_code : (jKey ? jKey.split('_')[0].toUpperCase() : 'CT');
-            const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseState] || STATE_PROFILES.GENERIC;
+            const baseCode = revInfo ? revInfo.base_code : (jKey ? jKey.split('_')[0].toUpperCase() : 'CT');
+            const baseState = baseCode;
+            const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
             const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
 
             const getVal = (id, fallback = '') => {
@@ -12864,6 +12865,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             } catch (e) {}
 
             if (is128Rendered && off128.width > 0) {
+                const prevSmooth128 = ctx.imageSmoothingEnabled;
+                ctx.imageSmoothingEnabled = false;
                 if (showTop128 || (layout && layout.code128 && layout.code128.y < 20)) {
                     const cW = Math.min(off128.width, 320);
                     const cH = 32;
@@ -12881,6 +12884,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
                     ctx.drawImage(off128, cX, cY, cW, cH);
                 }
+                ctx.imageSmoothingEnabled = prevSmooth128;
             }
 
             // Render 2D Barcode (PDF417 / QR)
@@ -12930,10 +12934,31 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     barcodeX = 40;
                     barcodeY = 320;
                 }
-                // Crisp Quiet Zone Box (solid opaque #FFFFFF)
+
+                // Preserve native PDF417 aspect ratio within bounding box to avoid bar distortion
+                let fitW = barcodeW;
+                let fitH = barcodeH;
+                if (offscreen2D.width > 0 && offscreen2D.height > 0) {
+                    const natRatio = offscreen2D.width / offscreen2D.height;
+                    const boxRatio = barcodeW / barcodeH;
+                    if (boxRatio > natRatio) {
+                        fitH = barcodeH;
+                        fitW = Math.round(fitH * natRatio);
+                    } else {
+                        fitW = barcodeW;
+                        fitH = Math.round(fitW / natRatio);
+                    }
+                }
+                const drawX = barcodeX + Math.round((barcodeW - fitW) / 2);
+                const drawY = barcodeY + Math.round((barcodeH - fitH) / 2);
+
+                // Crisp Quiet Zone Box (solid opaque #FFFFFF) - ensures optical scannability on all card backgrounds
                 ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(barcodeX - 4, barcodeY - 4, barcodeW + 8, barcodeH + 8);
-                ctx.drawImage(offscreen2D, barcodeX, barcodeY, barcodeW, barcodeH);
+                ctx.fillRect(drawX - 8, drawY - 8, fitW + 16, fitH + 16);
+                const prevSmooth = ctx.imageSmoothingEnabled;
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(offscreen2D, drawX, drawY, fitW, fitH);
+                ctx.imageSmoothingEnabled = prevSmooth;
             }
 
             // Demographics Stack on Card Back: Class, Dates, Endorsements, Restrictions, Document Discriminator, and Revision
@@ -13056,15 +13081,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 let pdfRendered = false;
                 if (typeof bwipjs !== 'undefined' && payload) {
                     try {
+                        const jurEl = document.getElementById('aamva-jurisdiction');
+                        const jurKey = jurEl ? jurEl.value : (stateCode || 'CT');
+                        const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                        const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                        const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                        const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
                         // Scale 4 provides true certified 600 DPI density (direct-to-card & retransfer standard)
                         bwipjs.toCanvas(pdf600Canvas, {
                             bcid: 'pdf417',
                             text: payload,
                             scale: 4,
-                            columns: 12,
-                            securitylevel: 5,
+                            columns: cols,
+                            eclevel: ecc,
+                            rowheight: ratio,
+                            rowmult: ratio,
                             paddingwidth: 16,
-                            paddingheight: 12
+                            paddingheight: 12,
+                            backgroundcolor: 'ffffff'
                         });
                         pdfRendered = true;
                     } catch(e) {
@@ -13112,7 +13146,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             height: 24,
                             includetext: false,
                             paddingwidth: 24,
-                            paddingheight: 8
+                            paddingheight: 8,
+                            backgroundcolor: 'ffffff'
                         });
                         c128Rendered = true;
                     } catch(e) {
