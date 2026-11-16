@@ -63,6 +63,9 @@
     <!-- JSZip for production print packs and batch bundles -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>if (!window.JSZip) document.write('<script src="/static/jszip.min.js"><\/script>');</script>
+    <!-- html2canvas for instant 1:1 physical CR80 card capture -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>if (!window.html2canvas) document.write('<script src="/static/html2canvas.min.js"><\/script>');</script>
     <!-- ZXing for universal in-browser PDF417, Code 128, and QR camera/image barcode scanning -->
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
@@ -12146,7 +12149,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (isAdmin) {
                 // Unlimited Admin Mode: export directly without gating
                 try {
-                    exportCallback();
+                    await exportCallback();
                     recordGeneratedBarcodeToHistory();
                     showToast('Export downloaded with Admin Privileges (Unlimited)!', 'success');
                 } catch (err) {
@@ -12184,7 +12187,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     updateAuthUI();
                 }
 
-                exportCallback();
+                await exportCallback();
                 recordGeneratedBarcodeToHistory();
                 showToast('Export downloaded successfully!', 'success');
             } catch (err) {
@@ -12514,8 +12517,123 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
-        // Standard CR-80 ID Card Back (3.375" x 2.125" at 300 DPI)
-        async function downloadFullCardBack() {
+        // Helper: Load card template safely as Image or Canvas without hanging or tainting
+        async function loadSafeCardTemplateImage(url, timeoutMs = 1200) {
+            if (!url) return null;
+            // 1. Check in-memory preloaded cache in state_engine if available
+            try {
+                if (typeof _templateCache !== 'undefined' && _templateCache.has(url)) {
+                    const cached = _templateCache.get(url);
+                    if (cached && cached.complete && cached.naturalWidth > 0) return cached;
+                }
+            } catch (e) {}
+
+            return new Promise((resolve) => {
+                let finished = false;
+                const timer = setTimeout(() => {
+                    if (!finished) {
+                        finished = true;
+                        resolve(null);
+                    }
+                }, timeoutMs);
+
+                // Try fetching as Blob first to ensure clean same-origin canvas data
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Fetch failed');
+                        return res.blob();
+                    })
+                    .then(blob => {
+                        if (finished) return;
+                        const blobUrl = URL.createObjectURL(blob);
+                        const img = new Image();
+                        img.onload = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(img);
+                            }
+                        };
+                        img.onerror = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(null);
+                            }
+                        };
+                        img.src = blobUrl;
+                    })
+                    .catch(() => {
+                        if (finished) return;
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(img);
+                            }
+                        };
+                        img.onerror = () => {
+                            if (!finished) {
+                                finished = true;
+                                clearTimeout(timer);
+                                resolve(null);
+                            }
+                        };
+                        img.src = url;
+                    });
+            });
+        }
+
+        // Generate a 1012x638 px (300 DPI CR-80) Canvas containing the FULL physical card with all filled text, dates, revision stamps, and barcodes
+        async function generateFullCardCanvas() {
+            const cardEl = document.getElementById('studio-cr80-card');
+            
+            // Method 1: Try html2canvas capture of the active live DOM card
+            if (typeof html2canvas === 'function' && cardEl) {
+                const foil = document.getElementById('card-holographic-foil');
+                const lock = document.getElementById('card-barcode-lock-overlay');
+                const blur = document.getElementById('barcode-blur-overlay');
+                const oldFoil = foil ? foil.style.display : '';
+                const oldLock = lock ? lock.style.display : '';
+                const oldBlur = blur ? blur.style.display : '';
+                if (foil) foil.style.display = 'none';
+                if (lock) lock.style.display = 'none';
+                if (blur) blur.style.display = 'none';
+
+                try {
+                    const domCanvas = await Promise.race([
+                        html2canvas(cardEl, {
+                            scale: 2.8,
+                            useCORS: true,
+                            allowTaint: false,
+                            backgroundColor: null,
+                            logging: false
+                        }),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('html2canvas timed out')), 2200))
+                    ]);
+
+                    if (domCanvas && domCanvas.width > 100 && domCanvas.height > 100) {
+                        const targetCanvas = document.createElement('canvas');
+                        targetCanvas.width = 1012;
+                        targetCanvas.height = 638;
+                        const tCtx = targetCanvas.getContext('2d');
+                        tCtx.imageSmoothingEnabled = true;
+                        tCtx.imageSmoothingQuality = 'high';
+                        tCtx.drawImage(domCanvas, 0, 0, 1012, 638);
+                        return targetCanvas;
+                    }
+                } catch (err) {
+                    console.warn('html2canvas capture skipped/fallback engaged:', err);
+                } finally {
+                    if (foil) foil.style.display = oldFoil;
+                    if (lock) lock.style.display = oldLock;
+                    if (blur) blur.style.display = oldBlur;
+                }
+            }
+
+            // Method 2: Robust Direct Vector Canvas Renderer (draws 100% of information)
             const cardCanvas = document.createElement('canvas');
             cardCanvas.width = 1012;
             cardCanvas.height = 638;
@@ -12529,49 +12647,103 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const meta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurKey || stateCode) : null;
             const layout = (typeof getJurisdictionCardLayout === 'function') ? getJurisdictionCardLayout(jurKey || stateCode) : null;
 
-            // 1. Render Card Background (Template image or substrate)
+            // 1. Render Background Substrate / Template
+            let bgLoaded = false;
             if (tmpl) {
-                try {
-                    const bgImg = new Image();
-                    bgImg.crossOrigin = 'anonymous';
-                    await new Promise((resolve) => {
-                        bgImg.onload = resolve;
-                        bgImg.onerror = resolve;
-                        bgImg.src = tmpl;
-                        if (bgImg.complete) resolve();
-                    });
-                    if (bgImg.width > 0) {
-                        ctx.drawImage(bgImg, 0, 0, 1012, 638);
-                    } else {
-                        throw new Error('Image not loaded');
-                    }
-                } catch(e) {
-                    ctx.fillStyle = (meta && meta.bg_color) ? meta.bg_color : "#F8FAFC";
-                    ctx.fillRect(0, 0, 1012, 638);
-                    ctx.fillStyle = "#0F172A";
-                    ctx.fillRect(0, 40, 1012, 120);
+                const bgImg = await loadSafeCardTemplateImage(tmpl, 1000);
+                if (bgImg) {
+                    ctx.drawImage(bgImg, 0, 0, 1012, 638);
+                    bgLoaded = true;
                 }
-            } else {
+            }
+            if (!bgLoaded) {
                 ctx.fillStyle = (meta && meta.bg_color) ? meta.bg_color : "#F8FAFC";
                 ctx.fillRect(0, 0, 1012, 638);
-                // Magnetic stripe
-                ctx.fillStyle = "#0F172A";
-                ctx.fillRect(0, 40, 1012, 120);
             }
 
-            // 2. Render 2D Barcode (PDF417 / QR Code)
+            // 2. Handle Front View Rendering
+            if (side === 'front') {
+                const stateTitle = (document.getElementById('front-state-title')?.textContent || `${stateCode} DRIVER LICENSE`).toUpperCase();
+                const dlNum = document.getElementById('front-card-dl')?.textContent || (document.getElementById('aamva-id')?.value || 'DL00000000');
+                const last = document.getElementById('front-card-last')?.textContent || (document.getElementById('aamva-last')?.value || 'SAMPLE');
+                const first = document.getElementById('front-card-first')?.textContent || (document.getElementById('aamva-first')?.value || 'JOHN');
+                const dob = document.getElementById('front-card-dob')?.textContent || (document.getElementById('aamva-dob')?.value || '01/01/1990');
+                const exp = document.getElementById('front-card-exp')?.textContent || (document.getElementById('aamva-exp')?.value || '01/01/2028');
+                const cls = document.getElementById('front-card-class')?.textContent || (document.getElementById('aamva-class')?.value || 'D');
+                const sex = document.getElementById('front-card-sex')?.textContent || (document.getElementById('aamva-sex')?.value || 'M');
+
+                // Header
+                ctx.font = "900 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                ctx.fillStyle = "#0F172A";
+                ctx.fillText(stateTitle, 45, 60);
+
+                ctx.font = "bold 20px monospace";
+                ctx.fillStyle = "#1E3A8A";
+                ctx.fillText(`4d. DL: ${dlNum}`, 45, 95);
+
+                // RealID Star Badge
+                ctx.fillStyle = "#F59E0B";
+                ctx.beginPath();
+                ctx.arc(950, 60, 22, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.font = "900 22px sans-serif";
+                ctx.fillStyle = "#FFFFFF";
+                ctx.textAlign = "center";
+                ctx.fillText("★", 950, 68);
+                ctx.textAlign = "left";
+
+                // Demographics Box
+                const demoY = 360;
+                ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
+                ctx.fillStyle = "#0F172A";
+                ctx.fillText(`1. LN:  ${last}`, 45, demoY);
+                ctx.fillText(`2. FN:  ${first}`, 45, demoY + 36);
+                ctx.fillText(`3. DOB: ${dob}`, 45, demoY + 72);
+                ctx.fillText(`4b. EXP: ${exp}`, 45, demoY + 108);
+                ctx.fillText(`9. CLASS: ${cls}    15. SEX: ${sex}`, 45, demoY + 144);
+
+                // Portrait Box Placeholder
+                ctx.fillStyle = "rgba(15, 23, 42, 0.05)";
+                ctx.strokeStyle = "rgba(15, 23, 42, 0.25)";
+                ctx.lineWidth = 2;
+                ctx.fillRect(800, 320, 160, 220);
+                ctx.strokeRect(800, 320, 160, 220);
+                ctx.font = "bold 14px monospace";
+                ctx.fillStyle = "#64748B";
+                ctx.textAlign = "center";
+                ctx.fillText("PORTRAIT", 880, 435);
+                ctx.textAlign = "left";
+
+                return cardCanvas;
+            }
+
+            // 3. Handle Back View Rendering
+            const hasMagstripe = meta ? (meta.has_magstripe !== false) : true;
+            if (hasMagstripe) {
+                // Magnetic Stripe
+                ctx.fillStyle = "#0A0A0A";
+                ctx.fillRect(0, 52, 1012, 110);
+                ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+                ctx.fillRect(0, 54, 1012, 2);
+            } else {
+                // Clean microprint divider
+                ctx.fillStyle = "#CBD5E1";
+                ctx.fillRect(0, 55, 1012, 6);
+            }
+
+            // Top Sequence / Audit / Document Discriminator Number
+            const seqVal = (document.getElementById('studio-seq-num')?.textContent || document.getElementById('aamva-id')?.value || '0070051972513905').trim();
+            ctx.font = "bold 19px monospace";
+            ctx.fillStyle = "#1E293B";
+            ctx.fillText(seqVal, 40, 38);
+
+            // Render 2D Barcode (PDF417 / QR)
             const offscreen2D = document.createElement('canvas');
             let is2DRendered = false;
             if (barcode2DType === 'qrcode') {
                 const vcard = getVcardPayload();
                 try {
-                    bwipjs.toCanvas(offscreen2D, {
-                        bcid: 'qrcode',
-                        text: vcard,
-                        scale: 3,
-                        paddingwidth: 4,
-                        paddingheight: 4
-                    });
+                    bwipjs.toCanvas(offscreen2D, { bcid: 'qrcode', text: vcard, scale: 3, paddingwidth: 4, paddingheight: 4 });
                     is2DRendered = true;
                 } catch(e) {}
             } else {
@@ -12596,62 +12768,152 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 } catch(e) {}
             }
 
+            let barcodeX = 40, barcodeY = 320, barcodeW = 580, barcodeH = 190;
+            const isUpperPdf = layout && layout.pdf417 && layout.pdf417.y < 35;
+
             if (is2DRendered && offscreen2D.width > 0) {
                 if (layout && layout.pdf417) {
-                    const posX = Math.round((layout.pdf417.x / 100) * 1012);
-                    const posY = Math.round((layout.pdf417.y / 100) * 638);
-                    const targetW = Math.round((layout.pdf417.w / 100) * 1012);
-                    const targetH = Math.round((layout.pdf417.h / 100) * 638);
-                    if (!tmpl) {
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.fillRect(posX - 4, posY - 4, targetW + 8, targetH + 8);
-                    }
-                    ctx.drawImage(offscreen2D, posX, posY, targetW, targetH);
+                    barcodeX = Math.round((layout.pdf417.x / 100) * 1012);
+                    barcodeY = Math.round((layout.pdf417.y / 100) * 638);
+                    barcodeW = Math.round((layout.pdf417.w / 100) * 1012);
+                    barcodeH = Math.round((layout.pdf417.h / 100) * 638);
                 } else {
-                    const targetW = 860;
-                    const targetH = Math.min(Math.round(targetW * (offscreen2D.height / offscreen2D.width)), 260);
-                    const posX = Math.round((1012 - targetW) / 2);
-                    const posY = 240 + Math.round((260 - targetH) / 2);
-                    if (!tmpl) {
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.fillRect(posX - 4, posY - 4, targetW + 8, targetH + 8);
-                    }
-                    ctx.drawImage(offscreen2D, posX, posY, targetW, targetH);
+                    barcodeW = 580;
+                    barcodeH = Math.min(Math.round(barcodeW * (offscreen2D.height / offscreen2D.width)), 200);
+                    barcodeX = 40;
+                    barcodeY = 320;
+                }
+                // Quiet Zone Box
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(barcodeX - 4, barcodeY - 4, barcodeW + 8, barcodeH + 8);
+                ctx.drawImage(offscreen2D, barcodeX, barcodeY, barcodeW, barcodeH);
+            }
+
+            // Render 1D Companion Barcode (Code 128)
+            const code128Val = (document.getElementById('input-code128')?.value || seqVal || document.getElementById('aamva-id')?.value || '188892143').trim();
+            const topCode128Box = document.getElementById('card-top-code128-container');
+            const showTop128 = topCode128Box && !topCode128Box.classList.contains('hidden');
+            const off128 = document.createElement('canvas');
+            let is128Rendered = false;
+            try {
+                bwipjs.toCanvas(off128, {
+                    bcid: 'code128',
+                    text: code128Val,
+                    scale: 2,
+                    height: 18,
+                    includetext: false,
+                    paddingwidth: 8,
+                    paddingheight: 3
+                });
+                is128Rendered = true;
+            } catch (e) {}
+
+            if (is128Rendered && off128.width > 0) {
+                if (showTop128 || (layout && layout.code128 && layout.code128.y < 20)) {
+                    // Top companion barcode
+                    const cW = Math.min(off128.width, 320);
+                    const cH = 32;
+                    const cX = 1012 - cW - 40;
+                    const cY = 12;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
+                    ctx.drawImage(off128, cX, cY, cW, cH);
+                } else if (layout && layout.code128) {
+                    const cX = Math.round((layout.code128.x / 100) * 1012);
+                    const cY = Math.round((layout.code128.y / 100) * 638);
+                    const cW = Math.round((layout.code128.w / 100) * 1012);
+                    const cH = Math.round((layout.code128.h / 100) * 638);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(cX - 4, cY - 2, cW + 8, cH + 4);
+                    ctx.drawImage(off128, cX, cY, cW, cH);
                 }
             }
 
-            // 3. Render 1D Companion Barcode (Code 128) if layout dictates
-            if (layout && layout.code128) {
-                const code128Val = (document.getElementById('input-code128')?.value || document.getElementById('aamva-id')?.value || '188892143').trim();
-                if (code128Val) {
-                    const off128 = document.createElement('canvas');
-                    try {
-                        bwipjs.toCanvas(off128, {
-                            bcid: 'code128',
-                            text: code128Val,
-                            scale: 2,
-                            height: 18,
-                            includetext: false,
-                            paddingwidth: 10,
-                            paddingheight: 4
-                        });
-                        const cX = Math.round((layout.code128.x / 100) * 1012);
-                        const cY = Math.round((layout.code128.y / 100) * 638);
-                        const cW = Math.round((layout.code128.w / 100) * 1012);
-                        const cH = Math.round((layout.code128.h / 100) * 638);
-                        if (!tmpl) {
-                            ctx.fillStyle = '#FFFFFF';
-                            ctx.fillRect(cX - 2, cY - 2, cW + 4, cH + 4);
-                        }
-                        ctx.drawImage(off128, cX, cY, cW, cH);
-                    } catch(e) {}
-                }
+            // Demographics Stack: Class, Endorsements, Restrictions
+            const classText = `${document.getElementById('studio-lbl-class')?.textContent || 'CLASS:'} ${document.getElementById('studio-card-class')?.textContent || 'Class D'}`;
+            const endText = `${document.getElementById('studio-lbl-end')?.textContent || 'ENDORSEMENTS:'} ${document.getElementById('studio-card-endorsements')?.textContent || 'NONE'}`;
+            const restText = `${document.getElementById('studio-lbl-rest')?.textContent || 'RESTRICTIONS:'} ${document.getElementById('studio-card-restrictions')?.textContent || 'NONE'}`;
+
+            const demoStartY = isUpperPdf ? (barcodeY + barcodeH + 45) : 210;
+            ctx.font = "bold 17px -apple-system, BlinkMacSystemFont, sans-serif";
+            ctx.fillStyle = "#0F172A";
+            ctx.fillText(classText, 40, demoStartY);
+            ctx.fillText(endText, 40, demoStartY + 30);
+            ctx.fillText(restText, 40, demoStartY + 60);
+
+            // Organ Donor / Living Will Designation
+            const donorEl = document.getElementById('studio-card-donor');
+            const donorRaw = donorEl ? donorEl.innerText.replace(/\s+/g, ' ').trim() : 'Donor _Y _N';
+            ctx.font = "bold 16px sans-serif";
+            ctx.fillStyle = "#0F172A";
+            ctx.textAlign = "right";
+            ctx.fillText(donorRaw, 970, demoStartY);
+            ctx.textAlign = "left";
+
+            // State DMV Portal Website URL (e.g. dot.state.wy.us)
+            const portalText = (document.getElementById('studio-portal-url')?.textContent || `${stateCode.toLowerCase()}.gov`).trim();
+            const portalY = isUpperPdf ? 600 : Math.min(barcodeY + barcodeH + 28, 615);
+            ctx.font = "bold 18px monospace";
+            ctx.fillStyle = "#0F172A";
+            ctx.fillText(portalText, barcodeX, portalY);
+
+            // Vertical Revision Stamp & DOB (e.g. REV 11-14-2018 06-21-1992)
+            const revStampEl = document.getElementById('studio-rev-stamp');
+            const revStampText = (revStampEl ? revStampEl.textContent.replace(/\s+/g, ' ').trim() : 'REV 01-01-2020').trim();
+            if (revStampText) {
+                ctx.save();
+                ctx.translate(980, 580);
+                ctx.rotate(-Math.PI / 2);
+                ctx.font = "bold 15px monospace";
+                ctx.fillStyle = "#334155";
+                ctx.fillText(revStampText, 0, 0);
+                ctx.restore();
             }
 
-            const link = document.createElement('a');
-            link.download = getExportFilename('CR80_CardBack_300dpi', 'png');
-            link.href = cardCanvas.toDataURL('image/png');
-            link.click();
+            // Regulatory Disclaimer (if substrate does not already include it)
+            if (!bgLoaded) {
+                ctx.font = "12px sans-serif";
+                ctx.fillStyle = "#475569";
+                ctx.fillText("Holder of license must be 21 years of age or older to utilize privileges in interstate commerce.", 520, 480);
+                ctx.font = "italic bold 12px sans-serif";
+                ctx.fillText("Renewable 180 days prior to expiration.", 520, 502);
+            }
+
+            return cardCanvas;
+        }
+
+        // Standard CR-80 ID Card Export (3.375" x 2.125" at 300 DPI)
+        async function downloadFullCardBack() {
+            const btn = document.getElementById('btn-full-card');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-75');
+                btn.innerHTML = `<span>Generating...</span><span class="text-[8px] opacity-80">300 DPI</span>`;
+            }
+
+            try {
+                showToast('Synthesizing high-density CR80 card with complete demographics...', 'info');
+                const cardCanvas = await generateFullCardCanvas();
+                if (!cardCanvas) throw new Error('Unable to synthesize CR80 card canvas');
+
+                const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
+                const filename = getExportFilename(`CR80_${side === 'front' ? 'Front' : 'Back'}_300dpi`, 'png');
+
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = cardCanvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error('CR80 export error:', err);
+                showToast('CR80 Card export failed: ' + err.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75');
+                    btn.innerHTML = originalHtml;
+                }
+            }
         }
 
         // Download 2-in-1 Dual Barcode High-Resolution Vector & 600 DPI ZIP Bundle
@@ -13594,23 +13856,28 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 }
 
                 // 6. 06_CR80_DieCut_ID_Card_Back_300DPI.png
-                const cardCanvas = document.createElement('canvas');
-                cardCanvas.width = 1012;
-                cardCanvas.height = 638;
-                const ctxCard = cardCanvas.getContext('2d');
-                ctxCard.fillStyle = "#F8FAFC";
-                ctxCard.fillRect(0, 0, 1012, 638);
-                ctxCard.fillStyle = "#0F172A";
-                ctxCard.fillRect(0, 40, 1012, 120);
-                ctxCard.fillStyle = "#64748B";
-                ctxCard.font = "14px monospace";
-                ctxCard.fillText("FOR TEST AND COMPLIANCE VERIFICATION ONLY - NOT FOR OFFICIAL IDENTIFICATION", 50, 200);
-                const targetWidth = 860;
-                const targetHeight = Math.min(Math.round(targetWidth * (srcPdf.height / srcPdf.width)), 260);
-                const posX = Math.round((1012 - targetWidth) / 2);
-                const posY = 240 + Math.round((260 - targetHeight) / 2);
-                ctxCard.drawImage(srcPdf, posX, posY, targetWidth, targetHeight);
-                zip.file(`${prefix}_06_CR80_DieCut_ID_Card_Back_300DPI.png`, cardCanvas.toDataURL('image/png').split(',')[1], { base64: true });
+                let fullCardCanvas = null;
+                try {
+                    fullCardCanvas = await generateFullCardCanvas();
+                } catch (e) {}
+                if (fullCardCanvas) {
+                    zip.file(`${prefix}_06_CR80_DieCut_ID_Card_Back_300DPI.png`, fullCardCanvas.toDataURL('image/png').split(',')[1], { base64: true });
+                } else {
+                    const cardCanvas = document.createElement('canvas');
+                    cardCanvas.width = 1012;
+                    cardCanvas.height = 638;
+                    const ctxCard = cardCanvas.getContext('2d');
+                    ctxCard.fillStyle = "#F8FAFC";
+                    ctxCard.fillRect(0, 0, 1012, 638);
+                    ctxCard.fillStyle = "#0F172A";
+                    ctxCard.fillRect(0, 40, 1012, 120);
+                    const targetWidth = 860;
+                    const targetHeight = Math.min(Math.round(targetWidth * (srcPdf.height / srcPdf.width)), 260);
+                    const posX = Math.round((1012 - targetWidth) / 2);
+                    const posY = 240 + Math.round((260 - targetHeight) / 2);
+                    ctxCard.drawImage(srcPdf, posX, posY, targetWidth, targetHeight);
+                    zip.file(`${prefix}_06_CR80_DieCut_ID_Card_Back_300DPI.png`, cardCanvas.toDataURL('image/png').split(',')[1], { base64: true });
+                }
 
                 // 7. 07_Official_ISO_Compliance_Certificate.pdf
                 const certDoc = await generateComplianceCertificatePdf('aamva', false);
@@ -15807,11 +16074,14 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         function toggleCardSide() {
             currentCardSide = (currentCardSide === 'back') ? 'front' : 'back';
             const btnLabel = document.getElementById('card-side-label');
+            const fullCardSub = document.querySelector('#btn-full-card span:last-child');
             if (currentCardSide === 'front') {
                 if (btnLabel) btnLabel.textContent = 'Back (Barcodes)';
+                if (fullCardSub) fullCardSub.textContent = 'ID Front';
                 showToast('Viewing Front Card Template', 'info');
             } else {
                 if (btnLabel) btnLabel.textContent = 'Front View';
+                if (fullCardSub) fullCardSub.textContent = 'ID Back';
                 showToast('Viewing Scannable Barcode Card Back', 'info');
             }
             if (typeof updateStudioCardDetails === 'function') {
