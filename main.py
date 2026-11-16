@@ -48,6 +48,14 @@ elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and not SQLALCHEMY_DATA
 
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    from sqlalchemy import event
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+        cursor.close()
 else:
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
@@ -2332,6 +2340,35 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                 print(f"[RESEND NOTICE] HTTP {r_err.code}: {err_body}")
             except Exception as r_err:
                 print(f"[RESEND NOTICE] {r_err}")
+
+        # =========================================================================
+        # METHOD 0b: SENDGRID HTTPS API (PORT 443 - NEVER BLOCKED BY RENDER)
+        # =========================================================================
+        sendgrid_key = (os.getenv("SENDGRID_API_KEY") or os.getenv("SENDGRID_KEY") or "").strip().strip("'\"")
+        if sendgrid_key:
+            try:
+                print(f"[SENDGRID] Dispatching reset email to '{to_email}' via SendGrid API...")
+                sg_from = os.getenv("EMAIL_FROM") or "support@barcode-studio-pro.com"
+                sg_payload = json.dumps({
+                    "personalizations": [{"to": [{"email": to_email}]}],
+                    "from": {"email": sg_from, "name": "Barcode Studio Pro"},
+                    "subject": subject,
+                    "content": [{"type": "text/html", "value": html_content}]
+                }).encode("utf-8")
+                sg_req = urllib.request.Request(
+                    "https://api.sendgrid.com/v3/mail/send",
+                    data=sg_payload,
+                    headers={
+                        "Authorization": f"Bearer {sendgrid_key}",
+                        "Content-Type": "application/json",
+                        "User-Agent": "BarcodeStudioPro/2.0"
+                    }
+                )
+                with urllib.request.urlopen(sg_req, timeout=4) as sg_resp:
+                    print(f"[SENDGRID SUCCESS] Delivered reset email to '{to_email}' via SendGrid API!")
+                    return {"delivered": True, "provider": "sendgrid"}
+            except Exception as sg_err:
+                print(f"[SENDGRID NOTICE] {sg_err}")
 
         # =========================================================================
         # METHOD 1: GOOGLE APPS SCRIPT / HTTPS WEBHOOK RELAY (PORT 443 - NEVER BLOCKED BY RENDER)

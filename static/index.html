@@ -7708,18 +7708,16 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const engView = document.getElementById('card-back-engineering-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
+            const allBackViews = [
+                'card-back-standard-view', 'card-back-alaska-view', 'card-back-arkansas-view', 
+                'card-back-arizona-view', 'card-back-alabama-view', 'card-back-california-view', 
+                'card-back-colorado-view', 'card-back-florida-view', 'card-back-georgia-view', 
+                'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view'
+            ];
+            allBackViews.forEach(v => document.getElementById(v)?.classList.add('hidden'));
+
             if (stateCode === 'AK') {
-                if (standardView) standardView.classList.add('hidden');
                 if (alaskaView) alaskaView.classList.remove('hidden');
-                if (arkansasView) arkansasView.classList.add('hidden');
-                if (arizonaView) arizonaView.classList.add('hidden');
-                if (alabamaView) alabamaView.classList.add('hidden');
-                if (californiaView) californiaView.classList.add('hidden');
-                if (coloradoView) coloradoView.classList.add('hidden');
-                if (floridaView) floridaView.classList.add('hidden');
-                if (georgiaView) georgiaView.classList.add('hidden');
-                if (idahoView) idahoView.classList.add('hidden');
-                if (kansasView) kansasView.classList.add('hidden');
                 if (cardEl) {
                     const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
                     const akTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate('AK', side) : null;
@@ -8677,94 +8675,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
 
             } else if (stateCode === 'HI') {
-                if (standardView) standardView.classList.add('hidden');
-                if (alaskaView) alaskaView.classList.add('hidden');
-                if (arkansasView) arkansasView.classList.add('hidden');
-                if (arizonaView) arizonaView.classList.add('hidden');
-                if (alabamaView) alabamaView.classList.add('hidden');
-                if (californiaView) californiaView.classList.add('hidden');
-                if (coloradoView) coloradoView.classList.add('hidden');
-                if (floridaView) floridaView.classList.add('hidden');
-                if (georgiaView) georgiaView.classList.add('hidden');
-                if (idahoView) idahoView.classList.add('hidden');
-                if (kansasView) kansasView.classList.add('hidden');
-                if (engView) engView.classList.remove('hidden');
-
+                if (standardView) standardView.classList.remove('hidden');
                 if (cardEl) {
-                    const side = (typeof currentCardSide !== 'undefined') ? currentCardSide : 'back';
-                    const hiTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate('HI', side) : null;
-                    cardEl.style.background = hiTmpl ? `#ffffff url("${hiTmpl}") no-repeat center / cover` : 'radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%)';
-                }
-
-                // Hawaii Engineering Test Details
-                const hiProfile = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jurKey]) ? STATE_PROFILES[jurKey] : (STATE_PROFILES['HI'] || { name: 'Hawaii' });
-                const engBadge = document.getElementById('eng-state-badge');
-                if (engBadge) engBadge.textContent = `${hiProfile.name.toUpperCase()} (HI) // AAMVA CDS BENCHMARK`;
-
-                const idVal = (document.getElementById('aamva-id')?.value || 'H00123456').trim();
-                const engDl = document.getElementById('eng-dl-val');
-                if (engDl) engDl.textContent = idVal;
-
-                const rawDob = (document.getElementById('aamva-dob')?.value || '1992-08-15').trim();
-                let dobFmt = '08/15/1992';
-                if (rawDob.includes('-')) {
-                    const p = rawDob.split('-');
-                    if (p.length === 3) dobFmt = `${p[1]}/${p[2]}/${p[0]}`;
-                } else if (rawDob.length === 8) {
-                    dobFmt = `${rawDob.substring(0, 2)}/${rawDob.substring(2, 4)}/${rawDob.substring(4, 8)}`;
-                }
-                const engDob = document.getElementById('eng-dob-val');
-                if (engDob) engDob.textContent = dobFmt;
-
-                const rawExp = (document.getElementById('aamva-exp')?.value || '2031-08-15').trim();
-                let expFmt = '08/15/2031';
-                if (rawExp.includes('-')) {
-                    const p = rawExp.split('-');
-                    if (p.length === 3) expFmt = `${p[1]}/${p[2]}/${p[0]}`;
-                } else if (rawExp.length === 8) {
-                    expFmt = `${rawExp.substring(0, 2)}/${rawExp.substring(2, 4)}/${rawExp.substring(4, 8)}`;
-                }
-                const engExp = document.getElementById('eng-exp-val');
-                if (engExp) engExp.textContent = expFmt;
-
-                const rawClass = (document.getElementById('aamva-class')?.value || '3').trim();
-                const engClass = document.getElementById('eng-class-val');
-                if (engClass) engClass.textContent = rawClass || '3';
-
-                // Sequence / Tracking (DCK / DCF or sample)
-                const dcfVal = (document.getElementById('aamva-dcf')?.value || '').trim();
-                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
-                const hiSeq = dckVal || dcfVal || (idVal ? `${idVal}-ICWH` : '20230520-ICWH');
-                const engSeq = document.getElementById('eng-seq-val');
-                if (engSeq) engSeq.textContent = hiSeq;
-
-                // Render Hawaii 1D Code 128 Companion Barcode
-                try {
-                    const cleanSeq = hiSeq.replace(/[^A-Za-z0-9\-\.\ \/\$\+\%]/g, '') || '20230520-ICWH';
-                    const engCanvas = document.getElementById('eng-code128-canvas');
-                    if (engCanvas && typeof bwipjs !== 'undefined') {
-                        bwipjs.toCanvas(engCanvas, {
-                            bcid: 'code128',
-                            text: cleanSeq,
-                            scale: 2,
-                            height: 16,
-                            includetext: false,
-                            paddingwidth: 0,
-                            paddingheight: 0
-                        });
-                    }
-                    if (typeof JsBarcode === 'function' && document.getElementById('eng-code128-svg')) {
-                        JsBarcode("#eng-code128-svg", cleanSeq, {
-                            format: "CODE128",
-                            displayValue: false,
-                            height: 24,
-                            width: 1.5,
-                            margin: 0,
-                            lineColor: "#0a0a0a"
-                        });
-                    }
-                } catch (e) {
-                    console.error("Engineering view 1D barcode error:", e);
+                    cardEl.style.background = '#ffffff url("card_templates/hawaii_back.webp") no-repeat center / cover';
                 }
 
             } else {
@@ -8946,27 +8859,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (classEl) {
                 const rawC = (document.getElementById('aamva-class')?.value || '').trim();
                 let classLabel = '';
-                if (rawC && rawC !== 'D' && rawC !== 'Operator') {
-                    classLabel = rawC.startsWith('Class') ? rawC : `Class ${rawC}`;
-                } else if (meta && meta.class_label) {
-                    classLabel = meta.class_label.replace(/^CLASS:\s*/i, '');
-                    if (!classLabel.toLowerCase().startsWith('class') && !classLabel.toLowerCase().startsWith('driver') && !classLabel.toLowerCase().startsWith('operator')) {
-                        classLabel = `Class ${classLabel}`;
-                    }
+                if (rawC) {
+                    classLabel = (rawC.toLowerCase().startsWith('class') || rawC.toLowerCase().startsWith('operator')) ? rawC : `Class ${rawC}`;
                 } else {
                     classLabel = STATE_STANDARD_CLASSES[stateCode] || 'Class D';
                 }
-                classEl.textContent = classLabel.toLowerCase().includes('driver') ? classLabel : `Driver's license (${classLabel})`;
+                classEl.textContent = classLabel;
             }
             const endEl = document.getElementById('studio-card-endorsements');
             if (endEl) {
-                const eVal = (document.getElementById('aamva-endorsements')?.value || '').trim() || 'None';
-                endEl.textContent = eVal;
+                const eVal = (document.getElementById('aamva-endorsements')?.value || '').trim() || 'NONE';
+                endEl.textContent = eVal.toUpperCase();
             }
             const restEl = document.getElementById('studio-card-restrictions');
             if (restEl) {
-                const rVal = (document.getElementById('aamva-restrictions')?.value || '').trim() || 'None';
-                restEl.textContent = rVal;
+                const rVal = (document.getElementById('aamva-restrictions')?.value || '').trim() || 'NONE';
+                restEl.textContent = rVal.toUpperCase();
             }
 
             // 6. State Watermark Styling (Authentic Seal/Typography vs Southern Cursive)
@@ -9570,8 +9478,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'FL': 'florida-pdf417',
                 'GA': 'georgia-pdf417',
                 'ID': 'idaho-pdf417',
-                'KS': 'kansas-pdf417',
-                'HI': 'eng-pdf417'
+                'KS': 'kansas-pdf417'
             };
             let activeCanvasId = stateCanvasMap[stateCode];
             if (!activeCanvasId) {
