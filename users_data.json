@@ -3,24 +3,36 @@
     "email": "mwangilewis205@gmail.com",
     "hashed_password": "$2b$10$s149q6fqI4w67e0rWoG8ievvL7Fy8cDUOHbqMFZ92zhynbb4TJAzu",
     "role": "admin",
-    "tokens": 999999
+    "tokens": 999999,
+    "referral_code": "REF-CCCFED3C",
+    "referred_by_id": null,
+    "affiliate_balance": 0.0
   },
   {
     "email": "tester@barcodestudio.pro",
-    "hashed_password": "$2b$10$fXpoxXEXFj8gXwu9cm5Unuv6ymX8xWexKw/uMWymc9/NaZ/A68HBO",
+    "hashed_password": "$2b$10$Gn9z2VDAnrdKlY1osQ14Lu98nB5oBpX6I.IYZ1QhAruXA7p25Xr3q",
     "role": "admin",
-    "tokens": 999999
+    "tokens": 999999,
+    "referral_code": "REF-98DAD214",
+    "referred_by_id": null,
+    "affiliate_balance": 0.0
   },
   {
     "email": "passkey_admin@barcodestudio.pro",
-    "hashed_password": "$2b$10$FZ5S/AAvAwznoWfQVbGhsehjWwRbtTdBtpqGSpM3szyzolhRMsx/e",
+    "hashed_password": "$2b$10$NAA6G1U/mjfhG4GhDSs0eOQCD7E4jBH73N0l4IY5ZcX2LkXT.Tkdi",
     "role": "admin",
-    "tokens": 999999
+    "tokens": 999999,
+    "referral_code": "REF-28F03A5F",
+    "referred_by_id": null,
+    "affiliate_balance": 0.0
   },
   {
     "email": "outsider_client@barcodestudio.pro",
-    "hashed_password": "$2b$10$Kl2RaxMKu.pD6GVX5dyb4.w5mkcZYRn.bMXYpvm3If6Er6Xz9vMEO",
+    "hashed_password": "$2b$10$NKxM8NDuCzWW9v/OQ3QOPuvzIaT0ThdhopH2CpYyxRzDe7g.mjEGW",
     "role": "free_user",
-    "tokens": 979
+    "tokens": 979,
+    "referral_code": "REF-6A688AAD",
+    "referred_by_id": null,
+    "affiliate_balance": 0.0
   }
 ]

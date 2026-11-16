@@ -2623,7 +2623,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                          style="background: radial-gradient(ellipse 110% 95% at 50% 30%, #b2bdcc 0%, #8b97a6 32%, #687483 62%, #4f5b69 86%, #424d5a 100%);">
                         
                         <!-- Authentic CR80 Physical Card Sitting on Stage -->
-                        <div id="studio-cr80-card" class="relative z-10 w-full max-w-[410px] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+                        <div id="studio-cr80-card" class="relative z-10 w-full max-w-[410px] aspect-[1200/756] bg-white rounded-[14px] shadow-[0_18px_36px_-4px_rgba(12,18,28,0.45),0_6px_14px_-2px_rgba(12,18,28,0.25),0_0_0_1px_rgba(0,0,0,0.08)] overflow-hidden text-slate-900 select-none flex flex-col justify-between" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
                             
                             <!-- Authentic Physical CR80 Guilloche Security Microprint Overlay -->
                             <div id="card-security-pattern" class="absolute inset-0 pointer-events-none opacity-[0.035] z-0 overflow-hidden" style="background-image: radial-gradient(#1e293b 1px, transparent 1px), radial-gradient(#1e293b 1px, transparent 1px); background-size: 8px 8px; background-position: 0 0, 4px 4px;"></div>
@@ -2649,30 +2649,36 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Authentic Physical CR80 Front Card Template View (Revealed when Flip Card is clicked) -->
-                            <div id="card-front-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10 flex flex-col justify-between p-3.5">
+                            <div id="card-front-view" class="hidden w-full h-full relative overflow-hidden select-none z-10 flex flex-col justify-between p-3.5">
                                 <div class="flex justify-between items-start">
-                                    <div class="space-y-0.5 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded shadow-2xs border border-white/60">
-                                        <div id="front-state-title" class="font-extrabold text-[10px] uppercase tracking-wider text-slate-900">WASHINGTON DRIVER LICENSE</div>
-                                        <div id="front-card-dl" class="font-mono text-[9px] font-extrabold text-blue-900">DL: WDL987654321</div>
+                                    <div id="front-header-box" class="space-y-0.5">
+                                        <div id="front-state-title" class="font-extrabold text-[10px] uppercase tracking-wider text-slate-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">WASHINGTON DRIVER LICENSE</div>
+                                        <div class="font-mono text-[9px] font-extrabold text-blue-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+                                            <span class="text-[7.5px] text-slate-600 font-bold uppercase">4d. DL:</span> <span id="front-card-dl">WDL987654321</span>
+                                        </div>
                                     </div>
                                     <div id="front-realid-star" class="w-6 h-6 rounded-full bg-amber-400 border border-amber-500 flex items-center justify-center text-white text-[10px] font-black shadow-xs">★</div>
                                 </div>
                                 <div class="flex justify-between items-end">
-                                    <div class="space-y-1 text-[8.5px] font-semibold text-slate-800 bg-white/85 backdrop-blur-xs p-2 rounded shadow-2xs border border-white/70">
-                                        <div><span class="text-[7px] text-slate-500 uppercase">LN:</span> <span id="front-card-last" class="font-bold">DOE</span></div>
-                                        <div><span class="text-[7px] text-slate-500 uppercase">FN:</span> <span id="front-card-first" class="font-bold">JOHN</span></div>
-                                        <div><span class="text-[7px] text-slate-500 uppercase">DOB:</span> <span id="front-card-dob">01/01/1990</span></div>
-                                        <div><span class="text-[7px] text-slate-500 uppercase">EXP:</span> <span id="front-card-exp">01/01/2028</span></div>
+                                    <div id="front-demo-box" class="space-y-0.5 text-[8.5px] font-semibold text-slate-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+                                        <div><span class="text-[7px] text-slate-600 font-bold uppercase">1. LN:</span> <span id="front-card-last" class="font-black text-slate-950">DOE</span></div>
+                                        <div><span class="text-[7px] text-slate-600 font-bold uppercase">2. FN:</span> <span id="front-card-first" class="font-black text-slate-950">JOHN</span></div>
+                                        <div><span class="text-[7px] text-slate-600 font-bold uppercase">3. DOB:</span> <span id="front-card-dob" class="font-bold">01/01/1990</span></div>
+                                        <div><span class="text-[7px] text-slate-600 font-bold uppercase">4b. EXP:</span> <span id="front-card-exp" class="font-bold">01/01/2028</span></div>
+                                        <div class="flex items-center gap-2">
+                                            <span><span class="text-[7px] text-slate-600 font-bold uppercase">9. CLASS:</span> <span id="front-card-class" class="font-bold">D</span></span>
+                                            <span><span class="text-[7px] text-slate-600 font-bold uppercase">15. SEX:</span> <span id="front-card-sex" class="font-bold">M</span></span>
+                                        </div>
                                     </div>
-                                    <div class="w-16 h-20 rounded bg-slate-200/90 border border-slate-300 shadow-xs flex flex-col items-center justify-center text-slate-400 overflow-hidden">
-                                        <svg class="w-8 h-8 opacity-60 text-slate-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
-                                        <span class="text-[6px] font-mono font-bold text-slate-600 uppercase tracking-tight">PORTRAIT</span>
+                                    <div id="front-portrait-box" class="w-16 h-20 rounded border border-slate-400/40 bg-slate-900/5 backdrop-blur-[0.5px] shadow-xs flex flex-col items-center justify-center text-slate-500 overflow-hidden">
+                                        <svg class="w-8 h-8 opacity-40 text-slate-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                        <span class="text-[5.5px] font-mono font-bold text-slate-600 uppercase tracking-tight">PORTRAIT</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Standard CR80 Card-Back View (Standard / Southern / Canadian Jurisdictions) -->
-                            <div id="card-back-standard-view" class="w-full flex-1 flex flex-col justify-between relative z-10">
+                            <div id="card-back-standard-view" class="w-full h-full flex flex-col justify-between relative z-10">
                                 <!-- Top Section (Above Magnetic Stripe / Top Security Band) -->
                                 <div id="card-back-header" class="px-3.5 pt-2.5 pb-1 flex justify-between items-center bg-transparent min-h-[24px] relative z-10">
                                     <div class="flex items-center gap-1.5 overflow-hidden">
@@ -2783,7 +2789,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Alaska Authentic Physical CR80 Card-Back View (Notch Cutout, Vertical Code 128, Forget-Me-Not Emblem) -->
-                            <div id="card-back-alaska-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10">
+                            <div id="card-back-alaska-view" class="hidden w-full h-full relative overflow-hidden select-none z-10">
                                 <!-- Fine Constellation / Microprint Mesh Pattern -->
                                 <div class="absolute inset-0 pointer-events-none opacity-[0.06]" style="background-image: radial-gradient(#0369a1 1px, transparent 1px), radial-gradient(#0369a1 1px, transparent 1px); background-size: 10px 10px; background-position: 0 0, 5px 5px;"></div>
 
@@ -2849,7 +2855,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Arkansas Authentic Physical CR80 Card-Back View (Capitol Line Art, Top PDF417, Stacked Numbers, Right Vertical Code 128, Circular Ghost Portrait) -->
-                            <div id="card-back-arkansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/arkansas_back.webp') no-repeat center / cover;">
+                            <div id="card-back-arkansas-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/arkansas_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top PDF417 Barcode Container (Quiet Zone White Box across the top) -->
                                 <div class="absolute top-2 left-2.5 right-[66px] flex items-center justify-center z-10">
@@ -2909,7 +2915,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Arizona Authentic Physical CR80 Card-Back View (Top 1D Code 128, Magstripe, Guilloche Band, Bottom PDF417) -->
-                            <div id="card-back-arizona-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/arizona_back.webp') no-repeat center / cover;">
+                            <div id="card-back-arizona-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/arizona_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right) -->
                                 <div class="absolute top-1 right-6 sm:right-8 flex items-center justify-end z-20 overflow-hidden h-[20px] w-[210px]">
@@ -2969,7 +2975,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Alabama Authentic Physical CR80 Card-Back View (Top 1D Code 128, Magstripe, Microprint Line, Great Seal, Bottom PDF417) -->
-                            <div id="card-back-alabama-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/alabama_back.webp') no-repeat center / cover;">
+                            <div id="card-back-alabama-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/alabama_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Sequence / ICN Number (Left of Top Barcode) -->
                                 <div class="absolute top-1.5 left-4 flex items-center z-20">
@@ -3027,7 +3033,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- California Custom Card Back View (Authentic Pier Substrate Replica) -->
-                            <div id="card-back-california-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/california_back.webp') no-repeat center / cover;">
+                            <div id="card-back-california-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/california_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top 1D Code 128 Barcode Container (Horizontal above Magstripe on Right/Center) -->
                                 <div class="absolute top-0 left-[34.15%] w-[55.91%] h-[6.68%] flex items-center justify-center z-20 overflow-hidden">
@@ -3071,7 +3077,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Colorado Custom Card Back View (Authentic State Capitol Substrate Replica) -->
-                            <div id="card-back-colorado-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/colorado_back.webp') no-repeat center / cover;">
+                            <div id="card-back-colorado-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/colorado_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Magnetic Stripe (Solid Black Hi-Co Stripe across 100% width) -->
                                 <div id="colorado-magstripe" class="absolute top-[8.9%] left-0 w-full h-[23.1%] bg-black/90 z-10 shadow-inner"></div>
@@ -3131,7 +3137,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Florida Custom Card Back View (Authentic Substrate, Hi-Co Stripe, Guilloche, 1D Top Barcode, Gold Medallion & 2D PDF417) -->
-                            <div id="card-back-florida-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/florida_back.webp') no-repeat center / cover;">
+                            <div id="card-back-florida-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/florida_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Sequence / Audit Number (Left of Top Barcode) -->
                                 <div class="absolute flex items-center select-none z-20" style="left: 3.6%; top: 2.5%; height: 21px;">
@@ -3190,7 +3196,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Georgia Custom Card Back View (Authentic Substrate, DDS Logo, Top Audit & 1D Barcode, Upper-Right 2D PDF417, Demographics & State Capitol Seal) -->
-                            <div id="card-back-georgia-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/georgia_back.webp') no-repeat center / cover;">
+                            <div id="card-back-georgia-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/georgia_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Left Revision Date (Rev 10/22/2017 above DDS Logo) -->
                                 <div class="absolute flex items-center select-none z-20" style="left: 3.7%; top: 7.8%; height: 16px;">
@@ -3235,7 +3241,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Idaho Custom Card Back View (Authentic Substrate, Top DOB/REV & 1D Barcode, Upper-Right 2D PDF417, Lower-Left Demographics & Centered Legal Disclaimer) -->
-                            <div id="card-back-idaho-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/idaho_back.webp') no-repeat center / cover;">
+                            <div id="card-back-idaho-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/idaho_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Left DOB and Revision Date -->
                                 <div class="absolute flex items-center select-none z-20" style="left: 3.3%; top: 4.8%; height: 16px;">
@@ -3286,7 +3292,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- Kansas Custom Card Back View (Authentic Substrate, Top Rev/DOB, Dotted Turtle Perforation, Top 1D Barcode & Center 2D PDF417, Demographics & Kansas State Box) -->
-                            <div id="card-back-kansas-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/kansas_back.webp') no-repeat center / cover;">
+                            <div id="card-back-kansas-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #fafaf8 url('card_templates/kansas_back.webp') no-repeat center / cover;">
                                 
                                 <!-- Top Left Revision Date and DOB (Centered above turtle perforation) -->
                                 <div class="absolute flex flex-col items-center justify-center select-none z-20" style="left: 6.2%; top: 4.8%; width: 22.0%;">
@@ -3323,7 +3329,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             </div>
 
                             <!-- AAMVA Engineering Test-Card & Diagnostics View (High-Precision Diagnostic Fixture for Hawaii & Downward Jurisdictions) -->
-                            <div id="card-back-engineering-view" class="hidden w-full h-[258px] relative overflow-hidden select-none z-10 flex flex-col justify-between p-2.5"
+                            <div id="card-back-engineering-view" class="hidden w-full h-full relative overflow-hidden select-none z-10 flex flex-col justify-between p-2.5"
                                  style="background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);">
                                 
                                 <!-- Blueprint Engineering Grid Background Overlay -->
@@ -3949,19 +3955,17 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <div id="mrz-specimen-chamber" class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-4 sm:p-5 rounded-2xl border border-slate-700/80 shadow-xl flex flex-col gap-3">
                         
                         <!-- 1. Specimen: Canada Passport (TD3) -->
-                        <div id="specimen-card-ca_passport" class="relative w-full rounded-xl overflow-hidden border border-amber-900/40 p-4 text-slate-900 select-none shadow-md" style="background: linear-gradient(135deg, #fdfbf7 0%, #f7f3ea 50%, #eee8dc 100%);">
-                            <!-- Background Guilloche Maple Leaf and Coat of Arms Watermarks -->
-                            <div class="absolute inset-0 pointer-events-none opacity-[0.06] flex items-center justify-center">
-                                <svg class="w-64 h-64 text-emerald-900" viewBox="0 0 100 100" fill="currentColor"><path d="M50 5 L55 25 L75 20 L65 38 L85 45 L68 58 L78 78 L58 70 L50 95 L42 70 L22 78 L32 58 L15 45 L35 38 L25 20 L45 25 Z"/></svg>
-                            </div>
+                        <div id="specimen-card-ca_passport" class="relative w-full rounded-xl overflow-hidden border border-amber-900/40 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/ca_passport_specimen.webp') no-repeat center / cover;">
+                            <!-- Subtle backdrop overlay for high contrast legibility -->
+                            <div class="absolute inset-0 bg-white/20 backdrop-blur-[1px] pointer-events-none"></div>
                             <!-- Header -->
                             <div class="relative z-10 flex items-center justify-between pb-2 mb-2 border-b border-emerald-900/30">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none">PASSPORT / PASSEPORT</span>
+                                    <span class="text-[9px] font-bold text-slate-800 uppercase tracking-widest leading-none bg-white/70 px-1.5 py-0.5 rounded shadow-2xs">PASSPORT / PASSEPORT</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm font-black text-emerald-900 tracking-widest font-serif">CANADA</span>
-                                    <div class="w-6 h-4 border border-emerald-900/60 rounded flex items-center justify-center bg-white/60">
+                                    <span class="text-sm font-black text-emerald-950 tracking-widest font-serif drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">CANADA</span>
+                                    <div class="w-6 h-4 border border-emerald-900/60 rounded flex items-center justify-center bg-white/80">
                                         <div class="w-2.5 h-1.5 rounded-full border border-emerald-900 flex items-center justify-center"><div class="w-1 h-1 bg-emerald-900 rounded-full"></div></div>
                                     </div>
                                 </div>
@@ -3977,113 +3981,115 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         </svg>
                                         <div class="absolute bottom-1 right-1 opacity-25 text-emerald-900"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14 8L20 7L16 12L21 15L15 17L17 22L12 18L7 22L9 17L3 15L8 12L4 7L10 8Z"/></svg></div>
                                     </div>
-                                    <span class="text-[7px] font-mono text-slate-500 mt-1 uppercase">Specimen Image</span>
+                                    <span class="text-[7px] font-mono text-slate-700 mt-1 uppercase font-semibold bg-white/70 px-1 rounded">Specimen Image</span>
                                 </div>
                                 <!-- Demographics -->
                                 <div class="col-span-8 sm:col-span-9 flex flex-col justify-between text-[8px] leading-tight text-slate-800">
                                     <div class="grid grid-cols-3 gap-1.5 pb-1 border-b border-slate-300/60">
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Type/Type</span><span class="font-bold font-mono">P</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Country/Pays</span><span class="font-bold font-mono">CAN</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Passport No./N° passeport</span><span id="spec-ca-pass-num" class="font-mono font-bold text-slate-950">AC183937</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Type/Type</span><span class="font-bold font-mono bg-white/70 px-1 rounded">P</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Country/Pays</span><span class="font-bold font-mono bg-white/70 px-1 rounded">CAN</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Passport No./N° passeport</span><span id="spec-ca-pass-num" class="font-mono font-bold text-slate-950 bg-white/80 px-1 rounded shadow-2xs">AC183937</span></div>
                                     </div>
                                     <div class="py-0.5">
-                                        <span class="text-[6.5px] text-slate-500 block uppercase">Surname / Nom</span>
-                                        <span id="spec-ca-surname" class="font-bold text-[9px] uppercase tracking-wide text-slate-950">SMITH</span>
+                                        <span class="text-[6.5px] text-slate-600 block uppercase font-bold">Surname / Nom</span>
+                                        <span id="spec-ca-surname" class="font-bold text-[9px] uppercase tracking-wide text-slate-950 bg-white/80 px-1 rounded shadow-2xs">SMITH</span>
                                     </div>
                                     <div class="py-0.5">
-                                        <span class="text-[6.5px] text-slate-500 block uppercase">Given names / Prénoms</span>
-                                        <span id="spec-ca-given" class="font-bold text-[9px] uppercase tracking-wide text-slate-950">JANE</span>
+                                        <span class="text-[6.5px] text-slate-600 block uppercase font-bold">Given names / Prénoms</span>
+                                        <span id="spec-ca-given" class="font-bold text-[9px] uppercase tracking-wide text-slate-950 bg-white/80 px-1 rounded shadow-2xs">JANE</span>
                                     </div>
                                     <div class="grid grid-cols-2 gap-1.5 py-0.5">
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Nationality / Nationalité</span><span id="spec-ca-nat" class="font-bold text-slate-950">CANADIAN / CANADIENNE</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Date of birth / Naissance</span><span id="spec-ca-dob" class="font-bold font-mono text-slate-950">28 FEB / FÉV 99</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Nationality / Nationalité</span><span id="spec-ca-nat" class="font-bold text-slate-950 bg-white/80 px-1 rounded shadow-2xs">CANADIAN / CANADIENNE</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Date of birth / Naissance</span><span id="spec-ca-dob" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded shadow-2xs">28 FEB / FÉV 99</span></div>
                                     </div>
                                     <div class="grid grid-cols-3 gap-1.5 pt-0.5 border-t border-slate-300/60 items-end">
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Sex / Sexe</span><span id="spec-ca-sex" class="font-bold font-mono text-slate-950">F</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Expiry / Expiration</span><span id="spec-ca-exp" class="font-bold font-mono text-slate-950">19 JUN / JUN 31</span></div>
-                                        <div class="text-right italic font-serif text-[10px] text-slate-700 pr-1 select-none">Jane Smith</div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Sex / Sexe</span><span id="spec-ca-sex" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded">F</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Expiry / Expiration</span><span id="spec-ca-exp" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded shadow-2xs">19 JUN / JUN 31</span></div>
+                                        <div class="text-right italic font-serif text-[10px] text-slate-900 pr-1 select-none font-bold">Jane Smith</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 2. Specimen: Canada Permanent Resident Card (TD1) -->
-                        <div id="specimen-card-ca_pr" class="hidden relative w-full rounded-xl overflow-hidden border border-slate-300 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff;">
+                        <div id="specimen-card-ca_pr" class="hidden relative w-full rounded-xl overflow-hidden border border-slate-300 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/ca_pr_specimen.webp') no-repeat center / cover;">
+                            <div class="absolute inset-0 bg-white/20 backdrop-blur-[1px] pointer-events-none"></div>
                             <!-- Top: Barcode and Document Number (Red Oval) -->
-                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
-                                <div class="flex items-center bg-white px-1 py-0.5 rounded">
+                            <div class="relative z-10 flex items-center justify-between pb-2 mb-2 border-b border-slate-300">
+                                <div class="flex items-center bg-white/90 px-1.5 py-0.5 rounded shadow-2xs">
                                     <svg id="ca-pr-code128-svg" class="max-h-[22px] max-w-[210px]"></svg>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <span id="spec-pr-num" class="font-mono font-black text-red-700 px-2 py-0.5 rounded-full border border-red-500 text-[10px] bg-red-50/50">9D0000024</span>
-                                    <span class="text-base">🍁</span>
+                                    <span id="spec-pr-num" class="font-mono font-black text-red-700 px-2 py-0.5 rounded-full border border-red-500 text-[10px] bg-white/90 shadow-2xs">9D0000024</span>
+                                    <span class="text-base drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">🍁</span>
                                 </div>
                             </div>
                             <!-- Body Grid -->
-                            <div class="grid grid-cols-12 gap-3 items-center">
+                            <div class="relative z-10 grid grid-cols-12 gap-3 items-center">
                                 <!-- Ghost Maple Leaf Silhouette -->
                                 <div class="col-span-4 sm:col-span-3 flex flex-col items-center">
-                                    <div class="w-full aspect-[3/4] bg-slate-100 rounded-lg border-2 border-slate-300 relative flex items-center justify-center overflow-hidden">
+                                    <div class="w-full aspect-[3/4] bg-slate-100/90 rounded-lg border-2 border-slate-300 relative flex items-center justify-center overflow-hidden">
                                         <svg class="w-16 h-16 text-slate-400 opacity-60" viewBox="0 0 100 100" fill="currentColor">
                                             <circle cx="50" cy="38" r="22"/>
                                             <path d="M15,95 C15,68 32,62 50,62 C68,62 85,68 85,95 Z"/>
                                         </svg>
                                         <div class="absolute inset-0 border border-slate-400/40 rounded-lg pointer-events-none"></div>
                                     </div>
-                                    <span class="text-[7px] font-mono text-slate-500 mt-1 uppercase">PR Ghost Silhouette</span>
+                                    <span class="text-[7px] font-mono text-slate-700 mt-1 uppercase font-semibold bg-white/70 px-1 rounded">PR Ghost Silhouette</span>
                                 </div>
                                 <!-- Demographics -->
                                 <div class="col-span-8 sm:col-span-9 flex flex-col gap-1 text-[8px] font-mono text-slate-800">
-                                    <div class="flex justify-between border-b border-slate-100 pb-0.5">
-                                        <span class="text-slate-500">Place of Landing/Lieu d'établissement :</span>
+                                    <div class="flex justify-between border-b border-slate-200/80 pb-0.5 bg-white/70 px-1 rounded">
+                                        <span class="text-slate-600 font-bold">Place of Landing/Lieu d'établissement :</span>
                                         <span id="spec-pr-landing" class="font-bold text-slate-950 uppercase">OTTAWA</span>
                                     </div>
-                                    <div class="flex justify-between border-b border-slate-100 pb-0.5">
-                                        <span class="text-slate-500">PR Since/RP depuis :</span>
+                                    <div class="flex justify-between border-b border-slate-200/80 pb-0.5 bg-white/70 px-1 rounded">
+                                        <span class="text-slate-600 font-bold">PR Since/RP depuis :</span>
                                         <span id="spec-pr-since" class="font-bold text-slate-950">01 JUN /JUIN 15</span>
                                     </div>
-                                    <div class="flex justify-between border-b border-slate-100 pb-0.5">
-                                        <span class="text-slate-500">Eyes/Yeux :</span>
+                                    <div class="flex justify-between border-b border-slate-200/80 pb-0.5 bg-white/70 px-1 rounded">
+                                        <span class="text-slate-600 font-bold">Eyes/Yeux :</span>
                                         <span class="font-bold text-slate-950">BROWN/BRUN</span>
                                     </div>
-                                    <div class="flex justify-between border-b border-slate-100 pb-0.5">
-                                        <span class="text-slate-500">Height/Taille :</span>
+                                    <div class="flex justify-between border-b border-slate-200/80 pb-0.5 bg-white/70 px-1 rounded">
+                                        <span class="text-slate-600 font-bold">Height/Taille :</span>
                                         <span class="font-bold text-slate-950">164 cm</span>
                                     </div>
-                                    <div class="flex justify-between items-center pt-0.5">
-                                        <span class="text-slate-500">COB/PDN : <strong class="text-slate-900">UTP</strong></span>
-                                        <span class="font-mono text-slate-300 font-bold tracking-widest text-xs select-none">0018-5978</span>
+                                    <div class="flex justify-between items-center pt-0.5 bg-white/70 px-1 rounded">
+                                        <span class="text-slate-600 font-bold">COB/PDN : <strong class="text-slate-950">UTP</strong></span>
+                                        <span class="font-mono text-slate-500 font-bold tracking-widest text-xs select-none">0018-5978</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 3. Specimen: German ID Card / Personalausweis (TD1) -->
-                        <div id="specimen-card-de_id" class="hidden relative w-full rounded-xl overflow-hidden border border-emerald-800/30 p-4 text-slate-900 select-none shadow-md" style="background: linear-gradient(135deg, #e8ede4 0%, #dbe4d5 50%, #ccd8c5 100%);">
+                        <div id="specimen-card-de_id" class="hidden relative w-full rounded-xl overflow-hidden border border-emerald-800/30 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/de_id_specimen.webp') no-repeat center / cover;">
+                            <div class="absolute inset-0 bg-white/15 backdrop-blur-[1px] pointer-events-none"></div>
                             <!-- Background Guilloche Lines -->
                             <div class="absolute inset-0 pointer-events-none opacity-10 flex items-center justify-center">
                                 <svg class="w-full h-full text-emerald-950" viewBox="0 0 200 100" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M0 20 Q 50 80, 100 20 T 200 20 M0 40 Q 50 100, 100 40 T 200 40 M0 60 Q 50 120, 100 60 T 200 60"/></svg>
                             </div>
                             <!-- Upper Section -->
                             <div class="relative z-10 grid grid-cols-2 gap-3 text-[8px] font-sans pb-2 border-b border-slate-400/40">
-                                <div>
-                                    <div class="text-[6.5px] text-slate-600 uppercase">Augenfarbe / Eyes</div>
+                                <div class="bg-white/75 p-1.5 rounded shadow-2xs">
+                                    <div class="text-[6.5px] text-slate-600 uppercase font-bold">Augenfarbe / Eyes</div>
                                     <div class="font-bold text-slate-900 font-mono">GRÜN</div>
-                                    <div class="text-[6.5px] text-slate-600 uppercase mt-1">Größe / Height</div>
+                                    <div class="text-[6.5px] text-slate-600 uppercase font-bold mt-1">Größe / Height</div>
                                     <div class="font-bold text-slate-900 font-mono">160 cm</div>
-                                    <div class="text-[6.5px] text-slate-600 uppercase mt-1">Datum / Date</div>
+                                    <div class="text-[6.5px] text-slate-600 uppercase font-bold mt-1">Datum / Date</div>
                                     <div id="spec-de-date" class="font-bold text-slate-900 font-mono">02.08.21</div>
-                                    <div class="text-[6.5px] text-slate-600 uppercase mt-1">Behörde / Authority</div>
+                                    <div class="text-[6.5px] text-slate-600 uppercase font-bold mt-1">Behörde / Authority</div>
                                     <div class="font-bold text-slate-900">STADT KÖLN</div>
                                 </div>
-                                <div class="relative flex flex-col justify-between">
+                                <div class="relative flex flex-col justify-between bg-white/75 p-1.5 rounded shadow-2xs">
                                     <div>
-                                        <div class="text-[6.5px] text-slate-600 uppercase">Anschrift / Address</div>
+                                        <div class="text-[6.5px] text-slate-600 uppercase font-bold">Anschrift / Address</div>
                                         <div class="font-bold text-slate-950 text-[9px] font-mono leading-tight">51147 KÖLN<br>HEIDESTRASSE 17</div>
                                     </div>
                                     <div class="flex items-center justify-between mt-2">
-                                        <span class="text-blue-600/40 font-bold text-sm transform -rotate-12 select-none tracking-widest border border-blue-500/30 px-1 rounded">MUSTER</span>
-                                        <div class="w-5 h-5 rounded-full border border-emerald-700/60 flex items-center justify-center text-[8px] font-bold text-emerald-800">⭕</div>
+                                        <span class="text-blue-700 font-bold text-sm transform -rotate-12 select-none tracking-widest border border-blue-500/40 px-1 rounded bg-white/80">MUSTER</span>
+                                        <div class="w-5 h-5 rounded-full border border-emerald-700/60 flex items-center justify-center text-[8px] font-bold text-emerald-800 bg-white/80">⭕</div>
                                     </div>
                                 </div>
                             </div>
@@ -4094,13 +4100,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
 
                         <!-- 4. Specimen: UK Entry Clearance Visa (MRV-B / TD2) -->
-                        <div id="specimen-card-uk_visa" class="hidden relative w-full rounded-xl overflow-hidden border border-amber-800/40 p-4 text-slate-900 select-none shadow-md" style="background: linear-gradient(135deg, #fdfbf7 0%, #f5efe6 100%);">
+                        <div id="specimen-card-uk_visa" class="hidden relative w-full rounded-xl overflow-hidden border border-amber-800/40 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/uk_visa_specimen.webp') no-repeat center / cover;">
+                            <div class="absolute inset-0 bg-white/20 backdrop-blur-[1px] pointer-events-none"></div>
                             <!-- Top Banner -->
                             <div class="relative z-10 flex items-center justify-between pb-1.5 mb-1.5 border-b border-amber-900/30">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="text-xs font-serif font-black text-amber-950 tracking-wider">UK ENTRY CLEARANCE</span>
+                                    <span class="text-xs font-serif font-black text-amber-950 tracking-wider bg-white/70 px-1 rounded">UK ENTRY CLEARANCE</span>
                                 </div>
-                                <span id="spec-uk-vaf" class="font-mono font-bold text-red-700 text-xs tracking-widest">000000000</span>
+                                <span id="spec-uk-vaf" class="font-mono font-bold text-red-700 text-xs tracking-widest bg-white/80 px-1 rounded shadow-2xs">000000000</span>
                             </div>
                             <!-- Grid -->
                             <div class="relative z-10 grid grid-cols-12 gap-3 items-center">
@@ -4112,10 +4119,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                             <path d="M15,95 C15,68 32,62 50,62 C68,62 85,68 85,95 Z"/>
                                         </svg>
                                     </div>
-                                    <span class="text-[7px] font-bold text-amber-950 mt-1 uppercase">UK Vignette</span>
+                                    <span class="text-[7px] font-bold text-amber-950 mt-1 uppercase bg-white/70 px-1 rounded">UK Vignette</span>
                                 </div>
                                 <!-- Fields -->
-                                <div class="col-span-9 flex flex-col gap-0.5 text-[7.5px] leading-tight text-slate-900 font-mono">
+                                <div class="col-span-9 flex flex-col gap-0.5 text-[7.5px] leading-tight text-slate-900 font-mono bg-white/75 p-1.5 rounded shadow-2xs">
                                     <div class="flex justify-between">
                                         <span>Place of Issue: <strong>UKVI 05</strong></span>
                                         <span>Valid from: <strong id="spec-uk-from">01/01/24</strong></span>
@@ -4132,17 +4139,18 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         <span>DOB: <strong id="spec-uk-dob">15/03/90</strong></span>
                                         <span>Nat: <strong id="spec-uk-nat">KGZ</strong></span>
                                     </div>
-                                    <div class="text-[6.5px] text-slate-600 italic pt-1 border-t border-slate-300">No work or recourse to public funds. Duration 180 days.</div>
+                                    <div class="text-[6.5px] text-slate-700 italic pt-1 border-t border-slate-300">No work or recourse to public funds. Duration 180 days.</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 5. Specimen: US Passport (TD3) -->
-                        <div id="specimen-card-us_passport" class="hidden relative w-full rounded-xl overflow-hidden border border-blue-900/40 p-4 text-slate-900 select-none shadow-md" style="background: linear-gradient(135deg, #f4f6fa 0%, #e8ecf4 100%);">
+                        <div id="specimen-card-us_passport" class="hidden relative w-full rounded-xl overflow-hidden border border-blue-900/40 p-4 text-slate-900 select-none shadow-md" style="background: #ffffff url('mrz_templates/us_passport_specimen.webp') no-repeat center / cover;">
+                            <div class="absolute inset-0 bg-white/20 backdrop-blur-[1px] pointer-events-none"></div>
                             <!-- Header -->
                             <div class="relative z-10 flex items-center justify-between pb-2 mb-2 border-b border-blue-900/30">
-                                <span class="text-[9px] font-bold text-blue-950 uppercase tracking-widest">PASSPORT / UNITED STATES OF AMERICA</span>
-                                <div class="w-6 h-4 border border-blue-900/60 rounded flex items-center justify-center bg-white/60">
+                                <span class="text-[9px] font-bold text-blue-950 uppercase tracking-widest bg-white/75 px-1 rounded">PASSPORT / UNITED STATES OF AMERICA</span>
+                                <div class="w-6 h-4 border border-blue-900/60 rounded flex items-center justify-center bg-white/80">
                                     <div class="w-2.5 h-1.5 rounded-full border border-blue-900 flex items-center justify-center"><div class="w-1 h-1 bg-blue-900 rounded-full"></div></div>
                                 </div>
                             </div>
@@ -4155,23 +4163,23 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                             <path d="M15,95 C15,68 32,62 50,62 C68,62 85,68 85,95 Z"/>
                                         </svg>
                                     </div>
-                                    <span class="text-[7px] font-mono text-slate-500 mt-1 uppercase">US Specimen</span>
+                                    <span class="text-[7px] font-mono text-slate-700 mt-1 uppercase font-semibold bg-white/70 px-1 rounded">US Specimen</span>
                                 </div>
                                 <div class="col-span-9 flex flex-col justify-between text-[8px] leading-tight text-slate-800">
                                     <div class="grid grid-cols-3 gap-1.5 pb-1 border-b border-slate-300">
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Type</span><span class="font-bold font-mono">P</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Code</span><span class="font-bold font-mono">USA</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Passport No.</span><span id="spec-us-pass" class="font-mono font-bold text-slate-950">C01234567</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Type</span><span class="font-bold font-mono bg-white/70 px-1 rounded">P</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Code</span><span class="font-bold font-mono bg-white/70 px-1 rounded">USA</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Passport No.</span><span id="spec-us-pass" class="font-mono font-bold text-slate-950 bg-white/80 px-1 rounded shadow-2xs">C01234567</span></div>
                                     </div>
-                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-500 block uppercase">Surname</span><span id="spec-us-surname" class="font-bold text-[9px] uppercase tracking-wide text-slate-950">GARCIA</span></div>
-                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-500 block uppercase">Given Names</span><span id="spec-us-given" class="font-bold text-[9px] uppercase tracking-wide text-slate-950">JONATHAN</span></div>
+                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Surname</span><span id="spec-us-surname" class="font-bold text-[9px] uppercase tracking-wide text-slate-950 bg-white/80 px-1 rounded shadow-2xs">GARCIA</span></div>
+                                    <div class="py-0.5"><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Given Names</span><span id="spec-us-given" class="font-bold text-[9px] uppercase tracking-wide text-slate-950 bg-white/80 px-1 rounded shadow-2xs">JONATHAN</span></div>
                                     <div class="grid grid-cols-2 gap-1.5 py-0.5">
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Nationality</span><span class="font-bold text-slate-950">UNITED STATES OF AMERICA</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Date of Birth</span><span id="spec-us-dob" class="font-bold font-mono text-slate-950">21 JUN 1992</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Nationality</span><span class="font-bold text-slate-950 bg-white/80 px-1 rounded shadow-2xs">UNITED STATES OF AMERICA</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Date of Birth</span><span id="spec-us-dob" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded shadow-2xs">21 JUN 1992</span></div>
                                     </div>
                                     <div class="grid grid-cols-2 gap-1.5 pt-0.5 border-t border-slate-300">
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Sex</span><span id="spec-us-sex" class="font-bold font-mono text-slate-950">M</span></div>
-                                        <div><span class="text-[6.5px] text-slate-500 block uppercase">Expiration</span><span id="spec-us-exp" class="font-bold font-mono text-slate-950">21 JUN 2032</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Sex</span><span id="spec-us-sex" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded">M</span></div>
+                                        <div><span class="text-[6.5px] text-slate-600 block uppercase font-bold">Expiration</span><span id="spec-us-exp" class="font-bold font-mono text-slate-950 bg-white/80 px-1 rounded shadow-2xs">21 JUN 2032</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -7547,56 +7555,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function updateCardFrontDetails() {
-            const getV = (id, fb = '') => {
-                const el = document.getElementById(id);
-                return (el && el.value.trim() !== '') ? el.value.trim() : fb;
-            };
-            const jKey = document.getElementById('aamva-jurisdiction')?.value || 'CT';
-            const stateCode = (jKey.split('_')[0] || 'CT').toUpperCase();
-            const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
-
-            const first = getV('aamva-first', defs && defs.first ? defs.first : 'FIRST').toUpperCase();
-            const last = getV('aamva-last', defs && defs.last ? defs.last : 'LAST').toUpperCase();
-            const dl = getV('aamva-id', defs && defs.sample_dl ? defs.sample_dl : '188892143').toUpperCase();
-            const street = getV('aamva-street', defs && defs.street ? defs.street : '123 MAIN ST').toUpperCase();
-            const city = getV('aamva-city', defs && defs.city ? defs.city : 'CITY').toUpperCase();
-            const state = getV('aamva-state', stateCode).toUpperCase();
-            const zip = getV('aamva-zip', defs && defs.zip ? defs.zip : '00000');
-            const dob = getV('aamva-dob', defs && defs.dob ? defs.dob : '01011990');
-            const exp = getV('aamva-exp', defs && defs.exp ? defs.exp : '01012030');
-            const sexVal = document.getElementById('aamva-sex')?.value || (defs && defs.sex ? defs.sex : '1');
-            const sexLabel = (sexVal === '1' || sexVal === 'M') ? 'M' : ((sexVal === '2' || sexVal === 'F') ? 'F' : 'X');
-
-            const fmtD = d => {
-                if (!d) return '';
-                if (d.includes('-')) return d;
-                if (d.length === 8) {
-                    if (parseInt(d.substring(0, 4), 10) > 1900) {
-                        return `${d.substring(0, 4)}-${d.substring(4, 6)}-${d.substring(6, 8)}`;
-                    } else {
-                        return `${d.substring(4, 8)}-${d.substring(0, 2)}-${d.substring(2, 4)}`;
-                    }
-                }
-                return d;
-            };
-
-            const titleEl = document.getElementById('front-state-title');
-            if (titleEl) {
-                const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jKey]) ? STATE_PROFILES[jKey].name : (STATE_PROFILES && STATE_PROFILES[stateCode] ? STATE_PROFILES[stateCode].name : stateCode);
-                titleEl.textContent = prof || stateCode;
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
+            if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
+            if (typeof updateFrontCardDetails === 'function') {
+                updateFrontCardDetails(jurEl ? jurEl.value : stateCode);
             }
-            const dlEl = document.getElementById('front-dl-num');
-            if (dlEl) dlEl.textContent = dl;
-            const nameEl = document.getElementById('front-name');
-            if (nameEl) nameEl.textContent = `${last}, ${first}`;
-            const addrEl = document.getElementById('front-address');
-            if (addrEl) addrEl.textContent = `${street}, ${city}, ${state} ${zip}`;
-            const dobEl = document.getElementById('front-dob');
-            if (dobEl) dobEl.textContent = fmtD(dob);
-            const expEl = document.getElementById('front-exp');
-            if (expEl) expEl.textContent = fmtD(exp);
-            const sexEl = document.getElementById('front-sex');
-            if (sexEl) sexEl.textContent = sexLabel;
         }
 
         function getCardRevisionDateString(jurKey, meta, revInfo, stateCodeHint = '') {
@@ -7680,6 +7645,73 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             return (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') ? 'Rev 01/01/2022' : 'Rev 01-01-2022';
         }
 
+        function updateFrontCardDetails(jurKey) {
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            let stateCode = (jurEl ? jurEl.value.split('_')[0] : '').trim().toUpperCase();
+            if (!stateCode && stateEl) stateCode = stateEl.value.trim().toUpperCase();
+            if (!stateCode) stateCode = 'WA';
+
+            const fn = (document.getElementById('aamva-first')?.value || document.getElementById('aamva-first-name')?.value || 'JOHN').toUpperCase();
+            const ln = (document.getElementById('aamva-last')?.value || document.getElementById('aamva-last-name')?.value || 'DOE').toUpperCase();
+            const idVal = (document.getElementById('aamva-id')?.value || 'WDL987654321').toUpperCase();
+            const rawDob = (document.getElementById('aamva-dob')?.value || '1990-01-01').trim();
+            const rawExp = (document.getElementById('aamva-exp')?.value || '2028-01-01').trim();
+            const rawClass = (document.getElementById('aamva-class')?.value || 'D').trim().toUpperCase();
+            const sexVal = (document.getElementById('aamva-sex')?.value || 'M').toUpperCase();
+
+            const formatD = (dStr) => {
+                if (dStr.includes('-')) {
+                    const p = dStr.split('-');
+                    if (p.length === 3) return `${p[1]}/${p[2]}/${p[0]}`;
+                } else if (dStr.includes('/')) {
+                    return dStr;
+                } else if (dStr.length === 8) {
+                    return `${dStr.substring(4,6)}/${dStr.substring(6,8)}/${dStr.substring(0,4)}`;
+                }
+                return dStr;
+            };
+
+            const frontLast = document.getElementById('front-card-last');
+            const frontFirst = document.getElementById('front-card-first');
+            const frontDl = document.getElementById('front-card-dl');
+            const frontDob = document.getElementById('front-card-dob');
+            const frontExp = document.getElementById('front-card-exp');
+            const frontClass = document.getElementById('front-card-class');
+            const frontSex = document.getElementById('front-card-sex');
+            const frontTitle = document.getElementById('front-state-title');
+            
+            if (frontLast) frontLast.textContent = ln;
+            if (frontFirst) frontFirst.textContent = fn;
+            if (frontDl) frontDl.textContent = idVal;
+            if (frontDob) frontDob.textContent = formatD(rawDob);
+            if (frontExp) frontExp.textContent = formatD(rawExp);
+            if (frontClass) frontClass.textContent = rawClass;
+            if (frontSex) frontSex.textContent = sexVal;
+
+            const tmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, 'front') : null;
+            const headerBox = document.getElementById('front-header-box');
+            const demoBox = document.getElementById('front-demo-box');
+            const starEl = document.getElementById('front-realid-star');
+
+            if (tmpl) {
+                if (frontTitle) frontTitle.classList.add('hidden');
+                if (starEl) starEl.classList.add('opacity-0');
+                if (headerBox) headerBox.className = 'space-y-0.5';
+                if (demoBox) demoBox.className = 'space-y-0.5 text-[8.5px] font-bold text-slate-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]';
+            } else {
+                const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jurKey]) ? STATE_PROFILES[jurKey] : null;
+                const stName = prof ? prof.name.toUpperCase() : stateCode;
+                if (frontTitle) {
+                    frontTitle.textContent = `${stName} DRIVER LICENSE`;
+                    frontTitle.classList.remove('hidden');
+                }
+                if (starEl) starEl.classList.remove('opacity-0');
+                if (headerBox) headerBox.className = 'space-y-0.5 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded shadow-2xs border border-white/60';
+                if (demoBox) demoBox.className = 'space-y-0.5 text-[8.5px] font-bold text-slate-900 bg-white/80 backdrop-blur-xs px-2.5 py-1.5 rounded shadow-2xs border border-white/60';
+            }
+        }
+
         function updateStudioCardDetails() {
             // 1. Identify Active Jurisdiction & Base State Code
             const jurEl = document.getElementById('aamva-jurisdiction');
@@ -7706,6 +7738,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const idahoView = document.getElementById('card-back-idaho-view');
             const kansasView = document.getElementById('card-back-kansas-view');
             const engView = document.getElementById('card-back-engineering-view');
+            const frontView = document.getElementById('card-front-view');
             const cardEl = document.getElementById('studio-cr80-card');
 
             const allBackViews = [
@@ -7715,6 +7748,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view'
             ];
             allBackViews.forEach(v => document.getElementById(v)?.classList.add('hidden'));
+
+            // Strict Front View Guard: Prevents simultaneous Front and Back rendering
+            const isFront = (typeof currentCardSide !== 'undefined' && currentCardSide === 'front');
+            if (isFront) {
+                if (frontView) frontView.classList.remove('hidden');
+                if (cardEl) {
+                    const frontTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, 'front') : null;
+                    if (frontTmpl) {
+                        cardEl.style.background = `#ffffff url("${frontTmpl}") no-repeat center / cover`;
+                    } else {
+                        cardEl.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                    }
+                }
+                updateFrontCardDetails(jurKey || stateCode);
+                return;
+            } else {
+                if (frontView) frontView.classList.add('hidden');
+            }
 
             if (stateCode === 'AK') {
                 if (alaskaView) alaskaView.classList.remove('hidden');
@@ -14063,11 +14114,11 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         let activeMrzSpecimen = 'ca_passport';
         const MRZ_SPECIMEN_META = {
-            ca_passport: { name: 'Canada Passport', type: 'TD3', badge: 'TD3 • 2×44' },
-            ca_pr: { name: 'Canada PR Card', type: 'TD1', badge: 'TD1 • 3×30' },
-            de_id: { name: 'German ID Card', type: 'TD1', badge: 'TD1 • 3×30' },
-            uk_visa: { name: 'UK Visa Vignette', type: 'MRV_B', badge: 'MRV-B • 2×36' },
-            us_passport: { name: 'US Passport', type: 'TD3', badge: 'TD3 • 2×44' }
+            ca_passport: { name: 'Canada Passport', type: 'TD3', badge: 'TD3 • 2×44', bg: '#ffffff url("mrz_templates/ca_passport_specimen.webp") no-repeat center / cover' },
+            ca_pr: { name: 'Canada PR Card', type: 'TD1', badge: 'TD1 • 3×30', bg: '#ffffff url("mrz_templates/ca_pr_specimen.webp") no-repeat center / cover' },
+            de_id: { name: 'German ID Card', type: 'TD1', badge: 'TD1 • 3×30', bg: '#ffffff url("mrz_templates/de_id_specimen.webp") no-repeat center / cover' },
+            uk_visa: { name: 'UK Visa Vignette', type: 'MRV_B', badge: 'MRV-B • 2×36', bg: '#ffffff url("mrz_templates/uk_visa_specimen.webp") no-repeat center / cover' },
+            us_passport: { name: 'US Passport', type: 'TD3', badge: 'TD3 • 2×44', bg: '#ffffff url("mrz_templates/us_passport_specimen.webp") no-repeat center / cover' }
         };
 
         function selectMrzSpecimen(specimenId, updateForm = false) {
@@ -14084,8 +14135,14 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     }
                 }
                 if (card) {
-                    if (s === specimenId) card.classList.remove('hidden');
-                    else card.classList.add('hidden');
+                    if (s === specimenId) {
+                        card.classList.remove('hidden');
+                        if (MRZ_SPECIMEN_META[s] && MRZ_SPECIMEN_META[s].bg) {
+                            card.style.background = MRZ_SPECIMEN_META[s].bg;
+                        }
+                    } else {
+                        card.classList.add('hidden');
+                    }
                 }
             });
 
@@ -15237,62 +15294,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         function toggleCardSide() {
             currentCardSide = (currentCardSide === 'back') ? 'front' : 'back';
             const btnLabel = document.getElementById('card-side-label');
-            const frontView = document.getElementById('card-front-view');
-            const cardEl = document.getElementById('studio-cr80-card');
-            const jurEl = document.getElementById('aamva-jurisdiction');
-            const jurKey = jurEl ? jurEl.value : 'WA';
-            
             if (currentCardSide === 'front') {
                 if (btnLabel) btnLabel.textContent = 'Back (Barcodes)';
-                if (frontView) frontView.classList.remove('hidden');
-                
-                // Hide specific back views
-                const backViews = ['card-back-standard-view', 'card-back-alaska-view', 'card-back-arkansas-view', 'card-back-arizona-view', 'card-back-alabama-view', 'card-back-california-view', 'card-back-colorado-view', 'card-back-florida-view', 'card-back-georgia-view', 'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view'];
-                backViews.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.add('hidden');
-                });
-                
-                // Populate front demographic values from form
-                const fn = (document.getElementById('aamva-first')?.value || document.getElementById('aamva-first-name')?.value || 'JOHN').toUpperCase();
-                const ln = (document.getElementById('aamva-last')?.value || document.getElementById('aamva-last-name')?.value || 'DOE').toUpperCase();
-                const idVal = (document.getElementById('aamva-id')?.value || 'WDL987654321').toUpperCase();
-                const dob = (document.getElementById('aamva-dob')?.value || '1990-01-01');
-                const exp = (document.getElementById('aamva-exp')?.value || '2028-01-01');
-                
-                const frontLast = document.getElementById('front-card-last');
-                const frontFirst = document.getElementById('front-card-first');
-                const frontDl = document.getElementById('front-card-dl');
-                const frontDob = document.getElementById('front-card-dob');
-                const frontExp = document.getElementById('front-card-exp');
-                const frontTitle = document.getElementById('front-state-title');
-                
-                if (frontLast) frontLast.textContent = ln;
-                if (frontFirst) frontFirst.textContent = fn;
-                if (frontDl) frontDl.textContent = `DL: ${idVal}`;
-                if (frontDob) frontDob.textContent = dob;
-                if (frontExp) frontExp.textContent = exp;
-                if (frontTitle) {
-                    const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jurKey]) ? STATE_PROFILES[jurKey] : null;
-                    const stName = prof ? prof.name.toUpperCase() : jurKey.split('_')[0].toUpperCase();
-                    frontTitle.textContent = `${stName} DRIVER LICENSE`;
-                }
-                
-                if (cardEl) {
-                    const tmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey, 'front') : null;
-                    if (tmpl) {
-                        cardEl.style.background = `#ffffff url("${tmpl}") no-repeat center / cover`;
-                    }
-                }
                 showToast('Viewing Front Card Template', 'info');
             } else {
                 if (btnLabel) btnLabel.textContent = 'Front View';
-                if (frontView) frontView.classList.add('hidden');
-                // Reapply state preset to restore authentic back view
-                if (typeof updateStudioCardDetails === 'function') {
-                    updateStudioCardDetails();
-                }
                 showToast('Viewing Scannable Barcode Card Back', 'info');
+            }
+            if (typeof updateStudioCardDetails === 'function') {
+                updateStudioCardDetails();
             }
         }
 

@@ -39,8 +39,18 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(6
 stripe.api_key = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 
-# Database setup with automatic SQLite fallback & Render PostgreSQL support
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'barcodestudio.db'}")
+# Database setup with automatic SQLite fallback & Render PostgreSQL / Persistent Disk support
+PERSISTENT_DIR = os.getenv("RENDER_DISK_PATH") or os.getenv("PERSISTENT_STORAGE_PATH")
+if PERSISTENT_DIR and os.path.isdir(PERSISTENT_DIR):
+    DB_PATH = Path(PERSISTENT_DIR) / "barcodestudio.db"
+    USERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "users_data.json"
+    ORDERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "orders_data.json"
+else:
+    DB_PATH = BASE_DIR / "barcodestudio.db"
+    USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
+    ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
+
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
 if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
     SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and not SQLALCHEMY_DATABASE_URL.startswith("postgresql+"):
@@ -68,8 +78,6 @@ else:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
-
 def sync_users_to_backup(db: Session):
     """Safely synchronizes all registered users and balances to persistent JSON storage."""
     try:
@@ -80,7 +88,10 @@ def sync_users_to_backup(db: Session):
                 "email": u.email,
                 "hashed_password": u.hashed_password,
                 "role": u.role,
-                "tokens": u.tokens
+                "tokens": u.tokens,
+                "referral_code": getattr(u, "referral_code", None),
+                "referred_by_id": getattr(u, "referred_by_id", None),
+                "affiliate_balance": getattr(u, "affiliate_balance", 0.0),
             })
         with open(USERS_BACKUP_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
@@ -108,7 +119,10 @@ def restore_users_from_backup(db: Session):
                     email=email_clean,
                     hashed_password=item.get("hashed_password", ""),
                     role="admin" if is_adm else item.get("role", "free_user"),
-                    tokens=999999 if is_adm else item.get("tokens", 0)
+                    tokens=999999 if is_adm else item.get("tokens", 0),
+                    referral_code=item.get("referral_code"),
+                    referred_by_id=item.get("referred_by_id"),
+                    affiliate_balance=item.get("affiliate_balance", 0.0)
                 )
                 db.add(new_u)
                 restored += 1
@@ -120,6 +134,8 @@ def restore_users_from_backup(db: Session):
                     bkp_tokens = item.get("tokens")
                     if bkp_tokens is not None and (existing.tokens == 0 or bkp_tokens > existing.tokens):
                         existing.tokens = bkp_tokens
+                    if item.get("referral_code") and not existing.referral_code:
+                        existing.referral_code = item.get("referral_code")
         db.commit()
         return restored
     except Exception as e:
@@ -2332,7 +2348,7 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                         "User-Agent": "BarcodeStudioPro/2.0"
                     }
                 )
-                with urllib.request.urlopen(resend_req, timeout=3) as r_resp:
+                with urllib.request.urlopen(resend_req, timeout=10) as r_resp:
                     print(f"[RESEND SUCCESS] Successfully delivered reset email to '{to_email}' via Resend API!")
                     return {"delivered": True, "provider": "resend"}
             except urllib.error.HTTPError as r_err:
@@ -2364,7 +2380,7 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                         "User-Agent": "BarcodeStudioPro/2.0"
                     }
                 )
-                with urllib.request.urlopen(sg_req, timeout=4) as sg_resp:
+                with urllib.request.urlopen(sg_req, timeout=10) as sg_resp:
                     print(f"[SENDGRID SUCCESS] Delivered reset email to '{to_email}' via SendGrid API!")
                     return {"delivered": True, "provider": "sendgrid"}
             except Exception as sg_err:
@@ -2388,7 +2404,7 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                     data=payload,
                     headers={"Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/1.0"}
                 )
-                with urllib.request.urlopen(req, timeout=3) as resp:
+                with urllib.request.urlopen(req, timeout=10) as resp:
                     status = resp.status if hasattr(resp, "status") else 200
                     print(f"[GMAIL RELAY SUCCESS] Dispatched to '{to_email}' with HTTP {status}!")
                     return {"delivered": True, "provider": "gmail_relay"}
@@ -2420,9 +2436,9 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
                 try:
                     print(f"[GMAIL SMTP] Sending to '{to_email}' via {smtp_host}:{p} using account '{smtp_user}'...")
                     if p == 465:
-                        server = smtplib.SMTP_SSL(smtp_host, p, timeout=3)
+                        server = smtplib.SMTP_SSL(smtp_host, p, timeout=10)
                     else:
-                        server = smtplib.SMTP(smtp_host, p, timeout=3)
+                        server = smtplib.SMTP(smtp_host, p, timeout=10)
                         server.starttls()
                     server.login(smtp_user, smtp_pass)
                     server.sendmail(smtp_user, [to_email], msg.as_string())
@@ -2513,6 +2529,8 @@ def forgot_password(request: Request, payload: ForgotPasswordRequest, db: Sessio
         "delivered": dispatch_res.get("delivered", False),
         "provider": dispatch_res.get("provider")
     }
+    if os.getenv("ENVIRONMENT") == "development" or not os.getenv("RENDER") or not dispatch_res.get("delivered"):
+        resp["dev_code"] = code
     return resp
 
 @app.post("/api/auth/reset-password", summary="Reset password using verification code")
