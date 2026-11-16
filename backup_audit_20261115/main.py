@@ -2892,6 +2892,7 @@ def state_slug_redirect(slug: str):
 # Serve Frontend static files (Mounted after API routes so routes take priority)
 static_path = BASE_DIR / "static"
 if static_path.exists():
+    app.mount("/static", StaticFiles(directory=str(static_path)), name="static_dir")
     app.mount("/", StaticFiles(directory=str(static_path), html=True), name="static")
 
 if __name__ == "__main__":
