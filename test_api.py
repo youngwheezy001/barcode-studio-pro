@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 # Ensure local directory is in path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from main import app, SessionLocal, User
+from main import app, SessionLocal, User, CryptoPayment, sync_users_to_backup, sync_orders_to_backup
 
 client = TestClient(app)
 
@@ -749,6 +749,20 @@ def run_tests():
         "set_tokens": prev_tokens
     }, headers=admin_headers)
     print("  -> Passed: Client role promotion and reversal verified with backup sync.")
+
+    # Clean up test users and orders so database and JSON stores remain pure
+    db_cleanup = SessionLocal()
+    try:
+        db_cleanup.query(CryptoPayment).filter(
+            (CryptoPayment.user_email.like("%@barcodestudio.pro")) |
+            (CryptoPayment.crypto_currency == "MOCK_TEST")
+        ).delete(synchronize_session=False)
+        db_cleanup.query(User).filter(User.email.like("%@barcodestudio.pro")).delete(synchronize_session=False)
+        db_cleanup.commit()
+        sync_users_to_backup(db_cleanup)
+        sync_orders_to_backup(db_cleanup)
+    finally:
+        db_cleanup.close()
 
     print("\n" + "=" * 60)
     print("ALL 28/28 TEST SUITES PASSED! ISO Certificates, 1-Click Production Packs, Admin CRM & Security verified.")

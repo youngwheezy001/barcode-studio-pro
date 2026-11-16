@@ -110,7 +110,7 @@ def restore_users_from_backup(db: Session):
         restored = 0
         for item in data:
             email_clean = item.get("email", "").strip().lower()
-            if not email_clean or email_clean in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]:
+            if not email_clean or email_clean in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"] or email_clean.endswith("@barcodestudio.pro"):
                 continue
             is_adm = email_clean in ADMIN_EMAILS
             existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
@@ -1838,7 +1838,6 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
 
     # Pre-calculate user order counts and spent totals strictly matching by email and user_id, excluding test data
     orders = db.query(CryptoPayment).filter(
-        ~CryptoPayment.user_email.like("%@barcodestudio.pro"),
         CryptoPayment.crypto_currency != "MOCK_TEST"
     ).all()
 
