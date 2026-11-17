@@ -73,20 +73,12 @@
     <script src="state_engine.js"></script>
     <script>if (!window.STATE_HIERARCHY) document.write('<script src="/static/state_engine.js"><\/script>');</script>
     <script>
-        // Immediately unregister all Service Workers and clear caches
+        // Register Service Worker for fast repeat loads (caches static assets & CDN libs)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for (var r of registrations) {
-                    r.unregister();
-                }
-            }).catch(function() {});
-        }
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                for (var name of names) {
-                    caches.delete(name);
-                }
-            }).catch(function() {});
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/sw.js', { scope: '/' })
+                    .catch(function() { /* Fail silently if SW not supported */ });
+            });
         }
         window.tailwind = window.tailwind || {};
         tailwind.config = {
@@ -161,6 +153,102 @@
     </style>
 </head>
 <body class="bg-appbg text-slate-800 font-sans min-h-screen xl:h-screen flex flex-col overflow-x-hidden xl:overflow-hidden relative select-none w-full max-w-full">
+
+    <!-- Instant App Skeleton Loader (Paints in 0ms to eliminate white flash on initial load) -->
+    <div id="app-skeleton-loader" style="position: fixed; inset: 0; z-index: 999999; background: #0B1120; display: flex; flex-direction: column; transition: opacity 0.35s ease, visibility 0.35s ease;">
+        <!-- Header Skeleton -->
+        <div style="height: 52px; background: #0F172A; border-bottom: 1px solid #1E293B; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #2563EB, #1D4ED8); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">P417</div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div style="width: 140px; height: 14px; background: #334155; border-radius: 4px; animation: bspPulse 1.4s infinite ease-in-out;"></div>
+                    <div style="width: 80px; height: 10px; background: #1E293B; border-radius: 3px;"></div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <div style="width: 65px; height: 28px; background: #1E293B; border-radius: 6px;"></div>
+                <div style="width: 75px; height: 28px; background: #2563EB; border-radius: 6px; opacity: 0.85;"></div>
+            </div>
+        </div>
+        <!-- Body Skeleton -->
+        <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;">
+            <!-- Top Controls Skeleton -->
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1; height: 38px; background: #1E293B; border-radius: 8px; animation: bspPulse 1.4s infinite ease-in-out;"></div>
+                <div style="width: 100px; height: 38px; background: #1E293B; border-radius: 8px;"></div>
+            </div>
+            <!-- Main Content Area: Left form cards, Right preview -->
+            <div style="flex: 1; display: flex; gap: 16px;">
+                <!-- Left Form Skeleton -->
+                <div style="flex: 1.1; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: #1E293B; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="width: 120px; height: 12px; background: #334155; border-radius: 4px;"></div>
+                        <div style="width: 100%; height: 34px; background: #0F172A; border-radius: 6px;"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <div style="flex: 1; height: 32px; background: #0F172A; border-radius: 6px;"></div>
+                            <div style="flex: 1; height: 32px; background: #0F172A; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                    <div style="flex: 1; background: #1E293B; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="width: 160px; height: 12px; background: #334155; border-radius: 4px;"></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
+                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
+                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
+                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Card Preview Skeleton -->
+                <div style="flex: 0.9; display: flex; flex-direction: column; gap: 12px;" class="hidden sm:flex">
+                    <div style="height: 200px; background: #1E293B; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; animation: bspPulse 1.4s infinite ease-in-out;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div style="width: 110px; height: 14px; background: #334155; border-radius: 4px;"></div>
+                            <div style="width: 32px; height: 32px; background: #334155; border-radius: 50%;"></div>
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: flex-end;">
+                            <div style="width: 60px; height: 75px; background: #334155; border-radius: 6px;"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                <div style="width: 80%; height: 10px; background: #334155; border-radius: 3px;"></div>
+                                <div style="width: 60%; height: 10px; background: #334155; border-radius: 3px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Barcode Box Skeleton -->
+                    <div style="height: 110px; background: #1E293B; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                        <div style="width: 75%; height: 44px; background: #0F172A; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                            <div style="color: #475569; font-family: monospace; font-size: 10px; letter-spacing: 2px;">|||| | ||| || ||||| |||</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px; color: #94A3B8; font-size: 11px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                            <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; animation: bspPulse 1s infinite ease-in-out;"></span>
+                            Loading Barcode Studio Pro Engine...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes bspPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.38; }
+        }
+    </style>
+    <script>
+        function dismissSkeletonLoader() {
+            var loader = document.getElementById('app-skeleton-loader');
+            if (!loader) return;
+            loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
+            setTimeout(function() {
+                if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+            }, 350);
+        }
+        window.addEventListener('load', function() {
+            setTimeout(dismissSkeletonLoader, 150);
+        });
+        setTimeout(dismissSkeletonLoader, 2500);
+    </script>
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
@@ -4350,7 +4438,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 <span>⚡ Buy Sets</span>
                 <span class="text-[10px] font-bold bg-slate-950/20 px-1 py-0.2 rounded">$2.50</span>
             </button>
-            <button type="button" onclick="downloadDualBarcodeBundle()" class="bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow flex items-center gap-1 active:scale-95 transition">
+            <button id="mobile-export-btn" type="button" onclick="secureExport(downloadDualBarcodeBundle)" class="hidden bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow items-center gap-1 active:scale-95 transition">
                 <span>📥 Export</span>
             </button>
         </div>
@@ -6337,12 +6425,33 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (typeof window.runStateCalculation === 'function') {
                 const handled = window.runStateCalculation(field, jKey);
                 if (handled) {
-                    if (!isBatch) {
-                        validateDlNumber();
-                        compileAAMVA();
-                        showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                    // For date fields: verify the DOM element was actually populated with 8 digits.
+                    // runStateCalculation('dob') always returns true even if it silently failed
+                    // (e.g. proxy fallback returned hardcoded "07262024" without writing to DOM).
+                    // If the field is still empty, fall through to the reliable pure-JS fallback below.
+                    const dateFieldMap = { dob: 'aamva-dob', issued: 'aamva-issued', exp: 'aamva-exp' };
+                    if (dateFieldMap[field]) {
+                        const dateEl = document.getElementById(dateFieldMap[field]);
+                        const dateVal = (dateEl && dateEl.value) ? dateEl.value.trim() : '';
+                        if (/^\d{8}$/.test(dateVal)) {
+                            // Date was written successfully — proceed normally
+                            if (!isBatch) {
+                                validateDlNumber();
+                                compileAAMVA();
+                                showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                            }
+                            return;
+                        }
+                        // Date field empty or malformed — fall through to pure-JS fallback below
+                    } else {
+                        // Non-date field: state engine handled it, return normally
+                        if (!isBatch) {
+                            validateDlNumber();
+                            compileAAMVA();
+                            showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                        }
+                        return;
                     }
-                    return;
                 }
             }
 
@@ -10082,9 +10191,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         let cryptoConfigs = {
             "USDT_TRC20": { name: "USDT (TRC-20)", symbol: "USDT", network: "TRON (TRC-20)", badge: "Lowest Fee & Instant", wallet: "TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H", note: "Send only USDT via TRON (TRC-20) network to this address. Minimal fee (~$1)." },
             "USDT_POLYGON": { name: "USDT (Polygon)", symbol: "USDT", network: "Polygon (POS)", badge: "Sub-Penny Fees", wallet: "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84", note: "Send only USDT on Polygon (MATIC) network. Gas fee under $0.02." },
+            "USDT_ERC20": { name: "USDT (ERC-20)", symbol: "USDT", network: "Ethereum (ERC-20)", badge: "Ethereum USDT", wallet: "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84", note: "Send only USDT via Ethereum (ERC-20) network to this address." },
+            "USDT_SOL": { name: "USDT (Solana)", symbol: "USDT", network: "Solana (SPL)", badge: "Sub-Second Finality", wallet: "MzDTwreVpgA4Ub9n54DVZaUcjkqDYCisYaZuoP6642B", note: "Send only USDT via Solana network to this address." },
             "BTC": { name: "Bitcoin (BTC)", symbol: "BTC", network: "Bitcoin Core", badge: "Universal Standard", wallet: "16ffrmuJFiaduVz7ZizDUXSK9GqXjjSwqD", note: "Send native BTC to this address. Requires 1 network confirmation." },
             "ETH": { name: "Ethereum (ETH)", symbol: "ETH", network: "Ethereum (ERC-20)", badge: "EVM Native", wallet: "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84", note: "Send ETH on Ethereum mainnet or L2s." },
-            "SOL": { name: "Solana (SOL)", symbol: "SOL", network: "Solana", badge: "Ultra Fast", wallet: "MzDTwreVpgA4Ub9n54DVZaUcjkqDYCisYaZuoP6642B", note: "Send SOL directly on Solana network. Instant ~1-second finality." }
+            "SOL": { name: "Solana (SOL)", symbol: "SOL", network: "Solana", badge: "Ultra Fast", wallet: "MzDTwreVpgA4Ub9n54DVZaUcjkqDYCisYaZuoP6642B", note: "Send SOL directly on Solana network. Instant ~1-second finality." },
+            "BNB_BSC": { name: "BNB (BEP-20)", symbol: "BNB", network: "BNB Smart Chain (BSC)", badge: "Fast & Low Gas", wallet: "0xce4eaf63b4e2b3fbe246c3e8c3bbb9cf356ccf84", note: "Send BNB via BNB Smart Chain (BEP-20) network to this address." }
         };
 
         const ALL_PACKAGE_TIERS = ['xxs_1', 'xs_5', 's_10', 'm_20', 'l_50', 'xl_100', 'xxl_200', 'xxxl_500'];
@@ -11694,12 +11806,25 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             const mobileTokenCount = document.getElementById('mobile-token-count');
+            const mobileExportBtn = document.getElementById('mobile-export-btn');
+            const hasSets = currentUser && (currentUser.tokens > 0 || currentUser.role === 'admin' || currentUser.role === 'pro_user');
+
             if (mobileTokenCount) {
                 if (currentUser) {
                     const isAdmin = currentUser.role === 'admin' || currentUser.role === 'pro_user' || (currentUser.tokens >= 1000);
                     mobileTokenCount.innerHTML = isAdmin ? 'Sets: &infin; (Admin)' : `Sets: ${currentUser.tokens}`;
                 } else {
                     mobileTokenCount.textContent = 'Sets: 0';
+                }
+            }
+
+            if (mobileExportBtn) {
+                if (hasSets) {
+                    mobileExportBtn.classList.remove('hidden');
+                    mobileExportBtn.classList.add('flex');
+                } else {
+                    mobileExportBtn.classList.add('hidden');
+                    mobileExportBtn.classList.remove('flex');
                 }
             }
 
@@ -13089,6 +13214,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // Download 2-in-1 Dual Barcode High-Resolution Vector & 600 DPI ZIP Bundle
         async function downloadDualBarcodeBundle() {
+            const hasTokens = currentUser && (currentUser.tokens > 0 || currentUser.role === 'admin' || currentUser.role === 'pro_user');
+            if (!hasTokens) {
+                showToast('Export requires active Barcode Sets. Please purchase sets to download.', 'warning');
+                if (!currentUser) openAuthModal(); else openTokenModal();
+                return;
+            }
+
             if (typeof JSZip === 'undefined') {
                 showToast('JSZip library loading, please try again in a moment...', 'info');
                 return;
@@ -14274,9 +14406,9 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 calcField('first', true);
                 calcField('mid', true);
                 calcField('last', true);
-                calcField('dob', true);
-                calcField('issued', true);
-                calcField('exp', true);
+                calcField('issued', true);  // Issue date MUST come first — expiry depends on it
+                calcField('dob', true);     // DOB second
+                calcField('exp', true);     // Expiry last — needs both issued and dob
                 calcField('id', true);
                 calcField('dcf', true);
                 calcField('dck', true);
