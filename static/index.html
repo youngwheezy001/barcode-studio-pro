@@ -7148,6 +7148,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             const header = `@\n\x1e\rANSI ${profile.iin}${selectedVersion}${profile.jurver}${String(numEntries).padStart(2, '0')}${directoryEntries}`;
             const fullStream = header + dlSubfile + zcSubfile;
+            window.CURRENT_AAMVA_RAW_PAYLOAD = fullStream;
 
             document.getElementById('input-pdf417').value = fullStream;
 
@@ -9677,10 +9678,37 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (typeof inspectAamvaCompliance === 'function') inspectAamvaCompliance();
         }
 
+        // Global AAMVA Payload Accessor - Guarantees 100% byte-accurate AAMVA delimiters
+        // Prevents HTML <textarea> DOM normalization from converting 0x0D (\r) to 0x0A (\n)
+        function getAamvaPayload() {
+            let raw = window.CURRENT_AAMVA_RAW_PAYLOAD;
+            if (!raw) {
+                raw = document.getElementById('input-pdf417')?.value || '';
+            }
+            if (!raw) return '';
+            
+            // Protect AAMVA Compliance Header: Byte 3 must strictly be 0x0D (\r Segment Terminator)
+            if (raw.startsWith('@\n\x1e') && raw.length >= 4) {
+                raw = '@\n\x1e\r' + raw.substring(4);
+            }
+            
+            // Protect DL subfile termination before ZC (if ZC exists)
+            const zcIdx = raw.lastIndexOf('ZCZC');
+            if (zcIdx !== -1 && raw[zcIdx - 1] === '\n') {
+                raw = raw.substring(0, zcIdx - 1) + '\r' + raw.substring(zcIdx);
+            }
+            
+            // Protect overall stream termination: strictly terminate with \r (Segment Terminator)
+            if (!raw.endsWith('\r')) {
+                raw = raw.replace(/[\r\n\s]+$/, '') + '\r';
+            }
+            return raw;
+        }
+
         // --- UNBLURRED, 100% SCANNABLE RENDERING ENGINE (AUTHENTIC AAMVA STANDARDS) ---
         function renderPDF417() {
             const canvas = document.getElementById('output-pdf417');
-            const payload = document.getElementById('input-pdf417')?.value || '';
+            const payload = getAamvaPayload();
             const cols = parseInt(document.getElementById('tune-cols')?.value, 10) || 12;
             const ecc = parseInt(document.getElementById('tune-ecc')?.value, 10) || 5;
             const scale = parseFloat(document.getElementById('tune-scale')?.value) || 2.0;
@@ -12347,7 +12375,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         console.error('PNG QR export error:', e);
                     }
                 } else {
-                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const payload = getAamvaPayload();
                     const jurEl = document.getElementById('aamva-jurisdiction');
                     const jurKey = jurEl ? jurEl.value : 'CT';
                     const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
@@ -12421,7 +12449,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         console.error('JPEG QR export error:', e);
                     }
                 } else {
-                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const payload = getAamvaPayload();
                     const jurEl = document.getElementById('aamva-jurisdiction');
                     const jurKey = jurEl ? jurEl.value : 'CT';
                     const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
@@ -12497,7 +12525,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     a.click();
                     URL.revokeObjectURL(url);
                 } else {
-                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const payload = getAamvaPayload();
                     const jurEl = document.getElementById('aamva-jurisdiction');
                     const jurKey = jurEl ? jurEl.value : 'CT';
                     const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
@@ -12581,7 +12609,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     doc.addImage(finalCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', posX, posY, qrSize, qrSize);
                     doc.save(getExportFilename('DigitalID_QR_Label', 'pdf'));
                 } else {
-                    const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                    const payload = getAamvaPayload();
                     const jurEl = document.getElementById('aamva-jurisdiction');
                     const jurKey = jurEl ? jurEl.value : 'CT';
                     const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
@@ -12908,7 +12936,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     is2DRendered = true;
                 } catch(e) {}
             } else {
-                const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                const payload = getAamvaPayload();
                 const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
                 const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
                 const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
@@ -13082,7 +13110,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const seqNum = (document.getElementById('studio-seq-num')?.textContent || dlNumber).trim();
                 const expDate = (document.getElementById('aamva-exp')?.value || '2030-01-01').trim();
                 const issueDate = (document.getElementById('aamva-issued')?.value || '2024-01-01').trim();
-                const payload = (document.getElementById('input-pdf417')?.value || '').trim();
+                const payload = getAamvaPayload();
                 const code128Val = (document.getElementById('input-code128')?.value || seqNum || dlNumber).trim();
 
                 const prefix = `${lastName}_${firstName}_${stateCode}`;
@@ -13273,13 +13301,12 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         let _lastAamvaInspection = null;
 
         function inspectAamvaCompliance() {
-            const rawEl = document.getElementById('input-pdf417');
             const pill = document.getElementById('aamva-compliance-pill');
             const pillText = document.getElementById('aamva-compliance-pill-text');
             const pillDot = document.getElementById('aamva-compliance-dot');
             if (!pill || !pillText || !pillDot) return null;
 
-            const raw = rawEl ? rawEl.value : '';
+            const raw = getAamvaPayload();
             if (!raw) {
                 pill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800/60 text-slate-400 border border-slate-700 cursor-pointer";
                 pillDot.className = "w-1.5 h-1.5 rounded-full bg-slate-500";
@@ -14038,7 +14065,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 zip.file(`${prefix}_07_Official_ISO_Compliance_Certificate.pdf`, pdfArrayBuffer);
 
                 // 8. 08_Raw_AAMVA_Standard_Payload.txt
-                const rawPayload = document.getElementById('input-pdf417')?.value || '';
+                const rawPayload = getAamvaPayload();
                 zip.file(`${prefix}_08_Raw_AAMVA_Standard_Payload.txt`, rawPayload);
 
                 // 9. 09_Decoded_Scanner_Payload.xml
@@ -14226,7 +14253,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         function copyPayload() {
-            const raw = document.getElementById('input-pdf417').value;
+            const raw = getAamvaPayload();
             navigator.clipboard.writeText(raw)
                 .then(() => showToast('Raw AAMVA payload copied!', 'success'))
                 .catch(err => showToast('Copy failed: ' + err, 'error'));
