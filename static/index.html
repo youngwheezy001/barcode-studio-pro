@@ -14698,11 +14698,12 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (decodedText) {
                     if (statusEl) {
                         statusEl.className = 'text-xs text-emerald-800 bg-emerald-50 p-2.5 rounded-lg border border-emerald-300 block';
-                        statusEl.textContent = `Barcode detected (${detectedFormat})! Populating form...`;
+                        statusEl.textContent = `Barcode decoded (${detectedFormat})! Populating form fields...`;
                     }
                     parseDecodedAAMVA(decodedText);
+                    renderAamvaScanCard(decodedText);
                     showToast('Barcode scanned successfully! Form populated.', 'success');
-                    setTimeout(() => { closeBarcodeScannerModal(); }, 1200);
+                    setTimeout(() => { closeBarcodeScannerModal(); }, 3500);
                     return;
                 }
 
@@ -14828,6 +14829,118 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const statusEl = document.getElementById('camera-status');
             if (btn) btn.textContent = 'Start Camera Scan';
             if (statusEl) statusEl.textContent = 'Camera standby';
+        }
+
+        // --- AAMVA SCAN RESULT CARD RENDERER ---
+        // Shows decoded state/jurisdiction and holder info in the scanner modal after a successful barcode scan
+        function renderAamvaScanCard(raw) {
+            const cardEl = document.getElementById('mrz-inspection-card');
+            if (!cardEl || !raw) return;
+
+            // Extract AAMVA fields using regex
+            const extractTag = (tag) => {
+                const match = raw.match(new RegExp(`${tag}([^\n\r]+)`));
+                return match ? match[1].trim() : '';
+            };
+
+            const dcs = extractTag('DCS'); // Last name
+            const dac = extractTag('DAC'); // First name
+            const dad = extractTag('DAD'); // Middle name
+            const daj = extractTag('DAJ'); // State abbreviation
+            const dbb = extractTag('DBB'); // DOB
+            const dba = extractTag('DBA'); // Expiry
+            const daq = extractTag('DAQ'); // DL Number
+            const dbc = extractTag('DBC'); // Sex
+
+            // Build full name
+            const fullName = [dcs, dac, dad].filter(Boolean).join(', ').replace(/, $/, '') || 'UNKNOWN';
+
+            // Map state abbreviation to full state name using STATE_PROFILES or fallback map
+            const US_STATE_NAMES = {
+                'AL':'Alabama','AK':'Alaska','AZ':'Arizona','AR':'Arkansas','CA':'California',
+                'CO':'Colorado','CT':'Connecticut','DE':'Delaware','DC':'District of Columbia',
+                'FL':'Florida','GA':'Georgia','HI':'Hawaii','ID':'Idaho','IL':'Illinois',
+                'IN':'Indiana','IA':'Iowa','KS':'Kansas','KY':'Kentucky','LA':'Louisiana',
+                'ME':'Maine','MD':'Maryland','MA':'Massachusetts','MI':'Michigan','MN':'Minnesota',
+                'MS':'Mississippi','MO':'Missouri','MT':'Montana','NE':'Nebraska','NV':'Nevada',
+                'NH':'New Hampshire','NJ':'New Jersey','NM':'New Mexico','NY':'New York',
+                'NC':'North Carolina','ND':'North Dakota','OH':'Ohio','OK':'Oklahoma','OR':'Oregon',
+                'PA':'Pennsylvania','RI':'Rhode Island','SC':'South Carolina','SD':'South Dakota',
+                'TN':'Tennessee','TX':'Texas','UT':'Utah','VT':'Vermont','VA':'Virginia',
+                'WA':'Washington','WV':'West Virginia','WI':'Wisconsin','WY':'Wyoming',
+                'AB':'Alberta','BC':'British Columbia','MB':'Manitoba','NB':'New Brunswick',
+                'NL':'Newfoundland and Labrador','NS':'Nova Scotia','ON':'Ontario',
+                'QC':'Québec','SK':'Saskatchewan','YT':'Yukon','NT':'Northwest Territories','NU':'Nunavut'
+            };
+
+            // Also try to get state name from STATE_PROFILES if available (more accurate)
+            let stateAbbr = (daj || '').toUpperCase().trim();
+            let stateName = US_STATE_NAMES[stateAbbr] || stateAbbr || 'Unknown';
+
+            // Try STATE_PROFILES for even more detail (includes "California (2024)" style names)
+            if (typeof STATE_PROFILES !== 'undefined' && stateAbbr) {
+                const profKeys = Object.keys(STATE_PROFILES).filter(k => k === stateAbbr || k.startsWith(stateAbbr + '_'));
+                if (profKeys.length > 0) {
+                    const prof = STATE_PROFILES[profKeys[0]];
+                    if (prof && prof.stateName) stateName = prof.stateName;
+                }
+            }
+
+            // Format date MMDDYYYY → YYYY-MM-DD
+            const fmtDate = (d) => {
+                const s = String(d).replace(/\D/g, '');
+                if (s.length === 8) return `${s.slice(4)}-${s.slice(0,2)}-${s.slice(2,4)}`;
+                return d || '';
+            };
+
+            // Sex label
+            const sexDesc = (() => {
+                const s = String(dbc).toUpperCase();
+                if (s === '1' || s === 'M') return 'Male';
+                if (s === '2' || s === 'F') return 'Female';
+                if (s === '9' || s === 'X') return 'Non-binary';
+                return '';
+            })();
+
+            // Check if expired
+            let isExpired = false;
+            if (dba && dba.length === 8) {
+                try {
+                    const expYear = parseInt(dba.slice(4), 10);
+                    const expMonth = parseInt(dba.slice(0, 2), 10) - 1;
+                    const expDay = parseInt(dba.slice(2, 4), 10);
+                    isExpired = new Date(expYear, expMonth, expDay) < new Date();
+                } catch (e) {}
+            }
+
+            const jurisdictionLabel = stateAbbr
+                ? `${stateAbbr} — ${stateName}`
+                : (stateName || 'Unknown');
+
+            cardEl.classList.remove('hidden');
+            cardEl.innerHTML = `
+                <div class="flex items-center justify-between pb-2 border-b border-slate-700/80">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">🪪</span>
+                        <span class="font-bold text-white text-xs">Decoded Document: AAMVA DL/ID — ${jurisdictionLabel}</span>
+                    </div>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded ${isExpired ? 'bg-rose-950 text-rose-400 border border-rose-700' : 'bg-emerald-950 text-emerald-400 border border-emerald-700'} font-bold">
+                        ${isExpired ? 'EXPIRED' : 'VALID'}
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] pt-1">
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Holder Name</span><span class="font-bold text-white">${fullName}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">DL / ID Number</span><span class="font-mono font-bold text-emerald-400">${daq || '—'}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Jurisdiction / State</span><span class="font-bold text-white">${jurisdictionLabel}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Date of Birth</span><span class="font-bold text-white">${fmtDate(dbb)}${sexDesc ? ' (' + sexDesc + ')' : ''}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Expiration Date</span><span class="font-bold text-white">${fmtDate(dba)}</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Status</span><span class="font-bold ${isExpired ? 'text-rose-400' : 'text-emerald-400'}">${isExpired ? 'EXPIRED' : 'VALID'}</span></div>
+                </div>
+                <div class="mt-2 pt-2 border-t border-slate-700/60 text-[10px] text-slate-400 flex items-center gap-1.5">
+                    <span class="animate-pulse w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                    Form fields populated — closing scanner in 3s…
+                </div>
+            `;
         }
 
         function parseDecodedAAMVA(raw) {
