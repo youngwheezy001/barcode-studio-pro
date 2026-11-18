@@ -2531,6 +2531,10 @@ const STATE_HIERARCHY = {
                     }
                     const val = target[prop];
                     return typeof val === 'function' ? val.bind(target) : val;
+                },
+                set(target, prop, val) {
+                    target[prop] = val;
+                    return true;
                 }
             });
         }

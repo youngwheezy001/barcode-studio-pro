@@ -1,8 +1,8 @@
-// Barcode Studio Pro — Smart Cache-First Service Worker v2.0
+// Barcode Studio Pro — Smart Cache-First Service Worker v3.0
 // Cache static assets on first load; serve from cache on repeat visits.
 // This eliminates Render.com cold-start delays and makes the app load instantly on return visits.
 
-const CACHE_NAME = 'bsp-static-v2';
+const CACHE_NAME = 'bsp-static-v3';
 
 // Assets to cache on install (critical path — these make the app feel instant)
 const PRECACHE_URLS = [

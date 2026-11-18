@@ -70,8 +70,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
     <!-- Certified Multi-Revision State & Calculator Engine -->
-    <script src="state_engine.js"></script>
-    <script>if (!window.STATE_HIERARCHY) document.write('<script src="/static/state_engine.js"><\/script>');</script>
+    <script src="state_engine.js?v=2.2"></script>
+    <script>if (!window.STATE_HIERARCHY) document.write('<script src="/static/state_engine.js?v=2.2"><\/script>');</script>
     <script>
         // Register Service Worker for fast repeat loads (caches static assets & CDN libs)
         if ('serviceWorker' in navigator) {
@@ -6480,21 +6480,26 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             // 1. Try State-Aware Calculation Engine (from state_engine.js)
             if (typeof window.runStateCalculation === 'function') {
-                const handled = window.runStateCalculation(field, jKey);
-                const valAfter = targetEl ? targetEl.value.trim() : '';
-                const isDateField = (field === 'dob' || field === 'issued' || field === 'exp');
-                const validDate = isDateField ? /^\d{8}$/.test(valAfter) : true;
-                const valueChanged = !isBatch ? (valAfter !== valBefore && valAfter !== '') : (valAfter !== '');
+                try {
+                    const handled = window.runStateCalculation(field, jKey);
+                    const valAfter = targetEl ? targetEl.value.trim() : '';
+                    const isDateField = (field === 'dob' || field === 'issued' || field === 'exp');
+                    const validDate = isDateField ? /^\d{8}$/.test(valAfter) : true;
+                    const valueChanged = !isBatch ? (valAfter !== valBefore && valAfter !== '') : (valAfter !== '');
 
-                // If runStateCalculation actually computed a new, valid value:
-                if (handled && validDate && valueChanged) {
-                    if (!isBatch) {
-                        validateDlNumber();
-                        compileAAMVA();
-                        if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
-                        showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                    // If runStateCalculation actually computed a new, valid value:
+                    if (handled && validDate && valueChanged) {
+                        if (field === 'dob' || field === 'issued') autoSyncExpiryDate();
+                        if (!isBatch) {
+                            validateDlNumber();
+                            compileAAMVA();
+                            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+                            showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
+                        }
+                        return;
                     }
-                    return;
+                } catch (err) {
+                    console.warn(`runStateCalculation error on ${field}:`, err);
                 }
                 // If value was unchanged, empty, or failed verification, fall through to robust dynamic generators below
             }
@@ -6573,23 +6578,30 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
                 const day = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
                 document.getElementById('aamva-dob').value = `${month}${day}${year}`;
+                autoSyncExpiryDate();
                 if (!isBatch) showToast('Calculated new Birth Date!', 'info');
             } else if (field === 'issued') {
-                const year = 2024;
+                const curYear = new Date().getFullYear();
+                const year = curYear - Math.floor(Math.random() * 4);
                 const month = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
                 const day = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
                 document.getElementById('aamva-issued').value = `${month}${day}${year}`;
                 autoSyncExpiryDate();
                 if (!isBatch) showToast('Calculated new Issue Date (Expiry synced)!', 'info');
             } else if (field === 'exp') {
-                const dob = document.getElementById('aamva-dob').value;
-                const dobMonthDay = dob.length === 8 ? dob.substring(0, 4) : '0525';
+                autoSyncExpiryDate();
+                const expEl = document.getElementById('aamva-exp');
+                if (expEl && expEl.value === valBefore) {
+                    const issuedEl = document.getElementById('aamva-issued');
+                    if (issuedEl && issuedEl.value.length === 8) {
+                        const curIssueYr = parseInt(issuedEl.value.slice(4, 8), 10);
+                        const newIssueYr = (curIssueYr >= 2024) ? 2021 : curIssueYr + 1;
+                        issuedEl.value = issuedEl.value.slice(0, 4) + newIssueYr;
+                        autoSyncExpiryDate();
+                    }
+                }
                 const termYears = (revInfo && revInfo.term_years) ? revInfo.term_years : 5;
-                const issued = document.getElementById('aamva-issued').value;
-                const issueYear = issued.length === 8 ? parseInt(issued.slice(4, 8), 10) : 2024;
-                const year = issueYear + termYears;
-                document.getElementById('aamva-exp').value = `${dobMonthDay}${year}`;
-                if (!isBatch) showToast(`Calculated new Expiry Date (+${termYears} yrs)!`, 'info');
+                if (!isBatch) showToast(`Calculated authentic Expiry Date (+${termYears} yrs)!`, 'info');
             } else if (field === 'audit') {
                 const el = document.getElementById('aamva-audit');
                 const hasAudit = revInfo ? (revInfo.has_audit === true) : (profile.usesAudit === true);
