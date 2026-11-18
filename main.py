@@ -265,6 +265,13 @@ def ensure_db_schema():
                             conn.rollback()
                         except Exception:
                             pass
+            # Reset legacy test accounts with artificial test balances (>10000 tokens)
+            try:
+                conn.execute(text("UPDATE users SET tokens = 0 WHERE tokens >= 10000 AND lower(email) != 'mwangilewis205@gmail.com'"))
+                conn.commit()
+            except Exception:
+                try: conn.rollback()
+                except Exception: pass
     except Exception as e:
         print(f"Notice: Schema migration check: {e}")
 
@@ -752,7 +759,7 @@ def register(request: Request, payload: UserRegister, db: Session = Depends(get_
     hashed_pwd = get_password_hash(payload.password)
     is_admin = (
         clean_email in ADMIN_EMAILS or
-        (payload.admin_key and payload.admin_key.strip() in [ADMIN_SECRET_KEY, "AdminSecret2026!"])
+        (payload.admin_key and ADMIN_SECRET_KEY and payload.admin_key.strip() == ADMIN_SECRET_KEY)
     )
     role = "admin" if is_admin else "free_user"
     initial_tokens = 999999 if is_admin else 0
@@ -990,7 +997,8 @@ def get_aamva_profiles():
     return {"profiles": STATE_AAMVA_PROFILES}
 
 @app.post("/api/aamva/compile", summary="Compile AAMVA barcode payload & scanner XML")
-def compile_aamva_endpoint(req: AamvaCompileRequest):
+@limiter.limit("60/minute")
+def compile_aamva_endpoint(request: Request, req: AamvaCompileRequest, current_user: User = Depends(get_current_user)):
     payload, profile = generate_aamva_payload(req.state, req.user_data, req.version or "AUTO")
     xml = generate_scanner_xml(req.state, req.user_data, req.version or "AUTO")
     return {
@@ -1008,10 +1016,9 @@ class MockPurchaseRequest(BaseModel):
 @app.post("/api/tokens/purchase-mock", summary="Execute mock/sandbox barcode package checkout for practice")
 def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
-    is_test_runner = current_user.email.strip().lower().endswith("@barcodestudio.pro")
     allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
     
-    if not (is_admin or is_test_runner or allow_sandbox):
+    if not (is_admin or allow_sandbox):
         raise HTTPException(
             status_code=403,
             detail="Sandbox practice checkout is disabled in production. Please use live Crypto or Stripe payments."
@@ -1311,10 +1318,9 @@ def submit_crypto_proof(req: SubmitCryptoProofRequest, current_user: User = Depe
 @app.post("/api/crypto/verify-mock", summary="Simulate instant sandbox crypto confirmation for testing")
 def verify_crypto_mock(req: VerifyMockCryptoRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
-    is_test_runner = current_user.email.strip().lower().endswith("@barcodestudio.pro")
     allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
     
-    if not (is_admin or is_test_runner or allow_sandbox):
+    if not (is_admin or allow_sandbox):
         raise HTTPException(
             status_code=403,
             detail="Sandbox mock crypto verification is disabled in production. Please verify on-chain using live blockchain transaction hash."
@@ -1738,7 +1744,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
 
     # 4. Test & Sandbox confirmation support
     allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
-    is_test_user = order.user_email.endswith("@barcodestudio.pro") or (order.user_email in ADMIN_EMAILS)
+    is_test_user = order.user_email.strip().lower() in ADMIN_EMAILS
     if (allow_sandbox or is_test_user) and order.status == "submitted" and order.tx_hash:
         order.status = "confirmed"
         order.confirmed_at = datetime.utcnow()
@@ -2070,18 +2076,33 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
             if o.status == "confirmed":
                 spent_totals[email_key] = spent_totals.get(email_key, 0.0) + (o.amount_usd or 0.0)
 
+    INTERNAL_TEST_EMAILS = {
+        "youngwheezy001@gmail.com",
+        "joyannkarambu@gmail.com",
+        "wozepeh36122931@gmail.com",
+        "comrad4byte@gmail.com"
+    }
+
     client_list = []
     total_tokens_circulating = 0
     active_count = 0
 
     for u in users:
         email_clean = u.email.strip().lower()
+        is_internal = (
+            email_clean in INTERNAL_TEST_EMAILS or
+            email_clean.endswith("@barcodestudio.pro") or
+            email_clean.endswith("@example.com")
+        )
         is_admin = u.role == "admin" or email_clean in ADMIN_EMAILS
-        display_tokens = 999999 if is_admin else u.tokens
-        if not is_admin:
-            total_tokens_circulating += u.tokens
-            if u.tokens > 0:
-                active_count += 1
+        display_tokens = 999999 if is_admin else (0 if is_internal else u.tokens)
+
+        # Strictly count real circulating tokens of genuine paying clients
+        if not is_admin and not is_internal:
+            if u.tokens < 10000:  # Exclude any artificial millions test data
+                total_tokens_circulating += u.tokens
+                if u.tokens > 0:
+                    active_count += 1
 
         client_list.append({
             "id": u.id,
@@ -2818,7 +2839,10 @@ class ZplExportRequest(BaseModel):
     state: Optional[str] = "CT"
 
 @app.post("/api/export/zpl", summary="Generate certified Zebra ZPL II print code")
-def export_zpl(req: ZplExportRequest):
+def export_zpl(req: ZplExportRequest, current_user: User = Depends(get_current_user)):
+    is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
+    if not is_admin and current_user.tokens <= 0:
+        raise HTTPException(status_code=402, detail="Active Barcode Sets required to export Zebra ZPL print code")
     pdf_esc = req.pdf417_data.replace("^", "^^").replace("~", "^7E")
     c128_esc = req.code128_data.replace("^", "^^").replace("~", "^7E")
     st = (req.state or "CT").upper()

@@ -154,84 +154,126 @@
 </head>
 <body class="bg-appbg text-slate-800 font-sans min-h-screen xl:h-screen flex flex-col overflow-x-hidden xl:overflow-hidden relative select-none w-full max-w-full">
 
-    <!-- Instant App Skeleton Loader (Paints in 0ms to eliminate white flash on initial load) -->
-    <div id="app-skeleton-loader" style="position: fixed; inset: 0; z-index: 999999; background: #0B1120; display: flex; flex-direction: column; transition: opacity 0.35s ease, visibility 0.35s ease;">
-        <!-- Header Skeleton -->
-        <div style="height: 52px; background: #0F172A; border-bottom: 1px solid #1E293B; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+    <!-- Instant App Skeleton Loader (Matches Website Light Theme Exactly — 0ms First Paint) -->
+    <div id="app-skeleton-loader" style="position: fixed; inset: 0; z-index: 999999; background: #F8FAFC; display: flex; flex-direction: column; transition: opacity 0.3s ease, visibility 0.3s ease; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- Actual Header Replica -->
+        <div style="height: 52px; background: #0F172A; border-bottom: 1px solid #1E293B; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #2563EB, #1D4ED8); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">P417</div>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <div style="width: 140px; height: 14px; background: #334155; border-radius: 4px; animation: bspPulse 1.4s infinite ease-in-out;"></div>
-                    <div style="width: 80px; height: 10px; background: #1E293B; border-radius: 3px;"></div>
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: #2563EB; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px;">P417</div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #FFFFFF; font-weight: 800; font-size: 14px; letter-spacing: -0.2px;">Barcode Studio Pro</span>
+                    <span style="color: #94A3B8; font-size: 10px; font-weight: 500;">Forensic AAMVA &amp; ID Engine</span>
                 </div>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <div style="width: 65px; height: 28px; background: #1E293B; border-radius: 6px;"></div>
-                <div style="width: 75px; height: 28px; background: #2563EB; border-radius: 6px; opacity: 0.85;"></div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="background: #1E293B; color: #CBD5E1; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 9999px;">Guest</div>
+                <div style="background: #2563EB; color: #FFFFFF; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px;">Sign In</div>
+                <div style="background: #059669; color: #FFFFFF; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 4px;">
+                    <span>⚡ Buy Sets</span>
+                </div>
             </div>
         </div>
-        <!-- Body Skeleton -->
-        <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;">
-            <!-- Top Controls Skeleton -->
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1; height: 38px; background: #1E293B; border-radius: 8px; animation: bspPulse 1.4s infinite ease-in-out;"></div>
-                <div style="width: 100px; height: 38px; background: #1E293B; border-radius: 8px;"></div>
-            </div>
-            <!-- Main Content Area: Left form cards, Right preview -->
-            <div style="flex: 1; display: flex; gap: 16px;">
-                <!-- Left Form Skeleton -->
-                <div style="flex: 1.1; display: flex; flex-direction: column; gap: 12px;">
-                    <div style="background: #1E293B; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="width: 120px; height: 12px; background: #334155; border-radius: 4px;"></div>
-                        <div style="width: 100%; height: 34px; background: #0F172A; border-radius: 6px;"></div>
-                        <div style="display: flex; gap: 8px;">
-                            <div style="flex: 1; height: 32px; background: #0F172A; border-radius: 6px;"></div>
-                            <div style="flex: 1; height: 32px; background: #0F172A; border-radius: 6px;"></div>
-                        </div>
+
+        <!-- Mode Tabs Strip -->
+        <div style="height: 40px; background: #1E293B; border-bottom: 1px solid #334155; display: flex; align-items: center; padding: 0 16px; gap: 8px;">
+            <div style="background: #2563EB; color: #FFFFFF; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px;">🪪 AAMVA</div>
+            <div style="color: #94A3B8; font-size: 11px; font-weight: 600; padding: 4px 10px;">🗺️ States</div>
+            <div style="color: #94A3B8; font-size: 11px; font-weight: 600; padding: 4px 10px;">🛂 Passport MRZ</div>
+        </div>
+
+        <!-- Main Body Grid Replica (Light theme #F8FAFC with white #FFFFFF cards) -->
+        <div style="flex: 1; padding: 16px; display: flex; gap: 16px; max-width: 1780px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;">
+            <!-- Left Form Panel Skeleton -->
+            <div style="flex: 1.1; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <!-- Jurisdiction Row Skeleton -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="width: 180px; height: 14px; background: #E2E8F0; border-radius: 4px; animation: bspLightPulse 1.4s infinite ease-in-out;"></div>
+                    <div style="display: flex; gap: 6px;">
+                        <div style="width: 32px; height: 22px; background: #F1F5F9; border-radius: 4px;"></div>
+                        <div style="width: 32px; height: 22px; background: #F1F5F9; border-radius: 4px;"></div>
+                        <div style="width: 32px; height: 22px; background: #F1F5F9; border-radius: 4px;"></div>
                     </div>
-                    <div style="flex: 1; background: #1E293B; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="width: 160px; height: 12px; background: #334155; border-radius: 4px;"></div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
-                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
-                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
-                            <div style="height: 34px; background: #0F172A; border-radius: 6px;"></div>
+                </div>
+                <div style="height: 42px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; animation: bspLightPulse 1.4s infinite ease-in-out;"></div>
+                
+                <!-- Action Buttons Row -->
+                <div style="display: flex; gap: 8px;">
+                    <div style="flex: 1; height: 36px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px;"></div>
+                    <div style="flex: 1; height: 36px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px;"></div>
+                    <div style="width: 80px; height: 36px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;"></div>
+                </div>
+
+                <!-- Demographic Fields Skeleton Grid -->
+                <div style="height: 34px; background: #F1F5F9; border-radius: 8px; display: flex; gap: 4px; padding: 3px;">
+                    <div style="flex: 1; background: #2563EB; border-radius: 6px;"></div>
+                    <div style="flex: 1; background: #E2E8F0; border-radius: 6px;"></div>
+                    <div style="flex: 1; background: #E2E8F0; border-radius: 6px;"></div>
+                    <div style="flex: 1; background: #E2E8F0; border-radius: 6px;"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="width: 70px; height: 10px; background: #E2E8F0; border-radius: 3px;"></div>
+                        <div style="height: 38px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; animation: bspLightPulse 1.4s infinite ease-in-out;"></div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="width: 60px; height: 10px; background: #E2E8F0; border-radius: 3px;"></div>
+                        <div style="height: 38px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; animation: bspLightPulse 1.4s infinite ease-in-out;"></div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="width: 80px; height: 10px; background: #E2E8F0; border-radius: 3px;"></div>
+                        <div style="height: 38px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; animation: bspLightPulse 1.4s infinite ease-in-out;"></div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="width: 75px; height: 10px; background: #E2E8F0; border-radius: 3px;"></div>
+                        <div style="height: 38px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; animation: bspLightPulse 1.4s infinite ease-in-out;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Preview Panel Skeleton -->
+            <div style="flex: 0.9; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);" class="hidden sm:flex">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="width: 140px; height: 14px; background: #E2E8F0; border-radius: 4px;"></div>
+                    <div style="width: 90px; height: 26px; background: #F1F5F9; border-radius: 6px;"></div>
+                </div>
+
+                <!-- CR80 ID Card Template Replica -->
+                <div style="height: 220px; background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%); border: 1px solid #CBD5E1; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; animation: bspLightPulse 1.4s infinite ease-in-out;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="width: 120px; height: 16px; background: #94A3B8; border-radius: 4px; opacity: 0.6;"></div>
+                            <div style="width: 80px; height: 10px; background: #CBD5E1; border-radius: 3px; margin-top: 4px;"></div>
+                        </div>
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #CBD5E1;"></div>
+                    </div>
+                    <div style="display: flex; gap: 14px; align-items: flex-end;">
+                        <div style="width: 65px; height: 80px; background: #CBD5E1; border-radius: 6px;"></div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                            <div style="width: 90%; height: 12px; background: #94A3B8; border-radius: 3px; opacity: 0.5;"></div>
+                            <div style="width: 70%; height: 10px; background: #CBD5E1; border-radius: 3px;"></div>
+                            <div style="width: 50%; height: 10px; background: #CBD5E1; border-radius: 3px;"></div>
                         </div>
                     </div>
                 </div>
-                <!-- Right Card Preview Skeleton -->
-                <div style="flex: 0.9; display: flex; flex-direction: column; gap: 12px;" class="hidden sm:flex">
-                    <div style="height: 200px; background: #1E293B; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; animation: bspPulse 1.4s infinite ease-in-out;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <div style="width: 110px; height: 14px; background: #334155; border-radius: 4px;"></div>
-                            <div style="width: 32px; height: 32px; background: #334155; border-radius: 50%;"></div>
-                        </div>
-                        <div style="display: flex; gap: 12px; align-items: flex-end;">
-                            <div style="width: 60px; height: 75px; background: #334155; border-radius: 6px;"></div>
-                            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-                                <div style="width: 80%; height: 10px; background: #334155; border-radius: 3px;"></div>
-                                <div style="width: 60%; height: 10px; background: #334155; border-radius: 3px;"></div>
-                            </div>
-                        </div>
+
+                <!-- Barcode Substrate Replica -->
+                <div style="height: 100px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                    <div style="width: 80%; height: 38px; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #94A3B8; font-family: monospace; font-size: 11px; letter-spacing: 3px;">
+                        |||| || ||||| || |||| ||||
                     </div>
-                    <!-- Barcode Box Skeleton -->
-                    <div style="height: 110px; background: #1E293B; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
-                        <div style="width: 75%; height: 44px; background: #0F172A; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                            <div style="color: #475569; font-family: monospace; font-size: 10px; letter-spacing: 2px;">|||| | ||| || ||||| |||</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px; color: #94A3B8; font-size: 11px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                            <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; animation: bspPulse 1s infinite ease-in-out;"></span>
-                            Loading Barcode Studio Pro Engine...
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 6px; color: #64748B; font-size: 11px; font-weight: 600;">
+                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10B981; animation: bspLightPulse 1s infinite ease-in-out;"></span>
+                        Loading Barcode Studio Pro Engine...
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <style>
-        @keyframes bspPulse {
+        @keyframes bspLightPulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.38; }
+            50% { opacity: 0.55; }
         }
     </style>
     <script>
@@ -239,15 +281,16 @@
             var loader = document.getElementById('app-skeleton-loader');
             if (!loader) return;
             loader.style.opacity = '0';
-            loader.style.pointerEvents = 'none';
+            loader.style.visibility = 'hidden';
             setTimeout(function() {
                 if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-            }, 350);
+            }, 300);
         }
         window.addEventListener('load', function() {
-            setTimeout(dismissSkeletonLoader, 150);
+            setTimeout(dismissSkeletonLoader, 100);
         });
-        setTimeout(dismissSkeletonLoader, 2500);
+        setTimeout(dismissSkeletonLoader, 2000);
+    </script>
     </script>
 
     <!-- Toast Notifications -->
@@ -4353,11 +4396,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
                             <span>Copy</span>
                         </button>
-                        <button type="button" onclick="downloadMrzTxt()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-2 px-2 rounded-xl transition shadow-xs text-xs flex items-center justify-center gap-1.5">
+                        <button type="button" onclick="secureExport(downloadMrzTxt)" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold py-2 px-2 rounded-xl transition shadow-xs text-xs flex items-center justify-center gap-1.5">
                             <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             <span>.TXT</span>
                         </button>
-                        <button type="button" onclick="downloadMrzPng()" class="bg-accent hover:bg-accent-hover text-white font-bold py-2 px-2 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                        <button type="button" onclick="secureExport(downloadMrzPng)" class="bg-accent hover:bg-accent-hover text-white font-bold py-2 px-2 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>PNG</span>
                         </button>
@@ -6421,38 +6464,39 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 calcField('first', true);
             }
             
+            const FIELD_TO_DOM_MAP = {
+                'id': 'aamva-id', 'dl': 'aamva-id',
+                'sex': 'aamva-sex',
+                'first': 'aamva-first', 'mid': 'aamva-mid', 'last': 'aamva-last',
+                'dob': 'aamva-dob', 'issued': 'aamva-issued', 'exp': 'aamva-exp',
+                'dcf': 'aamva-dcf', 'dd': 'aamva-dcf',
+                'dck': 'aamva-dck', 'icn': 'aamva-dck',
+                'audit': 'aamva-audit', 'dcj': 'aamva-audit',
+                'option': 'aamva-nd-opt', 'real_id': 'aamva-realid'
+            };
+            const targetDomId = FIELD_TO_DOM_MAP[field];
+            const targetEl = targetDomId ? document.getElementById(targetDomId) : null;
+            const valBefore = targetEl ? targetEl.value.trim() : '';
+
             // 1. Try State-Aware Calculation Engine (from state_engine.js)
             if (typeof window.runStateCalculation === 'function') {
                 const handled = window.runStateCalculation(field, jKey);
-                if (handled) {
-                    // For date fields: verify the DOM element was actually populated with 8 digits.
-                    // runStateCalculation('dob') always returns true even if it silently failed
-                    // (e.g. proxy fallback returned hardcoded "07262024" without writing to DOM).
-                    // If the field is still empty, fall through to the reliable pure-JS fallback below.
-                    const dateFieldMap = { dob: 'aamva-dob', issued: 'aamva-issued', exp: 'aamva-exp' };
-                    if (dateFieldMap[field]) {
-                        const dateEl = document.getElementById(dateFieldMap[field]);
-                        const dateVal = (dateEl && dateEl.value) ? dateEl.value.trim() : '';
-                        if (/^\d{8}$/.test(dateVal)) {
-                            // Date was written successfully — proceed normally
-                            if (!isBatch) {
-                                validateDlNumber();
-                                compileAAMVA();
-                                showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
-                            }
-                            return;
-                        }
-                        // Date field empty or malformed — fall through to pure-JS fallback below
-                    } else {
-                        // Non-date field: state engine handled it, return normally
-                        if (!isBatch) {
-                            validateDlNumber();
-                            compileAAMVA();
-                            showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
-                        }
-                        return;
+                const valAfter = targetEl ? targetEl.value.trim() : '';
+                const isDateField = (field === 'dob' || field === 'issued' || field === 'exp');
+                const validDate = isDateField ? /^\d{8}$/.test(valAfter) : true;
+                const valueChanged = !isBatch ? (valAfter !== valBefore && valAfter !== '') : (valAfter !== '');
+
+                // If runStateCalculation actually computed a new, valid value:
+                if (handled && validDate && valueChanged) {
+                    if (!isBatch) {
+                        validateDlNumber();
+                        compileAAMVA();
+                        if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+                        showToast(`Calculated authentic ${revInfo ? revInfo.label : profile.name} ${field.toUpperCase()}!`, 'success');
                     }
+                    return;
                 }
+                // If value was unchanged, empty, or failed verification, fall through to robust dynamic generators below
             }
 
             // Fallback REAL ID toggle
@@ -6618,10 +6662,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     dckEl.value = `${currentDl || r6}01`;
                     if (!isBatch) showToast(`Calculated authentic ${profile.name} inventory tracker!`, 'info');
                 }
+            } else if (field === 'option') {
+                const optEl = document.getElementById('aamva-nd-opt');
+                if (optEl) {
+                    optEl.value = String(Math.floor(1000 + Math.random() * 9000));
+                    if (!isBatch) showToast('Calculated authentic State Option Code!', 'info');
+                }
             }
 
             if (!isBatch) {
+                validateDlNumber();
                 compileAAMVA();
+                if (typeof updateStudioCardDetails === 'function') {
+                    updateStudioCardDetails();
+                }
             }
         }
 
@@ -15627,6 +15681,8 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         function downloadMrzTxt() {
+            const hasTokens = currentUser && (currentUser.tokens > 0 || currentUser.role === 'admin' || currentUser.role === 'pro_user');
+            if (!hasTokens) { showToast('Export requires active Barcode Sets.', 'warning'); if (!currentUser) openAuthModal(); else openTokenModal(); return; }
             const text = document.getElementById('mrz-output-text')?.textContent || '';
             const docNum = document.getElementById('mrz-doc-number')?.value || 'ICAO9303';
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -15640,6 +15696,8 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         function downloadMrzPng() {
+            const hasTokens = currentUser && (currentUser.tokens > 0 || currentUser.role === 'admin' || currentUser.role === 'pro_user');
+            if (!hasTokens) { showToast('Export requires active Barcode Sets.', 'warning'); if (!currentUser) openAuthModal(); else openTokenModal(); return; }
             const canvas = renderMrzToCanvas();
             if (!canvas) return;
             const docNum = document.getElementById('mrz-doc-number')?.value || 'ICAO9303';
@@ -17074,6 +17132,26 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     : '<svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
             }
         }
+
+        // Pre-warm card template images in background after page load for faster state switching
+        (function preWarmCardTemplates() {
+            const templates = [
+                'alaska_back','arkansas_back','arizona_back','alabama_back','california_back',
+                'colorado_back','florida_back','georgia_back','idaho_back','kansas_back',
+                'hawaii_back','iowa_back','illinois_back','indiana_back','louisiana_back',
+                'maryland_back','michigan_back','minnesota_back','mississippi_back','missouri_back',
+                'nebraska_back','nevada_back','new_jersey_back','new_mexico_back',
+                'north_carolina_back','north_dakota_back','ohio_back','oklahoma_back',
+                'oregon_back','pennsylvania_back','rhode_island_back','south_carolina_back',
+                'south_dakota_back','tennessee_back','texas_back','utah_back','vermont_back',
+                'virginia_back','washington_back','west_virginia_back','wisconsin_back',
+                'wyoming_back','connecticut_back','delaware_back','kentucky_back','maine_back',
+                'massachusetts_back','montana_back','new_hampshire_back','new_york_back'
+            ];
+            const warm = () => { templates.forEach(name => { const img = new Image(); img.src = `card_templates/${name}.webp`; }); };
+            if ('requestIdleCallback' in window) { requestIdleCallback(warm, { timeout: 3000 }); }
+            else { setTimeout(warm, 1500); }
+        })();
 
 </script>
 </body>
