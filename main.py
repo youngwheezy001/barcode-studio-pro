@@ -5,6 +5,10 @@ from typing import Optional, Dict, Any
 from pathlib import Path
 from dotenv import load_dotenv
 import secrets
+import asyncio
+import hmac
+import time
+import re
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body, BackgroundTasks
 from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
@@ -695,6 +699,11 @@ async def on_app_startup():
     except Exception as exc:
         print(f"[SERVER WARNING] Startup database initialization notice: {exc}")
     print("[SERVER] Startup complete - port binding active. Health probes listening at /health, /ping, /status.")
+    try:
+        asyncio.create_task(background_payment_poller())
+        print("[SERVER] Autonomous Binance & Blockchain payment listener worker started.")
+    except Exception as exc:
+        print(f"[SERVER NOTICE] Could not start background payment poller: {exc}")
 
 # ============================================================
 # Core Health Checks & Cloud Deploy Readiness Probes (Render, K8s, Docker)
@@ -1853,6 +1862,309 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
         "support_email": os.getenv("SUPPORT_EMAIL", "barcodestudiopro@gmail.com"),
         "support_whatsapp": os.getenv("SUPPORT_WHATSAPP", "+1 (860) 662-6632"),
         "support_whatsapp_link": "https://wa.me/18606626632"
+    }
+
+# =========================================================================
+# --- AUTONOMOUS BINANCE DEPOSIT LISTENER & EMAIL WEBHOOK ENGINE ---
+# =========================================================================
+
+BINANCE_WEBHOOK_SECRET = os.getenv("BINANCE_WEBHOOK_SECRET", "bsp_binance_pay_secret_2026")
+
+class BinanceDepositWebhookRequest(BaseModel):
+    secret: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = "USDT"
+    tx_id: Optional[str] = None
+    user_email: Optional[str] = None
+    subject: Optional[str] = None
+    body: Optional[str] = None
+    raw_text: Optional[str] = None
+
+def extract_amount_from_text(text: str) -> Optional[float]:
+    """Extracts payment/deposit amount from notification subject, body, or raw text."""
+    if not text:
+        return None
+    # 1. Match patterns like "$11.01", "11.01 USDT", "11.01 USD", "deposit of 11.01"
+    patterns = [
+        r'(?:deposit(?:ed)?|received|payment of|amount:?)\s*[\$]?\s*(\d+\.\d{2})',
+        r'[\$]\s*(\d+\.\d{2})\s*(?:USDT|USD|BUSD)?',
+        r'(\d+\.\d{2})\s*(?:USDT|USD|BUSD)',
+        r'\b(\d+\.\d{2})\b'
+    ]
+    for p in patterns:
+        matches = re.findall(p, text, re.IGNORECASE)
+        if matches:
+            try:
+                val = float(matches[0])
+                if 1.0 <= val <= 2000.0:
+                    return val
+            except (ValueError, TypeError):
+                continue
+    return None
+
+async def poll_binance_api_deposits(pending_orders: list, db: Session, api_key: str, api_secret: str):
+    """Checks official Binance Spot Deposit History API for recent successful incoming deposits."""
+    try:
+        ts = int(time.time() * 1000)
+        params = f"status=1&timestamp={ts}"
+        sig = hmac.new(api_secret.encode('utf-8'), params.encode('utf-8'), hashlib.sha256).hexdigest()
+        url = f"https://api.binance.com/sapi/v1/capital/deposit/hisrec?{params}&signature={sig}"
+
+        async with httpx.AsyncClient(timeout=9.0) as client:
+            resp = await client.get(url, headers={"X-MBX-APIKEY": api_key, "User-Agent": "BarcodeStudioPro/2.0"})
+            if resp.status_code == 200:
+                deposits = resp.json()
+                if isinstance(deposits, list):
+                    for dep in deposits:
+                        dep_amount = float(dep.get("amount", 0.0))
+                        dep_tx = dep.get("txId", "")
+                        dep_coin = dep.get("coin", "USDT")
+                        dep_status = int(dep.get("status", 0))
+
+                        if dep_status == 1 and dep_amount > 0:
+                            for order in pending_orders:
+                                if order.status in ["pending", "submitted"]:
+                                    if abs(float(order.amount_usd) - dep_amount) <= 0.05:
+                                        # Match found! Confirm order autonomously
+                                        order.status = "confirmed"
+                                        order.confirmed_at = datetime.utcnow()
+                                        order.tx_hash = dep_tx or f"binance_dep_{int(time.time())}"
+                                        purchaser = db.query(User).filter(User.id == order.user_id).first()
+                                        if purchaser:
+                                            purchaser.tokens += order.tokens
+                                            process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
+                                        db.commit()
+                                        db.refresh(order)
+                                        sync_users_to_backup(db)
+                                        sync_orders_to_backup(db)
+                                        print(f"[BINANCE API SUCCESS] Auto-credited order #{order.id} for {order.user_email} (${order.amount_usd})!")
+                                        break
+    except Exception as e:
+        print(f"[BINANCE API NOTE] {e}")
+
+async def background_payment_poller():
+    """
+    Continuous background daemon running every 20s:
+    1. Scans on-chain public explorers for TRC20, BTC, SOL pending orders.
+    2. If BINANCE_API_KEY is configured, checks Binance deposit records.
+    """
+    await asyncio.sleep(4)
+    while True:
+        try:
+            db = SessionLocal()
+            try:
+                cutoff = datetime.utcnow() - timedelta(hours=3)
+                pending_orders = db.query(CryptoPayment).filter(
+                    CryptoPayment.status.in_(["pending", "submitted"]),
+                    CryptoPayment.created_at >= cutoff
+                ).order_by(CryptoPayment.id.desc()).all()
+
+                if pending_orders:
+                    # 1. Check blockchain nodes
+                    for order in pending_orders:
+                        try:
+                            confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, db)
+                            if confirmed:
+                                print(f"[AUTONOMOUS CONFIRMATION] Order #{order.id} ({order.user_email}) confirmed: {msg}")
+                        except Exception as o_err:
+                            pass
+
+                    # 2. Check official Binance API if credentials set in environment
+                    b_key = (os.getenv("BINANCE_API_KEY") or "").strip()
+                    b_sec = (os.getenv("BINANCE_API_SECRET") or "").strip()
+                    if b_key and b_sec:
+                        await poll_binance_api_deposits(pending_orders, db, b_key, b_sec)
+
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"[PAYMENT POLLER WORKER] Cycle note: {e}")
+
+        await asyncio.sleep(20)
+
+@app.post("/api/webhooks/binance-deposit", summary="Autonomous Binance deposit confirmation webhook")
+@app.post("/api/webhooks/binance-email", summary="Autonomous Binance email confirmation ingestion")
+async def binance_deposit_webhook(req: BinanceDepositWebhookRequest, db: Session = Depends(get_db)):
+    """
+    Autonomous Listener Endpoint:
+    Can be called directly by Google Apps Script, Gmail Webhook, Zapier, Make,
+    or Binance API relays whenever an incoming Binance transfer or deposit is confirmed.
+    Automatically matches micro-cent tagged orders, confirms order, and credits tokens instantly!
+    """
+    # 1. Validate secret token
+    expected_secret = os.getenv("BINANCE_WEBHOOK_SECRET", BINANCE_WEBHOOK_SECRET)
+    if req.secret and req.secret.strip() != expected_secret:
+        raise HTTPException(status_code=403, detail="Invalid webhook secret key")
+
+    # 2. Resolve deposit amount
+    amount = req.amount
+    if not amount or amount <= 0:
+        combined_text = f"{req.subject or ''} {req.body or ''} {req.raw_text or ''}".strip()
+        amount = extract_amount_from_text(combined_text)
+
+    if not amount or amount <= 0:
+        raise HTTPException(status_code=400, detail="Could not determine deposit amount from payload")
+
+    amount = round(float(amount), 2)
+    tx_id = (req.tx_id or "").strip()
+    if not tx_id and req.body:
+        tx_match = re.search(r'(?:txid|transaction id|internal id|id)[:\s]+([a-zA-Z0-9_\-]{8,66})', req.body, re.IGNORECASE)
+        if tx_match:
+            tx_id = tx_match.group(1).strip()
+    if not tx_id:
+        tx_id = f"binance_dep_{int(time.time())}_{secrets.token_hex(4)}"
+
+    # 3. Find matching pending order in DB (within last 24 hours)
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    pending_orders = db.query(CryptoPayment).filter(
+        CryptoPayment.status.in_(["pending", "submitted"]),
+        CryptoPayment.created_at >= cutoff
+    ).order_by(CryptoPayment.id.desc()).all()
+
+    matched_order = None
+    # Exact micro-cent match first (e.g. 11.01)
+    for o in pending_orders:
+        if abs(float(o.amount_usd) - amount) <= 0.05:
+            matched_order = o
+            break
+
+    # If not matched by amount, try matching by user_email if provided
+    if not matched_order and req.user_email:
+        clean_email = req.user_email.strip().lower()
+        for o in pending_orders:
+            if o.user_email.strip().lower() == clean_email:
+                matched_order = o
+                break
+
+    # If still not matched, check if an existing confirmed order with this tx_id exists (prevent replay)
+    if tx_id:
+        already_used = db.query(CryptoPayment).filter(
+            CryptoPayment.tx_hash == tx_id,
+            CryptoPayment.status == "confirmed"
+        ).first()
+        if already_used:
+            return {
+                "status": "already_processed",
+                "message": f"Transaction {tx_id} was already credited on order #{already_used.id}.",
+                "order_id": already_used.id
+            }
+
+    if not matched_order:
+        # If no active order exists but an email was provided, create and fulfill order on the spot
+        if req.user_email:
+            target_user = db.query(User).filter(func.lower(User.email) == req.user_email.strip().lower()).first()
+            if target_user:
+                # Find matching package by amount
+                matched_pkg_id = "xs_5"
+                tokens_to_give = 5
+                for pkg_id, pkg in TOKEN_PACKAGES.items():
+                    if abs(pkg["amount_usd"] - amount) <= 1.0:
+                        matched_pkg_id = pkg_id
+                        tokens_to_give = pkg["tokens"]
+                        break
+
+                auto_order = CryptoPayment(
+                    user_id=target_user.id,
+                    user_email=target_user.email,
+                    package_id=matched_pkg_id,
+                    tokens=tokens_to_give,
+                    amount_usd=amount,
+                    crypto_currency=req.currency or "USDT",
+                    network="Binance Pay / Internal",
+                    wallet_address="Binance Direct",
+                    tx_hash=tx_id,
+                    status="confirmed",
+                    confirmed_at=datetime.utcnow()
+                )
+                db.add(auto_order)
+                target_user.tokens += tokens_to_give
+                db.commit()
+                db.refresh(auto_order)
+                auto_order.invoice_number = f"INV-{datetime.utcnow().year}-{auto_order.id:05d}"
+                db.commit()
+                sync_users_to_backup(db)
+                sync_orders_to_backup(db)
+                return {
+                    "status": "success",
+                    "message": f"Autonomous Binance direct payment of ${amount} fulfilled! Added {tokens_to_give} tokens to {target_user.email}.",
+                    "order_id": auto_order.id,
+                    "tokens_added": tokens_to_give,
+                    "user_email": target_user.email
+                }
+
+        raise HTTPException(
+            status_code=404,
+            detail=f"No pending order found matching amount ${amount:.2f}. Ensure user initiated purchase within last 24h."
+        )
+
+    # 4. Fulfill matched order
+    matched_order.status = "confirmed"
+    matched_order.confirmed_at = datetime.utcnow()
+    matched_order.tx_hash = tx_id
+    purchaser = db.query(User).filter(User.id == matched_order.user_id).first()
+    if purchaser:
+        purchaser.tokens += matched_order.tokens
+        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(matched_order.amount_usd))
+
+    db.commit()
+    db.refresh(matched_order)
+    sync_users_to_backup(db)
+    sync_orders_to_backup(db)
+
+    print(f"[AUTONOMOUS BINANCE WEBHOOK] Successfully credited {matched_order.tokens} tokens to {matched_order.user_email} (Order #{matched_order.id}, ${amount})")
+
+    return {
+        "status": "success",
+        "message": f"Payment of ${amount:.2f} confirmed! Credited {matched_order.tokens} tokens to {matched_order.user_email}.",
+        "order_id": matched_order.id,
+        "invoice_number": matched_order.invoice_number,
+        "tokens_added": matched_order.tokens,
+        "tokens_remaining": purchaser.tokens if purchaser else None,
+        "user_email": matched_order.user_email,
+        "tx_hash": matched_order.tx_hash
+    }
+
+@app.post("/api/admin/crypto/auto-match", summary="Admin CRM: 1-click match deposit to pending client order")
+def admin_auto_match_deposit(amount: float = Body(..., embed=True), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin quick-action to instantly match an incoming deposit amount to a client's pending order."""
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    amount = round(float(amount), 2)
+    cutoff = datetime.utcnow() - timedelta(hours=48)
+    pending_orders = db.query(CryptoPayment).filter(
+        CryptoPayment.status.in_(["pending", "submitted"]),
+        CryptoPayment.created_at >= cutoff
+    ).order_by(CryptoPayment.id.desc()).all()
+
+    matched = None
+    for o in pending_orders:
+        if abs(float(o.amount_usd) - amount) <= 0.05:
+            matched = o
+            break
+
+    if not matched:
+        raise HTTPException(status_code=404, detail=f"No pending order found matching amount ${amount:.2f}")
+
+    matched.status = "confirmed"
+    matched.confirmed_at = datetime.utcnow()
+    matched.tx_hash = f"binance_manual_match_{int(time.time())}"
+    purchaser = db.query(User).filter(User.id == matched.user_id).first()
+    if purchaser:
+        purchaser.tokens += matched.tokens
+        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(matched.amount_usd))
+
+    db.commit()
+    db.refresh(matched)
+    sync_users_to_backup(db)
+    sync_orders_to_backup(db)
+
+    return {
+        "status": "success",
+        "message": f"Order #{matched.id} (${matched.amount_usd}) matched and approved! Credited {matched.tokens} tokens to {matched.user_email}.",
+        "order_id": matched.id,
+        "user_email": matched.user_email,
+        "tokens_added": matched.tokens
     }
 
 # --- BATCH CSV / BULK GENERATION ENDPOINTS ---

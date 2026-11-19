@@ -11873,7 +11873,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             const mobileTokenCount = document.getElementById('mobile-token-count');
             const mobileExportBtn = document.getElementById('mobile-export-btn');
-            const hasSets = currentUser && (currentUser.tokens > 0 || currentUser.role === 'admin' || currentUser.role === 'pro_user');
+            // Mobile Export only visible if user has PAID sets (tokens > 0) OR is admin/pro.
+            // Must have actually purchased — tokens=undefined, null, 0 all hide the button.
+            const _mTokens = (currentUser && typeof currentUser.tokens === 'number') ? currentUser.tokens : 0;
+            const _mIsPrivileged = currentUser && (currentUser.role === 'admin' || currentUser.role === 'pro_user');
+            const hasSets = _mIsPrivileged || (_mTokens > 0);
 
             if (mobileTokenCount) {
                 if (currentUser) {
@@ -16373,19 +16377,22 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             // 2. Stop camera scanner if running
             try { if (typeof stopCameraScanning === 'function') stopCameraScanning(); } catch (e) {}
 
-            // 3. Call explicit close functions for modals
-            const closeFns = [
-                closePasswordModal, closeForgotPasswordModal, closeAuthModal,
-                closeTokenModal, closeZxingModal, closeBarcodeScannerModal,
-                closeBatchModal, closeXmlModal, closeZplModal, closeReceiptModal,
-                closeCertificateModal, closeUserOrdersModal, closeUserHistoryModal,
-                closeUserAffiliateModal, closeAdminCryptoModal, closeAdminClientsModal,
-                closePrivacyModal, closeTermsModal, closeSupportModal
+            // 3. Call explicit close functions for modals safely
+            const closeFnNames = [
+                'closePasswordModal', 'closeForgotPasswordModal', 'closeAuthModal',
+                'closeTokenModal', 'closeZxingModal', 'closeBarcodeScannerModal',
+                'closeBatchModal', 'closeXmlModal', 'closeReceiptModal',
+                'closeCertificateModal', 'closeUserOrdersModal', 'closeUserHistoryModal',
+                'closeUserAffiliateModal', 'closeAdminCryptoModal', 'closeAdminClientsModal',
+                'closePrivacyModal', 'closeTermsModal', 'closeSupportModal',
+                'closeComplianceInspectorModal'
             ];
-            closeFns.forEach(fn => {
-                if (typeof fn === 'function') {
-                    try { fn(); } catch (err) {}
-                }
+            closeFnNames.forEach(fnName => {
+                try {
+                    if (typeof window[fnName] === 'function') {
+                        window[fnName]();
+                    }
+                } catch (err) {}
             });
 
             // 4. Force hide all modal overlay elements by ID
@@ -16411,6 +16418,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 }
             });
         }
+
+        // Click outside / on dark backdrop to dismiss any open modal/tile
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                if (e.target.id !== 'app-loading-screen') {
+                    dismissAllModalsAndTiles();
+                }
+            }
+        });
 
         // --- PRO KEYBOARD SHORTCUTS ---
         document.addEventListener('keydown', (e) => {
