@@ -1687,13 +1687,16 @@ async def verify_crypto_onchain(req: VerifyOnchainCryptoRequest, current_user: U
 
 async def send_sale_notification(order: CryptoPayment):
     """
-    Dispatches instant notification to Admin phone via Telegram Bot or WhatsApp Webhook:
+    Dispatches instant notification to Admin phone via Telegram Bot or WhatsApp:
     - TELEGRAM_BOT_TOKEN & TELEGRAM_CHAT_ID: Sends formatted alert via official Telegram Bot API
-    - WHATSAPP_WEBHOOK_URL or SALE_ALERT_WEBHOOK_URL: Dispatches payload to WhatsApp Gateway / Zapier / Make
+    - WHATSAPP_PHONE & WHATSAPP_APIKEY: Sends direct WhatsApp message via CallMeBot Gateway
+    - WHATSAPP_WEBHOOK_URL: Dispatches payload to custom WhatsApp Gateway / Zapier / Make
     """
     try:
         tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
         tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
+        wa_phone = (os.getenv("WHATSAPP_PHONE") or os.getenv("WHATSAPP_ALERT_PHONE") or "").strip().replace("+", "").replace(" ", "").replace("-", "")
+        wa_apikey = (os.getenv("WHATSAPP_APIKEY") or "").strip()
         wa_webhook = (os.getenv("WHATSAPP_WEBHOOK_URL") or os.getenv("SALE_ALERT_WEBHOOK_URL") or "").strip()
 
         amt_str = f"${float(order.amount_usd or 0):.2f}"
@@ -1707,9 +1710,19 @@ async def send_sale_notification(order: CryptoPayment):
             f"🧾 <b>Invoice:</b> {inv_str}\n"
             f"🔗 <b>TxID:</b> <code>{order.tx_hash or 'Binance Verified'}</code>"
         )
+        plain_text = (
+            f"🎉 NEW BARCODE STUDIO SALE!\n\n"
+            f"💰 Amount: {amt_str} USD\n"
+            f"📦 Package: {order.tokens} Sets ({order.package_id})\n"
+            f"👤 Customer: {order.user_email}\n"
+            f"⚡ Method: {order.crypto_currency} ({order.network})\n"
+            f"🧾 Invoice: {inv_str}\n"
+            f"🔗 TxID: {order.tx_hash or 'Binance Confirmed'}"
+        )
 
-        if not ((tg_token and tg_chat_id) or wa_webhook):
-            print(f"[SALE NOTIFIER] Payment confirmed for {order.user_email} ({amt_str}). Set TELEGRAM_BOT_TOKEN/WHATSAPP_WEBHOOK_URL on Render for phone alerts.")
+        has_channels = (tg_token and tg_chat_id) or (wa_phone and wa_apikey) or wa_webhook
+        if not has_channels:
+            print(f"[SALE NOTIFIER] Payment confirmed for {order.user_email} ({amt_str}). (Set TELEGRAM_BOT_TOKEN/CHAT_ID or WHATSAPP_PHONE/APIKEY on Render for mobile alerts).")
             return
 
         async with httpx.AsyncClient(timeout=8.0) as client:
@@ -1722,7 +1735,13 @@ async def send_sale_notification(order: CryptoPayment):
                     "parse_mode": "HTML"
                 })
 
-            # 2. WhatsApp or Custom Notification Relay (CallMeBot / Make / Zapier)
+            # 2. WhatsApp Direct (Free via CallMeBot)
+            if wa_phone and wa_apikey:
+                encoded_msg = urllib.parse.quote(plain_text)
+                wa_callme_url = f"https://api.callmebot.com/whatsapp.php?phone={wa_phone}&text={encoded_msg}&apikey={wa_apikey}"
+                await client.get(wa_callme_url)
+
+            # 3. WhatsApp or Custom Webhook Relay (Make / Zapier / Twilio)
             if wa_webhook:
                 await client.post(wa_webhook, json={
                     "event": "payment_confirmed",
@@ -1732,7 +1751,7 @@ async def send_sale_notification(order: CryptoPayment):
                     "package_id": order.package_id,
                     "invoice_number": inv_str,
                     "tx_hash": order.tx_hash,
-                    "message": msg_text
+                    "message": plain_text
                 })
         print(f"[SALE NOTIFIER] Mobile alert successfully sent for order #{order.id} ({amt_str})")
     except Exception as e:
