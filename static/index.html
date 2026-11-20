@@ -1158,6 +1158,81 @@
         </div>
     </div>
 
+    <!-- Share / Transfer Sets Modal -->
+    <div id="share-sets-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-md flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-base font-bold">
+                        🎁
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Share Barcode Sets</h3>
+                        <p class="text-[11px] text-slate-500">Transfer your sets to any registered client on Barcode Studio Pro.</p>
+                    </div>
+                </div>
+                <button onclick="closeShareSetsModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none cursor-pointer">&times;</button>
+            </div>
+
+            <div class="bg-indigo-50/80 border border-indigo-100 rounded-xl p-3 flex items-center justify-between text-xs">
+                <span class="text-slate-600 font-medium">Your Available Balance:</span>
+                <span id="share-sender-balance" class="font-bold text-indigo-700 font-mono text-sm">0 Sets</span>
+            </div>
+
+            <form id="share-sets-form" onsubmit="handleShareSets(event)" class="flex flex-col gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 text-[11px]">Recipient's Registered Email:</label>
+                    <input type="email" id="share-recipient-email" required placeholder="e.g. colleague@gmail.com" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                    <span class="text-[10px] text-slate-400 mt-0.5 block">Recipient must have a registered account on Barcode Studio Pro.</span>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 text-[11px]">Number of Sets to Transfer:</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="share-sets-count" min="1" step="1" required value="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-xs">
+                        <button type="button" onclick="setShareMax()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-[11px] font-bold px-3 py-2 rounded-lg transition whitespace-nowrap cursor-pointer">MAX</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1 text-[11px]">Optional Message / Note:</label>
+                    <input type="text" id="share-sets-note" maxlength="150" placeholder="e.g. Here are the 2 barcode sets we agreed on!" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                </div>
+
+                <div id="share-sets-error" class="hidden text-[11px] p-2.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-medium"></div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-200">
+                    <button type="button" onclick="closeShareSetsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">Cancel</button>
+                    <button type="submit" id="share-sets-submit-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-1.5 rounded-lg shadow transition flex items-center gap-1.5 cursor-pointer">
+                        <span>Send Sets</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Received Transfer Notification Modal -->
+    <div id="transfer-received-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col items-center text-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-inner">
+                🎁
+            </div>
+            <div>
+                <h3 class="text-base font-extrabold text-slate-900">You Received Barcode Sets!</h3>
+                <p id="recv-modal-text" class="text-xs text-slate-600 mt-1"></p>
+            </div>
+            <div id="recv-modal-note-box" class="hidden bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs italic text-slate-700 w-full">
+                "<span id="recv-modal-note"></span>"
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2 text-xs text-emerald-800 font-bold w-full">
+                Your New Balance: <span id="recv-modal-balance" class="text-emerald-700 text-sm"></span> Sets
+            </div>
+            <button onclick="closeTransferReceivedModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs shadow transition mt-1 cursor-pointer">
+                Awesome! Start Generating
+            </button>
+        </div>
+    </div>
+
     <!-- ZPL Thermal Code Modal -->
     <div id="zpl-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-xl flex flex-col gap-3">
@@ -1839,6 +1914,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>Purchase Tokens &amp; Packages</span>
                     </button>
 
+                    <!-- Share Barcode Sets Button -->
+                    <button type="button" id="user-share-btn" onclick="openShareSetsModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-indigo-300 hover:text-indigo-200 hover:bg-indigo-500/20 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
+                        <span class="text-sm">🎁</span>
+                        <span>Share / Gift Sets</span>
+                    </button>
+
                     <!-- Customer Orders Button -->
                     <button type="button" id="user-orders-btn" onclick="openUserOrdersModal(); closeUserMenu();" class="hidden w-full text-left text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 px-3 py-2 rounded-lg transition items-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4 text-accent-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -1942,6 +2023,12 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <span class="text-slate-400 text-[10px]">Sets:</span>
                     <span id="header-token-count" class="text-emerald-400 font-bold">0</span>
                 </div>
+
+                <!-- Share Sets Button (Visible for logged-in users) -->
+                <button type="button" id="header-share-btn" onclick="openShareSetsModal()" class="hidden text-xs font-bold bg-indigo-600/90 hover:bg-indigo-500 text-white px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition shadow-xs items-center gap-1 cursor-pointer" title="Share Barcode Sets with another registered client">
+                    <span>🎁</span>
+                    <span class="whitespace-nowrap hidden sm:inline">Share</span>
+                </button>
             </div>
         </div>
     </header>
@@ -11786,6 +11873,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     currentUser = await res.json();
                     localStorage.setItem('bsp_cached_user', JSON.stringify(currentUser));
                     updateAuthUI();
+                    if (currentUser.unread_transfers && currentUser.unread_transfers.length > 0) {
+                        currentUser.unread_transfers.forEach(t => {
+                            showTransferReceivedModal(t);
+                        });
+                        fetch(`${API_BASE}/api/user/transfers/ack`, { method: 'POST', headers: getAuthHeader() });
+                    }
                 } else if (res.status === 401) {
                     // Only log out on explicit unauthorized 401
                     localStorage.removeItem('token');
@@ -11811,6 +11904,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const tokenCounter = document.getElementById('token-counter');
             const headerTokenCount = document.getElementById('header-token-count');
             const userTokenPill = document.getElementById('user-token-pill');
+            const headerShareBtn = document.getElementById('header-share-btn');
+            const userShareBtn = document.getElementById('user-share-btn');
             const paywallOverlay = document.getElementById('paywall-overlay');
             const paywallGuest = document.getElementById('paywall-guest-content');
             const paywallDepleted = document.getElementById('paywall-depleted-content');
@@ -11830,6 +11925,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 logoutBtn.classList.remove('hidden');
                 userTokenPill.classList.remove('hidden');
                 userTokenPill.classList.add('flex');
+                if (headerShareBtn) {
+                    headerShareBtn.classList.remove('hidden');
+                    headerShareBtn.classList.add('flex');
+                }
+                if (userShareBtn) {
+                    userShareBtn.classList.remove('hidden');
+                    userShareBtn.classList.add('flex');
+                }
                 if (userOrdersBtn) {
                     userOrdersBtn.classList.remove('hidden');
                     userOrdersBtn.classList.add('flex');
@@ -11918,6 +12021,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (userAffiliateBtn) {
                     userAffiliateBtn.classList.add('hidden');
                     userAffiliateBtn.classList.remove('flex');
+                }
+                if (headerShareBtn) {
+                    headerShareBtn.classList.add('hidden');
+                    headerShareBtn.classList.remove('flex');
+                }
+                if (userShareBtn) {
+                    userShareBtn.classList.add('hidden');
+                    userShareBtn.classList.remove('flex');
                 }
                 if (userMenuChevron) userMenuChevron.classList.add('hidden');
                 if (userMenuDivider) userMenuDivider.classList.add('hidden');
@@ -17368,6 +17479,142 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     ? '<svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>'
                     : '<svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
             }
+        }
+
+        // =========================================================================
+        // PEER-TO-PEER BARCODE SETS TRANSFER CONTROLLER
+        // =========================================================================
+        function openShareSetsModal() {
+            if (!currentUser) {
+                showToast('Please sign in to share Barcode Sets.', 'info');
+                openAuthModal();
+                return;
+            }
+            const modal = document.getElementById('share-sets-modal');
+            if (!modal) return;
+            const bal = (currentUser && typeof currentUser.tokens === 'number') ? currentUser.tokens : 0;
+            const balEl = document.getElementById('share-sender-balance');
+            if (balEl) balEl.textContent = `${bal} Set${bal !== 1 ? 's' : ''}`;
+            const errEl = document.getElementById('share-sets-error');
+            if (errEl) { errEl.classList.add('hidden'); errEl.textContent = ''; }
+            const countEl = document.getElementById('share-sets-count');
+            if (countEl) { countEl.max = Math.max(1, bal); countEl.value = 1; }
+            modal.classList.remove('hidden');
+        }
+
+        function closeShareSetsModal() {
+            const modal = document.getElementById('share-sets-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function setShareMax() {
+            const bal = (currentUser && typeof currentUser.tokens === 'number') ? currentUser.tokens : 0;
+            const countEl = document.getElementById('share-sets-count');
+            if (countEl) countEl.value = Math.max(1, bal);
+        }
+
+        async function handleShareSets(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('share-recipient-email');
+            const countInput = document.getElementById('share-sets-count');
+            const noteInput = document.getElementById('share-sets-note');
+            const errEl = document.getElementById('share-sets-error');
+            const submitBtn = document.getElementById('share-sets-submit-btn');
+
+            if (!emailInput || !countInput) return;
+            const recipientEmail = emailInput.value.trim().toLowerCase();
+            const tokens = parseInt(countInput.value, 10);
+            const message = noteInput ? noteInput.value.trim() : '';
+
+            if (!recipientEmail) {
+                if (errEl) { errEl.textContent = 'Please enter a valid recipient email.'; errEl.classList.remove('hidden'); }
+                return;
+            }
+            if (!tokens || tokens < 1) {
+                if (errEl) { errEl.textContent = 'Please specify at least 1 Barcode Set to transfer.'; errEl.classList.remove('hidden'); }
+                return;
+            }
+
+            if (errEl) errEl.classList.add('hidden');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Transferring...</span>'; }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/tokens/transfer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeader()
+                    },
+                    body: JSON.stringify({
+                        recipient_email: recipientEmail,
+                        tokens: tokens,
+                        message: message
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Transfer failed. Please try again.');
+                }
+
+                showToast(`🎁 Successfully sent ${tokens} Barcode Set${tokens > 1 ? 's' : ''} to ${recipientEmail}!`, 'success');
+                closeShareSetsModal();
+                if (emailInput) emailInput.value = '';
+                if (noteInput) noteInput.value = '';
+
+                // Update current user balance
+                if (currentUser && typeof data.sender_tokens_remaining === 'number') {
+                    currentUser.tokens = data.sender_tokens_remaining;
+                    updateAuthUI();
+                } else {
+                    checkAuth();
+                }
+            } catch (err) {
+                if (errEl) {
+                    errEl.textContent = err.message;
+                    errEl.classList.remove('hidden');
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Send Sets</span>';
+                }
+            }
+        }
+
+        function showTransferReceivedModal(transfer) {
+            const modal = document.getElementById('transfer-received-modal');
+            if (!modal) return;
+            const textEl = document.getElementById('recv-modal-text');
+            const noteBox = document.getElementById('recv-modal-note-box');
+            const noteEl = document.getElementById('recv-modal-note');
+            const balEl = document.getElementById('recv-modal-balance');
+
+            if (textEl) {
+                const senderClean = document.createElement('span');
+                senderClean.className = 'font-mono text-indigo-600 font-bold';
+                senderClean.textContent = transfer.sender_email || 'Another client';
+                textEl.innerHTML = `You received <strong>${transfer.tokens} Barcode Set${transfer.tokens > 1 ? 's' : ''}</strong> from `;
+                textEl.appendChild(senderClean);
+                textEl.appendChild(document.createTextNode('!'));
+            }
+            if (noteBox && noteEl) {
+                if (transfer.message) {
+                    noteEl.textContent = transfer.message;
+                    noteBox.classList.remove('hidden');
+                } else {
+                    noteBox.classList.add('hidden');
+                }
+            }
+            if (balEl && currentUser) {
+                balEl.textContent = currentUser.tokens;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeTransferReceivedModal() {
+            const modal = document.getElementById('transfer-received-modal');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Pre-warm card template images in background after page load for faster state switching
