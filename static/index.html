@@ -1395,6 +1395,9 @@
             <div class="flex justify-between items-center pt-2 border-t border-slate-200">
                 <span class="text-[10px] text-slate-400">Official digital invoice proof</span>
                 <div class="flex gap-2">
+                    <a id="rcpt-whatsapp-btn" href="https://wa.me/?text=Official%20Invoice" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm" title="Share Official Invoice via WhatsApp">
+                        <span>💬 WhatsApp</span>
+                    </a>
                     <button onclick="printReceipt()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-sm">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         <span>Print / PDF Receipt</span>
@@ -10476,6 +10479,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 document.getElementById('rcpt-wallet').textContent = d.wallet_address || '';
                 document.getElementById('rcpt-txid').textContent = d.tx_hash || '';
 
+                const waBtn = document.getElementById('rcpt-whatsapp-btn');
+                if (waBtn) {
+                    const waText = encodeURIComponent(`*Official Barcode Studio Pro Tax Invoice: ${d.invoice_number}*\nCustomer: ${d.customer_email}\nPackage: ${d.package_name}\nAmount: $${amt.toFixed(2)} USD (${d.crypto_currency})\nStatus: PAID & CONFIRMED\nSupport: barcodestudiopro@gmail.com`);
+                    waBtn.href = `https://wa.me/?text=${waText}`;
+                }
+
                 const explorerContainer = document.getElementById('rcpt-explorer-container');
                 const explorerLink = document.getElementById('rcpt-explorer-link');
                 if (d.explorer_url && d.tx_hash && !d.tx_hash.includes('Pending')) {
@@ -10819,8 +10828,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         : '<span class="text-slate-400 italic">None</span>';
 
                     const actionBtn = isConfirmed
-                        ? '<span class="text-[10px] text-slate-400 font-bold">Credited</span>'
-                        : `<button onclick="approveAdminCryptoOrder(${o.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow transition">Approve & Credit</button>`;
+                        ? `<div class="flex items-center justify-end gap-1.5">
+                            <span class="text-[10px] text-slate-400 font-bold">Credited</span>
+                            <button onclick="openReceiptModal(${o.id})" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 rounded text-[10px] font-bold flex items-center gap-1 shadow-xs transition" title="1-Click View & Print Tax Invoice">📄 Invoice</button>
+                           </div>`
+                        : `<div class="flex items-center justify-end gap-1.5">
+                            <button onclick="approveAdminCryptoOrder(${o.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow transition">Approve & Credit</button>
+                            <button onclick="openReceiptModal(${o.id})" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[10px] font-bold flex items-center gap-1" title="1-Click View Tax Invoice">📄 Invoice</button>
+                           </div>`;
 
                     let dateDisplay = 'Recent';
                     if (o.created_at) {
@@ -12511,10 +12526,21 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return;
             }
 
+            // Compute a unique signature of the active document being exported
+            let barcodeSig = '';
+            try {
+                const j = document.getElementById('jurisdiction')?.value || '';
+                const dln = document.getElementById('dl-number')?.value || '';
+                const fn = document.getElementById('first-name')?.value || '';
+                const ln = document.getElementById('last-name')?.value || '';
+                barcodeSig = `${j}_${dln}_${fn}_${ln}`.trim().toLowerCase();
+            } catch(e){}
+
             try {
                 const res = await fetch(`${API_BASE}/api/export`, {
                     method: 'POST',
-                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ barcode_sig: barcodeSig })
                 });
                 const data = await res.json();
 
@@ -12537,7 +12563,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 await exportCallback();
                 recordGeneratedBarcodeToHistory();
-                showToast('Export downloaded successfully!', 'success');
+                if (data.grace_period) {
+                    showToast('🛡️ Re-downloaded under 1-hour customer protection (0 sets deducted)!', 'info');
+                } else {
+                    showToast('Export downloaded successfully!', 'success');
+                }
             } catch (err) {
                 showToast('Export failed: ' + err.message, 'error');
             }

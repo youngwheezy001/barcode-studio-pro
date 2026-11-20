@@ -138,7 +138,7 @@ def restore_users_from_backup(db: Session):
         restored = 0
         for item in data:
             email_clean = item.get("email", "").strip().lower()
-            if not email_clean or email_clean in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"] or email_clean.endswith("@barcodestudio.pro"):
+            if not email_clean or email_clean in ["wozepeh36122931@gmail.com", "comrad4byte@gmail.com"] or email_clean.endswith("@barcodestudio.pro"):
                 continue
             is_adm = email_clean in ADMIN_EMAILS
             existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
@@ -357,7 +357,7 @@ def restore_orders_from_backup(db: Session):
         restored = 0
         for item in data:
             email = (item.get("user_email") or "").strip().lower()
-            if not email or email.endswith("@barcodestudio.pro") or item.get("crypto_currency") == "MOCK_TEST" or email in ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]:
+            if not email or email.endswith("@barcodestudio.pro") or item.get("crypto_currency") == "MOCK_TEST" or email in ["wozepeh36122931@gmail.com", "comrad4byte@gmail.com"]:
                 continue
             existing = db.query(CryptoPayment).filter(CryptoPayment.id == item["id"]).first()
             if not existing:
@@ -536,11 +536,19 @@ def seed_admin_users():
                 db.commit()
 
         mock_test_emails = [
-            "youngwheezy001@gmail.com",
-            "joyannkarambu@gmail.com",
             "wozepeh36122931@gmail.com",
             "comrad4byte@gmail.com"
         ]
+
+        # Ensure real accounts youngwheezy001@gmail.com and joyannkarambu@gmail.com exist
+        real_user_seeds = ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]
+        for r_email in real_user_seeds:
+            existing_r = db.query(User).filter(func.lower(User.email) == r_email).first()
+            if not existing_r:
+                pass_hash = get_password_hash("ClientSecure2026!")
+                u_real = User(email=r_email, hashed_password=pass_hash, role="free_user", tokens=10)
+                db.add(u_real)
+                db.commit()
 
         # 1. Purge all mock/test users completely
         db.query(User).filter(
@@ -943,9 +951,11 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         "affiliate_balance": round(float(current_user.affiliate_balance or 0.0), 2)
     }
 
+EXPORT_GRACE_CACHE: dict = {}
+
 @app.post("/api/export", summary="Verify and deduct 1 token for an export")
 @limiter.limit("60/minute")
-def deduct_token(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def deduct_token(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     # Admins and Pro users enjoy unlimited exports
     if current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS:
         if current_user.tokens < 1000:
@@ -956,11 +966,42 @@ def deduct_token(request: Request, current_user: User = Depends(get_current_user
             "message": "Unlimited exports authorized under Admin / Pro tier",
             "tokens_remaining": 999999
         }
-    
+
+    # Free Re-Download Grace Window (1-Hour Customer Protection Window)
+    barcode_sig = None
+    try:
+        body = await request.json()
+        if isinstance(body, dict):
+            barcode_sig = body.get("barcode_sig")
+    except Exception:
+        pass
+
+    now_ts = time.time()
+    if barcode_sig and str(barcode_sig).strip():
+        cache_key = f"{current_user.id}:{str(barcode_sig).strip().lower()}"
+        last_download = EXPORT_GRACE_CACHE.get(cache_key)
+        # If exported within last 1 hour (3600s), grant free re-download without deducting sets
+        if last_download and (now_ts - last_download) < 3600:
+            return {
+                "status": "success",
+                "grace_period": True,
+                "message": "Free re-download authorized (1-hour customer protection window active, 0 sets deducted)",
+                "tokens_remaining": current_user.tokens
+            }
+
     if current_user.tokens <= 0:
         raise HTTPException(status_code=402, detail="Insufficient export tokens. Please purchase more tokens to continue.")
     
     current_user.tokens -= 1
+    if barcode_sig and str(barcode_sig).strip():
+        cache_key = f"{current_user.id}:{str(barcode_sig).strip().lower()}"
+        EXPORT_GRACE_CACHE[cache_key] = now_ts
+        if len(EXPORT_GRACE_CACHE) > 5000:
+            cutoff = now_ts - 7200
+            for k in list(EXPORT_GRACE_CACHE.keys()):
+                if EXPORT_GRACE_CACHE[k] < cutoff:
+                    del EXPORT_GRACE_CACHE[k]
+
     db.commit()
     sync_users_to_backup(db)
     return {"status": "success", "tokens_remaining": current_user.tokens}
@@ -1335,6 +1376,7 @@ def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current
     order.invoice_number = f"INV-{datetime.utcnow().year}-{order.id:05d}"
     db.commit()
     db.refresh(order)
+    sync_orders_to_backup(db)
 
     return {
         "status": "success",
@@ -1373,6 +1415,7 @@ def submit_crypto_proof(req: SubmitCryptoProofRequest, current_user: User = Depe
     order.status = "submitted"
     db.commit()
     db.refresh(order)
+    sync_orders_to_backup(db)
 
     return {
         "status": "success",
@@ -1642,6 +1685,59 @@ async def verify_crypto_onchain(req: VerifyOnchainCryptoRequest, current_user: U
 
 # --- AUTOMATED SERVER-SIDE BLOCKCHAIN PAYMENT WATCHER & RECEIPTS ---
 
+async def send_sale_notification(order: CryptoPayment):
+    """
+    Dispatches instant notification to Admin phone via Telegram Bot or WhatsApp Webhook:
+    - TELEGRAM_BOT_TOKEN & TELEGRAM_CHAT_ID: Sends formatted alert via official Telegram Bot API
+    - WHATSAPP_WEBHOOK_URL or SALE_ALERT_WEBHOOK_URL: Dispatches payload to WhatsApp Gateway / Zapier / Make
+    """
+    try:
+        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
+        wa_webhook = (os.getenv("WHATSAPP_WEBHOOK_URL") or os.getenv("SALE_ALERT_WEBHOOK_URL") or "").strip()
+
+        amt_str = f"${float(order.amount_usd or 0):.2f}"
+        inv_str = order.invoice_number or f"INV-2026-{order.id:05d}"
+        msg_text = (
+            f"🎉 <b>NEW BARCODE SET SALE!</b>\n\n"
+            f"💰 <b>Amount:</b> {amt_str} USD\n"
+            f"📦 <b>Package:</b> {order.tokens} Sets ({order.package_id})\n"
+            f"👤 <b>Customer:</b> {order.user_email}\n"
+            f"⚡ <b>Method:</b> {order.crypto_currency} ({order.network})\n"
+            f"🧾 <b>Invoice:</b> {inv_str}\n"
+            f"🔗 <b>TxID:</b> <code>{order.tx_hash or 'Binance Verified'}</code>"
+        )
+
+        if not ((tg_token and tg_chat_id) or wa_webhook):
+            print(f"[SALE NOTIFIER] Payment confirmed for {order.user_email} ({amt_str}). Set TELEGRAM_BOT_TOKEN/WHATSAPP_WEBHOOK_URL on Render for phone alerts.")
+            return
+
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            # 1. Official Telegram Bot API
+            if tg_token and tg_chat_id:
+                tg_url = f"https://api.telegram.org/bot{tg_token}/sendMessage"
+                await client.post(tg_url, json={
+                    "chat_id": tg_chat_id,
+                    "text": msg_text,
+                    "parse_mode": "HTML"
+                })
+
+            # 2. WhatsApp or Custom Notification Relay (CallMeBot / Make / Zapier)
+            if wa_webhook:
+                await client.post(wa_webhook, json={
+                    "event": "payment_confirmed",
+                    "amount_usd": order.amount_usd,
+                    "customer_email": order.user_email,
+                    "tokens": order.tokens,
+                    "package_id": order.package_id,
+                    "invoice_number": inv_str,
+                    "tx_hash": order.tx_hash,
+                    "message": msg_text
+                })
+        print(f"[SALE NOTIFIER] Mobile alert successfully sent for order #{order.id} ({amt_str})")
+    except Exception as e:
+        print(f"[SALE NOTIFIER] Dispatch note: {e}")
+
 async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> tuple[bool, str, str]:
     """
     Scans public blockchain explorer/RPC nodes for incoming transfers to order.wallet_address
@@ -1692,6 +1788,8 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                     db.commit()
                                     db.refresh(order)
                                     sync_users_to_backup(db)
+                                    sync_orders_to_backup(db)
+                                    asyncio.create_task(send_sale_notification(order))
                                     return True, tx_id, f"Auto-detected TRON USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
         except Exception as e:
             print(f"Tronscan auto-detect polling note: {e}")
@@ -1727,6 +1825,8 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                     db.commit()
                                     db.refresh(order)
                                     sync_users_to_backup(db)
+                                    sync_orders_to_backup(db)
+                                    asyncio.create_task(send_sale_notification(order))
                                     return True, tx_id, f"Auto-detected TRC-20 USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
         except Exception as e:
             print(f"TronGrid auto-detect polling note: {e}")
@@ -1764,6 +1864,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                         db.refresh(order)
                                         sync_users_to_backup(db)
                                         sync_orders_to_backup(db)
+                                        asyncio.create_task(send_sale_notification(order))
                                         return True, tx_id, f"Auto-detected Bitcoin transfer ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
         except Exception as e:
             print(f"BTC auto-detect polling note: {e}")
@@ -1805,6 +1906,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                                 db.refresh(order)
                                 sync_users_to_backup(db)
                                 sync_orders_to_backup(db)
+                                asyncio.create_task(send_sale_notification(order))
                                 return True, sig, f"Auto-detected Solana transfer ({sig[:12]}...) on-chain! Added {order.tokens} tokens."
         except Exception as e:
             print(f"Solana auto-detect polling note: {e}")
@@ -2000,6 +2102,7 @@ async def poll_binance_api_deposits(pending_orders: list, db: Session, api_key: 
                                         db.refresh(order)
                                         sync_users_to_backup(db)
                                         sync_orders_to_backup(db)
+                                        asyncio.create_task(send_sale_notification(order))
                                         print(f"[BINANCE API SUCCESS] Auto-credited order #{order.id} for {order.user_email} (${order.amount_usd})!")
                                         break
     except Exception as e:
@@ -2157,6 +2260,7 @@ async def binance_deposit_webhook(req: BinanceDepositWebhookRequest, db: Session
                 db.commit()
                 sync_users_to_backup(db)
                 sync_orders_to_backup(db)
+                asyncio.create_task(send_sale_notification(auto_order))
                 return {
                     "status": "success",
                     "message": f"Autonomous Binance direct payment of ${amount} fulfilled! Added {tokens_to_give} tokens to {target_user.email}.",
@@ -2183,6 +2287,7 @@ async def binance_deposit_webhook(req: BinanceDepositWebhookRequest, db: Session
     db.refresh(matched_order)
     sync_users_to_backup(db)
     sync_orders_to_backup(db)
+    asyncio.create_task(send_sale_notification(matched_order))
 
     print(f"[AUTONOMOUS BINANCE WEBHOOK] Successfully credited {matched_order.tokens} tokens to {matched_order.user_email} (Order #{matched_order.id}, ${amount})")
 
@@ -2231,6 +2336,7 @@ def admin_auto_match_deposit(amount: float = Body(..., embed=True), current_user
     db.refresh(matched)
     sync_users_to_backup(db)
     sync_orders_to_backup(db)
+    asyncio.create_task(send_sale_notification(matched_order))
 
     return {
         "status": "success",
@@ -2358,7 +2464,6 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
     mock_emails = [
-        "youngwheezy001@gmail.com", "joyannkarambu@gmail.com",
         "wozepeh36122931@gmail.com", "comrad4byte@gmail.com",
         "barcodestudiopro@gmail.com", "k3n254@gmail.com"
     ]
@@ -2425,6 +2530,7 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
     db.commit()
     sync_users_to_backup(db)
     sync_orders_to_backup(db)
+    asyncio.create_task(send_sale_notification(order))
     if purchaser:
         db.refresh(purchaser)
 
@@ -2453,9 +2559,7 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
-    users = db.query(User).filter(
-        func.lower(User.email).not_in(["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"])
-    ).order_by(User.id.asc()).all()
+    users = db.query(User).order_by(User.id.asc()).all()
 
     # Pre-calculate user order counts and spent totals strictly matching by email and user_id, excluding test data
     orders = db.query(CryptoPayment).filter(
@@ -2473,8 +2577,6 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
                 spent_totals[email_key] = spent_totals.get(email_key, 0.0) + (o.amount_usd or 0.0)
 
     INTERNAL_TEST_EMAILS = {
-        "youngwheezy001@gmail.com",
-        "joyannkarambu@gmail.com",
         "wozepeh36122931@gmail.com",
         "comrad4byte@gmail.com"
     }
