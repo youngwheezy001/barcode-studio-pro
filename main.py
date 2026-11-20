@@ -1751,10 +1751,11 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
         except Exception as e:
             print(f"Solana auto-detect polling note: {e}")
 
-    # 4. Test & Sandbox confirmation support
+    # 4. Sandbox ONLY — requires explicit env var ENABLE_SANDBOX_CHECKOUT=true
+    # NOTE: Admin email bypass removed — it caused free token exploit for all users who
+    # submitted any tx_hash string. No auto-confirm without real blockchain or Binance proof.
     allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
-    is_test_user = order.user_email.strip().lower() in ADMIN_EMAILS
-    if (allow_sandbox or is_test_user) and order.status == "submitted" and order.tx_hash:
+    if allow_sandbox and order.status == "submitted" and order.tx_hash:
         order.status = "confirmed"
         order.confirmed_at = datetime.utcnow()
         purchaser = db.query(User).filter(User.id == order.user_id).first()
@@ -1765,7 +1766,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
         db.refresh(order)
         sync_users_to_backup(db)
         sync_orders_to_backup(db)
-        return True, order.tx_hash, f"Confirmed payment! Credited {order.tokens} tokens."
+        return True, order.tx_hash, f"Sandbox confirmed! Credited {order.tokens} tokens."
 
     return False, "", "Awaiting incoming blockchain transfer..."
 
@@ -1921,10 +1922,12 @@ async def poll_binance_api_deposits(pending_orders: list, db: Session, api_key: 
                         dep_coin = dep.get("coin", "USDT")
                         dep_status = int(dep.get("status", 0))
 
-                        if dep_status == 1 and dep_amount > 0:
+                        # Only match confirmed deposits (status=1) with a real txId
+                        # Use tight tolerance: ±$0.01 to prevent cross-order matching
+                        if dep_status == 1 and dep_amount > 0 and dep_tx:
                             for order in pending_orders:
                                 if order.status in ["pending", "submitted"]:
-                                    if abs(float(order.amount_usd) - dep_amount) <= 0.05:
+                                    if abs(float(order.amount_usd) - dep_amount) <= 0.01:
                                         # Match found! Confirm order autonomously
                                         order.status = "confirmed"
                                         order.confirmed_at = datetime.utcnow()

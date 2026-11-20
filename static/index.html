@@ -10952,11 +10952,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const quickAdjustButtons = c.is_admin ? `
                     <span class="text-[11px] text-slate-400 italic">Admin (Full Access)</span>
                 ` : `
-                    <div class="flex items-center justify-end gap-1">
+                    <div class="flex items-center justify-end gap-1 flex-wrap">
                         <button onclick="adjustClientTokens(${c.id}, 1, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 1 Set">+1</button>
                         <button onclick="adjustClientTokens(${c.id}, 5, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 5 Sets">+5</button>
                         <button onclick="adjustClientTokens(${c.id}, 10, null)" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded text-[11px] font-bold" title="Add 10 Sets">+10</button>
                         <button onclick="promptCustomTokenAdjust(${c.id}, '${c.email}', ${c.tokens})" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 rounded text-[11px] font-bold" title="Set exact balance">Custom</button>
+                        <button onclick="promptRemoveSets(${c.id}, '${c.email}', ${c.tokens})" class="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300 rounded text-[11px] font-bold" title="Remove sets from this client">🚫 Remove</button>
                         <button onclick="toggleClientRole(${c.id}, '${c.email}', '${c.role}')" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[11px] font-bold" title="Make Admin">Make Admin</button>
                     </div>
                 `;
@@ -11009,6 +11010,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return;
             }
             adjustClientTokens(userId, null, parsed);
+        }
+
+        function promptRemoveSets(userId, email, currentTokens) {
+            if (currentTokens <= 0) {
+                showToast(`${email} already has 0 sets.`, 'info');
+                return;
+            }
+            const val = prompt(`Remove how many sets from ${email}? (currently ${currentTokens} sets)\nEnter a number to deduct, or type "all" to remove everything:`, '');
+            if (val === null) return;
+            let newBalance;
+            if (val.trim().toLowerCase() === 'all') {
+                if (!confirm(`Remove ALL ${currentTokens} sets from ${email}? This cannot be undone.`)) return;
+                newBalance = 0;
+            } else {
+                const removeCount = parseInt(val, 10);
+                if (isNaN(removeCount) || removeCount <= 0) {
+                    showToast('Please enter a valid number to remove.', 'warning');
+                    return;
+                }
+                newBalance = Math.max(0, currentTokens - removeCount);
+                if (!confirm(`Remove ${removeCount} sets from ${email}? New balance: ${newBalance} sets.`)) return;
+            }
+            adjustClientTokens(userId, null, newBalance);
         }
 
         async function toggleClientRole(userId, email, currentRole) {
