@@ -11030,9 +11030,26 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     return;
                 }
                 newBalance = Math.max(0, currentTokens - removeCount);
-                if (!confirm(`Remove ${removeCount} sets from ${email}? New balance: ${newBalance} sets.`)) return;
+                if (!confirm(`Remove ${removeCount} sets from ${email}?\nNew balance: ${newBalance} sets.\nTheir payment records will also be voided.\n\nProceed?`)) return;
             }
-            adjustClientTokens(userId, null, newBalance);
+            adminRemoveSets(userId, newBalance);
+        }
+
+        async function adminRemoveSets(userId, newBalance) {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/clients/adjust-tokens`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, set_tokens: newBalance, void_payments: true })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Remove sets failed');
+                showToast(data.message || 'Sets removed and payments voided.', 'success');
+                await loadAdminClients();
+                if (currentUser && currentUser.id === userId) await checkAuth();
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
         }
 
         async function toggleClientRole(userId, email, currentRole) {

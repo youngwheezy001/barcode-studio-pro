@@ -2363,6 +2363,7 @@ class ClientTokenAdjustRequest(BaseModel):
     user_id: int
     delta_tokens: Optional[int] = None
     set_tokens: Optional[int] = None
+    void_payments: Optional[bool] = False   # if True, also mark confirmed orders as voided when removing sets
 
 class ClientRoleUpdateRequest(BaseModel):
     user_id: int
@@ -2388,7 +2389,8 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
         email_key = (o.user_email or "").strip().lower()
         if email_key:
             order_counts[email_key] = order_counts.get(email_key, 0) + 1
-            if o.status == "confirmed":
+            # Count confirmed AND admin-approved orders toward total spent
+            if o.status in ("confirmed", "approved"):
                 spent_totals[email_key] = spent_totals.get(email_key, 0.0) + (o.amount_usd or 0.0)
 
     INTERNAL_TEST_EMAILS = {
@@ -2468,20 +2470,48 @@ def adjust_client_tokens(payload: ClientTokenAdjustRequest, current_user: User =
     if not target:
         raise HTTPException(status_code=404, detail="Client account not found")
 
+    old_tokens = target.tokens
+    voided_orders = 0
+    voided_amount = 0.0
+
     if payload.set_tokens is not None:
         target.tokens = max(0, payload.set_tokens)
     elif payload.delta_tokens is not None:
         target.tokens = max(0, target.tokens + payload.delta_tokens)
 
+    # If sets are being reduced and void_payments=True, mark confirmed orders as voided
+    if payload.void_payments and target.tokens < old_tokens:
+        confirmed_orders = db.query(CryptoPayment).filter(
+            CryptoPayment.user_id == target.id,
+            CryptoPayment.status == "confirmed"
+        ).order_by(CryptoPayment.confirmed_at.desc()).all()
+
+        sets_to_void = old_tokens - target.tokens
+        for order in confirmed_orders:
+            if sets_to_void <= 0:
+                break
+            order.status = "voided_by_admin"
+            voided_orders += 1
+            voided_amount += float(order.amount_usd or 0)
+            sets_to_void -= order.tokens
+
     db.commit()
     sync_users_to_backup(db)
+    sync_orders_to_backup(db)
+
+    msg = f"Balance for {target.email} updated: {old_tokens} → {target.tokens} sets."
+    if voided_orders:
+        msg += f" Voided {voided_orders} payment record(s) totalling ${voided_amount:.2f}."
 
     return {
         "status": "success",
-        "message": f"Successfully updated balance for {target.email} to {target.tokens} Barcode Sets.",
+        "message": msg,
         "user_id": target.id,
         "email": target.email,
-        "new_tokens": target.tokens
+        "old_tokens": old_tokens,
+        "new_tokens": target.tokens,
+        "voided_orders": voided_orders,
+        "voided_amount_usd": round(voided_amount, 2)
     }
 
 @app.post("/api/admin/clients/set-role", summary="Admin CRM: Update client account role")
