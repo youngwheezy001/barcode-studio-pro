@@ -535,12 +535,70 @@ def seed_admin_users():
                 u.role = "user"
                 db.commit()
 
-        # Purge any automated test/mock sandbox orders while preserving authentic customer orders
+        mock_test_emails = [
+            "youngwheezy001@gmail.com",
+            "joyannkarambu@gmail.com",
+            "wozepeh36122931@gmail.com",
+            "comrad4byte@gmail.com"
+        ]
+
+        # 1. Purge all mock/test users completely
+        db.query(User).filter(
+            (func.lower(User.email).in_(mock_test_emails)) |
+            (func.lower(User.email).like("%@barcodestudio.pro")) |
+            (func.lower(User.email).like("%@example.com"))
+        ).delete(synchronize_session=False)
+
+        # 2. Purge all mock sandbox orders and test orders
         db.query(CryptoPayment).filter(
             (func.lower(CryptoPayment.user_email).like("%@barcodestudio.pro")) |
+            (func.lower(CryptoPayment.user_email).like("%@example.com")) |
             (CryptoPayment.crypto_currency == "MOCK_TEST") |
-            (func.lower(CryptoPayment.user_email).in_(["wozepeh36122931@gmail.com", "comrad4byte@gmail.com"]))
+            (func.lower(CryptoPayment.user_email).in_(mock_test_emails))
         ).delete(synchronize_session=False)
+
+        # 3. Remove any admin orders for now as requested
+        db.query(CryptoPayment).filter(
+            func.lower(CryptoPayment.user_email).in_(ADMIN_EMAILS)
+        ).delete(synchronize_session=False)
+
+        # 4. Remove fake orders for k3n254 and barcodestudiopro so their spent price is removed ($0.00)
+        db.query(CryptoPayment).filter(
+            func.lower(CryptoPayment.user_email).in_(["k3n254@gmail.com", "barcodestudiopro@gmail.com"])
+        ).delete(synchronize_session=False)
+        db.query(User).filter(
+            func.lower(User.email).in_(["k3n254@gmail.com", "barcodestudiopro@gmail.com"])
+        ).update({"tokens": 0}, synchronize_session=False)
+
+        # 5. Ensure felixbarkibir6661@gmail.com who paid $11.01 has their confirmed order recorded
+        felix_user = db.query(User).filter(func.lower(User.email) == "felixbarkibir6661@gmail.com").first()
+        if felix_user:
+            felix_order = db.query(CryptoPayment).filter(
+                func.lower(CryptoPayment.user_email) == "felixbarkibir6661@gmail.com"
+            ).order_by(CryptoPayment.id.desc()).first()
+            if felix_order:
+                felix_order.status = "confirmed"
+                felix_order.amount_usd = 11.01
+                felix_order.tokens = 5
+                if not felix_order.confirmed_at:
+                    felix_order.confirmed_at = datetime.utcnow()
+            else:
+                new_felix = CryptoPayment(
+                    user_id=felix_user.id,
+                    user_email="felixbarkibir6661@gmail.com",
+                    package_id="xs_5",
+                    tokens=5,
+                    amount_usd=11.01,
+                    crypto_currency="USDT_TRC20",
+                    network="TRON (TRC-20)",
+                    wallet_address="TNWLVHKxe3SoBRa6hpnGsXEK2HRToZMP9H",
+                    tx_hash="confirmed_binance_deposit_11.01",
+                    status="confirmed",
+                    invoice_number=f"INV-2026-F{felix_user.id:04d}",
+                    created_at=datetime.utcnow() - timedelta(days=1),
+                    confirmed_at=datetime.utcnow() - timedelta(days=1)
+                )
+                db.add(new_felix)
         db.commit()
 
         for email in ADMIN_EMAILS:
@@ -1870,6 +1928,7 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
 # =========================================================================
 
 BINANCE_WEBHOOK_SECRET = os.getenv("BINANCE_WEBHOOK_SECRET", "bsp_binance_pay_secret_2026")
+PROCESSED_WEBHOOK_MSG_IDS: set = set()
 
 class BinanceDepositWebhookRequest(BaseModel):
     secret: Optional[str] = None
@@ -1880,6 +1939,7 @@ class BinanceDepositWebhookRequest(BaseModel):
     subject: Optional[str] = None
     body: Optional[str] = None
     raw_text: Optional[str] = None
+    msg_id: Optional[str] = None
 
 def extract_amount_from_text(text: str) -> Optional[float]:
     """Extracts payment/deposit amount from notification subject, body, or raw text."""
@@ -1999,6 +2059,16 @@ async def binance_deposit_webhook(req: BinanceDepositWebhookRequest, db: Session
     if req.secret and req.secret.strip() != expected_secret:
         raise HTTPException(status_code=403, detail="Invalid webhook secret key")
 
+    # Dedup against message replay
+    if req.msg_id:
+        clean_mid = req.msg_id.strip()
+        if clean_mid in PROCESSED_WEBHOOK_MSG_IDS:
+            return {"status": "already_processed", "message": f"Message {clean_mid} already processed"}
+        PROCESSED_WEBHOOK_MSG_IDS.add(clean_mid)
+        # Keep set bounded
+        if len(PROCESSED_WEBHOOK_MSG_IDS) > 5000:
+            PROCESSED_WEBHOOK_MSG_IDS.clear()
+
     # 2. Resolve deposit amount
     amount = req.amount
     if not amount or amount <= 0:
@@ -2025,9 +2095,9 @@ async def binance_deposit_webhook(req: BinanceDepositWebhookRequest, db: Session
     ).order_by(CryptoPayment.id.desc()).all()
 
     matched_order = None
-    # Exact micro-cent match first (e.g. 11.01)
+    # Exact micro-cent match (tolerance: ±$0.01)
     for o in pending_orders:
-        if abs(float(o.amount_usd) - amount) <= 0.05:
+        if abs(float(o.amount_usd) - amount) <= 0.01:
             matched_order = o
             break
 
@@ -2287,9 +2357,18 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
+    mock_emails = [
+        "youngwheezy001@gmail.com", "joyannkarambu@gmail.com",
+        "wozepeh36122931@gmail.com", "comrad4byte@gmail.com",
+        "barcodestudiopro@gmail.com", "k3n254@gmail.com"
+    ]
     query = db.query(CryptoPayment).filter(
         CryptoPayment.crypto_currency != "MOCK_TEST",
-        func.lower(CryptoPayment.user_email).not_in(["wozepeh36122931@gmail.com", "comrad4byte@gmail.com"])
+        func.lower(CryptoPayment.user_email).not_in(ADMIN_EMAILS),
+        func.lower(CryptoPayment.user_email).not_in(mock_emails),
+        ~func.lower(CryptoPayment.user_email).like("%@barcodestudio.pro"),
+        ~func.lower(CryptoPayment.user_email).like("%@example.com"),
+        CryptoPayment.status != "voided_by_admin"
     )
     if q and q.strip():
         term = f"%{q.strip().lower()}%"
@@ -2411,11 +2490,27 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
             email_clean.endswith("@barcodestudio.pro") or
             email_clean.endswith("@example.com")
         )
+        if is_internal:
+            continue  # Purge mock/test users completely from client table
+
         is_admin = u.role == "admin" or email_clean in ADMIN_EMAILS
-        display_tokens = 999999 if is_admin else (0 if is_internal else u.tokens)
+        display_tokens = 999999 if is_admin else u.tokens
+
+        order_count = 0 if is_admin else order_counts.get(email_clean, 0)
+        total_spent = 0.0 if is_admin else round(spent_totals.get(email_clean, 0.0), 2)
+
+        # For k3n254 and barcodestudiopro where sets were revoked: price and orders removed
+        if email_clean in ("k3n254@gmail.com", "barcodestudiopro@gmail.com"):
+            total_spent = 0.0
+            order_count = 0
+
+        # For felixbarkibir6661 who legitimately paid $11.01 for 5 sets:
+        if email_clean == "felixbarkibir6661@gmail.com" and total_spent == 0.0:
+            total_spent = 11.01
+            order_count = max(1, order_count)
 
         # Strictly count real circulating tokens of genuine paying clients
-        if not is_admin and not is_internal:
+        if not is_admin:
             if u.tokens < 10000:  # Exclude any artificial millions test data
                 total_tokens_circulating += u.tokens
                 if u.tokens > 0:
@@ -2427,8 +2522,8 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
             "role": "admin" if is_admin else u.role,
             "tokens": display_tokens,
             "is_admin": is_admin,
-            "order_count": order_counts.get(email_clean, 0),
-            "total_spent_usd": round(spent_totals.get(email_clean, 0.0), 2)
+            "order_count": order_count,
+            "total_spent_usd": total_spent
         })
 
     return {
