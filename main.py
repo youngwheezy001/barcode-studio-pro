@@ -1114,46 +1114,10 @@ class MockPurchaseRequest(BaseModel):
 
 @app.post("/api/tokens/purchase-mock", summary="Execute mock/sandbox barcode package checkout for practice")
 def purchase_tokens_mock(payload: MockPurchaseRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
-    allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
-    
-    if not (is_admin or allow_sandbox):
-        raise HTTPException(
-            status_code=403,
-            detail="Sandbox practice checkout is disabled in production. Please use live Crypto or Stripe payments."
-        )
-        
-    add_count = max(1, payload.tokens)
-    current_user.tokens += add_count
-    
-    # Record order in CryptoPayment table so it reflects in Admin Orders Ledger & Client Receipts
-    mock_order = CryptoPayment(
-        user_id=current_user.id,
-        user_email=current_user.email,
-        package_id=payload.package_id,
-        tokens=add_count,
-        amount_usd=payload.amount_usd,
-        crypto_currency="MOCK_TEST",
-        network="Sandbox Simulation",
-        wallet_address="Sandbox Wallet",
-        tx_hash=f"mock_{int(datetime.utcnow().timestamp())}_{secrets.token_hex(4)}",
-        status="confirmed",
-        confirmed_at=datetime.utcnow()
+    raise HTTPException(
+        status_code=403,
+        detail="Mock and sandbox checkouts are completely disabled. Barcode Studio Pro only accepts live verified payments."
     )
-    db.add(mock_order)
-    db.commit()
-    db.refresh(mock_order)
-    mock_order.invoice_number = f"INV-2026-{mock_order.id:05d}"
-    db.commit()
-    db.refresh(current_user)
-    
-    return {
-        "status": "success",
-        "message": f"Payment approved (Test Simulation). Successfully credited {add_count} Barcode Sets (Dual PDF417 + Code 128)!",
-        "tokens_added": add_count,
-        "tokens_remaining": current_user.tokens,
-        "invoice_number": mock_order.invoice_number
-    }
 
 class CheckoutSessionRequest(BaseModel):
     package_id: Optional[str] = "s_10"
@@ -1418,43 +1382,10 @@ def submit_crypto_proof(req: SubmitCryptoProofRequest, current_user: User = Depe
 
 @app.post("/api/crypto/verify-mock", summary="Simulate instant sandbox crypto confirmation for testing")
 def verify_crypto_mock(req: VerifyMockCryptoRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS
-    allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
-    
-    if not (is_admin or allow_sandbox):
-        raise HTTPException(
-            status_code=403,
-            detail="Sandbox mock crypto verification is disabled in production. Please verify on-chain using live blockchain transaction hash."
-        )
-
-    order = db.query(CryptoPayment).filter(CryptoPayment.id == req.order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    if order.user_id != current_user.id and not is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized to verify this order")
-
-    if order.status == "confirmed":
-        return {
-            "status": "success",
-            "message": "Order was already confirmed.",
-            "tokens_added": 0,
-            "tokens_remaining": current_user.tokens,
-            "order_id": order.id
-        }
-
-    order.status = "confirmed"
-    order.confirmed_at = datetime.utcnow()
-    current_user.tokens += order.tokens
-    db.commit()
-    db.refresh(current_user)
-
-    return {
-        "status": "success",
-        "message": f"Payment confirmed! Successfully credited {order.tokens} tokens to your account.",
-        "tokens_added": order.tokens,
-        "tokens_remaining": current_user.tokens,
-        "order_id": order.id
-    }
+    raise HTTPException(
+        status_code=403,
+        detail="Sandbox mock crypto verification is completely disabled. All payments must be verified on-chain."
+    )
 
 # --- STRICT REAL-TIME BLOCKCHAIN ON-CHAIN VERIFICATION ENGINE ---
 
@@ -1464,6 +1395,9 @@ class VerifyOnchainCryptoRequest(BaseModel):
 
 async def verify_tron_tx(tx_hash: str, expected_wallet: str, expected_usd: float) -> tuple[bool, str]:
     clean_hash = tx_hash.strip()
+    if clean_hash.lower().startswith("off chain") or clean_hash.lower().startswith("off-chain") or len(clean_hash) < 20:
+        return False, "Invalid on-chain transaction hash format."
+
     url = f"https://apilist.tronscanapi.com/api/transaction-info?hash={clean_hash}"
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -1478,21 +1412,19 @@ async def verify_tron_tx(tx_hash: str, expected_wallet: str, expected_usd: float
                 trc20_transfers = data.get("trc20TransferInfo", [])
                 matched = False
                 for t in trc20_transfers:
-                    to_addr = (t.get("to_address") or "").strip()
+                    to_addr = (t.get("to_address") or "").strip().lower()
+                    contract = (t.get("contract_address") or "").strip()
+                    sym = (t.get("symbol") or "").upper()
+                    is_usdt = (contract == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" or sym == "USDT")
                     amt = float(t.get("amount_str", 0)) / (10 ** float(t.get("decimals", 6)))
-                    if expected_wallet.strip().lower() in to_addr.lower():
-                        if amt >= (expected_usd - 0.25):
+                    if is_usdt and expected_wallet.strip().lower() in to_addr:
+                        if abs(amt - expected_usd) <= 0.01:
                             matched = True
                             break
-                if not matched and trc20_transfers:
-                    return False, f"TRON transaction does not match expected deposit wallet or required amount (${expected_usd:.2f})."
+                if not matched:
+                    return False, f"TRON transaction does not match expected deposit wallet ({expected_wallet}) or required USDT amount (${expected_usd:.2f})."
                 return True, "TRON TRC-20 USDT transfer confirmed and verified on-chain!"
             
-            # Fallback to Trongrid
-            fallback_url = f"https://api.trongrid.io/v1/transactions/{clean_hash}"
-            f_resp = await client.get(fallback_url)
-            if f_resp.status_code == 200 and f_resp.json().get("data"):
-                return True, "TRON transaction verified via TronGrid."
             return False, "Transaction not found on TRON blockchain. Please verify your TxID."
     except Exception as e:
         return False, f"TRON node verification error: {str(e)}"
@@ -1633,11 +1565,7 @@ async def verify_crypto_onchain(req: VerifyOnchainCryptoRequest, current_user: U
     is_valid = False
     verif_msg = ""
 
-    # Test verification support for test suite
-    if tx_hash.startswith("TEST_BLOCKCHAIN_CONFIRMED_"):
-        is_valid = True
-        verif_msg = "Test blockchain confirmation accepted."
-    elif "TRC20" in net or "TRON" in net:
+    if "TRC20" in net or "TRON" in net:
         is_valid, verif_msg = await verify_tron_tx(tx_hash, order.wallet_address, order.amount_usd)
     elif "POLYGON" in net:
         is_valid, verif_msg = await verify_polygon_tx(tx_hash, order.wallet_address, order.amount_usd)
@@ -1775,12 +1703,19 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                     data = resp.json()
                     transfers = data.get("token_transfers", [])
                     for t in transfers:
-                        tx_id = t.get("transaction_id", "")
+                        tx_id = (t.get("transaction_id") or "").strip()
+                        tx_id_lower = tx_id.lower()
+                        if not tx_id or tx_id_lower.startswith("off chain") or tx_id_lower.startswith("off-chain") or len(tx_id) < 20:
+                            continue
+
                         to_addr = (t.get("to_address") or "").strip().lower()
+                        contract = (t.get("contract_address") or "").strip()
+                        sym = (t.get("tokenInfo", {}).get("tokenAbbr") or t.get("symbol") or "").upper()
+                        is_usdt = (contract == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" or sym == "USDT" or "USDT" in (t.get("token_name") or "").upper())
                         block_ts = int(t.get("block_ts", 0))
                         amt = float(t.get("quant", 0)) / 1000000.0
 
-                        if to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
+                        if is_usdt and to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
                             if abs(amt - expected_usd) <= 0.01:
                                 exists = db.query(CryptoPayment).filter(
                                     CryptoPayment.tx_hash == tx_id,
@@ -1812,12 +1747,20 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                 if resp.status_code == 200:
                     data = resp.json()
                     for t in data.get("data", []):
-                        tx_id = t.get("transaction_id", "")
+                        tx_id = (t.get("transaction_id") or "").strip()
+                        tx_id_lower = tx_id.lower()
+                        if not tx_id or tx_id_lower.startswith("off chain") or tx_id_lower.startswith("off-chain") or len(tx_id) < 20:
+                            continue
+
                         to_addr = (t.get("to") or "").strip().lower()
+                        token_info = t.get("token_info", {})
+                        contract = (token_info.get("address") or t.get("contract_address") or "").strip()
+                        sym = (token_info.get("symbol") or "").upper()
+                        is_usdt = (contract == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" or sym == "USDT")
                         block_ts = int(t.get("block_timestamp", 0))
                         amt = float(t.get("value", 0)) / 1000000.0
 
-                        if to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
+                        if is_usdt and to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
                             if abs(amt - expected_usd) <= 0.01:
                                 exists = db.query(CryptoPayment).filter(
                                     CryptoPayment.tx_hash == tx_id,
@@ -1921,23 +1864,9 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
         except Exception as e:
             print(f"Solana auto-detect polling note: {e}")
 
-    # 4. Sandbox ONLY — requires explicit env var ENABLE_SANDBOX_CHECKOUT=true
-    # NOTE: Admin email bypass removed — it caused free token exploit for all users who
-    # submitted any tx_hash string. No auto-confirm without real blockchain or Binance proof.
-    allow_sandbox = os.getenv("ENABLE_SANDBOX_CHECKOUT", "false").lower() == "true"
-    if allow_sandbox and order.status == "submitted" and order.tx_hash:
-        order.status = "confirmed"
-        order.confirmed_at = datetime.utcnow()
-        purchaser = db.query(User).filter(User.id == order.user_id).first()
-        if purchaser:
-            purchaser.tokens += order.tokens
-            process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
-        db.commit()
-        db.refresh(order)
-        sync_users_to_backup(db)
-        sync_orders_to_backup(db)
-        return True, order.tx_hash, f"Sandbox confirmed! Credited {order.tokens} tokens."
-
+    # 4. Strict Production Security:
+    # All automated crypto confirmations require genuine on-chain TRON USDT verification
+    # or confirmed official Binance Deposit history. Sandbox/mock bypass is completely disabled.
     return False, "", "Awaiting incoming blockchain transfer..."
 
 @app.get("/api/crypto/poll-order/{order_id}", summary="Real-time automated polling for crypto payment confirmation")
@@ -2459,7 +2388,11 @@ def generate_batch_zip(req: BatchGenerateRequest, current_user: User = Depends(g
 
 @app.get("/api/user/orders", summary="Get crypto and card order history for current logged-in user")
 def get_user_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    orders = db.query(CryptoPayment).filter(CryptoPayment.user_id == current_user.id).order_by(CryptoPayment.id.desc()).all()
+    # Only return orders that have been fully paid and confirmed
+    orders = db.query(CryptoPayment).filter(
+        CryptoPayment.user_id == current_user.id,
+        CryptoPayment.status.in_(["confirmed", "approved"])
+    ).order_by(CryptoPayment.id.desc()).all()
     return {
         "orders": [
             {
@@ -2593,9 +2526,9 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
     for o in orders:
         email_key = (o.user_email or "").strip().lower()
         if email_key:
-            order_counts[email_key] = order_counts.get(email_key, 0) + 1
-            # Count confirmed AND admin-approved orders toward total spent
+            # Strictly count ONLY fully paid and confirmed orders toward order count & total spent
             if o.status in ("confirmed", "approved"):
+                order_counts[email_key] = order_counts.get(email_key, 0) + 1
                 spent_totals[email_key] = spent_totals.get(email_key, 0.0) + (o.amount_usd or 0.0)
 
     INTERNAL_TEST_EMAILS = {

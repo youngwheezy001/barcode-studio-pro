@@ -145,6 +145,16 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Anti-Screenshot & Copy Protection Shield */
+        .screenshot-blur-active {
+            filter: blur(40px) grayscale(100%) !important;
+            opacity: 0.05 !important;
+            transition: filter 0.05s ease, opacity 0.05s ease !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+        }
+
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
@@ -11111,7 +11121,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         async function loadUserOrders() {
             const tbody = document.getElementById('user-orders-table-body');
             if (!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">Loading your orders...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-400">Loading your verified orders...</td></tr>';
 
             try {
                 const res = await fetch(`${API_BASE}/api/user/orders`, {
@@ -11121,23 +11131,17 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (!res.ok) throw new Error(data.detail || 'Failed to fetch order history');
 
                 if (!data.orders || data.orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-slate-400">No orders placed yet. Choose a package to get started!</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">No completed orders found. Once payment is confirmed on-chain, your tax receipts will appear here automatically.</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = data.orders.map(o => {
-                    const isConfirmed = o.status === 'confirmed';
+                    const isConfirmed = o.status === 'confirmed' || o.status === 'approved';
                     const statusBadge = isConfirmed
-                        ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>CONFIRMED</span>'
-                        : (o.status === 'submitted'
-                            ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>VERIFYING TXID</span>'
-                            : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDING</span>');
+                        ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>CONFIRMED &amp; PAID</span>'
+                        : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDING</span>';
 
-                    const txDisplay = o.tx_hash
-                        ? `<span class="font-mono text-[10px] text-blue-600 select-all cursor-pointer hover:underline" title="${o.tx_hash}">${o.tx_hash.substring(0, 8)}...${o.tx_hash.substring(o.tx_hash.length - 6)}</span>`
-                        : '<span class="text-slate-400 italic">None</span>';
-
-                    const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString() : '—';
+                    const dateStr = (o.confirmed_at || o.created_at) ? new Date(o.confirmed_at || o.created_at).toLocaleDateString() : '—';
                     const pkgName = o.package_id ? o.package_id.toUpperCase().replace('_', ' ') : 'CUSTOM';
 
                     return `
@@ -11150,7 +11154,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             <td class="p-2.5">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     ${statusBadge}
-                                    ${isConfirmed ? `<button onclick="openReceiptModal(${o.id})" class="text-[9px] bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded font-bold transition shadow-xs">Receipt 🧾</button>` : ''}
+                                    <button onclick="openReceiptModal(${o.id})" class="text-[9px] bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 px-1.5 py-0.5 rounded font-bold transition shadow-xs">Receipt 🧾</button>
                                 </div>
                             </td>
                             <td class="p-2.5 text-slate-500 text-[11px]">${dateStr}</td>
@@ -11158,7 +11162,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     `;
                 }).join('');
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-rose-500 font-bold">Error loading orders: ${err.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-rose-500 font-bold">Error loading orders: ${err.message}</td></tr>`;
             }
         }
 
@@ -17378,6 +17382,111 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const warm = () => { templates.forEach(name => { const img = new Image(); img.src = `card_templates/${name}.webp`; }); };
             if ('requestIdleCallback' in window) { requestIdleCallback(warm, { timeout: 3000 }); }
             else { setTimeout(warm, 1500); }
+        })();
+
+        // =========================================================================
+        // --- STRICT ANTI-SCREENSHOT & ANTI-SCRAPING SECURITY SHIELD ---
+        // =========================================================================
+        (function initAntiScreenshotProtection() {
+            let shieldTimer = null;
+
+            function triggerScreenshotDisengage(source) {
+                const previewContainer = document.getElementById('view-container-card');
+                const canvases = document.querySelectorAll('canvas');
+
+                if (previewContainer) {
+                    previewContainer.classList.add('screenshot-blur-active');
+                }
+                canvases.forEach(c => {
+                    c.classList.add('screenshot-blur-active');
+                });
+
+                // Clear system clipboard to neutralize any clipboard-grabbed frame
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText('');
+                    }
+                } catch(e) {}
+
+                showToast('🔒 Screenshot Protected: Screen capture of live barcodes is disabled. Please use official certified Export to download.', 'warning');
+
+                if (shieldTimer) clearTimeout(shieldTimer);
+                shieldTimer = setTimeout(() => {
+                    if (previewContainer) {
+                        previewContainer.classList.remove('screenshot-blur-active');
+                    }
+                    canvases.forEach(c => {
+                        c.classList.remove('screenshot-blur-active');
+                    });
+                }, 2200);
+            }
+
+            // 1. Keyboard Interception: PrintScreen, Windows Snipping Tool (Win+Shift+S), Mac Screenshots (Cmd+Shift+3/4/5), Print (Ctrl/Cmd+P)
+            window.addEventListener('keydown', (e) => {
+                // PrintScreen key
+                if (e.key === 'PrintScreen' || e.keyCode === 44) {
+                    triggerScreenshotDisengage('PrintScreen');
+                }
+                // Windows Snipping Tool / Ctrl+Shift+S
+                if (e.shiftKey && (e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S' || e.keyCode === 83)) {
+                    triggerScreenshotDisengage('SnippingTool');
+                }
+                // Mac screenshot shortcuts: Cmd + Shift + 3, 4, 5
+                if (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) {
+                    triggerScreenshotDisengage('MacScreenCapture');
+                }
+                // Ctrl+P / Cmd+P (Print page)
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+                    const rcptModal = document.getElementById('receipt-modal');
+                    if (!rcptModal || rcptModal.classList.contains('hidden')) {
+                        e.preventDefault();
+                        triggerScreenshotDisengage('PrintAttempt');
+                    }
+                }
+            }, true);
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'PrintScreen' || e.keyCode === 44) {
+                    triggerScreenshotDisengage('PrintScreenRelease');
+                }
+            }, true);
+
+            // 2. Window Blur / Tab Switch (Snipping Tool & screen recorders stealing focus)
+            window.addEventListener('blur', () => {
+                const preview = document.getElementById('view-container-card');
+                if (preview) preview.classList.add('screenshot-blur-active');
+            });
+            window.addEventListener('focus', () => {
+                setTimeout(() => {
+                    const preview = document.getElementById('view-container-card');
+                    if (preview) preview.classList.remove('screenshot-blur-active');
+                }, 350);
+            });
+            document.addEventListener('visibilitychange', () => {
+                const preview = document.getElementById('view-container-card');
+                if (document.hidden) {
+                    if (preview) preview.classList.add('screenshot-blur-active');
+                } else {
+                    setTimeout(() => {
+                        if (preview) preview.classList.remove('screenshot-blur-active');
+                    }, 400);
+                }
+            });
+
+            // 3. Prevent right-click context menu and drag on all barcode canvases
+            document.addEventListener('contextmenu', (e) => {
+                if (e.target && (e.target.tagName === 'CANVAS' || e.target.closest('#view-container-card'))) {
+                    e.preventDefault();
+                    return false;
+                }
+            }, false);
+
+            document.addEventListener('dragstart', (e) => {
+                if (e.target && (e.target.tagName === 'CANVAS' || e.target.closest('#view-container-card'))) {
+                    e.preventDefault();
+                    return false;
+                }
+            }, false);
         })();
 
 </script>
