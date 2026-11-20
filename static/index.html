@@ -147,9 +147,9 @@
 
         /* Anti-Screenshot & Copy Protection Shield */
         .screenshot-blur-active {
-            filter: blur(40px) grayscale(100%) !important;
-            opacity: 0.05 !important;
-            transition: filter 0.05s ease, opacity 0.05s ease !important;
+            filter: blur(60px) grayscale(100%) !important;
+            opacity: 0.01 !important;
+            transition: none !important;
             pointer-events: none !important;
             user-select: none !important;
             -webkit-user-select: none !important;
@@ -1364,7 +1364,7 @@
                     </div>
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Sets Credited</span>
-                        <span id="rcpt-tokens" class="font-bold text-emerald-700 block">10 Sets (20 Barcodes)</span>
+                        <span id="rcpt-tokens" class="font-bold text-emerald-700 block">1 Set (2 Barcodes)</span>
                     </div>
                 </div>
 
@@ -10482,6 +10482,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 document.getElementById('rcpt-customer-email').textContent = d.customer_email;
                 document.getElementById('rcpt-date').textContent = d.confirmed_date || d.invoice_date;
                 document.getElementById('rcpt-package-name').textContent = d.package_name;
+                const sets = d.barcode_sets || d.tokens || 1;
+                const bcs = d.total_barcodes || (sets * 2);
+                const rcptTokens = document.getElementById('rcpt-tokens');
+                if (rcptTokens) {
+                    rcptTokens.textContent = `${sets} Set${sets > 1 ? 's' : ''} (${bcs} Barcodes)`;
+                }
                 const amt = (typeof d.amount_usd === 'number') ? d.amount_usd : parseFloat(d.amount_usd || 0);
                 document.getElementById('rcpt-subtotal').textContent = `$${amt.toFixed(2)}`;
                 document.getElementById('rcpt-crypto-method').textContent = `${d.crypto_currency} (${d.network})`;
@@ -17388,20 +17394,38 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         // --- STRICT ANTI-SCREENSHOT & ANTI-SCRAPING SECURITY SHIELD ---
         // =========================================================================
         (function initAntiScreenshotProtection() {
+            // Admin users bypass the screenshot shield completely
+            function isAdminUser() {
+                const u = window.currentUser;
+                if (!u) return false;
+                if (u.role === 'admin' || u.role === 'pro_user') return true;
+                const email = (u.email || '').toLowerCase().trim();
+                if (email === 'mwangilewis205@gmail.com') return true;
+                return false;
+            }
+
             let shieldTimer = null;
+            const SHIELD_DURATION = 2500;
 
             function triggerScreenshotDisengage(source) {
+                if (isAdminUser()) return; // Admins have zero screenshot restrictions
+
                 const previewContainer = document.getElementById('view-container-card');
                 const canvases = document.querySelectorAll('canvas');
 
-                if (previewContainer) {
-                    previewContainer.classList.add('screenshot-blur-active');
-                }
-                canvases.forEach(c => {
-                    c.classList.add('screenshot-blur-active');
-                });
+                // Apply instant CSS protection directly via element styles (0ms execution)
+                const applyFastShield = (el) => {
+                    if (!el) return;
+                    el.style.setProperty('filter', 'blur(60px) grayscale(100%)', 'important');
+                    el.style.setProperty('opacity', '0.01', 'important');
+                    el.style.setProperty('pointer-events', 'none', 'important');
+                    el.style.setProperty('user-select', 'none', 'important');
+                };
 
-                // Clear system clipboard to neutralize any clipboard-grabbed frame
+                applyFastShield(previewContainer);
+                canvases.forEach(applyFastShield);
+
+                // Neutralize system clipboard if screenshot was captured to clipboard
                 try {
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText('');
@@ -17412,31 +17436,36 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
                 if (shieldTimer) clearTimeout(shieldTimer);
                 shieldTimer = setTimeout(() => {
-                    if (previewContainer) {
-                        previewContainer.classList.remove('screenshot-blur-active');
-                    }
-                    canvases.forEach(c => {
-                        c.classList.remove('screenshot-blur-active');
-                    });
-                }, 2200);
+                    const removeFastShield = (el) => {
+                        if (!el) return;
+                        el.style.removeProperty('filter');
+                        el.style.removeProperty('opacity');
+                        el.style.removeProperty('pointer-events');
+                        el.style.removeProperty('user-select');
+                    };
+                    removeFastShield(previewContainer);
+                    canvases.forEach(removeFastShield);
+                }, SHIELD_DURATION);
             }
 
-            // 1. Keyboard Interception: PrintScreen, Windows Snipping Tool (Win+Shift+S), Mac Screenshots (Cmd+Shift+3/4/5), Print (Ctrl/Cmd+P)
+            // Keyboard Interception: capture=true is critical to execute BEFORE OS grabs frame
             window.addEventListener('keydown', (e) => {
-                // PrintScreen key
+                if (isAdminUser()) return;
+
+                // 1. PrintScreen key
                 if (e.key === 'PrintScreen' || e.keyCode === 44) {
                     triggerScreenshotDisengage('PrintScreen');
                 }
-                // Windows Snipping Tool / Ctrl+Shift+S
-                if (e.shiftKey && (e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S' || e.keyCode === 83)) {
+                // 2. Windows Snipping Tool (Win+Shift+S) / Ctrl+Shift+S
+                if (e.shiftKey && (e.metaKey || e.ctrlKey) && ['s', 'S'].includes(e.key)) {
                     triggerScreenshotDisengage('SnippingTool');
                 }
-                // Mac screenshot shortcuts: Cmd + Shift + 3, 4, 5
+                // 3. Mac screenshot shortcuts: Cmd + Shift + 3, 4, 5
                 if (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) {
                     triggerScreenshotDisengage('MacScreenCapture');
                 }
-                // Ctrl+P / Cmd+P (Print page)
-                if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+                // 4. Ctrl+P / Cmd+P (Print page)
+                if ((e.ctrlKey || e.metaKey) && ['p', 'P'].includes(e.key)) {
                     const rcptModal = document.getElementById('receipt-modal');
                     if (!rcptModal || rcptModal.classList.contains('hidden')) {
                         e.preventDefault();
@@ -17446,35 +17475,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }, true);
 
             window.addEventListener('keyup', (e) => {
+                if (isAdminUser()) return;
                 if (e.key === 'PrintScreen' || e.keyCode === 44) {
                     triggerScreenshotDisengage('PrintScreenRelease');
                 }
             }, true);
 
-            // 2. Window Blur / Tab Switch (Snipping Tool & screen recorders stealing focus)
-            window.addEventListener('blur', () => {
-                const preview = document.getElementById('view-container-card');
-                if (preview) preview.classList.add('screenshot-blur-active');
-            });
-            window.addEventListener('focus', () => {
-                setTimeout(() => {
-                    const preview = document.getElementById('view-container-card');
-                    if (preview) preview.classList.remove('screenshot-blur-active');
-                }, 350);
-            });
-            document.addEventListener('visibilitychange', () => {
-                const preview = document.getElementById('view-container-card');
-                if (document.hidden) {
-                    if (preview) preview.classList.add('screenshot-blur-active');
-                } else {
-                    setTimeout(() => {
-                        if (preview) preview.classList.remove('screenshot-blur-active');
-                    }, 400);
-                }
-            });
-
-            // 3. Prevent right-click context menu and drag on all barcode canvases
+            // Context menu & drag protection on canvases (Admins can still right-click & inspect)
             document.addEventListener('contextmenu', (e) => {
+                if (isAdminUser()) return;
                 if (e.target && (e.target.tagName === 'CANVAS' || e.target.closest('#view-container-card'))) {
                     e.preventDefault();
                     return false;
@@ -17482,11 +17491,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }, false);
 
             document.addEventListener('dragstart', (e) => {
+                if (isAdminUser()) return;
                 if (e.target && (e.target.tagName === 'CANVAS' || e.target.closest('#view-container-card'))) {
                     e.preventDefault();
                     return false;
                 }
             }, false);
+
+            // NOTE: Window blur, focus, and visibilitychange event listeners are intentionally EXCLUDED
+            // so switching tabs, switching apps, or clicking outside NEVER darkens or blurs Card Studio.
         })();
 
 </script>

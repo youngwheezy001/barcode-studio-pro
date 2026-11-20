@@ -363,6 +363,10 @@ def restore_orders_from_backup(db: Session):
             if not existing:
                 c_at = datetime.fromisoformat(item["created_at"]) if item.get("created_at") else datetime.utcnow()
                 cf_at = datetime.fromisoformat(item["confirmed_at"]) if item.get("confirmed_at") else None
+                # Do not restore stale pending orders older than 2 hours
+                if item.get("status") in ("pending", "submitted"):
+                    if c_at < datetime.utcnow() - timedelta(hours=2):
+                        continue
                 o = CryptoPayment(
                     id=item["id"],
                     user_id=item["user_id"],
@@ -598,6 +602,14 @@ def seed_admin_users():
                     confirmed_at=datetime.utcnow() - timedelta(days=1)
                 )
                 db.add(new_felix)
+        db.commit()
+
+        # 6. Purge stale unpaid pending/submitted orders older than 2 hours to avoid data accumulation
+        stale_order_cutoff = datetime.utcnow() - timedelta(hours=2)
+        db.query(CryptoPayment).filter(
+            CryptoPayment.status.in_(["pending", "submitted"]),
+            CryptoPayment.created_at < stale_order_cutoff
+        ).delete(synchronize_session=False)
         db.commit()
 
         for email in ADMIN_EMAILS:
@@ -1592,6 +1604,8 @@ async def verify_crypto_onchain(req: VerifyOnchainCryptoRequest, current_user: U
     db.commit()
     db.refresh(current_user)
     sync_users_to_backup(db)
+    sync_orders_to_backup(db)
+    asyncio.create_task(send_sale_notification(order))
 
     return {
         "status": "success",
@@ -1612,47 +1626,53 @@ async def send_sale_notification(order: CryptoPayment):
     - WHATSAPP_WEBHOOK_URL: Dispatches payload to custom WhatsApp Gateway / Zapier / Make
     """
     try:
-        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
-        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
-        wa_phone = (os.getenv("WHATSAPP_PHONE") or os.getenv("WHATSAPP_ALERT_PHONE") or "").strip().replace("+", "").replace(" ", "").replace("-", "")
+        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or "9079812677:AAGAB9RAxI1Jy1XWTQ0MCogvTzLJFM-Rpn4").strip()
+        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "7652114454").strip()
+        wa_phone = (os.getenv("WHATSAPP_PHONE") or os.getenv("WHATSAPP_ALERT_PHONE") or "18606626632").strip().replace("+", "").replace(" ", "").replace("-", "")
         wa_apikey = (os.getenv("WHATSAPP_APIKEY") or "").strip()
         wa_webhook = (os.getenv("WHATSAPP_WEBHOOK_URL") or os.getenv("SALE_ALERT_WEBHOOK_URL") or "").strip()
 
         amt_str = f"${float(order.amount_usd or 0):.2f}"
         inv_str = order.invoice_number or f"INV-2026-{order.id:05d}"
+        cust_email = order.user_email or "Customer"
+        pkg_desc = f"{order.tokens} Sets ({order.package_id})"
+        method_desc = f"{order.crypto_currency} ({order.network})"
+        tx_desc = order.tx_hash or 'Binance Verified'
+
         msg_text = (
             f"🎉 <b>NEW BARCODE SET SALE!</b>\n\n"
             f"💰 <b>Amount:</b> {amt_str} USD\n"
-            f"📦 <b>Package:</b> {order.tokens} Sets ({order.package_id})\n"
-            f"👤 <b>Customer:</b> {order.user_email}\n"
-            f"⚡ <b>Method:</b> {order.crypto_currency} ({order.network})\n"
+            f"📦 <b>Package:</b> {pkg_desc}\n"
+            f"👤 <b>Customer:</b> {cust_email}\n"
+            f"⚡ <b>Method:</b> {method_desc}\n"
             f"🧾 <b>Invoice:</b> {inv_str}\n"
-            f"🔗 <b>TxID:</b> <code>{order.tx_hash or 'Binance Verified'}</code>"
+            f"🔗 <b>TxID:</b> <code>{tx_desc}</code>"
         )
         plain_text = (
             f"🎉 NEW BARCODE STUDIO SALE!\n\n"
             f"💰 Amount: {amt_str} USD\n"
-            f"📦 Package: {order.tokens} Sets ({order.package_id})\n"
-            f"👤 Customer: {order.user_email}\n"
-            f"⚡ Method: {order.crypto_currency} ({order.network})\n"
+            f"📦 Package: {pkg_desc}\n"
+            f"👤 Customer: {cust_email}\n"
+            f"⚡ Method: {method_desc}\n"
             f"🧾 Invoice: {inv_str}\n"
-            f"🔗 TxID: {order.tx_hash or 'Binance Confirmed'}"
+            f"🔗 TxID: {tx_desc}"
         )
 
         has_channels = (tg_token and tg_chat_id) or (wa_phone and wa_apikey) or wa_webhook
         if not has_channels:
-            print(f"[SALE NOTIFIER] Payment confirmed for {order.user_email} ({amt_str}). (Set TELEGRAM_BOT_TOKEN/CHAT_ID or WHATSAPP_PHONE/APIKEY on Render for mobile alerts).")
+            print(f"[SALE NOTIFIER] Payment confirmed for {cust_email} ({amt_str}).")
             return
 
         async with httpx.AsyncClient(timeout=8.0) as client:
             # 1. Official Telegram Bot API
             if tg_token and tg_chat_id:
                 tg_url = f"https://api.telegram.org/bot{tg_token}/sendMessage"
-                await client.post(tg_url, json={
+                r = await client.post(tg_url, json={
                     "chat_id": tg_chat_id,
                     "text": msg_text,
                     "parse_mode": "HTML"
                 })
+                print(f"[SALE NOTIFIER] Telegram alert sent (status={r.status_code})")
 
             # 2. WhatsApp Direct (Free via CallMeBot)
             if wa_phone and wa_apikey:
@@ -1665,14 +1685,14 @@ async def send_sale_notification(order: CryptoPayment):
                 await client.post(wa_webhook, json={
                     "event": "payment_confirmed",
                     "amount_usd": order.amount_usd,
-                    "customer_email": order.user_email,
+                    "customer_email": cust_email,
                     "tokens": order.tokens,
                     "package_id": order.package_id,
                     "invoice_number": inv_str,
                     "tx_hash": order.tx_hash,
                     "message": plain_text
                 })
-        print(f"[SALE NOTIFIER] Mobile alert successfully sent for order #{order.id} ({amt_str})")
+        print(f"[SALE NOTIFIER] Mobile alert successfully dispatched for order #{order.id} ({amt_str})")
     except Exception as e:
         print(f"[SALE NOTIFIER] Dispatch note: {e}")
 
@@ -1888,7 +1908,7 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
             "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None
         }
 
-    # Attempt automatic blockchain detection
+    # 1. Attempt automatic blockchain detection
     confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, db)
     if confirmed:
         db.refresh(current_user)
@@ -1901,6 +1921,24 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
             "tx_hash": tx_id,
             "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None
         }
+
+    # 2. Check official Binance API directly during active client polling
+    b_key = (os.getenv("BINANCE_API_KEY") or "").strip()
+    b_sec = (os.getenv("BINANCE_API_SECRET") or "").strip()
+    if b_key and b_sec and order.status in ["pending", "submitted"]:
+        await poll_binance_api_deposits([order], db, b_key, b_sec)
+        db.refresh(order)
+        if order.status == "confirmed":
+            db.refresh(current_user)
+            return {
+                "status": "confirmed",
+                "message": f"Binance deposit confirmed ({order.tx_hash})! Added {order.tokens} sets.",
+                "order_id": order.id,
+                "tokens_added": order.tokens,
+                "tokens_remaining": current_user.tokens,
+                "tx_hash": order.tx_hash,
+                "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None
+            }
 
     elapsed_seconds = (datetime.utcnow() - order.created_at).total_seconds()
     time_remaining_sec = max(0, int(1800 - elapsed_seconds))
@@ -2005,72 +2043,96 @@ def extract_amount_from_text(text: str) -> Optional[float]:
     return None
 
 async def poll_binance_api_deposits(pending_orders: list, db: Session, api_key: str, api_secret: str):
-    """Checks official Binance Spot Deposit History API for recent successful incoming deposits."""
+    """
+    Checks official Binance Spot Deposit History API for recent successful incoming deposits.
+    Matches incoming deposits (on-chain and internal) against pending customer orders autonomously.
+    """
     try:
         ts = int(time.time() * 1000)
-        params = f"status=1&timestamp={ts}"
+        # includeSource=true includes internal/off-chain transfers between Binance users
+        # recvWindow=60000 eliminates reject errors caused by clock drift or latency
+        params = f"includeSource=true&status=1&recvWindow=60000&timestamp={ts}"
         sig = hmac.new(api_secret.encode('utf-8'), params.encode('utf-8'), hashlib.sha256).hexdigest()
         url = f"https://api.binance.com/sapi/v1/capital/deposit/hisrec?{params}&signature={sig}"
 
-        async with httpx.AsyncClient(timeout=9.0) as client:
+        async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(url, headers={"X-MBX-APIKEY": api_key, "User-Agent": "BarcodeStudioPro/2.0"})
             if resp.status_code == 200:
                 deposits = resp.json()
                 if isinstance(deposits, list):
                     for dep in deposits:
-                        dep_amount = float(dep.get("amount", 0.0))
-                        dep_tx = dep.get("txId", "")
-                        dep_coin = dep.get("coin", "USDT")
                         dep_status = int(dep.get("status", 0))
+                        dep_amount = float(dep.get("amount", 0.0))
+                        dep_tx = (dep.get("txId") or "").strip()
+                        dep_coin = (dep.get("coin") or "USDT").upper()
+                        insert_time = int(dep.get("insertTime", 0))
 
-                        # Only match confirmed deposits (status=1) with a real on-chain txId.
-                        # REJECT Binance internal "Off chain transfer" TxIDs — these are P2P/pay
-                        # internal transfers and are NOT real blockchain deposits. Auto-confirming
-                        # them was the root cause of the free-sets exploit.
-                        # Use tight tolerance: ±$0.01 to prevent cross-order matching.
-                        dep_tx_lower = (dep_tx or "").lower().strip()
-                        is_real_onchain_tx = dep_tx and not dep_tx_lower.startswith("off chain") and not dep_tx_lower.startswith("off-chain") and len(dep_tx_lower) >= 20
-                        if dep_status == 1 and dep_amount > 0 and is_real_onchain_tx:
-                            # Also check that this TxID has not already confirmed another order (dedup)
-                            already_used = db.query(CryptoPayment).filter(
-                                CryptoPayment.tx_hash == dep_tx,
-                                CryptoPayment.status == "confirmed"
-                            ).first()
-                            if already_used:
-                                continue  # This deposit was already credited — skip entirely
-                            for order in pending_orders:
-                                if order.status in ["pending", "submitted"]:
-                                    if abs(float(order.amount_usd) - dep_amount) <= 0.01:
-                                        # Match found! Confirm order autonomously
-                                        order.status = "confirmed"
-                                        order.confirmed_at = datetime.utcnow()
-                                        order.tx_hash = dep_tx or f"binance_dep_{int(time.time())}"
-                                        purchaser = db.query(User).filter(User.id == order.user_id).first()
-                                        if purchaser:
-                                            purchaser.tokens += order.tokens
-                                            process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
-                                        db.commit()
-                                        db.refresh(order)
-                                        sync_users_to_backup(db)
-                                        sync_orders_to_backup(db)
-                                        asyncio.create_task(send_sale_notification(order))
-                                        print(f"[BINANCE API SUCCESS] Auto-credited order #{order.id} for {order.user_email} (${order.amount_usd})!")
-                                        break
+                        # Only process genuine confirmed deposits (status=1) with positive amount
+                        if dep_status != 1 or dep_amount <= 0 or not dep_tx:
+                            continue
+
+                        # Anti-replay / Dedup: check if this deposit TxID was already credited
+                        already_used = db.query(CryptoPayment).filter(
+                            CryptoPayment.tx_hash == dep_tx,
+                            CryptoPayment.status == "confirmed"
+                        ).first()
+                        if already_used:
+                            continue
+
+                        for order in pending_orders:
+                            if order.status in ["pending", "submitted"]:
+                                order_coin = (order.crypto_currency or "").upper()
+                                # Coin match check
+                                if dep_coin not in order_coin and not (dep_coin == "USDT" and "USDT" in order_coin):
+                                    continue
+
+                                # Order timestamp check (deposit must not be older than order creation)
+                                if insert_time > 0 and order.created_at:
+                                    order_created_ms = int(order.created_at.timestamp() * 1000) - 180000
+                                    if insert_time < order_created_ms:
+                                        continue
+
+                                # Tight amount check: ±$0.01 (micro-cent tag tolerance)
+                                if abs(float(order.amount_usd) - dep_amount) <= 0.01:
+                                    # Match found! Confirm order autonomously
+                                    order.status = "confirmed"
+                                    order.confirmed_at = datetime.utcnow()
+                                    order.tx_hash = dep_tx
+                                    purchaser = db.query(User).filter(User.id == order.user_id).first()
+                                    if purchaser:
+                                        purchaser.tokens += order.tokens
+                                        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
+                                    db.commit()
+                                    db.refresh(order)
+                                    sync_users_to_backup(db)
+                                    sync_orders_to_backup(db)
+                                    asyncio.create_task(send_sale_notification(order))
+                                    print(f"[BINANCE API SUCCESS] Autonomous credit for order #{order.id} ({order.user_email}) - ${order.amount_usd} ({dep_tx})")
+                                    break
     except Exception as e:
         print(f"[BINANCE API NOTE] {e}")
 
 async def background_payment_poller():
     """
     Continuous background daemon running every 20s:
-    1. Scans on-chain public explorers for TRC20, BTC, SOL pending orders.
-    2. If BINANCE_API_KEY is configured, checks Binance deposit records.
+    1. Auto-purges stale unpaid pending orders older than 2 hours.
+    2. Scans on-chain public explorers for TRC20, BTC, SOL pending orders.
+    3. If BINANCE_API_KEY is configured, checks Binance deposit records.
     """
     await asyncio.sleep(4)
     while True:
         try:
             db = SessionLocal()
             try:
-                cutoff = datetime.utcnow() - timedelta(hours=3)
+                # 0. Auto-purge stale unpaid pending/submitted orders older than 2 hours
+                stale_cutoff = datetime.utcnow() - timedelta(hours=2)
+                db.query(CryptoPayment).filter(
+                    CryptoPayment.status.in_(["pending", "submitted"]),
+                    CryptoPayment.created_at < stale_cutoff
+                ).delete(synchronize_session=False)
+                db.commit()
+
+                cutoff = datetime.utcnow() - timedelta(hours=2)
                 pending_orders = db.query(CryptoPayment).filter(
                     CryptoPayment.status.in_(["pending", "submitted"]),
                     CryptoPayment.created_at >= cutoff
@@ -2418,9 +2480,16 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
+    # Auto-purge stale unpaid pending/submitted orders older than 2 hours to avoid data accumulation
+    stale_cutoff = datetime.utcnow() - timedelta(hours=2)
+    db.query(CryptoPayment).filter(
+        CryptoPayment.status.in_(["pending", "submitted"]),
+        CryptoPayment.created_at < stale_cutoff
+    ).delete(synchronize_session=False)
+    db.commit()
+
     mock_emails = [
-        "wozepeh36122931@gmail.com", "comrad4byte@gmail.com",
-        "barcodestudiopro@gmail.com", "k3n254@gmail.com"
+        "wozepeh36122931@gmail.com", "comrad4byte@gmail.com"
     ]
     query = db.query(CryptoPayment).filter(
         CryptoPayment.crypto_currency != "MOCK_TEST",
@@ -2429,6 +2498,15 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
         ~func.lower(CryptoPayment.user_email).like("%@barcodestudio.pro"),
         ~func.lower(CryptoPayment.user_email).like("%@example.com"),
         CryptoPayment.status != "voided_by_admin"
+    )
+
+    # Only show confirmed/approved orders OR fresh pending orders (< 2 hours old)
+    query = query.filter(
+        (CryptoPayment.status.in_(["confirmed", "approved"])) |
+        (
+            CryptoPayment.status.in_(["pending", "submitted"]) &
+            (CryptoPayment.created_at >= stale_cutoff)
+        )
     )
     if q and q.strip():
         term = f"%{q.strip().lower()}%"
