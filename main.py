@@ -540,15 +540,9 @@ def seed_admin_users():
             "comrad4byte@gmail.com"
         ]
 
-        # Ensure real accounts youngwheezy001@gmail.com and joyannkarambu@gmail.com exist
-        real_user_seeds = ["youngwheezy001@gmail.com", "joyannkarambu@gmail.com"]
-        for r_email in real_user_seeds:
-            existing_r = db.query(User).filter(func.lower(User.email) == r_email).first()
-            if not existing_r:
-                pass_hash = get_password_hash("ClientSecure2026!")
-                u_real = User(email=r_email, hashed_password=pass_hash, role="free_user", tokens=10)
-                db.add(u_real)
-                db.commit()
+        # NOTE: youngwheezy001@gmail.com and joyannkarambu@gmail.com are REAL paying clients.
+        # Do NOT seed them with free tokens here — they registered on their own and must pay for sets.
+        # Seeding them with tokens=10 on every boot was the root cause of the free-sets exploit.
 
         # 1. Purge all mock/test users completely
         db.query(User).filter(
@@ -570,13 +564,10 @@ def seed_admin_users():
             func.lower(CryptoPayment.user_email).in_(ADMIN_EMAILS)
         ).delete(synchronize_session=False)
 
-        # 4. Remove fake orders for k3n254 and barcodestudiopro so their spent price is removed ($0.00)
-        db.query(CryptoPayment).filter(
-            func.lower(CryptoPayment.user_email).in_(["k3n254@gmail.com", "barcodestudiopro@gmail.com"])
-        ).delete(synchronize_session=False)
-        db.query(User).filter(
-            func.lower(User.email).in_(["k3n254@gmail.com", "barcodestudiopro@gmail.com"])
-        ).update({"tokens": 0}, synchronize_session=False)
+        # 4. REMOVED: We no longer zero out barcodestudiopro@gmail.com or k3n254@gmail.com
+        # on every boot. These are real client accounts. If their data needs to be fixed,
+        # the admin should use the "Remove Sets" button in the admin panel instead.
+        # (Wiping on every boot was causing genuine client data loss.)
 
         # 5. Ensure felixbarkibir6661@gmail.com who paid $11.01 has their confirmed order recorded
         felix_user = db.query(User).filter(func.lower(User.email) == "felixbarkibir6661@gmail.com").first()
@@ -1790,7 +1781,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                         amt = float(t.get("quant", 0)) / 1000000.0
 
                         if to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
-                            if abs(amt - expected_usd) <= 0.05:
+                            if abs(amt - expected_usd) <= 0.01:
                                 exists = db.query(CryptoPayment).filter(
                                     CryptoPayment.tx_hash == tx_id,
                                     CryptoPayment.status == "confirmed",
@@ -1827,7 +1818,7 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
                         amt = float(t.get("value", 0)) / 1000000.0
 
                         if to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
-                            if abs(amt - expected_usd) <= 0.05:
+                            if abs(amt - expected_usd) <= 0.01:
                                 exists = db.query(CryptoPayment).filter(
                                     CryptoPayment.tx_hash == tx_id,
                                     CryptoPayment.status == "confirmed",
@@ -2103,9 +2094,21 @@ async def poll_binance_api_deposits(pending_orders: list, db: Session, api_key: 
                         dep_coin = dep.get("coin", "USDT")
                         dep_status = int(dep.get("status", 0))
 
-                        # Only match confirmed deposits (status=1) with a real txId
-                        # Use tight tolerance: ±$0.01 to prevent cross-order matching
-                        if dep_status == 1 and dep_amount > 0 and dep_tx:
+                        # Only match confirmed deposits (status=1) with a real on-chain txId.
+                        # REJECT Binance internal "Off chain transfer" TxIDs — these are P2P/pay
+                        # internal transfers and are NOT real blockchain deposits. Auto-confirming
+                        # them was the root cause of the free-sets exploit.
+                        # Use tight tolerance: ±$0.01 to prevent cross-order matching.
+                        dep_tx_lower = (dep_tx or "").lower().strip()
+                        is_real_onchain_tx = dep_tx and not dep_tx_lower.startswith("off chain") and not dep_tx_lower.startswith("off-chain") and len(dep_tx_lower) >= 20
+                        if dep_status == 1 and dep_amount > 0 and is_real_onchain_tx:
+                            # Also check that this TxID has not already confirmed another order (dedup)
+                            already_used = db.query(CryptoPayment).filter(
+                                CryptoPayment.tx_hash == dep_tx,
+                                CryptoPayment.status == "confirmed"
+                            ).first()
+                            if already_used:
+                                continue  # This deposit was already credited — skip entirely
                             for order in pending_orders:
                                 if order.status in ["pending", "submitted"]:
                                     if abs(float(order.amount_usd) - dep_amount) <= 0.01:
@@ -2336,7 +2339,7 @@ def admin_auto_match_deposit(amount: float = Body(..., embed=True), current_user
 
     matched = None
     for o in pending_orders:
-        if abs(float(o.amount_usd) - amount) <= 0.05:
+        if abs(float(o.amount_usd) - amount) <= 0.01:
             matched = o
             break
 
