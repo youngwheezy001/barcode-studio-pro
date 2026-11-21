@@ -26,12 +26,11 @@ The AAMVA standard specifies data elements for 2D PDF417 barcodes on Driver Lice
 - **ACTIVE (68 Revisions)**: Required and dynamically calculated/rendered for all other 44 US states (including Texas `TX`, California `CA`, Florida `FL`, Virginia `VA`, Wyoming `WY`, etc.) and Canadian provinces `MB`, `ON`, `QC`, `SK`.
 
 ### 1.2. Document Discriminator (DD / Subfile Element `DCF`)
-- **OMITTED (9 Revisions)**: Neither displayed in the UI (`containerDD` hidden) nor included in the compiled `AAMVA` subfile:
+- **OMITTED (7 Revisions)**: Neither displayed in the UI (`containerDD` hidden) nor included in the compiled `AAMVA` subfile:
   - **Louisiana** (`LA`)
-  - **Michigan** (`MI`, `MI_2024`)
   - **New Mexico** (`NM`)
   - **Canadian Provinces**: British Columbia (`BC`), New Brunswick (`NB`), Newfoundland & Labrador (`NL`), Nova Scotia (`NS`), Nunavut (`NU`)
-- **ACTIVE (77 Revisions)**: Required across all remaining 47 US states/DC and Canadian provinces.
+- **ACTIVE (79 Revisions)**: Required across all remaining 48 US states/DC and Canadian provinces (including Michigan `MI` 13-digit DD printed on card and encoded in barcode `DCF`).
 
 ### 1.3. Audit Information (Audit / Subfile Element `DCJ`)
 - **ACTIVE (7 Revisions)**: Explicitly displayed and calculated via `containerAudit`:
@@ -85,7 +84,7 @@ The AAMVA standard specifies data elements for 2D PDF417 barcodes on Driver Lice
 | **Maine** | Base (`ME`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | — | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Maryland** | 2016/2019 (`MD`), 2021 (`MD_2021`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Revision Date (`06/20/2016`, `08/26/2019`), Soundex | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Massachusetts** | Base (`MA`) | **YES** (`20239` + DL + `0601`) | **YES** (`MMDDYYYY REV ...`) | OMITTED | Second Street (`inputAddress2`) | Scandit, Show-Me ID, FIDScan, Veriscan |
-| **Michigan** | 2011/2021 (`MI`), 2024 (`MI_2024`) | **YES** (DL + DOB + Exp Year) | **NO (OMITTED)** | OMITTED | Revision Date (`DDB`), Soundex DL | Scandit, Show-Me ID, FIDScan, Veriscan |
+| **Michigan** | 2011/2021 (`MI`), 2024 (`MI_2024`) | **YES** (DL + DOB + Exp Year) | **YES** (13 Digits numeric) | OMITTED | Revision Date (`DDB`), Soundex DL | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Minnesota** | Base (`MN`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Second Street (`inputAddress2`) | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Mississippi** | 2016/2021 (`MS`), 2023 (`MS_2023`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Revision Date (`05/14/2021`, `02/22/2016`) | Scandit, Show-Me ID, FIDScan, Veriscan |
 | **Missouri** | 2012 (`MO_2012`), 2020 (`MO_2020`) | **YES** (16 Digits numeric) | **YES** (16 Digits numeric) | OMITTED | Soundex DL Algorithm | Scandit, Show-Me ID, FIDScan, Veriscan |
@@ -164,7 +163,7 @@ function updateDynamicFields(slug, profile) {
 ### 4.2. Backend AAMVA Compiler Mapping (`aamva.py`)
 The backend compiles subfiles according to jurisdiction-specific metadata dictionaries:
 - `STATE_IDENTIFIER_METADATA["NM"]`: `uses_dd: False`, `dd_label: "DD (Not used in New Mexico - Omitted)"`
-- `STATE_IDENTIFIER_METADATA["MI"]`: `uses_dd: False`, `dd_label: "DD (Not used in Michigan - Omitted)"`
+- `STATE_IDENTIFIER_METADATA["MI"]`: `uses_dd: True`, `sample_dd: "1059385019257"`, `dd_label: "Document Discriminator (DD)"`
 - `STATE_IDENTIFIER_METADATA["VT"]`: `uses_icn: False`, `icn_label: "ICN (Not used in Vermont - Omitted)"`
 - `STATE_IDENTIFIER_METADATA["WA"]`: `uses_icn: False`, `uses_audit: True`
 - `STATE_IDENTIFIER_METADATA["CO"]`: `uses_icn: False`, `uses_audit: True`

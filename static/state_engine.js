@@ -861,7 +861,7 @@ const STATE_HIERARCHY = {
           "Veriscan"
         ],
         "has_icn": true,
-        "has_dd": false,
+        "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
         "has_rev_date": true,
@@ -870,7 +870,8 @@ const STATE_HIERARCHY = {
           {"value": "08162021", "label": "08/16/2021"}
         ],
         "sample_icn": "D000429497042197001152024",
-        "default_dd": "",
+        "sample_dd": "1059385019257",
+        "default_dd": "1059385019257",
         "has_real_id": true,
         "has_address2": false,
         "has_race": false,
@@ -889,7 +890,7 @@ const STATE_HIERARCHY = {
           "Veriscan"
         ],
         "has_icn": true,
-        "has_dd": false,
+        "has_dd": true,
         "has_weight_range": false,
         "has_audit": false,
         "has_rev_date": true,
@@ -897,7 +898,8 @@ const STATE_HIERARCHY = {
           {"value": "01022024", "label": "01/02/2024"}
         ],
         "sample_icn": "D000429497042197001152024",
-        "default_dd": "",
+        "sample_dd": "1200100000123",
+        "default_dd": "1200100000123",
         "has_real_id": true,
         "has_address2": false,
         "has_race": false,
@@ -9626,10 +9628,10 @@ function runStateCalculation(field, stateSlug) {
     "realid": "F",
     "sample_dl": "D 000 429 497 042",
     "sample_icn": "D000429497042197001152024",
-    "sample_dd": "",
+    "sample_dd": "1059385019257",
     "sample_audit": "",
     "has_icn": true,
-    "has_dd": false,
+    "has_dd": true,
     "has_audit": false
   },
   "MI_2024": {
@@ -9641,10 +9643,10 @@ function runStateCalculation(field, stateSlug) {
     "realid": "F",
     "sample_dl": "D 000 429 497 042",
     "sample_icn": "D000429497042197001152024",
-    "sample_dd": "",
+    "sample_dd": "1200100000123",
     "sample_audit": "",
     "has_icn": true,
-    "has_dd": false,
+    "has_dd": true,
     "has_audit": false
   },
   "NJ_2020": {

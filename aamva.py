@@ -842,26 +842,26 @@ STATE_IDENTIFIER_METADATA: Dict[str, Dict[str, Any]] = {
     "MI": {
         "label": "Michigan (2011, 2021)",
         "uses_icn": True,
-        "uses_dd": False,
+        "uses_dd": True,
         "uses_audit": False,
         "dd_label": "Document Discriminator (DD)",
         "icn_label": "Inventory Control Number (ICN)",
         "audit_label": "Audit Information",
         "sample_icn": "D000429497042197001152024",
-        "sample_dd": "",
+        "sample_dd": "1059385019257",
         "sample_audit": "",
         "sample_dl": "D 000 429 497 042"
     },
     "MI_2024": {
         "label": "Michigan (2024)",
         "uses_icn": True,
-        "uses_dd": False,
+        "uses_dd": True,
         "uses_audit": False,
         "dd_label": "Document Discriminator (DD)",
         "icn_label": "Inventory Control Number (ICN)",
         "audit_label": "Audit Information",
         "sample_icn": "D000429497042197001152024",
-        "sample_dd": "",
+        "sample_dd": "1200100000123",
         "sample_audit": "",
         "sample_dl": "D 000 429 497 042"
     },
@@ -1649,10 +1649,14 @@ def resolve_state_identifiers(
     if dcf_val is not None and str(dcf_val).strip() and str(dcf_val).strip().upper() != "NONE":
         dcf = str(dcf_val).strip().upper()
     elif not uses_dd:
-        dcf = ""  # Omitted per state specification (e.g. MI, MI_2024, Canadian provinces with no DD)
+        dcf = ""  # Omitted per state specification (e.g. Canadian provinces with no DD)
     else:
         sample_dd = meta.get("sample_dd", "")
-        if clean_st == "TX":
+        if clean_st in ("MI", "MI_2011"):
+            dcf = "1059385019257"
+        elif clean_st == "MI_2024":
+            dcf = "1200100000123"
+        elif clean_st == "TX":
             dcf = "2407261442200188"
         elif clean_st == "CA":
             dcf = "08/25/202165508/AAFD/26"

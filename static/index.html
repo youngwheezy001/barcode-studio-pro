@@ -4978,26 +4978,28 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             },
             MI: {
                 ddLabel: "DD (Document Discriminator)",
-                ddPlaceholder: "Optional — Michigan cards omit or embed DD",
-                ddTooltip: "Document Discriminator (DCF) — Optional in Michigan",
-                ddHint: "Michigan: DD is typically omitted or optional.",
+                ddPlaceholder: "13-digit DD (e.g. 1059385019257)",
+                ddTooltip: "Document Discriminator (DCF) — 13-digit number printed on Michigan cards",
+                ddHint: "Michigan (2011, 2021): 13-digit DD printed on front (DD 10...) and encoded in barcode (DCF).",
+                usesDd: true,
                 usesIcn: true,
                 icnLabel: "ICN (Inventory Control Number)",
                 icnTooltip: "Inventory Control Number (DCK) — 25 chars: 13-char DL + YYYYMMDD + YYMM",
                 icnPlaceholder: "ICN (e.g. M123456789012198001152801)",
-                genDD: () => "",
+                genDD: () => "10" + Math.floor(10000000000 + Math.random() * 90000000000),
                 genICN: (dl) => `${(dl || 'M123456789012').replace(/\s/g, '')}198001152801`
             },
             MI_2024: {
                 ddLabel: "DD (Document Discriminator)",
-                ddPlaceholder: "Optional — Michigan cards omit or embed DD",
-                ddTooltip: "Document Discriminator (DCF) — Optional in Michigan",
-                ddHint: "Michigan (2024): DD is typically omitted or optional.",
+                ddPlaceholder: "13-digit DD (e.g. 1200100000123)",
+                ddTooltip: "Document Discriminator (DCF) — 13-digit number printed on Michigan cards",
+                ddHint: "Michigan (2024): 13-digit DD printed on front (DD 12...) and encoded in barcode (DCF).",
+                usesDd: true,
                 usesIcn: true,
                 icnLabel: "ICN (Inventory Control Number)",
                 icnTooltip: "Inventory Control Number (DCK) — 25 chars: 13-char DL + YYYYMMDD + YYMM",
                 icnPlaceholder: "ICN (e.g. M123456789012198001152801)",
-                genDD: () => "",
+                genDD: () => "12" + Math.floor(10000000000 + Math.random() * 90000000000),
                 genICN: (dl) => `${(dl || 'M123456789012').replace(/\s/g, '')}198001152801`
             },
             NJ: {
@@ -11874,10 +11876,30 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     localStorage.setItem('bsp_cached_user', JSON.stringify(currentUser));
                     updateAuthUI();
                     if (currentUser.unread_transfers && currentUser.unread_transfers.length > 0) {
-                        currentUser.unread_transfers.forEach(t => {
-                            showTransferReceivedModal(t);
-                        });
-                        fetch(`${API_BASE}/api/user/transfers/ack`, { method: 'POST', headers: getAuthHeader() });
+                        let seenTransfers = [];
+                        try {
+                            seenTransfers = JSON.parse(localStorage.getItem('bsp_seen_transfers') || '[]');
+                            if (!Array.isArray(seenTransfers)) seenTransfers = [];
+                        } catch (e) { seenTransfers = []; }
+
+                        const unshown = currentUser.unread_transfers.filter(t => !seenTransfers.includes(t.id));
+                        if (unshown.length > 0) {
+                            showTransferReceivedModal(unshown[0]);
+                            unshown.forEach(t => {
+                                if (!seenTransfers.includes(t.id)) seenTransfers.push(t.id);
+                            });
+                            try { localStorage.setItem('bsp_seen_transfers', JSON.stringify(seenTransfers)); } catch (e) {}
+                        }
+
+                        // Immediately acknowledge transfers on backend so they are marked as read
+                        fetch(`${API_BASE}/api/user/transfers/ack`, {
+                            method: 'POST',
+                            headers: getAuthHeader()
+                        }).catch(() => {});
+
+                        // Clear unread_transfers from local memory and cache so reload never loops
+                        currentUser.unread_transfers = [];
+                        try { localStorage.setItem('bsp_cached_user', JSON.stringify(currentUser)); } catch (e) {}
                     }
                 } else if (res.status === 401) {
                     // Only log out on explicit unauthorized 401
@@ -12651,13 +12673,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             let barcodeSig = '';
             try {
                 let rawPayload = '';
-                if (currentTab === 'code128') {
-                    rawPayload = 'C128:' + (document.getElementById('input-code128')?.value || '').trim();
-                } else if (currentTab === 'mrz') {
+                if (currentTab === 'mrz') {
                     rawPayload = 'MRZ:' + (document.getElementById('mrz-generated-text')?.value || '').trim();
                 } else {
+                    // Both PDF417 and Code 128 companion linear barcodes form 1 complete Driver License Barcode Set!
+                    // Keying on Jurisdiction + DL ID allows customers to download both barcodes for their card
+                    // under the 1-hour protection window for 1 Set token instead of deducting twice.
+                    const jKey = (document.getElementById('aamva-jurisdiction')?.value || '').trim().toUpperCase();
+                    const dlId = (document.getElementById('aamva-id')?.value || '').trim().toUpperCase();
                     const rawAamva = (typeof getAamvaPayload === 'function') ? getAamvaPayload() : '';
-                    rawPayload = 'AAMVA:' + rawAamva;
+                    if (dlId && jKey) {
+                        rawPayload = `AAMVA_SET:${jKey}:${dlId}`;
+                    } else if (rawAamva) {
+                        rawPayload = `AAMVA_SET:${rawAamva}`;
+                    } else {
+                        rawPayload = 'C128:' + (document.getElementById('input-code128')?.value || '').trim();
+                    }
                 }
 
                 if (window.crypto && window.crypto.subtle && rawPayload) {
@@ -17606,8 +17637,9 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     noteBox.classList.add('hidden');
                 }
             }
-            if (balEl && currentUser) {
-                balEl.textContent = currentUser.tokens;
+            if (balEl) {
+                const bal = (currentUser && typeof currentUser.tokens === 'number') ? currentUser.tokens : transfer.tokens;
+                balEl.textContent = bal;
             }
             modal.classList.remove('hidden');
         }
@@ -17615,6 +17647,10 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         function closeTransferReceivedModal() {
             const modal = document.getElementById('transfer-received-modal');
             if (modal) modal.classList.add('hidden');
+            fetch(`${API_BASE}/api/user/transfers/ack`, {
+                method: 'POST',
+                headers: getAuthHeader()
+            }).catch(() => {});
         }
 
         // Pre-warm card template images in background after page load for faster state switching

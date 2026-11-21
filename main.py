@@ -22,7 +22,7 @@ import zipfile
 import httpx
 import json
 import hashlib
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text, func, inspect, text
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text, func, inspect, text, or_
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from jose import JWTError, jwt
 
@@ -49,10 +49,12 @@ if PERSISTENT_DIR and os.path.isdir(PERSISTENT_DIR):
     DB_PATH = Path(PERSISTENT_DIR) / "barcodestudio.db"
     USERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "users_data.json"
     ORDERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "orders_data.json"
+    TRANSFERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "transfers_data.json"
 else:
     DB_PATH = BASE_DIR / "barcodestudio.db"
     USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
     ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
+    TRANSFERS_BACKUP_FILE = BASE_DIR / "transfers_data.json"
 
 def create_robust_engine():
     raw_url = (os.getenv("DATABASE_URL") or "").strip()
@@ -400,6 +402,64 @@ def restore_orders_from_backup(db: Session):
         print(f"Warning: Failed to restore orders backup: {e}")
         return 0
 
+def sync_transfers_to_backup(db: Session):
+    """Safely synchronizes all peer-to-peer set transfers to persistent JSON storage."""
+    try:
+        transfers = db.query(SetTransfer).all()
+        data = []
+        for t in transfers:
+            data.append({
+                "id": t.id,
+                "sender_id": t.sender_id,
+                "sender_email": t.sender_email,
+                "recipient_id": t.recipient_id,
+                "recipient_email": t.recipient_email,
+                "tokens": t.tokens,
+                "message": t.message,
+                "is_read": bool(t.is_read),
+                "created_at": t.created_at.isoformat() if t.created_at else None
+            })
+        with open(TRANSFERS_BACKUP_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return len(data)
+    except Exception as e:
+        print(f"Warning: Failed to sync transfers backup: {e}")
+        return 0
+
+def restore_transfers_from_backup(db: Session):
+    """Restores set transfers from backup if database is freshly initialized."""
+    if not TRANSFERS_BACKUP_FILE.exists():
+        return 0
+    try:
+        with open(TRANSFERS_BACKUP_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        restored = 0
+        for item in data:
+            existing = db.query(SetTransfer).filter(SetTransfer.id == item["id"]).first()
+            if not existing:
+                c_at = datetime.fromisoformat(item["created_at"]) if item.get("created_at") else datetime.utcnow()
+                t = SetTransfer(
+                    id=item["id"],
+                    sender_id=item["sender_id"],
+                    sender_email=item["sender_email"],
+                    recipient_id=item["recipient_id"],
+                    recipient_email=item["recipient_email"],
+                    tokens=item["tokens"],
+                    message=item.get("message", ""),
+                    is_read=bool(item.get("is_read", False)),
+                    created_at=c_at
+                )
+                db.add(t)
+                restored += 1
+            else:
+                if "is_read" in item:
+                    existing.is_read = bool(item["is_read"])
+        db.commit()
+        return restored
+    except Exception as e:
+        print(f"Warning: Failed to restore transfers backup: {e}")
+        return 0
+
 TOKEN_PACKAGES = {
     # 8 Sizing Packages (Competitor pdf417.pro undercut by $0.50 - $20, with 2-in-1 Dual Symbology included)
     "xxs_1": {"tokens": 1, "sets": 1, "price": 2.50, "amount_usd": 2.50, "competitor_price": 3.00, "name": "XXS - 1 Barcode Set", "badge": "Starter", "desc": "1x AAMVA PDF417 + 1x Code 128 Pair"},
@@ -622,7 +682,7 @@ def seed_admin_users():
         ).delete(synchronize_session=False)
         db.commit()
 
-        # 7. Customer balances strictly match real confirmed purchases (no free tokens on restart)
+        # 7. Customer balances strictly match real confirmed purchases + peer transfers
         # and ensure requested password is set
         for email_check in ["joyannkarambu@gmail.com", "youngwheezy001@gmail.com"]:
             u = db.query(User).filter(func.lower(User.email) == email_check).first()
@@ -633,8 +693,15 @@ def seed_admin_users():
                     CryptoPayment.status.in_(["confirmed", "approved"])
                 ).all()
                 total_paid_tokens = sum(o.tokens for o in paid_orders)
-                if u.tokens > total_paid_tokens:
-                    u.tokens = total_paid_tokens
+                transfers_in = db.query(func.coalesce(func.sum(SetTransfer.tokens), 0)).filter(
+                    or_(SetTransfer.recipient_id == u.id, func.lower(SetTransfer.recipient_email) == email_check)
+                ).scalar() or 0
+                transfers_out = db.query(func.coalesce(func.sum(SetTransfer.tokens), 0)).filter(
+                    or_(SetTransfer.sender_id == u.id, func.lower(SetTransfer.sender_email) == email_check)
+                ).scalar() or 0
+                legitimate_tokens = max(0, total_paid_tokens + transfers_in - transfers_out)
+                if u.tokens < legitimate_tokens:
+                    u.tokens = legitimate_tokens
             else:
                 new_u = User(
                     email=email_check,
@@ -681,6 +748,7 @@ def init_db_schema_and_seeds():
         try:
             restore_users_from_backup(db)
             restore_orders_from_backup(db)
+            restore_transfers_from_backup(db)
         finally:
             db.close()
         print("[DB] Database schema, admin accounts, and data backups verified successfully.")
@@ -698,6 +766,7 @@ def init_db_schema_and_seeds():
             try:
                 restore_users_from_backup(db)
                 restore_orders_from_backup(db)
+                restore_transfers_from_backup(db)
             finally:
                 db.close()
             print("[DB] SQLite fallback schema successfully created.")
@@ -864,8 +933,10 @@ def on_startup():
     try:
         restore_users_from_backup(db)
         restore_orders_from_backup(db)
+        restore_transfers_from_backup(db)
         sync_users_to_backup(db)
         sync_orders_to_backup(db)
+        sync_transfers_to_backup(db)
     finally:
         db.close()
 
@@ -988,8 +1059,12 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         db.commit()
         db.refresh(current_user)
 
+    clean_email = current_user.email.strip().lower()
     unread_transfers = db.query(SetTransfer).filter(
-        SetTransfer.recipient_id == current_user.id,
+        or_(
+            SetTransfer.recipient_id == current_user.id,
+            func.lower(SetTransfer.recipient_email) == clean_email
+        ),
         SetTransfer.is_read == False
     ).order_by(SetTransfer.id.desc()).all()
     transfers_list = [
@@ -3661,6 +3736,7 @@ async def transfer_tokens(
     db.refresh(recipient)
 
     sync_users_to_backup(db)
+    sync_transfers_to_backup(db)
 
     # Email notification to recipient in background
     asyncio.create_task(asyncio.to_thread(
@@ -3690,11 +3766,20 @@ async def transfer_tokens(
 
 @app.post("/api/user/transfers/ack", summary="Acknowledge received set transfer notifications")
 def ack_transfers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    db.query(SetTransfer).filter(
-        SetTransfer.recipient_id == current_user.id,
-        SetTransfer.is_read == False
-    ).update({"is_read": True})
-    db.commit()
+    try:
+        clean_email = current_user.email.strip().lower()
+        db.query(SetTransfer).filter(
+            or_(
+                SetTransfer.recipient_id == current_user.id,
+                func.lower(SetTransfer.recipient_email) == clean_email
+            ),
+            SetTransfer.is_read == False
+        ).update({"is_read": True}, synchronize_session=False)
+        db.commit()
+        sync_transfers_to_backup(db)
+    except Exception as e:
+        db.rollback()
+        print(f"Error acknowledging transfers: {e}")
     return {"status": "success"}
 
 # --- DIRECT THERMAL ZPL (ZEBRA PROGRAMMING LANGUAGE) EXPORT ---
