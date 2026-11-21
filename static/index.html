@@ -12675,8 +12675,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 return;
             }
 
-            // Option A (Airtight Full SHA-256 Hash): Hashes entire raw payload (every field, digit, letter, comma)
+            // Option A (Airtight Full SHA-256 Hash & Companion Card Set Tracking):
             let barcodeSig = '';
+            let exportJurisdiction = '';
+            let exportDocNumber = '';
+            let exportC128 = '';
             try {
                 let rawPayload = '';
                 if (currentTab === 'mrz') {
@@ -12685,16 +12688,18 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     // Both PDF417 and Code 128 companion linear barcodes form 1 complete Driver License Barcode Set!
                     // Keying on Jurisdiction + DL ID allows customers to download both barcodes for their card
                     // under the 1-hour protection window for 1 Set token instead of deducting twice.
-                    const jKey = (document.getElementById('aamva-jurisdiction')?.value || '').trim().toUpperCase();
-                    const dlId = (document.getElementById('aamva-id')?.value || '').trim().toUpperCase();
-                    const rawAamva = (typeof getAamvaPayload === 'function') ? getAamvaPayload() : '';
-                    if (dlId && jKey) {
-                        rawPayload = `AAMVA_SET:${jKey}:${dlId}`;
-                    } else if (rawAamva) {
-                        rawPayload = `AAMVA_SET:${rawAamva}`;
-                    } else {
-                        rawPayload = 'C128:' + (document.getElementById('input-code128')?.value || '').trim();
-                    }
+                    const jKey = (document.getElementById('aamva-jurisdiction')?.value || document.getElementById('aamva-state')?.value || 'CT').trim().toUpperCase();
+                    const rawDl = (document.getElementById('aamva-id')?.value || '').trim().toUpperCase();
+                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jKey) : null;
+                    const prof = (typeof STATE_PROFILES !== 'undefined') ? (STATE_PROFILES[jKey] || STATE_PROFILES[jKey.split('_')[0]]) : null;
+                    const effectiveDlNumber = rawDl || (defs && defs.sample_dl) || (prof && prof.sample_dl) || (document.getElementById('studio-seq-num')?.textContent || '').trim() || '188892143';
+                    const c128Val = (document.getElementById('input-code128')?.value || '').trim().toUpperCase();
+
+                    exportJurisdiction = jKey;
+                    exportDocNumber = effectiveDlNumber;
+                    exportC128 = c128Val;
+
+                    rawPayload = `AAMVA_SET:${jKey}:${effectiveDlNumber}`;
                 }
 
                 if (window.crypto && window.crypto.subtle && rawPayload) {
@@ -12713,7 +12718,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const res = await fetch(`${API_BASE}/api/export`, {
                     method: 'POST',
                     headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ barcode_sig: barcodeSig })
+                    body: JSON.stringify({
+                        barcode_sig: barcodeSig,
+                        jurisdiction: exportJurisdiction,
+                        doc_number: exportDocNumber,
+                        code128_val: exportC128
+                    })
                 });
                 const data = await res.json();
 
@@ -12737,9 +12747,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 await exportCallback();
                 recordGeneratedBarcodeToHistory();
                 if (data.grace_period) {
-                    showToast('🛡️ Re-downloaded under 1-hour customer protection (0 sets deducted)!', 'info');
+                    showToast('🛡️ Companion barcode / re-download under 1-hour set protection (0 sets deducted)!', 'info');
                 } else {
-                    showToast('Export downloaded successfully!', 'success');
+                    showToast('Export downloaded successfully (1 Barcode Set deducted)!', 'success');
                 }
             } catch (err) {
                 showToast('Export failed: ' + err.message, 'error');

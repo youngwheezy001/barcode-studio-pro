@@ -10,18 +10,18 @@
   },
   {
     "email": "joyannkarambu@gmail.com",
-    "hashed_password": "$2b$10$zJYTv.l6xF9vl1TOENQuVuEOOo.YLbAj/.zBlYjm9RuJbfRfKBLPO",
+    "hashed_password": "$2b$10$Wzo0WE6mfx5.k/uyyINy0eQxZCgtsjVdboqTsL8WpvDQGdX9PiCZq",
     "role": "user",
-    "tokens": 0,
+    "tokens": 5,
     "referral_code": null,
     "referred_by_id": null,
     "affiliate_balance": 0.0
   },
   {
     "email": "youngwheezy001@gmail.com",
-    "hashed_password": "$2b$10$PWssHLJSH6eo0mH57feAZ.7fFiivJXRMQ3RotEX44SVHGV2KJyoJy",
+    "hashed_password": "$2b$10$YZYvUtHubtVKIfPlAA0baus0W8t/MzfNe6athotTIRVi7FlJsl38a",
     "role": "user",
-    "tokens": 0,
+    "tokens": 1,
     "referral_code": null,
     "referred_by_id": null,
     "affiliate_balance": 0.0

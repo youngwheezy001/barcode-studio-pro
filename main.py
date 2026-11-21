@@ -50,11 +50,13 @@ if PERSISTENT_DIR and os.path.isdir(PERSISTENT_DIR):
     USERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "users_data.json"
     ORDERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "orders_data.json"
     TRANSFERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "transfers_data.json"
+    EXPORT_GRACE_CACHE_FILE = Path(PERSISTENT_DIR) / "export_grace_cache.json"
 else:
     DB_PATH = BASE_DIR / "barcodestudio.db"
     USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
     ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
     TRANSFERS_BACKUP_FILE = BASE_DIR / "transfers_data.json"
+    EXPORT_GRACE_CACHE_FILE = BASE_DIR / "export_grace_cache.json"
 
 def create_robust_engine():
     raw_url = (os.getenv("DATABASE_URL") or "").strip()
@@ -169,6 +171,28 @@ def restore_users_from_backup(db: Session):
     except Exception as e:
         print(f"Warning: Failed to restore users from backup: {e}")
         return 0
+
+def load_export_grace_cache() -> dict:
+    if not EXPORT_GRACE_CACHE_FILE.exists():
+        return {}
+    try:
+        with open(EXPORT_GRACE_CACHE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        now_ts = time.time()
+        # Retain grace entries within last 2 hours (7200s)
+        return {k: v for k, v in data.items() if (now_ts - v) < 7200}
+    except Exception as e:
+        print(f"Warning: Failed to load export grace cache: {e}")
+        return {}
+
+def save_export_grace_cache(cache: dict):
+    try:
+        now_ts = time.time()
+        cleaned = {k: v for k, v in cache.items() if (now_ts - v) < 7200}
+        with open(EXPORT_GRACE_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(cleaned, f)
+    except Exception as e:
+        print(f"Warning: Failed to save export grace cache: {e}")
 
 class User(Base):
     __tablename__ = "users"
@@ -682,32 +706,24 @@ def seed_admin_users():
         ).delete(synchronize_session=False)
         db.commit()
 
-        # 7. Customer balances strictly match real confirmed purchases + peer transfers
-        # and ensure requested password is set
+        # 7. Ensure requested credentials and accurate, persistent balances
         for email_check in ["joyannkarambu@gmail.com", "youngwheezy001@gmail.com"]:
             u = db.query(User).filter(func.lower(User.email) == email_check).first()
+            target_tokens = 1 if email_check == "youngwheezy001@gmail.com" else 5
             if u:
                 u.hashed_password = get_password_hash("Tustarcruzz@01")
-                paid_orders = db.query(CryptoPayment).filter(
-                    func.lower(CryptoPayment.user_email) == email_check,
-                    CryptoPayment.status.in_(["confirmed", "approved"])
-                ).all()
-                total_paid_tokens = sum(o.tokens for o in paid_orders)
-                transfers_in = db.query(func.coalesce(func.sum(SetTransfer.tokens), 0)).filter(
-                    or_(SetTransfer.recipient_id == u.id, func.lower(SetTransfer.recipient_email) == email_check)
-                ).scalar() or 0
-                transfers_out = db.query(func.coalesce(func.sum(SetTransfer.tokens), 0)).filter(
-                    or_(SetTransfer.sender_id == u.id, func.lower(SetTransfer.sender_email) == email_check)
-                ).scalar() or 0
-                legitimate_tokens = max(0, total_paid_tokens + transfers_in - transfers_out)
-                if u.tokens < legitimate_tokens:
-                    u.tokens = legitimate_tokens
+                # Fix: youngwheezy001 used 4 sets and has 1 set remaining (sync with client screenshot)
+                if email_check == "youngwheezy001@gmail.com":
+                    u.tokens = 1
+                elif email_check == "joyannkarambu@gmail.com":
+                    if u.tokens == 0:
+                        u.tokens = 5
             else:
                 new_u = User(
                     email=email_check,
                     hashed_password=get_password_hash("Tustarcruzz@01"),
                     role="user",
-                    tokens=0
+                    tokens=target_tokens
                 )
                 db.add(new_u)
 
@@ -1088,11 +1104,12 @@ def read_users_me(current_user: User = Depends(get_current_user), db: Session = 
         "unread_transfers": transfers_list
     }
 
-EXPORT_GRACE_CACHE: dict = {}
+EXPORT_GRACE_CACHE: dict = load_export_grace_cache()
 
 @app.post("/api/export", summary="Verify and deduct 1 token for an export")
 @limiter.limit("60/minute")
 async def deduct_token(request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    global EXPORT_GRACE_CACHE
     # Admins and Pro users enjoy unlimited exports
     if current_user.role in ["admin", "pro_user"] or current_user.email.strip().lower() in ADMIN_EMAILS:
         if current_user.tokens < 1000:
@@ -1104,41 +1121,60 @@ async def deduct_token(request: Request, current_user: User = Depends(get_curren
             "tokens_remaining": 999999
         }
 
-    # Free Re-Download Grace Window (1-Hour Customer Protection Window)
+    # Free Re-Download Grace Window (1-Hour Customer Protection Window for 2-in-1 Barcode Sets)
     barcode_sig = None
+    jurisdiction = None
+    doc_number = None
+    code128_val = None
     try:
         body = await request.json()
         if isinstance(body, dict):
             barcode_sig = body.get("barcode_sig")
+            jurisdiction = str(body.get("jurisdiction") or "").strip().upper()
+            doc_number = str(body.get("doc_number") or "").strip().upper()
+            code128_val = str(body.get("code128_val") or "").strip().upper()
     except Exception:
         pass
 
     now_ts = time.time()
+    candidate_keys = []
     if barcode_sig and str(barcode_sig).strip():
-        cache_key = f"{current_user.id}:{str(barcode_sig).strip().lower()}"
-        last_download = EXPORT_GRACE_CACHE.get(cache_key)
-        # If exported within last 1 hour (3600s), grant free re-download without deducting sets
+        candidate_keys.append(f"{current_user.id}:sig:{str(barcode_sig).strip().lower()}")
+    if jurisdiction and doc_number and doc_number != "NONE":
+        candidate_keys.append(f"{current_user.id}:doc:{jurisdiction}:{doc_number}")
+    if jurisdiction and code128_val and code128_val != "NONE":
+        candidate_keys.append(f"{current_user.id}:c128:{jurisdiction}:{code128_val}")
+
+    # Check if ANY matching key for this card set was exported within last 1 hour (3600s)
+    is_grace = False
+    for ck in candidate_keys:
+        last_download = EXPORT_GRACE_CACHE.get(ck)
         if last_download and (now_ts - last_download) < 3600:
-            return {
-                "status": "success",
-                "grace_period": True,
-                "message": "Free re-download authorized (1-hour customer protection window active, 0 sets deducted)",
-                "tokens_remaining": current_user.tokens
-            }
+            is_grace = True
+            break
+
+    if is_grace:
+        return {
+            "status": "success",
+            "grace_period": True,
+            "message": "Free companion / re-download authorized (1-hour customer protection window active, 0 sets deducted)",
+            "tokens_remaining": current_user.tokens
+        }
 
     if current_user.tokens <= 0:
         raise HTTPException(status_code=402, detail="Insufficient export tokens. Please purchase more tokens to continue.")
     
     current_user.tokens -= 1
-    if barcode_sig and str(barcode_sig).strip():
-        cache_key = f"{current_user.id}:{str(barcode_sig).strip().lower()}"
-        EXPORT_GRACE_CACHE[cache_key] = now_ts
-        if len(EXPORT_GRACE_CACHE) > 5000:
-            cutoff = now_ts - 7200
-            for k in list(EXPORT_GRACE_CACHE.keys()):
-                if EXPORT_GRACE_CACHE[k] < cutoff:
-                    del EXPORT_GRACE_CACHE[k]
+    for ck in candidate_keys:
+        EXPORT_GRACE_CACHE[ck] = now_ts
 
+    if len(EXPORT_GRACE_CACHE) > 5000:
+        cutoff = now_ts - 7200
+        for k in list(EXPORT_GRACE_CACHE.keys()):
+            if EXPORT_GRACE_CACHE[k] < cutoff:
+                del EXPORT_GRACE_CACHE[k]
+
+    save_export_grace_cache(EXPORT_GRACE_CACHE)
     db.commit()
     sync_users_to_backup(db)
     return {"status": "success", "tokens_remaining": current_user.tokens}
