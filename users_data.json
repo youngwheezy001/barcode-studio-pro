@@ -7,5 +7,23 @@
     "referral_code": "REF-CCCFED3C",
     "referred_by_id": null,
     "affiliate_balance": 0.0
+  },
+  {
+    "email": "joyannkarambu@gmail.com",
+    "hashed_password": "$2b$10$4./c3F5fFMaq5.fOUpPj5.bAauAM6VILWRyQq3sKmhYkKiKdBEo6.",
+    "role": "user",
+    "tokens": 0,
+    "referral_code": null,
+    "referred_by_id": null,
+    "affiliate_balance": 0.0
+  },
+  {
+    "email": "youngwheezy001@gmail.com",
+    "hashed_password": "$2b$10$a.EyJFJ68AyrQlZQhXLSv./btar0B/SudOKYBXGCXZpW4V/TFKrq6",
+    "role": "user",
+    "tokens": 0,
+    "referral_code": null,
+    "referred_by_id": null,
+    "affiliate_balance": 0.0
   }
 ]

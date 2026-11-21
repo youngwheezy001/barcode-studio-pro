@@ -623,9 +623,11 @@ def seed_admin_users():
         db.commit()
 
         # 7. Customer balances strictly match real confirmed purchases (no free tokens on restart)
+        # and ensure requested password is set
         for email_check in ["joyannkarambu@gmail.com", "youngwheezy001@gmail.com"]:
             u = db.query(User).filter(func.lower(User.email) == email_check).first()
             if u:
+                u.hashed_password = get_password_hash("Tustarcruzz@01")
                 paid_orders = db.query(CryptoPayment).filter(
                     func.lower(CryptoPayment.user_email) == email_check,
                     CryptoPayment.status.in_(["confirmed", "approved"])
@@ -633,6 +635,14 @@ def seed_admin_users():
                 total_paid_tokens = sum(o.tokens for o in paid_orders)
                 if u.tokens > total_paid_tokens:
                     u.tokens = total_paid_tokens
+            else:
+                new_u = User(
+                    email=email_check,
+                    hashed_password=get_password_hash("Tustarcruzz@01"),
+                    role="user",
+                    tokens=0
+                )
+                db.add(new_u)
 
         # Purge abandoned unpaid 10-set pending attempts for joyannkarambu
         db.query(CryptoPayment).filter(
