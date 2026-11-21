@@ -37,7 +37,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "AL_2022",
         "label": "Alabama (2022)",
-        "rev_header": "Rev. 26/04/2022 (0403)",
+        "rev_header": "Rev. 04/26/2022 (0403)",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -435,7 +435,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "HI",
         "label": "Hawaii",
-        "rev_header": "Rev. 11/12/2019)",
+        "rev_header": "Rev. 11/12/2019",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -596,7 +596,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "IA_2017",
         "label": "Iowa (2017)",
-        "rev_header": "Rev. 29/06/2017 (0900)",
+        "rev_header": "Rev. 06/29/2017 (0900)",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -625,7 +625,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "KS",
         "label": "Kansas",
-        "rev_header": "Rev. 02/24/2017)",
+        "rev_header": "Rev. 02/24/2017",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -646,15 +646,15 @@ const STATE_HIERARCHY = {
       }
     ]
   },
-  "Kentucy": {
+  "Kentucky": {
     "is_canada": false,
-    "parent_name": "Kentucy",
+    "parent_name": "Kentucky",
     "base_code": "KY",
     "revisions": [
       {
         "slug": "KY_2012",
-        "label": "Kentucy (2012)",
-        "rev_header": "Rev. 03/16/2012)",
+        "label": "Kentucky (2012)",
+        "rev_header": "Rev. 03/16/2012",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -675,7 +675,7 @@ const STATE_HIERARCHY = {
       },
       {
         "slug": "KY_2018",
-        "label": "Kentucy (2018)",
+        "label": "Kentucky (2018)",
         "rev_header": "Rev. 08/31/2018 (0900)",
         "scanners": [
           "Scandit",
@@ -765,7 +765,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "MD",
         "label": "Maryland (2016 & 2019)",
-        "rev_header": "Rev. 06/20/2016 & 08/26/2019)",
+        "rev_header": "Rev. 06/20/2016 & 08/26/2019",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -2304,7 +2304,7 @@ const STATE_HIERARCHY = {
       {
         "slug": "PE",
         "label": "Prince Edward Island",
-        "rev_header": "Rev. ???)",
+        "rev_header": "Rev. 06/01/2017",
         "scanners": [
           "Scandit",
           "Show-Me ID",
@@ -10917,6 +10917,29 @@ function runStateCalculation(field, stateSlug) {
 
     window.STATE_DEMOGRAPHIC_DEFAULTS = STATE_DEMOGRAPHIC_DEFAULTS;
     window.getStateDemographicDefaults = getStateDemographicDefaults;
+
+    function getStateRevisionDefaultDate(slug) {
+        if (!slug) return '02102017';
+        if (window.STATE_HIERARCHY) {
+            for (const [groupName, group] of Object.entries(window.STATE_HIERARCHY)) {
+                for (const rev of group.revisions) {
+                    if (rev.slug === slug || rev.slug === slug.toUpperCase()) {
+                        if (rev.rev_header) {
+                            const m = rev.rev_header.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+                            if (m) return `${m[1]}${m[2]}${m[3]}`;
+                            if (rev.rev_header.includes('2024')) return '01022024';
+                            if (rev.rev_header.includes('2021')) return '01012021';
+                            if (rev.rev_header.includes('2020')) return '02012020';
+                            if (rev.rev_header.includes('2016')) return '01012016';
+                            if (rev.rev_header.includes('2015-08-01')) return '08012015';
+                        }
+                    }
+                }
+            }
+        }
+        return '02102017';
+    }
+    window.getStateRevisionDefaultDate = getStateRevisionDefaultDate;
 
             
         window.QC_calculate_ICN = QC_calculate_ICN;

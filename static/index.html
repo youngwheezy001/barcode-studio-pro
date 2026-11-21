@@ -2113,7 +2113,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <div id="state-compliance-bar" class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/80 text-xs">
                         <div class="flex items-center gap-1.5 font-mono text-[11px] font-bold text-slate-800">
                             <span class="text-amber-500 text-xs">★</span>
-                            <span id="state-rev-badge">Rev. 26/04/2022 (0403)</span>
+                            <span id="state-rev-badge">Rev. 04/26/2022 (0403)</span>
                             <span id="aamva-resolved-badge" class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold">AAMVA Standard</span>
                         </div>
                         <div id="state-scanners-badges" class="flex items-center gap-1.5 flex-wrap">
@@ -7383,7 +7383,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (fields.dck && allowIcn) dlElements.push(`DCK${fields.dck}`);
             dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
             const revDateVal = (document.getElementById('aamva-revision-date')?.value || '').trim();
-            dlElements.push(`DDB${revDateVal || '02102017'}`);
+            const defaultDdb = (typeof getStateRevisionDefaultDate === 'function')
+                ? getStateRevisionDefaultDate(jKey)
+                : '02102017';
+            dlElements.push(`DDB${revDateVal || defaultDdb}`);
             dlElements.push(`DDK${fields.donor}`);
             if (fields.veteran === 'Yes') {
                 dlElements.push('DDL1');
@@ -7611,7 +7614,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (fields.dck && allowIcn) {
                 dlElementsXml += `    <element id="DCK" name="Inventory control number">${fields.dck}</element>\n`;
             }
-            const ddbVal = (document.getElementById('aamva-revision-date')?.value || '').trim() || '02102017';
+            const defaultDdb = (typeof getStateRevisionDefaultDate === 'function')
+                ? getStateRevisionDefaultDate(jKey)
+                : '02102017';
+            const ddbVal = (document.getElementById('aamva-revision-date')?.value || '').trim() || defaultDdb;
             dlElementsXml += `    <element id="DDA" name="Compliance Type">F</element>\n` +
                 `    <element id="DDB" name="Card Revision Date">${ddbVal}</element>\n`;
 
@@ -13219,7 +13225,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const dobRaw = document.getElementById('aamva-dob')?.value || '01011990';
             const issRaw = document.getElementById('aamva-issued')?.value || '01012024';
             const expRaw = document.getElementById('aamva-exp')?.value || '01012030';
-            const revRaw = (document.getElementById('aamva-revision-date')?.value || '02102017').trim();
+            const defaultDdb = (typeof getStateRevisionDefaultDate === 'function')
+                ? getStateRevisionDefaultDate(stateCode)
+                : '02102017';
+            const revRaw = (document.getElementById('aamva-revision-date')?.value || defaultDdb).trim();
             const street = (document.getElementById('aamva-street')?.value || '100 MAIN ST').trim().toUpperCase();
             const city = (document.getElementById('aamva-city')?.value || 'NEW BRITAIN').trim().toUpperCase();
             const state = (document.getElementById('aamva-state')?.value || stateCode).trim().toUpperCase();

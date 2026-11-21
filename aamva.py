@@ -1633,6 +1633,25 @@ for _st_code, _st_prof in STATE_AAMVA_PROFILES.items():
     _st_prof["sample_audit"] = _meta.get("sample_audit", "")
 
 
+STATE_DEFAULT_REV_DATES: Dict[str, str] = {
+    "AL": "11012014", "AL_2022": "04262022", "AK": "11012018", "AZ": "02102017", "AZ_2023": "02102017",
+    "AR": "03012018", "CA": "08292017", "CA_2024": "01022024", "CO_2015": "10302015", "CO_2022": "02282022",
+    "CT": "02102017", "DE": "08022017", "DC": "02102017", "FL": "03162017", "GA_2015": "07012015",
+    "GA_2019": "01022019", "HI": "11122019", "ID": "09052016", "ID_2023": "01312023", "IL": "09172015",
+    "IN": "07242018", "IA_2011": "07252011", "IA_2017": "06292017", "KS": "02242017", "KY_2012": "03162012",
+    "KY_2018": "08312018", "LA": "02102015", "ME": "01042019", "MD": "06202016", "MD_2021": "12052021",
+    "MA": "02222016", "MI": "01212011", "MI_2024": "01022024", "MN": "10232017", "MS": "02222016",
+    "MS_2023": "09152023", "MO_2012": "12102012", "MO_2020": "01272020", "MT": "10072015", "NE_2017": "02282017",
+    "NE_2021": "04052021", "NV_2008": "10102008", "NV_2021": "05242021", "NH": "06092016", "NH_2024": "08302024",
+    "NJ_2020": "01082020", "NM": "08232019", "NY_2017": "09282017", "NY_2022": "03072022", "NC": "10242014",
+    "ND": "01082014", "ND_2023": "03102023", "OH": "07012018", "OK": "01132020", "OR": "07092018",
+    "PA": "06072016", "PA_2022": "03252022", "RI": "01262016", "RI_2022": "03012022", "SC": "01012018",
+    "SD": "06292017", "TN": "12022011", "TX_2016": "05012016", "TX_2020": "02012020", "UT_2016": "01012016",
+    "UT_2021": "01012021", "VT": "10162018", "VA": "12102008", "WA": "11122019", "WA_2025": "02182025",
+    "WV": "06042019", "WI": "09012015", "WI_2023": "06012023", "WY": "11142018", "PE": "06012017", "QC": "08012015"
+}
+
+
 def resolve_state_identifiers(
     state_code: str,
     user_data: Dict[str, Any],
@@ -1989,7 +2008,9 @@ def generate_aamva_payload(
     if audit: dl_elements.append(f"DCJ{audit}")
     if dck: dl_elements.append(f"DCK{dck}")
     dl_elements.append("DDAF")
-    rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or "02102017").strip()
+    clean_jur = str(user_data.get("jurisdiction") or state_code).strip().upper()
+    fallback_rev = STATE_DEFAULT_REV_DATES.get(clean_jur) or STATE_DEFAULT_REV_DATES.get(clean_jur.split('_')[0]) or STATE_DEFAULT_REV_DATES.get(state) or "02102017"
+    rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or fallback_rev).strip()
     dl_elements.append(f"DDB{rev_date}")
     dl_elements.append(f"DDK{donor}")
     veteran = str(user_data.get("veteran", "No")).strip()
@@ -2185,7 +2206,9 @@ def generate_scanner_xml(
     if audit: dl_elements.append(f"DCJ{audit}")
     if dck: dl_elements.append(f"DCK{dck}")
     dl_elements.append("DDAF")
-    rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or "02102017").strip()
+    clean_jur = str(user_data.get("jurisdiction") or state_code).strip().upper()
+    fallback_rev = STATE_DEFAULT_REV_DATES.get(clean_jur) or STATE_DEFAULT_REV_DATES.get(clean_jur.split('_')[0]) or STATE_DEFAULT_REV_DATES.get(state) or "02102017"
+    rev_date = str(user_data.get("revision_date") or user_data.get("ddb") or user_data.get("card_revision_date") or fallback_rev).strip()
     dl_elements.append(f"DDB{rev_date}")
     dl_elements.append(f"DDK{donor}")
     veteran = str(user_data.get("veteran", "No")).strip()
@@ -2242,7 +2265,7 @@ def generate_scanner_xml(
         + (f"    <element id=\"DCJ\" name=\"{profile.get('audit_label', 'Audit Information')}\">{audit}</element>\n" if audit else "")
         + (f"    <element id=\"DCK\" name=\"{profile.get('icn_label', 'Inventory control number')}\">{dck}</element>\n" if dck else "") +
         "    <element id=\"DDA\" name=\"Compliance Type\">F</element>\n"
-        "    <element id=\"DDB\" name=\"Card Revision Date\">02102017</element>\n"
+        f"    <element id=\"DDB\" name=\"Card Revision Date\">{rev_date}</element>\n"
         + (f"    <element id=\"DDK\" name=\"Organ Donor\">{donor}</element>\n" if str(donor).strip() == "1" else "")
         + (f"    <element id=\"DDL\" name=\"Veteran\">1</element>\n" if veteran in ["Yes", "Y", "1"] else "") +
         "  </subfile>\n"
