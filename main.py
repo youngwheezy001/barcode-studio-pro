@@ -22,7 +22,7 @@ import zipfile
 import httpx
 import json
 import hashlib
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, func, inspect, text
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text, func, inspect, text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from jose import JWTError, jwt
 
