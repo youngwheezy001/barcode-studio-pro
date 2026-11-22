@@ -5091,6 +5091,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // Live Dynamic State Identifier Label & Hint Updater
         function updateStateDynamicLabels() {
             const jKey = document.getElementById('aamva-jurisdiction').value;
+            const jurKey = jKey;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
@@ -6126,6 +6127,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // Live DL Number Format Validation & Feedback
         function validateDlNumber() {
             const jKey = document.getElementById('aamva-jurisdiction').value;
+            const jurKey = jKey;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : (jKey ? jKey.split('_')[0].toUpperCase() : 'CT');
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
@@ -6547,6 +6549,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // --- INDIVIDUAL CALCULATORS 🧮 ---
         function calcField(field, isBatch = false) {
             const jKey = document.getElementById('aamva-jurisdiction').value;
+            const jurKey = jKey;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
@@ -7190,6 +7193,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (window.isClearingForm) return;
             if (typeof triggerAutoSave === 'function') triggerAutoSave();
             const jKey = document.getElementById('aamva-jurisdiction').value;
+            const jurKey = jKey;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : (jKey ? jKey.split('_')[0].toUpperCase() : 'CT');
             const baseState = baseCode;
@@ -7384,7 +7388,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             dlElements.push(`DDA${fields.realId === 'No' ? 'N' : 'F'}`);
             const revDateVal = (document.getElementById('aamva-revision-date')?.value || '').trim();
             const defaultDdb = (typeof getStateRevisionDefaultDate === 'function')
-                ? getStateRevisionDefaultDate(jKey)
+                ? getStateRevisionDefaultDate(jurKey)
                 : '02102017';
             dlElements.push(`DDB${revDateVal || defaultDdb}`);
             dlElements.push(`DDK${fields.donor}`);
@@ -7495,6 +7499,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const fmtDateIso = (d) => (d && d.length === 8) ? `${d.substring(4,8)}-${d.substring(0,2)}-${d.substring(2,4)}` : d;
             const sexMap = { '1': 'M', '2': 'F', '9': 'X' };
             const jurKey = (document.getElementById('aamva-jurisdiction') && document.getElementById('aamva-jurisdiction').value) || fields.state || '';
+            const jKey = jurKey;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
             const allowIcn = (typeof stateUsesIcn === "function") ? stateUsesIcn(jurKey) : (profile ? profile.usesIcn !== false : true);
 
@@ -7615,7 +7620,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 dlElementsXml += `    <element id="DCK" name="Inventory control number">${fields.dck}</element>\n`;
             }
             const defaultDdb = (typeof getStateRevisionDefaultDate === 'function')
-                ? getStateRevisionDefaultDate(jKey)
+                ? getStateRevisionDefaultDate(jurKey)
                 : '02102017';
             const ddbVal = (document.getElementById('aamva-revision-date')?.value || '').trim() || defaultDdb;
             dlElementsXml += `    <element id="DDA" name="Compliance Type">F</element>\n` +
