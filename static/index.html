@@ -339,6 +339,14 @@
                         </button>
                     </div>
                 </div>
+                <div id="auth-referral-group" class="hidden">
+                    <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Referral Code (Optional)</label>
+                    <div class="relative">
+                        <input type="text" id="auth-referral-code" placeholder="REF-XXXXXXXX" class="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-accent uppercase" oninput="this.value = this.value.toUpperCase()">
+                        <span id="auth-referral-status" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-emerald-600 hidden">✓ Linked</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Invited by a partner or friend? Enter their referral code above.</p>
+                </div>
                 <div class="flex justify-between items-center text-[11px] pt-0.5" id="auth-extra-links">
                     <span class="text-slate-400">Trouble signing in?</span>
                     <button type="button" onclick="openForgotPasswordModal()" class="text-accent hover:underline font-semibold cursor-pointer">Forgot Password?</button>
@@ -1014,8 +1022,8 @@
                         <div id="affiliate-balance-display" class="text-xl font-mono font-black text-emerald-700 mt-0.5">$0.00</div>
                     </div>
                     <button onclick="convertAffiliateToTokens()" class="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-1 px-2.5 rounded-lg shadow-sm transition flex items-center justify-center gap-1 cursor-pointer">
-                        <span>⚡ Convert to Tokens</span>
-                        <span class="text-[9px] opacity-80">($1.80/set)</span>
+                        <span>⚡ Redeem Barcode Sets</span>
+                        <span class="text-[9px] opacity-80">(From $2.50/set)</span>
                     </button>
                 </div>
             </div>
@@ -10345,6 +10353,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const submitBtn = document.getElementById('auth-submit-btn');
             const subtitle = document.getElementById('auth-subtitle');
             const adminKeyGroup = document.getElementById('auth-admin-key-group');
+            const refGroup = document.getElementById('auth-referral-group');
+            const refInput = document.getElementById('auth-referral-code');
+            const refStatus = document.getElementById('auth-referral-status');
 
             if (mode === 'login') {
                 tabLogin.className = 'font-bold text-sm text-accent border-b-2 border-accent pb-1';
@@ -10352,12 +10363,21 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 submitBtn.textContent = 'Sign In';
                 subtitle.textContent = 'Sign in to unlock exports and manage tokens.';
                 if (adminKeyGroup) adminKeyGroup.classList.add('hidden');
+                if (refGroup) refGroup.classList.add('hidden');
             } else {
                 tabReg.className = 'font-bold text-sm text-accent border-b-2 border-accent pb-1';
                 tabLogin.className = 'font-bold text-sm text-slate-500 hover:text-slate-800 border-b-2 border-transparent pb-1';
                 submitBtn.textContent = 'Create Account';
                 subtitle.textContent = 'Create an account to purchase barcode packages and export.';
                 if (adminKeyGroup) adminKeyGroup.classList.remove('hidden');
+                if (refGroup) {
+                    refGroup.classList.remove('hidden');
+                    const savedRef = localStorage.getItem('bsp_ref');
+                    if (savedRef && refInput && !refInput.value) {
+                        refInput.value = savedRef;
+                        if (refStatus) refStatus.classList.remove('hidden');
+                    }
+                }
             }
         }
 
@@ -11649,11 +11669,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         async function convertAffiliateToTokens() {
-            if (!currentAffiliateData || currentAffiliateData.affiliate_balance < 1.80) {
-                showToast('Minimum balance to convert into export tokens is $1.80 (1 token set).', 'warning');
+            if (!currentAffiliateData || currentAffiliateData.affiliate_balance < 2.50) {
+                showToast('Minimum balance to redeem Barcode Sets according to our pricing is $2.50 (1 Barcode Set).', 'warning');
                 return;
             }
-            if (!confirm(`Convert your affiliate balance of $${currentAffiliateData.affiliate_balance.toFixed(2)} into Barcode Export Sets at $1.80/set?`)) return;
+            if (!confirm(`Redeem your affiliate balance of $${currentAffiliateData.affiliate_balance.toFixed(2)} into Barcode Sets according to official package pricing?`)) return;
 
             try {
                 const res = await fetch(`${API_BASE}/api/user/affiliate/convert-to-tokens`, {
@@ -11794,8 +11814,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             try {
                 const payload = { email, password };
                 if (admin_key) payload.admin_key = admin_key;
-                const refCode = localStorage.getItem('bsp_ref');
-                if (refCode) payload.ref_code = refCode.trim();
+                const manualRef = (document.getElementById('auth-referral-code')?.value || '').trim();
+                const refCode = manualRef || localStorage.getItem('bsp_ref');
+                if (refCode) payload.ref_code = refCode.trim().toUpperCase();
 
                 const res = await fetch(`${API_BASE}/register`, {
                     method: 'POST',
@@ -11897,11 +11918,21 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             try {
+                const prevTokens = (currentUser && typeof currentUser.tokens === 'number') ? currentUser.tokens : null;
                 const res = await fetch(`${API_BASE}/users/me`, { headers: getAuthHeader() });
                 if (res.ok) {
                     currentUser = await res.json();
                     localStorage.setItem('bsp_cached_user', JSON.stringify(currentUser));
                     updateAuthUI();
+
+                    if (prevTokens !== null && currentUser.tokens > prevTokens) {
+                        const pill = document.getElementById('user-token-pill');
+                        if (pill) {
+                            pill.classList.add('ring-2', 'ring-emerald-400', 'scale-105');
+                            setTimeout(() => pill.classList.remove('ring-2', 'ring-emerald-400', 'scale-105'), 2200);
+                        }
+                    }
+
                     if (currentUser.unread_transfers && currentUser.unread_transfers.length > 0) {
                         let seenTransfers = [];
                         try {
@@ -11916,6 +11947,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                 if (!seenTransfers.includes(t.id)) seenTransfers.push(t.id);
                             });
                             try { localStorage.setItem('bsp_seen_transfers', JSON.stringify(seenTransfers)); } catch (e) {}
+                            showToast(`🎁 Received ${unshown[0].tokens} Barcode Set${unshown[0].tokens > 1 ? 's' : ''} from ${unshown[0].sender_email}!`, 'success');
                         }
 
                         // Immediately acknowledge transfers on backend so they are marked as read
@@ -11945,6 +11977,49 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 setTimeout(checkAuth, 3500);
             }
         }
+
+        // --- REAL-TIME LIVE SYNC ENGINE FOR PEER-TO-PEER TRANSFERS & BALANCES ---
+        let _liveSyncTimer = null;
+        let _isLiveSyncing = false;
+
+        async function liveSyncUserSession() {
+            if (_isLiveSyncing) return;
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            _isLiveSyncing = true;
+            try {
+                await checkAuth();
+                // If admin clients management modal is active, keep client table live-synced
+                const clientsModal = document.getElementById('admin-clients-modal');
+                if (clientsModal && !clientsModal.classList.contains('hidden') && typeof loadAdminClients === 'function') {
+                    await loadAdminClients();
+                }
+            } catch (err) {
+                // Quietly pass background polling glitches
+            } finally {
+                _isLiveSyncing = false;
+            }
+        }
+
+        function startLiveSync() {
+            if (_liveSyncTimer) clearInterval(_liveSyncTimer);
+            // Poll every 2500ms when active for near-instant reflection
+            _liveSyncTimer = setInterval(() => {
+                if (document.visibilityState !== 'hidden') {
+                    liveSyncUserSession();
+                }
+            }, 2500);
+        }
+
+        // Trigger immediate sync on window focus or visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                liveSyncUserSession();
+            }
+        });
+        window.addEventListener('focus', () => {
+            liveSyncUserSession();
+        });
 
         function updateAuthUI() {
             const roleBadge = document.getElementById('role-badge');
@@ -15541,6 +15616,13 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             const urlParams = new URLSearchParams(window.location.search);
             const viewParam = urlParams.get('view');
             const stateParam = urlParams.get('state');
+            const refParam = urlParams.get('ref');
+            if (refParam) {
+                try {
+                    const cleanRef = refParam.trim().toUpperCase();
+                    localStorage.setItem('bsp_ref', cleanRef);
+                } catch (e) {}
+            }
 
             if (viewParam === 'states' || window.location.hash === '#states' || window.location.hash === '#states-directory') {
                 switchWorkspace('states');
@@ -16812,6 +16894,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (typeof inspectAamvaCompliance === 'function') inspectAamvaCompliance();
                 if (typeof compileMrz === 'function') compileMrz();
                 if (typeof checkAuth === 'function') checkAuth();
+                if (typeof startLiveSync === 'function') startLiveSync();
                 if (typeof attachDatePasteSanitizers === 'function') attachDatePasteSanitizers();
 
                 // Auto-uppercase DMV text fields in real-time

@@ -50,12 +50,14 @@ if PERSISTENT_DIR and os.path.isdir(PERSISTENT_DIR):
     USERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "users_data.json"
     ORDERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "orders_data.json"
     TRANSFERS_BACKUP_FILE = Path(PERSISTENT_DIR) / "transfers_data.json"
+    COMMISSIONS_BACKUP_FILE = Path(PERSISTENT_DIR) / "commissions_data.json"
     EXPORT_GRACE_CACHE_FILE = Path(PERSISTENT_DIR) / "export_grace_cache.json"
 else:
     DB_PATH = BASE_DIR / "barcodestudio.db"
     USERS_BACKUP_FILE = BASE_DIR / "users_data.json"
     ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
     TRANSFERS_BACKUP_FILE = BASE_DIR / "transfers_data.json"
+    COMMISSIONS_BACKUP_FILE = BASE_DIR / "commissions_data.json"
     EXPORT_GRACE_CACHE_FILE = BASE_DIR / "export_grace_cache.json"
 
 def create_robust_engine():
@@ -166,6 +168,10 @@ def restore_users_from_backup(db: Session):
                     # Do not overwrite or inflate existing customer tokens on boot
                     if item.get("referral_code") and not existing.referral_code:
                         existing.referral_code = item.get("referral_code")
+                    if item.get("referred_by_id") and not existing.referred_by_id:
+                        existing.referred_by_id = item.get("referred_by_id")
+                    if item.get("affiliate_balance") is not None and not existing.affiliate_balance:
+                        existing.affiliate_balance = item.get("affiliate_balance")
         db.commit()
         return restored
     except Exception as e:
@@ -228,6 +234,7 @@ class AffiliateCommission(Base):
     order_type = Column(String, default="crypto")  # "stripe" or "crypto"
     order_amount_usd = Column(Float, nullable=False)
     commission_usd = Column(Float, nullable=False)
+    order_id = Column(Integer, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class CryptoPayment(Base):
@@ -305,6 +312,17 @@ def ensure_db_schema():
                             conn.rollback()
                         except Exception:
                             pass
+            if "affiliate_commissions" in inspector.get_table_names():
+                acols = [c['name'] for c in inspector.get_columns('affiliate_commissions')]
+                if 'order_id' not in acols:
+                    try:
+                        conn.execute(text("ALTER TABLE affiliate_commissions ADD COLUMN order_id INTEGER"))
+                        conn.commit()
+                    except Exception as e:
+                        try:
+                            conn.rollback()
+                        except Exception:
+                            pass
             # Reset legacy test accounts with artificial test balances (>10000 tokens)
             try:
                 conn.execute(text("UPDATE users SET tokens = 0 WHERE tokens >= 10000 AND lower(email) != 'mwangilewis205@gmail.com'"))
@@ -332,12 +350,20 @@ def derive_tokens_from_cents(cents: int) -> int:
     }
     return mapping.get(cents, max(1, cents // 180))
 
-def process_referral_commission(db: Session, buyer: User, order_type: str, amount_usd: float):
+def process_referral_commission(db: Session, buyer: User, order_type: str, amount_usd: float, order_id: Optional[int] = None):
     if not buyer.referred_by_id:
         return None
     referrer = db.query(User).filter(User.id == buyer.referred_by_id).first()
     if not referrer:
         return None
+    if order_id:
+        existing = db.query(AffiliateCommission).filter(
+            AffiliateCommission.referrer_id == referrer.id,
+            AffiliateCommission.referred_user_id == buyer.id,
+            AffiliateCommission.order_id == order_id
+        ).first()
+        if existing:
+            return existing
     commission = round(amount_usd * 0.15, 2)
     if commission <= 0:
         return None
@@ -348,9 +374,14 @@ def process_referral_commission(db: Session, buyer: User, order_type: str, amoun
         referred_email=buyer.email,
         order_type=order_type,
         order_amount_usd=amount_usd,
-        commission_usd=commission
+        commission_usd=commission,
+        order_id=order_id
     )
     db.add(comm_record)
+    db.commit()
+    db.refresh(referrer)
+    sync_users_to_backup(db)
+    sync_commissions_to_backup(db)
     return comm_record
 
 ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
@@ -482,6 +513,61 @@ def restore_transfers_from_backup(db: Session):
         return restored
     except Exception as e:
         print(f"Warning: Failed to restore transfers backup: {e}")
+        return 0
+
+def sync_commissions_to_backup(db: Session):
+    """Safely synchronizes all affiliate commissions to persistent JSON storage."""
+    try:
+        commissions = db.query(AffiliateCommission).all()
+        data = []
+        for c in commissions:
+            data.append({
+                "id": c.id,
+                "referrer_id": c.referrer_id,
+                "referred_user_id": c.referred_user_id,
+                "referred_email": c.referred_email,
+                "order_type": c.order_type,
+                "order_amount_usd": c.order_amount_usd,
+                "commission_usd": c.commission_usd,
+                "order_id": getattr(c, "order_id", None),
+                "created_at": c.created_at.isoformat() if c.created_at else None
+            })
+        with open(COMMISSIONS_BACKUP_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return len(data)
+    except Exception as e:
+        print(f"Warning: Failed to sync commissions backup: {e}")
+        return 0
+
+def restore_commissions_from_backup(db: Session):
+    """Restores affiliate commissions from backup if database is freshly initialized."""
+    if not COMMISSIONS_BACKUP_FILE.exists():
+        return 0
+    try:
+        with open(COMMISSIONS_BACKUP_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        restored = 0
+        for item in data:
+            existing = db.query(AffiliateCommission).filter(AffiliateCommission.id == item["id"]).first()
+            if not existing:
+                c_at = datetime.fromisoformat(item["created_at"]) if item.get("created_at") else datetime.utcnow()
+                c = AffiliateCommission(
+                    id=item["id"],
+                    referrer_id=item["referrer_id"],
+                    referred_user_id=item["referred_user_id"],
+                    referred_email=item["referred_email"],
+                    order_type=item.get("order_type", "crypto"),
+                    order_amount_usd=float(item.get("order_amount_usd", 0.0)),
+                    commission_usd=float(item.get("commission_usd", 0.0)),
+                    order_id=item.get("order_id"),
+                    created_at=c_at
+                )
+                db.add(c)
+                restored += 1
+        db.commit()
+        return restored
+    except Exception as e:
+        print(f"Warning: Failed to restore commissions backup: {e}")
         return 0
 
 TOKEN_PACKAGES = {
@@ -765,6 +851,7 @@ def init_db_schema_and_seeds():
             restore_users_from_backup(db)
             restore_orders_from_backup(db)
             restore_transfers_from_backup(db)
+            restore_commissions_from_backup(db)
         finally:
             db.close()
         print("[DB] Database schema, admin accounts, and data backups verified successfully.")
@@ -783,6 +870,7 @@ def init_db_schema_and_seeds():
                 restore_users_from_backup(db)
                 restore_orders_from_backup(db)
                 restore_transfers_from_backup(db)
+                restore_commissions_from_backup(db)
             finally:
                 db.close()
             print("[DB] SQLite fallback schema successfully created.")
@@ -950,9 +1038,11 @@ def on_startup():
         restore_users_from_backup(db)
         restore_orders_from_backup(db)
         restore_transfers_from_backup(db)
+        restore_commissions_from_backup(db)
         sync_users_to_backup(db)
         sync_orders_to_backup(db)
         sync_transfers_to_backup(db)
+        sync_commissions_to_backup(db)
     finally:
         db.close()
 
@@ -2738,6 +2828,7 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
     purchaser = db.query(User).filter(User.id == order.user_id).first()
     if purchaser:
         purchaser.tokens += order.tokens
+        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd), order_id=order.id)
 
     db.commit()
     sync_users_to_backup(db)
@@ -3211,18 +3302,57 @@ def get_affiliate_stats(request: Request, current_user: User = Depends(get_curre
         "commissions": comm_list
     }
 
-@app.post("/api/user/affiliate/convert-to-tokens", summary="Convert affiliate balance to export tokens")
+def calculate_sets_redemption(balance: float):
+    """
+    Calculates the maximum Barcode Sets a user can redeem based on official TOKEN_PACKAGES tiers.
+    Official package tiers (largest to smallest):
+      500 sets: $279.00 ($0.56/set)
+      200 sets: $159.00 ($0.80/set)
+      100 sets: $95.00  ($0.95/set)
+      50 sets:  $75.00  ($1.50/set)
+      20 sets:  $37.00  ($1.85/set)
+      10 sets:  $18.00  ($1.80/set)
+      5 sets:   $11.00  ($2.20/set)
+      1 set:    $2.50   ($2.50/set)
+    """
+    tiers = [
+        (500, 279.00),
+        (200, 159.00),
+        (100, 95.00),
+        (50, 75.00),
+        (20, 37.00),
+        (10, 18.00),
+        (5, 11.00),
+        (1, 2.50)
+    ]
+    rem = round(balance, 2)
+    total_sets = 0
+    total_cost = 0.0
+    
+    for sets, price in tiers:
+        while rem >= price - 0.001:
+            total_sets += sets
+            total_cost += price
+            rem = round(rem - price, 2)
+            
+    return total_sets, round(total_cost, 2), round(rem, 2)
+
+@app.post("/api/user/affiliate/convert-to-tokens", summary="Convert affiliate balance to export tokens based on official pricing")
 def convert_affiliate_to_tokens(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    bal = float(current_user.affiliate_balance or 0.0)
-    token_rate = 1.80  # $1.80 per export set
-    if bal < token_rate:
+    bal = round(float(current_user.affiliate_balance or 0.0), 2)
+    min_rate = 2.50  # $2.50 per 1 Barcode Set (Starter tier)
+    if bal < min_rate:
         raise HTTPException(
             status_code=400,
-            detail=f"Minimum affiliate balance for conversion is ${token_rate:.2f} (1 export token). Current balance: ${bal:.2f}"
+            detail=f"Minimum affiliate balance to redeem sets according to our pricing is ${min_rate:.2f} (1 Barcode Set). Current balance: ${bal:.2f}"
         )
-    tokens_to_add = int(bal // token_rate)
-    cost = round(tokens_to_add * token_rate, 2)
-    current_user.affiliate_balance = round(bal - cost, 2)
+    tokens_to_add, cost, rem_bal = calculate_sets_redemption(bal)
+    if tokens_to_add <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Minimum affiliate balance to redeem sets according to our pricing is ${min_rate:.2f} (1 Barcode Set). Current balance: ${bal:.2f}"
+        )
+    current_user.affiliate_balance = rem_bal
     current_user.tokens += tokens_to_add
     db.commit()
     db.refresh(current_user)
@@ -3230,7 +3360,7 @@ def convert_affiliate_to_tokens(current_user: User = Depends(get_current_user), 
     
     return {
         "status": "success",
-        "message": f"Successfully converted ${cost:.2f} affiliate earnings into {tokens_to_add} export sets!",
+        "message": f"Successfully converted ${cost:.2f} affiliate earnings into {tokens_to_add} Barcode Set{'s' if tokens_to_add > 1 else ''}!",
         "tokens_added": tokens_to_add,
         "new_token_balance": current_user.tokens,
         "remaining_affiliate_balance": current_user.affiliate_balance
