@@ -46,12 +46,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <!-- Preload core card background templates for instant switching -->
-    <link rel="preload" as="image" href="card_templates/washington_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/california_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/texas_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/new_york_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/florida_back.webp" type="image/webp">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- JsBarcode for 1D barcodes (Code 128) -->
@@ -59,18 +53,15 @@
     <!-- bwip-js for 2D barcodes (PDF417 & QR Code) -->
     <script src="https://cdn.jsdelivr.net/npm/bwip-js@3.0.4/dist/bwip-js-min.js"></script>
     <!-- jsPDF for direct PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- JSZip for production print packs and batch bundles -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>if (!window.JSZip) document.write('<script src="/static/jszip.min.js"><\/script>');</script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- html2canvas for instant 1:1 physical CR80 card capture -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script>if (!window.html2canvas) document.write('<script src="/static/html2canvas.min.js"><\/script>');</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- ZXing for universal in-browser PDF417, Code 128, and QR camera/image barcode scanning -->
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
-    <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
     <!-- Certified Multi-Revision State & Calculator Engine -->
-    <script src="state_engine.js?v=2.2"></script>
+    <script src="state_engine.js?v=2.3"></script>
     <script>if (!window.STATE_HIERARCHY) document.write('<script src="/static/state_engine.js?v=2.2"><\/script>');</script>
     <script>
         // Register Service Worker for fast repeat loads (caches static assets & CDN libs)

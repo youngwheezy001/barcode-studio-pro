@@ -12360,35 +12360,9 @@ function QC_calculate_ICN() {
 
     
     function preloadCardTemplates() {
-        if (typeof window === 'undefined' || typeof Image === 'undefined') return;
-        const urls = [];
-        for (const key in JURISDICTION_TEMPLATE_MAP) {
-            const backUrl = JURISDICTION_TEMPLATE_MAP[key];
-            if (backUrl) {
-                urls.push(backUrl);
-                urls.push(backUrl.replace('_back.webp', '_front.webp'));
-            }
-        }
-        urls.forEach(function(url) {
-            if (!_templateCache.has(url)) {
-                try {
-                    const img = new Image();
-                    img.src = url;
-                    if (typeof img.decode === 'function') {
-                        img.decode().catch(function() {});
-                    }
-                    _templateCache.set(url, img);
-                } catch(e) {}
-            }
-        });
-    }
-
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', preloadCardTemplates);
-        } else {
-            preloadCardTemplates();
-        }
+        // High-performance on-demand caching: Card templates are cached on-demand by getJurisdictionCardTemplate()
+        // when a user selects a state, avoiding loading 100+ images (15+ MB) simultaneously on page load.
+        return;
     }
 
     window.preloadCardTemplates = preloadCardTemplates;

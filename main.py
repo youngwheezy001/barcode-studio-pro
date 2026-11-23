@@ -965,10 +965,23 @@ async def add_security_headers(request: Request, call_next):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
-    elif any(request.url.path.endswith(ext) for ext in [".js", ".css", ".png", ".svg", ".jpg", ".ico", ".woff2"]):
+    elif any(request.url.path.endswith(ext) for ext in [".js", ".css", ".png", ".svg", ".jpg", ".ico", ".woff2", ".webp", ".json", ".mp4"]):
         if "Cache-Control" not in response.headers:
             response.headers["Cache-Control"] = "public, max-age=86400"
     return response
+
+async def render_keepalive_worker():
+    """Keeps the Render web service warm and awake by pinging its own /ping endpoint periodically."""
+    await asyncio.sleep(120)  # Wait 2 minutes after startup
+    site_url = os.getenv("RENDER_EXTERNAL_URL") or "https://barcode-studio-pro.onrender.com"
+    ping_url = f"{site_url.rstrip('/')}/ping"
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.get(ping_url)
+        except Exception:
+            pass
+        await asyncio.sleep(600)  # Ping every 10 minutes to prevent Render's 15-minute idle spin-down
 
 @app.on_event("startup")
 async def on_app_startup():
@@ -984,6 +997,11 @@ async def on_app_startup():
         print("[SERVER] Autonomous Binance & Blockchain payment listener worker started.")
     except Exception as exc:
         print(f"[SERVER NOTICE] Could not start background payment poller: {exc}")
+    try:
+        asyncio.create_task(render_keepalive_worker())
+        print("[SERVER] Render keepalive warm worker started.")
+    except Exception as exc:
+        print(f"[SERVER NOTICE] Could not start keepalive worker: {exc}")
 
 # ============================================================
 # Core Health Checks & Cloud Deploy Readiness Probes (Render, K8s, Docker)
