@@ -1911,18 +1911,9 @@ async def send_sale_notification(order: CryptoPayment):
     - WHATSAPP_WEBHOOK_URL: Dispatches payload to custom WhatsApp Gateway / Zapier / Make
     """
     try:
-        def _get_fallback_tg_token() -> str:
-            try:
-                import base64
-                p1 = base64.b64decode("OTA3OTgxMjY3Nw==").decode("ascii")
-                p2 = base64.b64decode("QUFHQUI5UkF4STFKeTFYV1RRME1Db2d2VHpMSkZNLVJwbjQ=").decode("ascii")
-                return f"{p1}:{p2}"
-            except Exception:
-                return ""
-
-        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or _get_fallback_tg_token()).strip()
-        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "7652114454").strip()
-        wa_phone = (os.getenv("WHATSAPP_PHONE") or os.getenv("WHATSAPP_ALERT_PHONE") or "18606626632").strip().replace("+", "").replace(" ", "").replace("-", "")
+        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
+        wa_phone = (os.getenv("WHATSAPP_PHONE") or os.getenv("WHATSAPP_ALERT_PHONE") or "").strip().replace("+", "").replace(" ", "").replace("-", "")
         wa_apikey = (os.getenv("WHATSAPP_APIKEY") or "").strip()
         wa_webhook = (os.getenv("WHATSAPP_WEBHOOK_URL") or os.getenv("SALE_ALERT_WEBHOOK_URL") or "").strip()
 
@@ -3843,17 +3834,8 @@ def dispatch_sets_transferred_email(to_email: str, from_email: str, tokens: int,
 async def send_transfer_notification(sender_email: str, recipient_email: str, tokens: int, note: str = ""):
     """Dispatches instant Telegram alert to admin for peer-to-peer transfers."""
     try:
-        def _get_fallback_tg_token() -> str:
-            try:
-                import base64
-                p1 = base64.b64decode("OTA3OTgxMjY3Nw==").decode("ascii")
-                p2 = base64.b64decode("QUFHQUI5UkF4STFKeTFYV1RRME1Db2d2VHpMSkZNLVJwbjQ=").decode("ascii")
-                return f"{p1}:{p2}"
-            except Exception:
-                return ""
-
-        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or _get_fallback_tg_token()).strip()
-        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "7652114454").strip()
+        tg_token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+        tg_chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
         if tg_token and tg_chat_id:
             msg_text = (
                 f"🎁 <b>PEER-TO-PEER SET TRANSFER!</b>\n\n"
