@@ -792,18 +792,13 @@ def seed_admin_users():
         ).delete(synchronize_session=False)
         db.commit()
 
-        # 7. Ensure requested credentials and accurate, persistent balances
+        # 7. Ensure requested credentials for seed users without altering their live balances
         for email_check in ["joyannkarambu@gmail.com", "youngwheezy001@gmail.com"]:
             u = db.query(User).filter(func.lower(User.email) == email_check).first()
             target_tokens = 1 if email_check == "youngwheezy001@gmail.com" else 5
             if u:
-                u.hashed_password = get_password_hash("Tustarcruzz@01")
-                # Fix: youngwheezy001 used 4 sets and has 1 set remaining (sync with client screenshot)
-                if email_check == "youngwheezy001@gmail.com":
-                    u.tokens = 1
-                elif email_check == "joyannkarambu@gmail.com":
-                    if u.tokens == 0:
-                        u.tokens = 5
+                # Existing real client: NEVER alter their live purchased/accumulated token balance
+                pass
             else:
                 new_u = User(
                     email=email_check,
@@ -1602,33 +1597,55 @@ def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current
 
     # Calculate micro-cent identifier tag within 30-minute window
     recent_cutoff = datetime.utcnow() - timedelta(minutes=30)
-    pending_count = db.query(CryptoPayment).filter(
+    existing_order = db.query(CryptoPayment).filter(
+        CryptoPayment.user_id == current_user.id,
         CryptoPayment.package_id == req.package_id,
         CryptoPayment.status == "pending",
         CryptoPayment.created_at >= recent_cutoff
-    ).count()
+    ).order_by(CryptoPayment.created_at.desc()).first()
 
-    cent_offset = round(((pending_count % 20) + 1) * 0.01, 2)
-    final_amount = round(pkg["amount_usd"] + cent_offset, 2)
+    if existing_order:
+        existing_order.crypto_currency = req.crypto_currency
+        existing_order.network = cfg["network"]
+        existing_order.wallet_address = cfg["wallet"]
+        db.commit()
+        db.refresh(existing_order)
+        order = existing_order
+        cent_offset = round(order.amount_usd - pkg["amount_usd"], 2)
+        if cent_offset <= 0:
+            cent_offset = 0.01
+            order.amount_usd = round(pkg["amount_usd"] + cent_offset, 2)
+            db.commit()
+            db.refresh(order)
+        final_amount = order.amount_usd
+    else:
+        pending_count = db.query(CryptoPayment).filter(
+            CryptoPayment.package_id == req.package_id,
+            CryptoPayment.status == "pending",
+            CryptoPayment.created_at >= recent_cutoff
+        ).count()
 
-    order = CryptoPayment(
-        user_id=current_user.id,
-        user_email=current_user.email,
-        package_id=req.package_id,
-        tokens=pkg["tokens"],
-        amount_usd=final_amount,
-        crypto_currency=req.crypto_currency,
-        network=cfg["network"],
-        wallet_address=cfg["wallet"],
-        status="pending"
-    )
-    db.add(order)
-    db.commit()
-    db.refresh(order)
-    order.invoice_number = f"INV-{datetime.utcnow().year}-{order.id:05d}"
-    db.commit()
-    db.refresh(order)
-    sync_orders_to_backup(db)
+        cent_offset = round(((pending_count % 20) + 1) * 0.01, 2)
+        final_amount = round(pkg["amount_usd"] + cent_offset, 2)
+
+        order = CryptoPayment(
+            user_id=current_user.id,
+            user_email=current_user.email,
+            package_id=req.package_id,
+            tokens=pkg["tokens"],
+            amount_usd=final_amount,
+            crypto_currency=req.crypto_currency,
+            network=cfg["network"],
+            wallet_address=cfg["wallet"],
+            status="pending"
+        )
+        db.add(order)
+        db.commit()
+        db.refresh(order)
+        order.invoice_number = f"INV-{datetime.utcnow().year}-{order.id:05d}"
+        db.commit()
+        db.refresh(order)
+        sync_orders_to_backup(db)
 
     return {
         "status": "success",

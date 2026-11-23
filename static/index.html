@@ -1832,8 +1832,7 @@
 
             <!-- Video Player Area -->
             <div class="relative bg-black flex items-center justify-center aspect-video w-full overflow-hidden">
-                <video id="tutorial-video-player" class="w-full h-full object-contain" controls preload="metadata" playsinline>
-                    <source src="/static/tutorial.mp4" type="video/mp4">
+                <video id="tutorial-video-player" class="w-full h-full object-contain" controls preload="none" playsinline data-src="/static/tutorial.mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
@@ -10497,6 +10496,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         const ALL_PACKAGE_TIERS = ['xxs_1', 'xs_5', 's_10', 'm_20', 'l_50', 'xl_100', 'xxl_200', 'xxxl_500'];
 
+        let packageCentOffsets = {};
+
+        function roundToTwo(num) {
+            return Math.round((num + Number.EPSILON) * 100) / 100;
+        }
+
         function selectPackage(packageId, tokens, price) {
             selectedPackage = {
                 id: packageId,
@@ -10505,7 +10510,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 price: price,
                 amount_cents: Math.round(price * 100)
             };
-            currentCryptoOrder = null;
+            if (currentCryptoOrder && currentCryptoOrder.package_id !== packageId) {
+                currentCryptoOrder = null;
+            }
 
             ALL_PACKAGE_TIERS.forEach(id => {
                 const el = document.getElementById(`pkg-${id}`);
@@ -10524,6 +10531,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (summaryEl) summaryEl.textContent = `${tokens} Barcode Set${tokens > 1 ? 's' : ''} (PDF417 + Code 128) for $${price.toFixed(2)}`;
 
             updateCryptoUI();
+            if (currentUser) {
+                initOrRefreshCryptoOrder();
+            }
         }
 
         function switchPayTab(tab) {
@@ -10617,7 +10627,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         function selectCrypto(coinKey) {
             currentCryptoCoin = coinKey;
-            currentCryptoOrder = null;
+            if (currentCryptoOrder) {
+                currentCryptoOrder.crypto_currency = coinKey;
+            }
 
             ['USDT_TRC20', 'USDT_POLYGON', 'USDT_ERC20', 'USDT_SOL', 'BTC', 'ETH', 'SOL', 'BNB_BSC'].forEach(key => {
                 const btn = document.getElementById(`coin-btn-${key}`);
@@ -10629,9 +10641,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             });
 
-            // Update UI immediately and refresh real-time rates
+            // Instantaneous local UI update in 0ms!
             updateCryptoUI();
-            fetchLiveCryptoRates().then(updateCryptoUI);
+            if (currentUser) {
+                initOrRefreshCryptoOrder();
+            }
         }
 
         let cryptoPollInterval = null;
@@ -10679,29 +10693,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             try {
                 const order = await ensureCryptoOrder();
                 if (!order) return;
-
-                const cfg = cryptoConfigs[currentCryptoCoin] || cryptoConfigs['USDT_TRC20'];
-                const amountEl = document.getElementById('crypto-amount-display');
-                const centTagNote = document.getElementById('crypto-cent-tag-note');
-
-                if (amountEl) {
-                    const sym = cfg ? cfg.symbol : 'USDT';
-                    const formatted = formatCryptoRateAmount(order.amount_usd, sym);
-                    if (sym === 'USDT') {
-                        amountEl.innerHTML = `<span class="font-extrabold text-slate-900">${formatted.primary}</span>`;
-                    } else {
-                        amountEl.innerHTML = `<span class="font-extrabold text-slate-900 text-lg sm:text-xl font-mono text-indigo-950">${formatted.primary}</span> <span class="text-xs text-slate-500 font-semibold ml-1.5 whitespace-nowrap">(≈ $${order.amount_usd.toFixed(2)} USD)</span>`;
-                    }
-                }
-                if (centTagNote) {
-                    if (order.cent_offset && order.cent_offset > 0) {
-                        centTagNote.textContent = `Auto-detect tag: +${Math.round(order.cent_offset * 100)}¢`;
-                        centTagNote.classList.remove('hidden');
-                    } else {
-                        centTagNote.classList.add('hidden');
-                    }
-                }
-
+                packageCentOffsets[order.package_id] = order.cent_offset;
+                updateCryptoUI();
                 startCryptoCountdown(order.expires_in_seconds || 1800);
                 startCryptoAutoPoll(order.order_id);
             } catch (err) {
@@ -10837,20 +10830,44 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const labelEl = document.getElementById('crypto-network-label');
             if (labelEl) labelEl.textContent = cfg.network;
 
+            // Determine instantaneous micro-cent offset
+            let activeOffset = 0.01;
+            if (currentCryptoOrder && currentCryptoOrder.package_id === selectedPackage.id && currentCryptoOrder.cent_offset) {
+                activeOffset = currentCryptoOrder.cent_offset;
+            } else if (packageCentOffsets[selectedPackage.id]) {
+                activeOffset = packageCentOffsets[selectedPackage.id];
+            } else {
+                activeOffset = 0.01;
+            }
+            packageCentOffsets[selectedPackage.id] = activeOffset;
+
+            const activeUsd = (currentCryptoOrder && currentCryptoOrder.package_id === selectedPackage.id)
+                ? currentCryptoOrder.amount_usd
+                : roundToTwo(selectedPackage.price + activeOffset);
+
             const amountEl = document.getElementById('crypto-amount-display');
             if (amountEl) {
-                const usd = currentCryptoOrder ? currentCryptoOrder.amount_usd : selectedPackage.price;
-                const formatted = formatCryptoRateAmount(usd, cfg.symbol);
+                const formatted = formatCryptoRateAmount(activeUsd, cfg.symbol);
                 if (cfg.symbol === 'USDT') {
                     amountEl.innerHTML = `<span class="font-extrabold text-slate-900">${formatted.primary}</span>`;
                 } else {
-                    amountEl.innerHTML = `<span class="font-extrabold text-slate-900 text-lg sm:text-xl font-mono text-indigo-950">${formatted.primary}</span> <span class="text-xs text-slate-500 font-semibold ml-1.5 whitespace-nowrap">(≈ $${usd.toFixed(2)} USD)</span>`;
+                    amountEl.innerHTML = `<span class="font-extrabold text-slate-900 text-lg sm:text-xl font-mono text-indigo-950">${formatted.primary}</span> <span class="text-xs text-slate-500 font-semibold ml-1.5 whitespace-nowrap">(≈ $${activeUsd.toFixed(2)} USD)</span>`;
+                }
+            }
+
+            const centTagNote = document.getElementById('crypto-cent-tag-note');
+            if (centTagNote) {
+                if (activeOffset > 0) {
+                    centTagNote.textContent = `Auto-detect tag: +${Math.round(activeOffset * 100)}¢`;
+                    centTagNote.classList.remove('hidden');
+                } else {
+                    centTagNote.classList.add('hidden');
                 }
             }
 
             const equivEl = document.getElementById('crypto-equiv-display');
             if (equivEl) {
-                const p = currentCryptoOrder ? currentCryptoOrder.amount_usd : selectedPackage.price;
+                const p = activeUsd;
                 const btcRate = liveCryptoRates['BTC'] || 61765;
                 const ethRate = liveCryptoRates['ETH'] || 1730;
                 const solRate = liveCryptoRates['SOL'] || 72;
@@ -16740,6 +16757,9 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             if (!modal) return;
             modal.classList.remove('hidden');
             if (player) {
+                if (!player.src && !player.currentSrc) {
+                    player.src = player.getAttribute('data-src') || '/static/tutorial.mp4';
+                }
                 if (autoplay) {
                     player.currentTime = 0;
                     player.play().catch(() => { /* Autoplay restriction handled gracefully */ });
