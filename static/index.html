@@ -10533,8 +10533,75 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             updateCryptoUI();
         }
 
+        // --- REAL-TIME CRYPTOCURRENCY EXCHANGE RATES ENGINE ---
+        let liveCryptoRates = {
+            BTC: 61765.0,
+            ETH: 1730.0,
+            SOL: 72.0,
+            BNB: 560.0,
+            USDT: 1.0,
+            lastFetched: 0
+        };
+
+        async function fetchLiveCryptoRates() {
+            const now = Date.now();
+            if (now - liveCryptoRates.lastFetched < 45000) return liveCryptoRates;
+
+            // 1. Fetch from server rates endpoint (instant, avoids CORS/adblock restrictions)
+            try {
+                const res = await fetch(`${API_BASE}/api/crypto/rates`);
+                if (res.ok) {
+                    const data = await res.json();
+                    Object.assign(liveCryptoRates, data);
+                    liveCryptoRates.lastFetched = now;
+                    return liveCryptoRates;
+                }
+            } catch (e) {}
+
+            // 2. Direct fallback to Binance public ticker API
+            try {
+                const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22,%22SOLUSDT%22,%22BNBUSDT%22%5D');
+                if (res.ok) {
+                    const data = await res.json();
+                    data.forEach(item => {
+                        const sym = item.symbol.replace('USDT', '');
+                        if (sym && item.price) liveCryptoRates[sym] = parseFloat(item.price);
+                    });
+                    liveCryptoRates.lastFetched = now;
+                    return liveCryptoRates;
+                }
+            } catch (e) {}
+
+            return liveCryptoRates;
+        }
+
+        function formatCryptoRateAmount(usdAmount, sym) {
+            if (sym === 'USDT') {
+                return {
+                    primary: `$${usdAmount.toFixed(2)} USDT`,
+                    rawQty: usdAmount.toFixed(2),
+                    usdSubtext: `1:1 USD Stablecoin`
+                };
+            }
+            const rate = (liveCryptoRates && liveCryptoRates[sym]) ? liveCryptoRates[sym] : 1;
+            const cryptoQty = usdAmount / rate;
+            let decimals = 4;
+            if (sym === 'BTC') decimals = 6;
+            else if (sym === 'ETH') decimals = 5;
+            else if (sym === 'BNB') decimals = 5;
+            else if (sym === 'SOL') decimals = 4;
+
+            const rateFormatted = rate.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            return {
+                primary: `${cryptoQty.toFixed(decimals)} ${sym}`,
+                rawQty: cryptoQty.toFixed(decimals),
+                usdSubtext: `≈ $${usdAmount.toFixed(2)} USD • Rate: 1 ${sym} ≈ $${rateFormatted}`
+            };
+        }
+
         async function loadCryptoConfig() {
             try {
+                fetchLiveCryptoRates().then(updateCryptoUI);
                 const res = await fetch(`${API_BASE}/api/crypto/config`);
                 if (res.ok) {
                     const data = await res.json();
@@ -10562,7 +10629,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             });
 
+            // Update UI immediately and refresh real-time rates
             updateCryptoUI();
+            fetchLiveCryptoRates().then(updateCryptoUI);
         }
 
         let cryptoPollInterval = null;
@@ -10617,7 +10686,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 if (amountEl) {
                     const sym = cfg ? cfg.symbol : 'USDT';
-                    amountEl.textContent = `$${order.amount_usd.toFixed(2)} ${sym}`;
+                    const formatted = formatCryptoRateAmount(order.amount_usd, sym);
+                    if (sym === 'USDT') {
+                        amountEl.innerHTML = `<span class="font-extrabold text-slate-900">${formatted.primary}</span>`;
+                    } else {
+                        amountEl.innerHTML = `<span class="font-extrabold text-slate-900 text-lg sm:text-xl font-mono text-indigo-950">${formatted.primary}</span> <span class="text-xs text-slate-500 font-semibold ml-1.5 whitespace-nowrap">(≈ $${order.amount_usd.toFixed(2)} USD)</span>`;
+                    }
                 }
                 if (centTagNote) {
                     if (order.cent_offset && order.cent_offset > 0) {
@@ -10765,21 +10839,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             const amountEl = document.getElementById('crypto-amount-display');
             if (amountEl) {
+                const usd = currentCryptoOrder ? currentCryptoOrder.amount_usd : selectedPackage.price;
+                const formatted = formatCryptoRateAmount(usd, cfg.symbol);
                 if (cfg.symbol === 'USDT') {
-                    amountEl.textContent = `$${selectedPackage.price.toFixed(2)} USDT`;
+                    amountEl.innerHTML = `<span class="font-extrabold text-slate-900">${formatted.primary}</span>`;
                 } else {
-                    amountEl.textContent = `$${selectedPackage.price.toFixed(2)} USD (${cfg.symbol})`;
+                    amountEl.innerHTML = `<span class="font-extrabold text-slate-900 text-lg sm:text-xl font-mono text-indigo-950">${formatted.primary}</span> <span class="text-xs text-slate-500 font-semibold ml-1.5 whitespace-nowrap">(≈ $${usd.toFixed(2)} USD)</span>`;
                 }
             }
 
             const equivEl = document.getElementById('crypto-equiv-display');
             if (equivEl) {
-                const p = selectedPackage.price;
+                const p = currentCryptoOrder ? currentCryptoOrder.amount_usd : selectedPackage.price;
+                const btcRate = liveCryptoRates['BTC'] || 61765;
+                const ethRate = liveCryptoRates['ETH'] || 1730;
+                const solRate = liveCryptoRates['SOL'] || 72;
+                const bnbRate = liveCryptoRates['BNB'] || 560;
+
                 const usdt = p.toFixed(2);
-                const sol = (p / 195).toFixed(3);
-                const btc = (p / 92000).toFixed(5);
-                const eth = (p / 2950).toFixed(4);
-                equivEl.innerHTML = `<span>≈ ${usdt} USDT</span><span>&bull;</span><span>~${sol} SOL</span><span>&bull;</span><span>~${btc} BTC</span><span>&bull;</span><span>~${eth} ETH</span>`;
+                const sol = (p / solRate).toFixed(3);
+                const btc = (p / btcRate).toFixed(5);
+                const eth = (p / ethRate).toFixed(4);
+                const bnb = (p / bnbRate).toFixed(4);
+                equivEl.innerHTML = `<span>≈ ${usdt} USDT</span><span>&bull;</span><span>~${sol} SOL</span><span>&bull;</span><span>~${btc} BTC</span><span>&bull;</span><span>~${eth} ETH</span><span>&bull;</span><span>~${bnb} BNB</span>`;
             }
 
             const addrEl = document.getElementById('crypto-wallet-address');

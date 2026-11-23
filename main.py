@@ -1564,6 +1564,31 @@ def get_crypto_config():
         "currencies": CRYPTO_CONFIGS
     }
 
+_cached_crypto_rates = {
+    "rates": {"BTC": 61765.0, "ETH": 1730.0, "SOL": 72.0, "BNB": 560.0, "USDT": 1.0},
+    "timestamp": 0
+}
+
+@app.get("/api/crypto/rates", summary="Get real-time cryptocurrency exchange rates")
+def get_crypto_rates():
+    now = time.time()
+    if now - _cached_crypto_rates["timestamp"] < 60:
+        return _cached_crypto_rates["rates"]
+    try:
+        req = urllib.request.Request(
+            "https://api.binance.com/api/v3/ticker/price?symbols=%5B%22BTCUSDT%22,%22ETHUSDT%22,%22SOLUSDT%22,%22BNBUSDT%22%5D",
+            headers={"User-Agent": "BarcodeStudioPro/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode())
+            for item in data:
+                sym = item["symbol"].replace("USDT", "")
+                _cached_crypto_rates["rates"][sym] = float(item["price"])
+            _cached_crypto_rates["timestamp"] = now
+    except Exception:
+        pass
+    return _cached_crypto_rates["rates"]
+
 @app.post("/api/crypto/create-order", summary="Create pending crypto payment order with auto-detection tag")
 @limiter.limit("15/minute")
 def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
