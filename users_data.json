@@ -10,7 +10,7 @@
   },
   {
     "email": "joyannkarambu@gmail.com",
-    "hashed_password": "$2b$10$Wzo0WE6mfx5.k/uyyINy0eQxZCgtsjVdboqTsL8WpvDQGdX9PiCZq",
+    "hashed_password": "$2b$10$9ygKNOX0uWTlTS/QX6LlKe3PE3g6BswULIs6Vt.4cDFNgtT56H8am",
     "role": "user",
     "tokens": 5,
     "referral_code": null,
@@ -19,7 +19,7 @@
   },
   {
     "email": "youngwheezy001@gmail.com",
-    "hashed_password": "$2b$10$YZYvUtHubtVKIfPlAA0baus0W8t/MzfNe6athotTIRVi7FlJsl38a",
+    "hashed_password": "$2b$10$E7wX1WnXI/nMxozjJlgicelF9eez/iDKydElDvqnJYfBvf7qb4cT2",
     "role": "user",
     "tokens": 1,
     "referral_code": null,

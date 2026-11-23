@@ -1810,6 +1810,77 @@
         </div>
     </div>
 
+    <!-- Video Tutorial Modal -->
+    <div id="tutorial-video-modal" onclick="if (event.target === this) closeTutorialVideoModal();" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden max-h-[92vh]">
+            <!-- Header -->
+            <div class="flex justify-between items-center px-4 py-3 border-b border-slate-800 bg-slate-950/70">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm font-bold shadow-inner">
+                        🎬
+                    </div>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                            How to Use Barcode Studio Pro
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono font-medium">Video Guide</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-400">Step-by-step walkthrough: Buying sets with crypto, filling fields, and exporting companion barcodes</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTutorialVideoModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xl transition leading-none cursor-pointer" title="Close video">&times;</button>
+            </div>
+
+            <!-- Video Player Area -->
+            <div class="relative bg-black flex items-center justify-center aspect-video w-full overflow-hidden">
+                <video id="tutorial-video-player" class="w-full h-full object-contain" controls preload="metadata" playsinline>
+                    <source src="/static/tutorial.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- Modal Footer / Dismiss Options -->
+            <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-slate-950/80 border-t border-slate-800 text-xs">
+                <div class="flex items-center gap-2 text-slate-400 text-[11px]">
+                    <svg class="w-4 h-4 text-accent-light shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>You can reopen this tutorial video anytime from the <strong class="text-slate-200">Tools</strong> dropdown menu.</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="dismissTutorialRecommendationForever()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer">
+                        Don't prompt me again
+                    </button>
+                    <button type="button" onclick="closeTutorialVideoModal()" class="text-xs font-semibold bg-accent hover:bg-accent-light text-white px-4 py-1.5 rounded-lg transition shadow cursor-pointer">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Recommendation Prompt Banner / Notification Toast -->
+    <div id="tutorial-recommendation-toast" class="hidden fixed bottom-5 right-5 max-w-sm sm:max-w-md bg-slate-900/95 border border-slate-700 rounded-2xl p-4 shadow-2xl z-50 backdrop-blur-md flex flex-col gap-2.5 animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-lg shadow-lg shrink-0">🎬</span>
+                <div>
+                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        New to Barcode Studio Pro?
+                        <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 px-1 py-0.2 rounded font-bold">Watch Tutorial</span>
+                    </h4>
+                    <p class="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                        Watch our quick video walkthrough on how to buy sets with crypto, customize fields, and export verified companion barcodes.
+                    </p>
+                </div>
+            </div>
+            <button onclick="dismissTutorialToast()" class="text-slate-400 hover:text-white text-lg leading-none p-1 cursor-pointer">&times;</button>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800">
+            <button onclick="dismissTutorialToast()" class="text-[11px] text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded transition cursor-pointer">Maybe Later</button>
+            <button onclick="acceptTutorialToast()" class="text-[11px] font-bold bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white px-3.5 py-1 rounded-lg shadow transition flex items-center gap-1 cursor-pointer">
+                <span>▶ Watch Video Guide</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Batch CSV Bulk Generator Modal -->
     <div id="batch-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col gap-3 max-h-[90vh]">
@@ -1986,6 +2057,16 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                 </button>
                 <!-- Tools Dropdown Popover -->
                 <div id="header-tools-dropdown" class="hidden absolute left-0 mt-2 w-56 max-w-[calc(100vw-24px)] bg-slate-900 border border-slate-700/90 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-md">
+                    <button type="button" onclick="openTutorialVideoModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer border-b border-slate-800 pb-2 mb-0.5">
+                        <span class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center text-xs">🎬</span>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-white flex items-center gap-1.5">
+                                Video Tutorial
+                                <span class="text-[8px] bg-rose-500/30 text-rose-300 border border-rose-500/40 px-1 py-0.2 rounded font-black tracking-wider uppercase">Guide</span>
+                            </span>
+                            <span class="text-[9px] text-slate-400">How to use Barcode Studio Pro</span>
+                        </div>
+                    </button>
                     <button type="button" onclick="openBarcodeScannerModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
                         <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs">📷</span>
                         <div class="flex flex-col">
@@ -11833,8 +11914,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     closeAuthModal();
                     updateAuthUI();
                     showToast(data.message || 'Account created & logged in!', 'success');
+                    if (typeof triggerNewUserTutorialRecommendation === 'function') triggerNewUserTutorialRecommendation();
                 } else {
                     showToast(data.message || 'Registration successful! Logging you in...', 'success');
+                    window._isNewlyRegistered = true;
                     await apiLogin();
                 }
             } catch (err) {
@@ -11878,10 +11961,18 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     closeAuthModal();
                     updateAuthUI();
                     showToast('Signed in successfully!', 'success');
+                    if (window._isNewlyRegistered) {
+                        window._isNewlyRegistered = false;
+                        if (typeof triggerNewUserTutorialRecommendation === 'function') triggerNewUserTutorialRecommendation();
+                    }
                 } else {
                     closeAuthModal();
                     showToast('Signed in successfully!', 'success');
                     await checkAuth();
+                    if (window._isNewlyRegistered) {
+                        window._isNewlyRegistered = false;
+                        if (typeof triggerNewUserTutorialRecommendation === 'function') triggerNewUserTutorialRecommendation();
+                    }
                 }
             } catch (err) {
                 showToast(err.message, 'error');
@@ -16560,6 +16651,76 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             }
         }
 
+        // --- TUTORIAL VIDEO CONTROLLER ---
+        function openTutorialVideoModal(autoplay = true) {
+            const modal = document.getElementById('tutorial-video-modal');
+            const player = document.getElementById('tutorial-video-player');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            if (player) {
+                if (autoplay) {
+                    player.currentTime = 0;
+                    player.play().catch(() => { /* Autoplay restriction handled gracefully */ });
+                }
+            }
+            dismissTutorialToast(false);
+        }
+
+        function closeTutorialVideoModal() {
+            const modal = document.getElementById('tutorial-video-modal');
+            const player = document.getElementById('tutorial-video-player');
+            if (modal) modal.classList.add('hidden');
+            if (player) {
+                try { player.pause(); } catch (e) {}
+            }
+        }
+
+        function dismissTutorialRecommendationForever() {
+            localStorage.setItem('bsp_tutorial_recommended_v1', 'dismissed');
+            localStorage.setItem('bsp_tutorial_never_prompt', '1');
+            closeTutorialVideoModal();
+            if (typeof showToast === 'function') {
+                showToast('Tutorial prompts silenced. You can reopen anytime via the Tools menu.', 'info');
+            }
+        }
+
+        function dismissTutorialToast(permanent = true) {
+            const toast = document.getElementById('tutorial-recommendation-toast');
+            if (toast) toast.classList.add('hidden');
+            if (permanent) {
+                localStorage.setItem('bsp_tutorial_recommended_v1', 'dismissed');
+            }
+        }
+
+        function acceptTutorialToast() {
+            localStorage.setItem('bsp_tutorial_recommended_v1', 'watched');
+            dismissTutorialToast(true);
+            openTutorialVideoModal(true);
+        }
+
+        function triggerNewUserTutorialRecommendation() {
+            localStorage.setItem('bsp_tutorial_recommended_v1', 'prompted');
+            setTimeout(() => {
+                const toast = document.getElementById('tutorial-recommendation-toast');
+                if (toast) {
+                    toast.classList.remove('hidden');
+                } else {
+                    openTutorialVideoModal(false);
+                }
+            }, 800);
+        }
+
+        function checkInitialTutorialRecommendation() {
+            if (localStorage.getItem('bsp_tutorial_never_prompt') === '1') return;
+            if (localStorage.getItem('bsp_tutorial_recommended_v1')) return;
+
+            // First time visit or login: recommend after a 2-second grace period
+            setTimeout(() => {
+                const toast = document.getElementById('tutorial-recommendation-toast');
+                if (toast) toast.classList.remove('hidden');
+            }, 2000);
+        }
+
         // --- BATCH CSV BULK GENERATOR CONTROLLER ---
         function openBatchModal() {
             if (!currentUser) {
@@ -16896,6 +17057,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 if (typeof checkAuth === 'function') checkAuth();
                 if (typeof startLiveSync === 'function') startLiveSync();
                 if (typeof attachDatePasteSanitizers === 'function') attachDatePasteSanitizers();
+                if (typeof checkInitialTutorialRecommendation === 'function') checkInitialTutorialRecommendation();
 
                 // Auto-uppercase DMV text fields in real-time
                 ['aamva-first', 'aamva-last', 'aamva-middle', 'aamva-street', 'aamva-city', 'aamva-id', 'aamva-dcf', 'aamva-dck', 'aamva-audit'].forEach(id => {
