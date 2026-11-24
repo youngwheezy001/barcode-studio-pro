@@ -534,6 +534,29 @@ const STATE_HIERARCHY = {
         "has_suffix": true,
         "verified": true,
         "is_new": false
+      },
+      {
+        "slug": "IL_2024",
+        "label": "Illinois (2024) [NEW]",
+        "rev_header": "Rev. 01/2024 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "has_icn": true,
+        "has_dd": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_race": false,
+        "has_suffix": true,
+        "verified": true,
+        "is_new": true
       }
     ]
   },
@@ -1379,6 +1402,30 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_suffix": false,
         "is_new": false
+      },
+      {
+        "slug": "NC_2024",
+        "label": "North Carolina (2024) [NEW]",
+        "rev_header": "Rev. 05/2024 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 8,
+        "has_icn": true,
+        "has_dd": true,
+        "has_race": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_suffix": false,
+        "is_new": true
       }
     ]
   },
@@ -1776,6 +1823,30 @@ const STATE_HIERARCHY = {
         "has_real_id": false,
         "has_address2": false,
         "is_new": false
+      },
+      {
+        "slug": "TX_2025",
+        "label": "Texas (2025) [NEW]",
+        "rev_header": "Rev. 08/18/2025 (1001)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 8,
+        "has_icn": true,
+        "has_dd": true,
+        "has_race": true,
+        "has_suffix": true,
+        "has_weight_range": false,
+        "has_audit": true,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "is_new": true
       }
     ]
   },
@@ -5650,6 +5721,7 @@ function NV_calculate_DD() {
     try { if (typeof TN_calculate_documentNumber === 'function') window.TN_calculate_documentNumber = TN_calculate_documentNumber; } catch(e) {}
     try { if (typeof TX_2016_calculate_ICN === 'function') window.TX_2016_calculate_ICN = TX_2016_calculate_ICN; } catch(e) {}
     try { if (typeof TX_2020_calculate_ICN === 'function') window.TX_2020_calculate_ICN = TX_2020_calculate_ICN; } catch(e) {}
+    try { if (typeof TX_2020_calculate_ICN === 'function') window.TX_2025_calculate_ICN = TX_2020_calculate_ICN; } catch(e) {}
     try { if (typeof TX_calculate_DD === 'function') window.TX_calculate_DD = TX_calculate_DD; } catch(e) {}
     try { if (typeof TX_calculate_DD_improved === 'function') window.TX_calculate_DD_improved = TX_calculate_DD_improved; } catch(e) {}
     try { if (typeof TX_calculate_documentNumber === 'function') window.TX_calculate_documentNumber = TX_calculate_documentNumber; } catch(e) {}
@@ -8854,6 +8926,24 @@ function runStateCalculation(field, stateSlug) {
                     if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(6);
                     return true;
                 }
+            } else if (slugClean === 'TX_2025') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2025);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(8);
+                    return true;
+                }
+            } else if (slugClean === 'NC_2024') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2024);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(8);
+                    return true;
+                }
+            } else if (slugClean === 'IL_2024') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2024);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
+                    return true;
+                }
             } else if (slugClean === 'UT_2016') {
                 if (typeof window.makeRandomDOI === 'function') {
                     window.makeRandomDOI(2019);
@@ -9204,10 +9294,12 @@ function runStateCalculation(field, stateSlug) {
             window.TX_calculate_DD = TX_calculate_DD_improved;
             window.TX_2016_calculate_DD = TX_calculate_DD_improved;
             window.TX_2020_calculate_DD = TX_calculate_DD_improved;
+            window.TX_2025_calculate_DD = TX_calculate_DD_improved;
         }
         if (typeof TX_calculate_documentNumber === 'function') {
             window.TX_2016_calculate_documentNumber = TX_calculate_documentNumber;
             window.TX_2020_calculate_documentNumber = TX_calculate_documentNumber;
+            window.TX_2025_calculate_documentNumber = TX_calculate_documentNumber;
         }
         if (typeof UT_calculate_documentNumber === 'function') {
             window.UT_2016_calculate_documentNumber = UT_calculate_documentNumber;
@@ -9580,6 +9672,27 @@ function runStateCalculation(field, stateSlug) {
     "has_dd": true,
     "has_audit": false
   },
+  "IL_2024": {
+    "street": "5620 Pebblebeach Dr",
+    "city": "Hanover Park",
+    "zip": "60133",
+    "class": "D",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "69",
+    "weight": "169",
+    "sex": "M",
+    "eyes": "BRO",
+    "hair": "BRO",
+    "realid": "F",
+    "sample_dl": "D83877907578",
+    "sample_icn": "D83877907578ILO9TL01",
+    "sample_dd": "24210826494MG4931",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": false
+  },
   "IN": {
     "street": "144 Pine View Dr",
     "city": "Carmel",
@@ -9687,6 +9800,27 @@ function runStateCalculation(field, stateSlug) {
     "sample_audit": "",
     "has_icn": true,
     "has_dd": false,
+    "has_audit": false
+  },
+  "NC_2024": {
+    "street": "104 River Birch Dr",
+    "city": "Chapel Hill",
+    "zip": "275178901",
+    "class": "C",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "70",
+    "weight": "175",
+    "sex": "M",
+    "eyes": "BRO",
+    "hair": "BRO",
+    "realid": "F",
+    "sample_dl": "000004819284",
+    "sample_icn": "10002194812",
+    "sample_dd": "2405181442200188",
+    "sample_audit": "",
+    "has_icn": true,
+    "has_dd": true,
     "has_audit": false
   },
   "NY_2017": {
@@ -9843,6 +9977,26 @@ function runStateCalculation(field, stateSlug) {
     "has_icn": true,
     "has_dd": true,
     "has_audit": false
+  },
+  "TX_2025": {
+    "street": "1801 N Congress Ave",
+    "city": "Austin",
+    "zip": "787011436",
+    "class": "C",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "70",
+    "weight": "175",
+    "sex": "M",
+    "eyes": "BRO",
+    "hair": "BRO",
+    "sample_dl": "28491024",
+    "sample_icn": "10002194812",
+    "sample_dd": "25081814422001889410",
+    "sample_audit": "2508181442200188",
+    "has_icn": true,
+    "has_dd": true,
+    "has_audit": true
   },
   "WA": {
     "street": "29810 224th Ave SE",
@@ -10949,6 +11103,7 @@ function runStateCalculation(field, stateSlug) {
         }
 window.TX_calculate_ICN = TX_2020_calculate_ICN;
         window.TX_2020_calculate_ICN = TX_2020_calculate_ICN;
+        window.TX_2025_calculate_ICN = TX_2020_calculate_ICN;
         window.TX_2016_calculate_ICN = TX_2016_calculate_ICN;
         if (typeof AL_2024_calculate_ICN === 'function') {
             window.AL_2022_calculate_ICN = AL_2024_calculate_ICN;
@@ -11266,6 +11421,24 @@ function QC_calculate_ICN() {
         "has_magstripe": true,
         "watermark_style": "seal",
         "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f6f8fb 50%, #edf1f7 100%)",
+        "security_tint": "#cad5e6"
+    },
+    "IL_2024": {
+        "name": "Illinois",
+        "agency": "Illinois Secretary of State",
+        "url": "www.ilsos.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of State of Illinois • 625 ILCS 5/6-118 • Notice of address change required within 10 days • Return to Secretary of State Springfield IL",
+        "donor": "LIFE GOES ON ILLINOIS",
+        "layout": "type_b",
+        "watermark": "ILLINOIS",
+        "rev": "Rev. 01/2024",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "none",
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f6f8fb 50%, #edf1f7 100%)",
         "security_tint": "#cad5e6"
@@ -11630,6 +11803,24 @@ function QC_calculate_ICN() {
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbfbfb 50%, #f5f4f2 100%)",
         "security_tint": "#d6d2cb"
     },
+    "NC_2024": {
+        "name": "North Carolina",
+        "agency": "North Carolina Division of Motor Vehicles",
+        "url": "www.ncdot.gov/dmv",
+        "class_label": "CLASS: C-Any noncommercial single vehicle with a GVWR of less than 26,001 lbs.",
+        "disclaimer": "Property of State of North Carolina • N.C.G.S. 20-7 • Operating a motor vehicle implies consent to chemical tests • Return to Raleigh NC 27697",
+        "donor": "DONATE LIFE NC",
+        "layout": "type_b",
+        "watermark": "NORTH CAROLINA",
+        "rev": "Rev 05/2024",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "none",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbfbfb 50%, #f5f4f2 100%)",
+        "security_tint": "#d6d2cb"
+    },
     "ND": {
         "name": "North Dakota",
         "agency": "North Dakota Department of Transportation",
@@ -11804,6 +11995,24 @@ function QC_calculate_ICN() {
         "rev": "REV: 02/23/2020",
         "archetype": "magstripe_standard",
         "has_magstripe": true,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "top",
+        "bg_color": "#f5f2f4",
+        "bg_gradient": "linear-gradient(180deg, #faf7f8 0%, #f0e7eb 50%, #e4eaee 100%)",
+        "security_tint": "#ccaebd"
+    },
+    "TX_2025": {
+        "name": "Texas",
+        "agency": "Texas Department of Public Safety",
+        "url": "www.dps.texas.gov",
+        "class_label": "CLASS: C-Single or comb veh w/ GVWR ≤ 26,000 lbs which transports placarder HAZMAT or ≥ 16 pass, including driver",
+        "disclaimer": "Tex. Transp. Code § 521 • Texas Department of Public Safety • Operation of a motor vehicle constitutes consent to alcohol testing • Directive to physician / Emergency Contact",
+        "donor": "DONATE LIFE TEXAS",
+        "layout": "type_b",
+        "watermark": "TEXAS",
+        "rev": "REV: 08/18/2025",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
         "watermark_style": "seal",
         "barcode_1d_pos": "top",
         "bg_color": "#f5f2f4",

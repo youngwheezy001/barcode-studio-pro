@@ -4036,9 +4036,10 @@ KNOWN_STATE_SLUGS = {
     'MO_2020', 'MS', 'MS_2023', 'MT', 'NB', 'NC', 'ND', 'ND_2023', 'NE_2017',
     'NE_2021', 'NH', 'NH_2024', 'NJ_2020', 'NL', 'NM', 'NS', 'NU', 'NV_2008',
     'NV_2021', 'NY_2017', 'NY_2022', 'OH', 'OK', 'ON', 'OR', 'PA', 'PA_2022',
-    'PE', 'QC', 'RI', 'RI_2022', 'SC', 'SD', 'SK', 'TN', 'TX_2016', 'TX_2020',
+    'PE', 'QC', 'RI', 'RI_2022', 'SC', 'SD', 'SK', 'TN', 'TX_2016', 'TX_2020', 'TX_2025',
     'UT_2016', 'UT_2021', 'VA', 'VT', 'WA', 'WA_2025', 'WI', 'WI_2023', 'WV',
-    'WY', 'YT', 'NJ', 'TX', 'NY', 'IA', 'KY', 'MO', 'MS', 'NE', 'NV', 'RI', 'UT', 'WI'
+    'WY', 'YT', 'NJ', 'TX', 'NY', 'IA', 'KY', 'MO', 'MS', 'NE', 'NV', 'RI', 'UT', 'WI',
+    'NC_2024', 'IL_2024'
 }
 
 @app.get("/{slug}")
