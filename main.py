@@ -3003,14 +3003,14 @@ def adjust_client_tokens(payload: ClientTokenAdjustRequest, current_user: User =
     if not target:
         raise HTTPException(status_code=404, detail="Client account not found")
 
-    old_tokens = target.tokens
+    old_tokens = target.tokens if target.tokens is not None else 0
     voided_orders = 0
     voided_amount = 0.0
 
     if payload.set_tokens is not None:
         target.tokens = max(0, payload.set_tokens)
     elif payload.delta_tokens is not None:
-        target.tokens = max(0, target.tokens + payload.delta_tokens)
+        target.tokens = max(0, (target.tokens or 0) + payload.delta_tokens)
 
     # If sets are being reduced and void_payments=True, mark confirmed orders as voided
     if payload.void_payments and target.tokens < old_tokens:
@@ -3026,7 +3026,7 @@ def adjust_client_tokens(payload: ClientTokenAdjustRequest, current_user: User =
             order.status = "voided_by_admin"
             voided_orders += 1
             voided_amount += float(order.amount_usd or 0)
-            sets_to_void -= order.tokens
+            sets_to_void -= (order.tokens or 0)
 
     db.commit()
     sync_users_to_backup(db)

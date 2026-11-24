@@ -11552,13 +11552,21 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: userId, set_tokens: newBalance, void_payments: true })
                 });
-                const data = await res.json();
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (parseErr) {
+                    data = { detail: res.statusText || 'Server communication error' };
+                }
                 if (!res.ok) throw new Error(data.detail || 'Remove sets failed');
                 showToast(data.message || 'Sets removed and payments voided.', 'success');
                 await loadAdminClients();
                 if (currentUser && currentUser.id === userId) await checkAuth();
             } catch (e) {
-                showToast(e.message, 'error');
+                const msg = (e && e.message === 'Failed to fetch')
+                    ? 'Connection lost: Server is currently unreachable or suspended by cloud host. Please check host status.'
+                    : (e ? e.message : 'Unknown error');
+                showToast(msg, 'error');
             }
         }
 
