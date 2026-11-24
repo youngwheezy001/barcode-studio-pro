@@ -10925,10 +10925,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     console.error("QR Code render error:", e);
                 }
             }
-
-            if (currentUser) {
-                initOrRefreshCryptoOrder();
-            }
         }
 
         function copyCryptoAddress() {
@@ -11935,6 +11931,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 modal.classList.remove('hidden');
                 loadCryptoConfig();
                 switchPayTab('crypto');
+                initOrRefreshCryptoOrder();
             }
         }
 
