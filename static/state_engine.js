@@ -301,6 +301,30 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_suffix": false,
         "is_new": false
+      },
+      {
+        "slug": "CT_2023",
+        "label": "Connecticut (2023) [NEW]",
+        "rev_header": "Rev. 05/2023 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 6,
+        "has_icn": true,
+        "has_dd": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "has_race": false,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_suffix": false,
+        "is_new": true
       }
     ]
   },
@@ -369,6 +393,31 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_suffix": false,
         "is_new": false
+      },
+      {
+        "slug": "FL_2021",
+        "label": "Florida (2021) [NEW]",
+        "rev_header": "Rev. 05/2021 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 8,
+        "has_icn": true,
+        "has_dd": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "has_race": false,
+        "has_safe_driver": true,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_suffix": false,
+        "is_new": true
       }
     ]
   },
@@ -422,6 +471,31 @@ const STATE_HIERARCHY = {
         "has_country": true,
         "default_dd": "",
         "has_real_id": false,
+        "has_address2": false,
+        "has_suffix": false
+      },
+      {
+        "slug": "GA_2021",
+        "label": "Georgia (2021) [NEW]",
+        "rev_header": "Rev. 03/15/2021 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "is_new": true,
+        "term_years": 8,
+        "has_icn": true,
+        "has_dd": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "has_race": false,
+        "has_country": true,
+        "default_dd": "",
+        "has_real_id": true,
         "has_address2": false,
         "has_suffix": false
       }
@@ -1290,6 +1364,31 @@ const STATE_HIERARCHY = {
         "has_race": false,
         "has_suffix": false,
         "is_new": false
+      },
+      {
+        "slug": "NJ_2023",
+        "label": "New Jersey (2023) [NEW]",
+        "rev_header": "Rev. 06/2023 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 4,
+        "has_icn": true,
+        "has_dd": true,
+        "has_nj_options": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "WV202323900007318",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_race": false,
+        "has_suffix": false,
+        "is_new": true
       }
     ]
   },
@@ -1512,6 +1611,31 @@ const STATE_HIERARCHY = {
         "has_address2": false,
         "has_race": false,
         "is_new": false
+      },
+      {
+        "slug": "OH_2021",
+        "label": "Ohio (2021) [NEW]",
+        "rev_header": "Rev. 07/02/2021 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 4,
+        "has_icn": true,
+        "has_dd": true,
+        "has_pob": true,
+        "has_suffix": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_race": false,
+        "is_new": true
       }
     ]
   },
@@ -1627,6 +1751,31 @@ const STATE_HIERARCHY = {
         "has_race": false,
         "has_suffix": false,
         "is_new": false
+      },
+      {
+        "slug": "PA_2024",
+        "label": "Pennsylvania (2024) [NEW]",
+        "rev_header": "Rev. 01/2024 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 4,
+        "has_icn": true,
+        "has_dd": true,
+        "has_real_id": true,
+        "has_dups": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "",
+        "has_address2": true,
+        "has_race": false,
+        "has_suffix": false,
+        "is_new": true
       }
     ]
   },
@@ -1955,6 +2104,30 @@ const STATE_HIERARCHY = {
         "has_race": false,
         "has_suffix": false,
         "is_new": false
+      },
+      {
+        "slug": "VA_2023",
+        "label": "Virginia (2023) [NEW]",
+        "rev_header": "Rev. 09/2023 (1000)",
+        "scanners": [
+          "Scandit",
+          "Show-Me ID",
+          "FIDScan",
+          "Veriscan",
+          "Regula"
+        ],
+        "verified": true,
+        "term_years": 8,
+        "has_icn": true,
+        "has_dd": true,
+        "has_weight_range": false,
+        "has_audit": false,
+        "default_dd": "",
+        "has_real_id": true,
+        "has_address2": false,
+        "has_race": false,
+        "has_suffix": false,
+        "is_new": true
       }
     ]
   },
@@ -8938,6 +9111,48 @@ function runStateCalculation(field, stateSlug) {
                     if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(8);
                     return true;
                 }
+            } else if (slugClean === 'FL_2021') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2021);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(8);
+                    return true;
+                }
+            } else if (slugClean === 'GA_2021') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2021);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(8);
+                    return true;
+                }
+            } else if (slugClean === 'OH_2021') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2021);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
+                    return true;
+                }
+            } else if (slugClean === 'NJ_2023') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2023);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
+                    return true;
+                }
+            } else if (slugClean === 'VA_2023') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2023);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(8);
+                    return true;
+                }
+            } else if (slugClean === 'PA_2024') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2024);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(4);
+                    return true;
+                }
+            } else if (slugClean === 'CT_2023') {
+                if (typeof window.makeRandomDOI === 'function') {
+                    window.makeRandomDOI(2023);
+                    if (typeof window.makeRandomDOE === 'function') window.makeRandomDOE(6);
+                    return true;
+                }
             } else if (slugClean === 'IL_2024') {
                 if (typeof window.makeRandomDOI === 'function') {
                     window.makeRandomDOI(2024);
@@ -11298,6 +11513,132 @@ function QC_calculate_ICN() {
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbfb 50%, #f1f5f6 100%)",
         "security_tint": "#d0dce0"
+    },
+    "CT_2023": {
+        "name": "Connecticut",
+        "agency": "Connecticut Department of Motor Vehicles",
+        "url": "portal.ct.gov/dmv",
+        "class_label": "CLASS D-Any non commercial motor",
+        "disclaimer": "Property of State of Connecticut • CGS § 14-36 • Must be carried when operating motor vehicle • Return if found to DMV Wethersfield CT 06161",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "CONNECTICUT",
+        "rev": "Rev 05/2023",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f9fbfb 50%, #f1f5f6 100%)",
+        "security_tint": "#d0dce0"
+    },
+    "FL_2021": {
+        "name": "Florida",
+        "agency": "Florida Department of Highway Safety and Motor Vehicles",
+        "url": "www.flhsmv.gov",
+        "class_label": "CLASS: E",
+        "disclaimer": "Operation of a motor vehicle constitutes consent to any sobriety test required by law. State of Florida • Return to Tallahassee FL 32399",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "FLORIDA",
+        "rev": "Rev 05/2021",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "none",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fbfbfb 50%, #f5f4f2 100%)",
+        "security_tint": "#d6d2cb"
+    },
+    "GA_2021": {
+        "name": "Georgia",
+        "agency": "Georgia Department of Driver Services",
+        "url": "dds.georgia.gov",
+        "class_label": "CLASS: C",
+        "disclaimer": "State of Georgia • Return to DDS, PO Box 80447, Conyers, GA 30013",
+        "donor": "DONATE LIFE",
+        "layout": "type_b",
+        "watermark": "GEORGIA",
+        "rev": "Rev 03/15/2021",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "top_right",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7fafc 50%, #edf2f7 100%)",
+        "security_tint": "#cbd5e0"
+    },
+    "NJ_2023": {
+        "name": "New Jersey",
+        "agency": "New Jersey Motor Vehicle Commission",
+        "url": "www.state.nj.us/mvc",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of New Jersey • Return to MVC, PO Box 160, Trenton NJ 08666",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "NEW JERSEY",
+        "rev": "Rev 06/2023",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f4f4f4 100%)",
+        "security_tint": "#e2e8f0"
+    },
+    "OH_2021": {
+        "name": "Ohio",
+        "agency": "Ohio Bureau of Motor Vehicles",
+        "url": "bmv.ohio.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "State of Ohio • Return to BMV, PO Box 16520, Columbus OH 43216",
+        "donor": "DONATE LIFE OHIO",
+        "layout": "type_b",
+        "watermark": "OHIO",
+        "rev": "Rev 07/02/2021",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7fafc 50%, #edf2f7 100%)",
+        "security_tint": "#cbd5e0"
+    },
+    "PA_2024": {
+        "name": "Pennsylvania",
+        "agency": "Pennsylvania Department of Transportation",
+        "url": "www.dmv.pa.gov",
+        "class_label": "CLASS: C-Single/Comb < 26,001 END: None RESTR: None",
+        "disclaimer": "Property of Commonwealth of Pennsylvania • Pa. Vehicle Code (Title 75) • Address change required within 15 days • Return to Harrisburg PA 17106",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "PENNSYLVANIA",
+        "rev": "Rev 01/2024",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "top",
+        "bg_color": "#f6f7f8",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f6f7f9 50%, #edf0f3 100%)",
+        "security_tint": "#ccd3dc"
+    },
+    "VA_2023": {
+        "name": "Virginia",
+        "agency": "Commonwealth of Virginia Department of Motor Vehicles",
+        "url": "www.dmv.virginia.gov",
+        "class_label": "CLASS: D",
+        "disclaimer": "Property of Commonwealth of Virginia • Return to DMV, PO Box 27412, Richmond VA 23269",
+        "donor": "ORGAN DONOR",
+        "layout": "type_b",
+        "watermark": "VIRGINIA",
+        "rev": "Rev 09/2023",
+        "archetype": "modern_optical",
+        "has_magstripe": false,
+        "watermark_style": "seal",
+        "barcode_1d_pos": "bottom",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #f4f4f4 100%)",
+        "security_tint": "#e2e8f0"
     },
     "DE": {
         "name": "Delaware",
