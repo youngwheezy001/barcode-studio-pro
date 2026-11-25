@@ -9,6 +9,7 @@ import asyncio
 import hmac
 import time
 import re
+import threading
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Response, Body, BackgroundTasks
 from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
@@ -113,10 +114,34 @@ engine = create_robust_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-def sync_users_to_backup(db: Session):
-    """Safely synchronizes all registered users and balances to persistent JSON storage."""
+# Background backup synchronization locks & debouncing to prevent live request thread blocking
+_backup_locks = {
+    "users": threading.Lock(),
+    "orders": threading.Lock(),
+    "transfers": threading.Lock(),
+    "commissions": threading.Lock(),
+}
+_backup_scheduled = {
+    "users": False,
+    "orders": False,
+    "transfers": False,
+    "commissions": False,
+}
+
+def _atomic_json_write(filepath: Path, data: list):
+    """Writes data to a temporary file and atomically replaces destination to guarantee zero file corruption."""
     try:
-        users = db.query(User).all()
+        tmp_path = filepath.with_suffix(".tmp")
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        tmp_path.replace(filepath)
+    except Exception as e:
+        print(f"Warning: Failed atomic JSON write for {filepath.name}: {e}")
+
+def _do_sync_users():
+    session = SessionLocal()
+    try:
+        users = session.query(User).all()
         data = []
         for u in users:
             data.append({
@@ -128,12 +153,30 @@ def sync_users_to_backup(db: Session):
                 "referred_by_id": getattr(u, "referred_by_id", None),
                 "affiliate_balance": getattr(u, "affiliate_balance", 0.0),
             })
-        with open(USERS_BACKUP_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+        _atomic_json_write(USERS_BACKUP_FILE, data)
         return len(data)
     except Exception as e:
         print(f"Warning: Failed to sync users backup: {e}")
         return 0
+    finally:
+        session.close()
+
+def _debounced_sync_users():
+    time.sleep(1.0)
+    with _backup_locks["users"]:
+        _backup_scheduled["users"] = False
+        _do_sync_users()
+
+def sync_users_to_backup(db: Optional[Session] = None, force: bool = False):
+    """Safely synchronizes all registered users and balances to persistent JSON storage in background."""
+    if force:
+        with _backup_locks["users"]:
+            return _do_sync_users()
+    with _backup_locks["users"]:
+        if not _backup_scheduled["users"]:
+            _backup_scheduled["users"] = True
+            threading.Thread(target=_debounced_sync_users, daemon=True).start()
+    return 1
 
 def restore_users_from_backup(db: Session):
     """Restores user accounts from backup if database is freshly initialized on container start."""
@@ -242,7 +285,7 @@ class CryptoPayment(Base):
     __tablename__ = "crypto_payments"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True, nullable=False)
-    user_email = Column(String, nullable=False)
+    user_email = Column(String, index=True, nullable=False)
     package_id = Column(String, nullable=False)
     tokens = Column(Integer, nullable=False)
     amount_usd = Column(Float, nullable=False)
@@ -250,9 +293,9 @@ class CryptoPayment(Base):
     network = Column(String, nullable=False)
     wallet_address = Column(String, nullable=False)
     tx_hash = Column(String, nullable=True, index=True)
-    status = Column(String, default="pending")  # pending, submitted, confirmed, rejected
+    status = Column(String, default="pending", index=True)  # pending, submitted, confirmed, rejected
     invoice_number = Column(String, unique=True, index=True, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     confirmed_at = Column(DateTime, nullable=True)
 
 class SetTransfer(Base):
@@ -324,6 +367,23 @@ def ensure_db_schema():
                             conn.rollback()
                         except Exception:
                             pass
+            # Create high-performance indexes for heavy query filters and auth checks
+            perf_indexes = [
+                "CREATE INDEX IF NOT EXISTS idx_crypto_payments_status ON crypto_payments (status)",
+                "CREATE INDEX IF NOT EXISTS idx_crypto_payments_created_at ON crypto_payments (created_at)",
+                "CREATE INDEX IF NOT EXISTS idx_crypto_payments_user_email ON crypto_payments (user_email)",
+                "CREATE INDEX IF NOT EXISTS idx_crypto_payments_status_created ON crypto_payments (status, created_at)",
+                "CREATE INDEX IF NOT EXISTS idx_users_lower_email ON users (LOWER(email))",
+            ]
+            for idx_sql in perf_indexes:
+                try:
+                    conn.execute(text(idx_sql))
+                    conn.commit()
+                except Exception:
+                    try:
+                        conn.rollback()
+                    except Exception:
+                        pass
             # Reset legacy test accounts with artificial test balances (>10000 tokens)
             try:
                 conn.execute(text("UPDATE users SET tokens = 0 WHERE tokens >= 10000 AND lower(email) != 'mwangilewis205@gmail.com'"))
@@ -385,12 +445,10 @@ def process_referral_commission(db: Session, buyer: User, order_type: str, amoun
     sync_commissions_to_backup(db)
     return comm_record
 
-ORDERS_BACKUP_FILE = BASE_DIR / "orders_data.json"
-
-def sync_orders_to_backup(db: Session):
-    """Safely synchronizes all crypto payment orders to persistent JSON storage."""
+def _do_sync_orders():
+    session = SessionLocal()
     try:
-        orders = db.query(CryptoPayment).all()
+        orders = session.query(CryptoPayment).all()
         data = []
         for o in orders:
             data.append({
@@ -408,12 +466,30 @@ def sync_orders_to_backup(db: Session):
                 "created_at": o.created_at.isoformat() if o.created_at else None,
                 "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None
             })
-        with open(ORDERS_BACKUP_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+        _atomic_json_write(ORDERS_BACKUP_FILE, data)
         return len(data)
     except Exception as e:
         print(f"Warning: Failed to sync orders backup: {e}")
         return 0
+    finally:
+        session.close()
+
+def _debounced_sync_orders():
+    time.sleep(1.0)
+    with _backup_locks["orders"]:
+        _backup_scheduled["orders"] = False
+        _do_sync_orders()
+
+def sync_orders_to_backup(db: Optional[Session] = None, force: bool = False):
+    """Safely synchronizes all crypto payment orders to persistent JSON storage in background."""
+    if force:
+        with _backup_locks["orders"]:
+            return _do_sync_orders()
+    with _backup_locks["orders"]:
+        if not _backup_scheduled["orders"]:
+            _backup_scheduled["orders"] = True
+            threading.Thread(target=_debounced_sync_orders, daemon=True).start()
+    return 1
 
 def restore_orders_from_backup(db: Session):
     """Restores payment orders from backup if database is freshly initialized."""
@@ -458,10 +534,10 @@ def restore_orders_from_backup(db: Session):
         print(f"Warning: Failed to restore orders backup: {e}")
         return 0
 
-def sync_transfers_to_backup(db: Session):
-    """Safely synchronizes all peer-to-peer set transfers to persistent JSON storage."""
+def _do_sync_transfers():
+    session = SessionLocal()
     try:
-        transfers = db.query(SetTransfer).all()
+        transfers = session.query(SetTransfer).all()
         data = []
         for t in transfers:
             data.append({
@@ -475,12 +551,30 @@ def sync_transfers_to_backup(db: Session):
                 "is_read": bool(t.is_read),
                 "created_at": t.created_at.isoformat() if t.created_at else None
             })
-        with open(TRANSFERS_BACKUP_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+        _atomic_json_write(TRANSFERS_BACKUP_FILE, data)
         return len(data)
     except Exception as e:
         print(f"Warning: Failed to sync transfers backup: {e}")
         return 0
+    finally:
+        session.close()
+
+def _debounced_sync_transfers():
+    time.sleep(1.0)
+    with _backup_locks["transfers"]:
+        _backup_scheduled["transfers"] = False
+        _do_sync_transfers()
+
+def sync_transfers_to_backup(db: Optional[Session] = None, force: bool = False):
+    """Safely synchronizes all peer-to-peer set transfers to persistent JSON storage in background."""
+    if force:
+        with _backup_locks["transfers"]:
+            return _do_sync_transfers()
+    with _backup_locks["transfers"]:
+        if not _backup_scheduled["transfers"]:
+            _backup_scheduled["transfers"] = True
+            threading.Thread(target=_debounced_sync_transfers, daemon=True).start()
+    return 1
 
 def restore_transfers_from_backup(db: Session):
     """Restores set transfers from backup if database is freshly initialized."""
@@ -516,10 +610,10 @@ def restore_transfers_from_backup(db: Session):
         print(f"Warning: Failed to restore transfers backup: {e}")
         return 0
 
-def sync_commissions_to_backup(db: Session):
-    """Safely synchronizes all affiliate commissions to persistent JSON storage."""
+def _do_sync_commissions():
+    session = SessionLocal()
     try:
-        commissions = db.query(AffiliateCommission).all()
+        commissions = session.query(AffiliateCommission).all()
         data = []
         for c in commissions:
             data.append({
@@ -533,12 +627,30 @@ def sync_commissions_to_backup(db: Session):
                 "order_id": getattr(c, "order_id", None),
                 "created_at": c.created_at.isoformat() if c.created_at else None
             })
-        with open(COMMISSIONS_BACKUP_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+        _atomic_json_write(COMMISSIONS_BACKUP_FILE, data)
         return len(data)
     except Exception as e:
         print(f"Warning: Failed to sync commissions backup: {e}")
         return 0
+    finally:
+        session.close()
+
+def _debounced_sync_commissions():
+    time.sleep(1.0)
+    with _backup_locks["commissions"]:
+        _backup_scheduled["commissions"] = False
+        _do_sync_commissions()
+
+def sync_commissions_to_backup(db: Optional[Session] = None, force: bool = False):
+    """Safely synchronizes all affiliate commissions to persistent JSON storage in background."""
+    if force:
+        with _backup_locks["commissions"]:
+            return _do_sync_commissions()
+    with _backup_locks["commissions"]:
+        if not _backup_scheduled["commissions"]:
+            _backup_scheduled["commissions"] = True
+            threading.Thread(target=_debounced_sync_commissions, daemon=True).start()
+    return 1
 
 def restore_commissions_from_backup(db: Session):
     """Restores affiliate commissions from backup if database is freshly initialized."""
@@ -1035,12 +1147,23 @@ def on_startup():
         restore_orders_from_backup(db)
         restore_transfers_from_backup(db)
         restore_commissions_from_backup(db)
-        sync_users_to_backup(db)
-        sync_orders_to_backup(db)
-        sync_transfers_to_backup(db)
-        sync_commissions_to_backup(db)
+        sync_users_to_backup(force=True)
+        sync_orders_to_backup(force=True)
+        sync_transfers_to_backup(force=True)
+        sync_commissions_to_backup(force=True)
     finally:
         db.close()
+
+@app.on_event("shutdown")
+def on_shutdown():
+    """Ensure all in-memory or debounced state is flushed to disk upon container shutdown."""
+    try:
+        sync_users_to_backup(force=True)
+        sync_orders_to_backup(force=True)
+        sync_transfers_to_backup(force=True)
+        sync_commissions_to_backup(force=True)
+    except Exception as e:
+        print(f"Notice on shutdown backup sync: {e}")
 
 @app.post("/register", summary="Register new user")
 @limiter.limit("5/minute")
@@ -2706,6 +2829,12 @@ def generate_batch_zip(req: BatchGenerateRequest, current_user: User = Depends(g
     if not req.records or len(req.records) == 0:
         raise HTTPException(status_code=400, detail="Batch records list cannot be empty")
     
+    if len(req.records) > 200:
+        raise HTTPException(
+            status_code=400,
+            detail="Batch limit is 200 records per export to maintain optimal server performance. Please split larger sets into separate batches."
+        )
+    
     needed = len(req.records)
     is_admin = current_user.role in ["admin", "pro_user"] or current_user.email.lower() in ADMIN_EMAILS
     
@@ -2914,20 +3043,20 @@ def list_admin_clients(current_user: User = Depends(get_current_user), db: Sessi
 
     users = db.query(User).order_by(User.id.asc()).all()
 
-    # Pre-calculate user order counts and spent totals strictly matching by email and user_id, excluding test data
-    orders = db.query(CryptoPayment).filter(
-        CryptoPayment.crypto_currency != "MOCK_TEST"
+    # Pre-calculate user order counts and spent totals via fast DB aggregation, excluding test data
+    aggregated_orders = db.query(
+        func.lower(CryptoPayment.user_email).label("email"),
+        func.count(CryptoPayment.id).label("order_count"),
+        func.sum(CryptoPayment.amount_usd).label("total_spent")
+    ).filter(
+        CryptoPayment.crypto_currency != "MOCK_TEST",
+        CryptoPayment.status.in_(["confirmed", "approved"])
+    ).group_by(
+        func.lower(CryptoPayment.user_email)
     ).all()
 
-    order_counts = {}
-    spent_totals = {}
-    for o in orders:
-        email_key = (o.user_email or "").strip().lower()
-        if email_key:
-            # Strictly count ONLY fully paid and confirmed orders toward order count & total spent
-            if o.status in ("confirmed", "approved"):
-                order_counts[email_key] = order_counts.get(email_key, 0) + 1
-                spent_totals[email_key] = spent_totals.get(email_key, 0.0) + (o.amount_usd or 0.0)
+    order_counts = {row.email: int(row.order_count or 0) for row in aggregated_orders if row.email}
+    spent_totals = {row.email: float(row.total_spent or 0.0) for row in aggregated_orders if row.email}
 
     INTERNAL_TEST_EMAILS = {
         "wozepeh36122931@gmail.com",
