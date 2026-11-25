@@ -1119,20 +1119,44 @@ def health_check():
         "timestamp": datetime.utcnow().isoformat()
     }
 
-@app.get("/", include_in_schema=False)
-def get_root():
-    """Serves the primary Single Page Application interface."""
+_INDEX_CACHE_BYTES = None
+_INDEX_CACHE_ETAG = None
+_INDEX_CACHE_MTIME = 0
+
+def _get_cached_index():
+    global _INDEX_CACHE_BYTES, _INDEX_CACHE_ETAG, _INDEX_CACHE_MTIME
     index_file = BASE_DIR / "static" / "index.html"
-    if index_file.exists():
-        return FileResponse(
-            str(index_file),
-            headers={
-                "Cache-Control": "no-cache, no-store, must-revalidate",
-                "Pragma": "no-cache",
-                "Expires": "0"
-            }
-        )
-    return Response(content="Barcode Studio Pro", media_type="text/plain")
+    if not index_file.exists():
+        return None, None
+    mtime = index_file.stat().st_mtime
+    if _INDEX_CACHE_BYTES is None or mtime != _INDEX_CACHE_MTIME:
+        content = index_file.read_bytes()
+        etag = hashlib.md5(content).hexdigest()
+        _INDEX_CACHE_BYTES = content
+        _INDEX_CACHE_ETAG = f'"{etag}"'
+        _INDEX_CACHE_MTIME = mtime
+    return _INDEX_CACHE_BYTES, _INDEX_CACHE_ETAG
+
+@app.get("/", include_in_schema=False)
+def get_root(request: Request):
+    """Serves the primary Single Page Application interface with instant in-memory delivery and ETag revalidation."""
+    content, etag = _get_cached_index()
+    if content is None:
+        return Response(content="Barcode Studio Pro", media_type="text/plain")
+
+    if_none_match = request.headers.get("if-none-match")
+    if if_none_match and etag and if_none_match.strip() == etag:
+        return Response(status_code=304, headers={"ETag": etag, "Cache-Control": "no-cache"})
+
+    return Response(
+        content=content,
+        media_type="text/html; charset=utf-8",
+        headers={
+            "ETag": etag,
+            "Cache-Control": "no-cache",
+            "Vary": "Accept-Encoding"
+        }
+    )
 
 @app.head("/", include_in_schema=False)
 def head_root():
