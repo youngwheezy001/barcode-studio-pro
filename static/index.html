@@ -591,12 +591,65 @@
                     <span id="checkout-summary-text" class="font-extrabold text-slate-900 text-sm">10 Barcode Sets (PDF417 + Code 128) for $18.00</span>
                 </div>
 
-                <!-- Payment Method Badge: Crypto Only -->
-                <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold">
-                    <span class="flex items-center gap-1.5">
-                        <span>🪙 Instant Crypto Checkout</span>
-                    </span>
-                    <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-extrabold">Live On-Chain Verification</span>
+                <!-- Payment Method Tabs: Mobile Money / Cards (Paystack) vs Crypto -->
+                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
+                    <button type="button" id="tab-btn-paystack" onclick="switchPayTab('paystack')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-900 bg-white shadow-sm border border-slate-200">
+                        <span>📱</span>
+                        <span>M-Pesa / Airtel / Cards</span>
+                    </button>
+                    <button type="button" id="tab-btn-crypto" onclick="switchPayTab('crypto')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-600 hover:text-slate-800">
+                        <span>🪙</span>
+                        <span>Cryptocurrency</span>
+                    </button>
+                </div>
+
+                <!-- View 1: Paystack (M-Pesa, Airtel Money, International Cards) -->
+                <div id="pay-view-paystack" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-3">
+                    <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold">
+                        <span class="flex items-center gap-1.5">
+                            <span>⚡ Instant Checkout (M-Pesa, Airtel &amp; Cards)</span>
+                        </span>
+                        <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-extrabold">Instant Automated Credit</span>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col gap-2.5">
+                        <div class="text-xs text-slate-700 leading-relaxed">
+                            <div class="flex items-center gap-2 mb-1.5 font-bold text-slate-900">
+                                <span class="text-base">📱</span>
+                                <span>Supported Instant Payment Methods:</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
+                                <div class="flex items-center gap-1.5 bg-slate-50 p-2 rounded border border-slate-100">
+                                    <span class="text-emerald-600 font-extrabold">✔</span>
+                                    <span><b>M-Pesa (Kenya):</b> Instant STK PIN prompt</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-slate-50 p-2 rounded border border-slate-100">
+                                    <span class="text-emerald-600 font-extrabold">✔</span>
+                                    <span><b>Airtel Money:</b> Direct mobile wallet prompt</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-slate-50 p-2 rounded border border-slate-100">
+                                    <span class="text-emerald-600 font-extrabold">✔</span>
+                                    <span><b>Visa &amp; Mastercard:</b> Worldwide &amp; India (3DS)</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-slate-50 p-2 rounded border border-slate-100">
+                                    <span class="text-emerald-600 font-extrabold">✔</span>
+                                    <span><b>Apple Pay &amp; Google Pay:</b> 1-tap mobile pay</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-2 flex flex-col sm:flex-row justify-between items-center gap-2">
+                            <div class="text-xs">
+                                <span class="text-slate-500">Amount to Pay: </span>
+                                <span id="paystack-price-usd" class="font-extrabold text-slate-900 text-sm">$18.00</span>
+                                <span id="paystack-price-kes" class="text-slate-500 text-[11px] font-semibold">(~ KES 2,340)</span>
+                            </div>
+                            <button type="button" id="paystack-checkout-btn" onclick="initiatePaystackCheckout()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                                <span>⚡ Pay with M-Pesa / Card &rarr;</span>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 text-center">Secured by Paystack &amp; Central Bank licensed encryption. Your barcode sets are credited to your account automatically upon PIN entry.</p>
                 </div>
 
                 <!-- View 1: Crypto Wallet Payment (Direct) -->
@@ -10775,9 +10828,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
             });
 
+            selectedPackageId = packageId;
+
             const summaryEl = document.getElementById('checkout-summary-text');
             if (summaryEl) summaryEl.textContent = `${tokens} Barcode Set${tokens > 1 ? 's' : ''} (PDF417 + Code 128) for $${price.toFixed(2)}`;
 
+            updatePaystackUI();
             updateCryptoUI();
             if (currentUser) {
                 initOrRefreshCryptoOrder();
@@ -10785,18 +10841,97 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             // Auto-scroll modal smoothly to payment section so it is immediately visible on all screens
             setTimeout(() => {
-                const payTarget = document.getElementById('pay-view-crypto');
+                const payTarget = document.getElementById(currentPayTab === 'crypto' ? 'pay-view-crypto' : 'pay-view-paystack');
                 if (payTarget) {
-                    payTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    payTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             }, 60);
         }
 
+        let currentPayTab = 'paystack';
         function switchPayTab(tab) {
-            currentPayTab = 'crypto';
+            currentPayTab = tab || 'paystack';
+            const viewPaystack = document.getElementById('pay-view-paystack');
             const viewCrypto = document.getElementById('pay-view-crypto');
-            if (viewCrypto) viewCrypto.classList.remove('hidden');
-            updateCryptoUI();
+            const btnPaystack = document.getElementById('tab-btn-paystack');
+            const btnCrypto = document.getElementById('tab-btn-crypto');
+
+            if (currentPayTab === 'paystack') {
+                if (viewPaystack) viewPaystack.classList.remove('hidden');
+                if (viewCrypto) viewCrypto.classList.add('hidden');
+                if (btnPaystack) {
+                    btnPaystack.className = "py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-900 bg-white shadow-sm border border-slate-200";
+                }
+                if (btnCrypto) {
+                    btnCrypto.className = "py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-500 hover:text-slate-700";
+                }
+                updatePaystackUI();
+            } else {
+                if (viewPaystack) viewPaystack.classList.add('hidden');
+                if (viewCrypto) viewCrypto.classList.remove('hidden');
+                if (btnCrypto) {
+                    btnCrypto.className = "py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-900 bg-white shadow-sm border border-slate-200";
+                }
+                if (btnPaystack) {
+                    btnPaystack.className = "py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-500 hover:text-slate-700";
+                }
+                updateCryptoUI();
+            }
+        }
+
+        function updatePaystackUI() {
+            let amtUsd = 18.0;
+            if (typeof selectedPackage !== 'undefined' && selectedPackage && selectedPackage.price) {
+                amtUsd = selectedPackage.price;
+            } else if (typeof cryptoPackages !== 'undefined' && cryptoPackages[selectedPackageId]) {
+                amtUsd = cryptoPackages[selectedPackageId].amount_usd || 18.0;
+            }
+            const amtKes = Math.round(amtUsd * 130);
+            const elUsd = document.getElementById('paystack-price-usd');
+            const elKes = document.getElementById('paystack-price-kes');
+            if (elUsd) elUsd.textContent = `$${amtUsd.toFixed(2)}`;
+            if (elKes) elKes.textContent = `(~ KES ${amtKes.toLocaleString()})`;
+        }
+
+        async function initiatePaystackCheckout() {
+            if (!currentUser) {
+                showToast('Please sign in or register before checking out.', 'info');
+                openAuthModal();
+                return;
+            }
+            const btn = document.getElementById('paystack-checkout-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="inline-block animate-spin mr-1">↻</span> Initializing Checkout...';
+            }
+            try {
+                const res = await fetch(`${API_BASE}/api/paystack/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        package_id: selectedPackageId,
+                        currency: 'KES'
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Could not initialize Paystack checkout.');
+                }
+                if (data.authorization_url) {
+                    window.location.href = data.authorization_url;
+                } else {
+                    showToast('Paystack checkout initialized.', 'success');
+                }
+            } catch (err) {
+                showToast(err.message || 'Payment initialization error', 'error');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>⚡ Pay with M-Pesa / Card &rarr;</span>';
+                }
+            }
         }
 
         // --- REAL-TIME CRYPTOCURRENCY EXCHANGE RATES ENGINE ---
@@ -12179,7 +12314,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (modal) {
                 modal.classList.remove('hidden');
                 loadCryptoConfig();
-                switchPayTab('crypto');
+                switchPayTab('paystack');
                 initOrRefreshCryptoOrder();
             }
         }
@@ -12191,7 +12326,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         async function checkoutStripeSelected() {
-            showToast('Card payments are disabled. Please checkout with instant Cryptocurrency.', 'info');
+            initiatePaystackCheckout();
         }
 
         // --- DISCREET ADMIN ELEVATION (PROTECTED ACCESS) ---
@@ -17497,6 +17632,27 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 }
                 if (urlParams.get('modal') === 'crypto' && typeof openAdminCryptoModal === 'function') {
                     openAdminCryptoModal();
+                }
+
+                // Check for returning Paystack payment
+                const paystackRef = urlParams.get('reference');
+                if (urlParams.get('payment') === 'paystack_success' && paystackRef) {
+                    showToast('Verifying Paystack payment...', 'info');
+                    fetch(`${API_BASE}/api/paystack/verify/${paystackRef}`, {
+                        headers: { ...(typeof getAuthHeader === 'function' ? getAuthHeader() : {}) }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showToast(data.message || 'Payment confirmed! Barcode Sets added to your account.', 'success');
+                            if (typeof fetchCurrentUser === 'function') fetchCurrentUser();
+                            const cleanUrl = window.location.pathname;
+                            window.history.replaceState({}, document.title, cleanUrl);
+                        } else {
+                            showToast(data.message || 'Payment processing...', 'info');
+                        }
+                    })
+                    .catch(e => console.error("Paystack verify error:", e));
                 }
             } catch (err) {
                 console.error("Initialization error:", err);

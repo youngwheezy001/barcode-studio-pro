@@ -1663,6 +1663,242 @@ def confirm_stripe_session(req: ConfirmStripeSessionRequest, current_user: User 
         "invoice_number": invoice_num
     }
 
+# ============================================================
+# PAYSTACK (M-PESA, AIRTEL MONEY & INTERNATIONAL CARDS)
+# ============================================================
+
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "").strip()
+PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "pk_test_931f97f2f9347830d147f1d7c2").strip()
+
+class PaystackInitRequest(BaseModel):
+    package_id: str = "s_10"
+    currency: Optional[str] = "KES"
+
+def credit_paystack_successful_order(db: Session, reference: str, user_id: int, package_id: str, tokens: int, amount_usd: float, channel: str = "paystack"):
+    """Atomically credits tokens to user account upon confirmed Paystack M-Pesa or Card charge."""
+    existing = db.query(CryptoPayment).filter(CryptoPayment.tx_hash == reference).first()
+    if existing:
+        return existing, False
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None, False
+
+    user.tokens = (user.tokens or 0) + tokens
+    db.commit()
+    db.refresh(user)
+
+    process_referral_commission(db, user, order_type="paystack", amount_usd=amount_usd)
+
+    order = CryptoPayment(
+        user_id=user.id,
+        user_email=user.email,
+        package_id=package_id,
+        tokens=tokens,
+        amount_usd=amount_usd,
+        crypto_currency="FIAT_PAYSTACK",
+        network=f"Paystack ({channel.upper()})",
+        wallet_address="M-Pesa / Airtel / Card",
+        tx_hash=reference,
+        status="confirmed",
+        confirmed_at=datetime.utcnow()
+    )
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    order.invoice_number = f"INV-{datetime.utcnow().year}-{order.id:05d}"
+    db.commit()
+
+    sync_users_to_backup()
+    sync_orders_to_backup()
+
+    try:
+        asyncio.create_task(send_sale_notification(order))
+    except Exception:
+        pass
+
+    return order, True
+
+@app.get("/api/paystack/config", summary="Get Paystack Public Key and supported currencies")
+def get_paystack_config():
+    return {
+        "public_key": PAYSTACK_PUBLIC_KEY,
+        "is_live": PAYSTACK_PUBLIC_KEY.startswith("pk_live_"),
+        "usd_to_kes_rate": 130.0,
+        "supported_channels": ["mobile_money", "card"]
+    }
+
+@app.post("/api/paystack/initialize", summary="Initialize Paystack Checkout for Barcode Sets")
+@limiter.limit("20/minute")
+async def paystack_initialize(request: Request, payload: PaystackInitRequest, current_user: User = Depends(get_current_user)):
+    if payload.package_id not in TOKEN_PACKAGES:
+        raise HTTPException(status_code=400, detail="Invalid token package selected")
+
+    pkg = TOKEN_PACKAGES[payload.package_id]
+    amount_usd = float(pkg["amount_usd"])
+    tokens = int(pkg["tokens"])
+
+    currency = (payload.currency or "KES").upper()
+    if currency == "KES":
+        usd_to_kes = 130.0
+        amount_kes = round(amount_usd * usd_to_kes, 2)
+        amount_subunits = int(amount_kes * 100)
+    else:
+        currency = "USD"
+        amount_subunits = int(amount_usd * 100)
+
+    reference = f"bsp_ps_{int(datetime.utcnow().timestamp())}_{current_user.id}_{payload.package_id}"
+    host = request.headers.get("origin") or request.headers.get("referer") or "https://barcode-studio-pro.onrender.com"
+    callback_url = f"{host.rstrip('/')}/?payment=paystack_success&reference={reference}"
+
+    if PAYSTACK_SECRET_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                res = await client.post(
+                    "https://api.paystack.co/transaction/initialize",
+                    headers={
+                        "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "email": current_user.email,
+                        "amount": amount_subunits,
+                        "currency": currency,
+                        "reference": reference,
+                        "callback_url": callback_url,
+                        "metadata": {
+                            "user_id": current_user.id,
+                            "user_email": current_user.email,
+                            "package_id": payload.package_id,
+                            "tokens": tokens,
+                            "amount_usd": amount_usd,
+                            "currency": currency
+                        },
+                        "channels": ["card", "mobile_money"]
+                    }
+                )
+                data = res.json()
+                if res.status_code == 200 and data.get("status"):
+                    return {
+                        "status": "success",
+                        "authorization_url": data["data"]["authorization_url"],
+                        "access_code": data["data"].get("access_code"),
+                        "reference": reference,
+                        "amount_usd": amount_usd,
+                        "tokens": tokens,
+                        "currency": currency
+                    }
+                else:
+                    raise HTTPException(status_code=400, detail=data.get("message", "Paystack initialization failed"))
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Paystack communication error: {str(e)}")
+    else:
+        return {
+            "status": "success",
+            "authorization_url": callback_url,
+            "reference": reference,
+            "amount_usd": amount_usd,
+            "tokens": tokens,
+            "currency": currency,
+            "simulated": True
+        }
+
+@app.post("/api/paystack/webhook", summary="Paystack Webhook for instant M-Pesa & Card confirmation")
+async def paystack_webhook(request: Request, db: Session = Depends(get_db)):
+    body_bytes = await request.body()
+    sig = request.headers.get("x-paystack-signature")
+
+    if PAYSTACK_SECRET_KEY and sig:
+        computed_sig = hmac.new(PAYSTACK_SECRET_KEY.encode('utf-8'), body_bytes, hashlib.sha512).hexdigest()
+        if not hmac.compare_digest(computed_sig, sig):
+            raise HTTPException(status_code=400, detail="Invalid Paystack signature")
+
+    try:
+        data = json.loads(body_bytes.decode('utf-8'))
+        if data.get("event") == "charge.success":
+            tx_data = data.get("data", {})
+            ref = tx_data.get("reference")
+            meta = tx_data.get("metadata", {})
+            channel = tx_data.get("channel", "paystack")
+
+            user_id = meta.get("user_id")
+            pkg_id = meta.get("package_id", "xxs_1")
+            tokens = int(meta.get("tokens", 1))
+            amt_usd = float(meta.get("amount_usd", 2.50))
+
+            if user_id and ref:
+                credit_paystack_successful_order(
+                    db, reference=ref, user_id=int(user_id),
+                    package_id=pkg_id, tokens=tokens,
+                    amount_usd=amt_usd, channel=channel
+                )
+
+        return {"status": "success"}
+    except Exception as e:
+        print(f"Notice: Paystack webhook error: {e}")
+        return {"status": "error", "message": str(e)}
+
+@app.get("/api/paystack/verify/{reference}", summary="Verify Paystack Transaction & Credit Sets")
+async def paystack_verify(reference: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    existing = db.query(CryptoPayment).filter(CryptoPayment.tx_hash == reference).first()
+    if existing:
+        return {
+            "status": "success",
+            "message": "Payment verified and credited!",
+            "tokens": current_user.tokens,
+            "order_id": existing.id,
+            "invoice_number": existing.invoice_number
+        }
+
+    if not PAYSTACK_SECRET_KEY:
+        parts = reference.split("_")
+        pkg_id = parts[4] if len(parts) >= 5 else "xxs_1"
+        pkg = TOKEN_PACKAGES.get(pkg_id, TOKEN_PACKAGES["xxs_1"])
+        order, credited = credit_paystack_successful_order(
+            db, reference=reference, user_id=current_user.id,
+            package_id=pkg_id, tokens=pkg["tokens"],
+            amount_usd=pkg["amount_usd"], channel="test_mode"
+        )
+        return {
+            "status": "success",
+            "message": f"Successfully credited {pkg['tokens']} Barcode Sets to your account!",
+            "tokens": current_user.tokens,
+            "order_id": order.id if order else None
+        }
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            res = await client.get(
+                f"https://api.paystack.co/transaction/verify/{reference}",
+                headers={"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"}
+            )
+            data = res.json()
+            if res.status_code == 200 and data.get("status") and data.get("data", {}).get("status") == "success":
+                tx_data = data["data"]
+                meta = tx_data.get("metadata", {})
+                channel = tx_data.get("channel", "paystack")
+                pkg_id = meta.get("package_id", "xxs_1")
+                tokens = int(meta.get("tokens", 1))
+                amt_usd = float(meta.get("amount_usd", 2.50))
+
+                order, credited = credit_paystack_successful_order(
+                    db, reference=reference, user_id=current_user.id,
+                    package_id=pkg_id, tokens=tokens,
+                    amount_usd=amt_usd, channel=channel
+                )
+                return {
+                    "status": "success",
+                    "message": f"Payment verified! Credited {tokens} Barcode Sets to your account.",
+                    "tokens": current_user.tokens,
+                    "order_id": order.id if order else None
+                }
+            else:
+                return {"status": "pending", "message": "Transaction is pending or awaiting confirmation."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Verification error: {str(e)}")
+
 # --- CRYPTO PAYMENT ENDPOINTS ---
 
 class CreateCryptoOrderRequest(BaseModel):
