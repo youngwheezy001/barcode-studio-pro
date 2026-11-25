@@ -12952,3 +12952,10 @@ function QC_calculate_ICN() {
     window.getTargetElement = getTargetElement;
 
 })(window);
+
+// Re-populate state dropdown immediately when state engine loads to ensure client sees latest revisions
+try {
+    if (typeof populateStateDropdown === 'function') {
+        populateStateDropdown();
+    }
+} catch (e) {}

@@ -2,31 +2,30 @@
 // Cache static assets on first load; serve from cache on repeat visits.
 // This eliminates Render.com cold-start delays and makes the app load instantly on return visits.
 
-const CACHE_NAME = 'bsp-static-v3';
+const CACHE_NAME = 'bsp-static-v5';
 
 // Assets to cache on install (critical path — these make the app feel instant)
 const PRECACHE_URLS = [
-  '/static/state_engine.js',
   '/favicon.svg',
   '/favicon-32x32.png',
   '/manifest.json',
 ];
 
-// Cache-first strategy: CDN libraries, state engine, card templates, images
+// Cache-first strategy: CDN libraries, card templates, images
 const CACHE_FIRST_PATTERNS = [
   /cdn\.jsdelivr\.net/,
   /cdnjs\.cloudflare\.com/,
   /cdn\.tailwindcss\.com/,
   /fonts\.googleapis\.com/,
   /fonts\.gstatic\.com/,
-  /\/static\/state_engine\.js/,
-  /\/static\/.*\.(js|css|woff2?|ttf|otf)$/,
   /\/card_templates\/.*\.(webp|png|jpg|svg)$/,
   /\/static\/.*\.(webp|png|jpg|svg|ico)$/,
 ];
 
-// Network-first strategy: API calls and HTML pages must always be fresh
+// Network-first strategy: State Engine, API calls and dynamic routes must ALWAYS be fresh
 const NETWORK_FIRST_PATTERNS = [
+  /\/static\/state_engine\.js/,
+  /state_engine\.js/,
   /\/api\//,
   /\/auth\//,
   /\/admin\//,

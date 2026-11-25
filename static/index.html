@@ -70,13 +70,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
     <script>if (!window.ZXing) document.write('<script src="/static/zxing.min.js"><\/script>');</script>
     <!-- Certified Multi-Revision State & Calculator Engine -->
-    <script src="state_engine.js?v=2.2"></script>
-    <script>if (!window.STATE_HIERARCHY) document.write('<script src="/static/state_engine.js?v=2.2"><\/script>');</script>
+    <script src="state_engine.js?v=2.5"></script>
+    <script>if (!window.STATE_HIERARCHY) document.write('<script src="/static/state_engine.js?v=2.5"><\/script>');</script>
     <script>
         // Register Service Worker for fast repeat loads (caches static assets & CDN libs)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/static/sw.js', { scope: '/' })
+                navigator.serviceWorker.register('/static/sw.js?v=2.5', { scope: '/' })
                     .catch(function() { /* Fail silently if SW not supported */ });
             });
         }
@@ -2853,6 +2853,14 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         </div>
                         <input type="text" id="input-code128" placeholder="Enter payload (e.g. DEMO-123456789 or SHIP-987654321)" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm code-font text-slate-800 focus:ring-2 focus:ring-accent outline-none" oninput="renderCode128()">
                         <span class="text-[11px] text-slate-500 mt-1 block">Standard 1D companion barcode, synchronized automatically with cardholder ID or custom tracking numbers.</span>
+                        <!-- Dynamic notice for states that do not print 1D barcode on physical card back -->
+                        <div id="form-no-code128-notice" class="hidden mt-2 p-2.5 bg-amber-50 border border-amber-300 rounded-lg text-xs text-amber-900 flex items-start gap-2 shadow-xs">
+                            <span class="text-base shrink-0">⚠️</span>
+                            <div>
+                                <span class="font-bold block text-[11px] uppercase tracking-wider text-amber-950">Real-World Jurisdiction Specification:</span>
+                                <span id="form-no-code128-text" class="text-[11px] text-amber-800">Official physical cards for this revision do not print a 1D Code 128 barcode on the card back (only the 2D AAMVA PDF417 barcode is used). This companion 1D barcode is provided for auxiliary testing &amp; lab verification.</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
@@ -3774,6 +3782,15 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                     </div>
 
+                    <!-- Dynamic Card Inspection Spec Notice for revisions without 1D Barcode on Card Back -->
+                    <div id="card-inspection-spec-notice" class="hidden mt-3 p-2.5 bg-blue-950/80 border border-blue-600/70 rounded-xl text-xs text-blue-200 flex items-start gap-2.5 shadow-md">
+                        <span class="text-base shrink-0">ℹ️</span>
+                        <div class="leading-tight">
+                            <span class="font-bold block text-[11px] uppercase tracking-wider text-blue-300">Official Jurisdiction Card Back Specification:</span>
+                            <span id="card-inspection-spec-text" class="text-[11px] text-slate-200">Official physical cards for this revision do not print a 1D Code 128 barcode on the card back (2D AAMVA PDF417 only per official state design).</span>
+                        </div>
+                    </div>
+
                     <!-- Collapsible Advanced Barcode Parameters Drawer -->
                     <div class="w-full pt-2">
                         <button type="button" onclick="toggleAdvancedSettings()" class="w-full flex items-center justify-between text-[11px] text-slate-400 hover:text-slate-200 py-1.5 px-3 rounded-lg bg-slate-900/70 hover:bg-slate-900 border border-slate-800 transition">
@@ -3965,6 +3982,15 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>CR80 Card</span>
                         <span class="text-[8px] opacity-80">ID Back</span>
                     </button>
+
+                    <!-- Dynamic Specification Banner for Jurisdictions without 1D Barcode on Card Back -->
+                    <div id="export-no-code128-notice" class="hidden col-span-6 p-2.5 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-start gap-2 shadow-xs">
+                        <span class="text-base shrink-0">⚠️</span>
+                        <div class="leading-tight">
+                            <span class="font-bold text-[11px] text-amber-950 block">Official Card Back Specification Notice:</span>
+                            <span id="export-no-code128-text" class="text-[11px] text-amber-900">Official physical cards for this revision (<span class="no-code128-rev-name font-bold"></span>) do <strong>NOT</strong> print a 1D Code 128 barcode on the card back (2D AAMVA PDF417 only). Companion Code 128 is included in your download package for auxiliary / lab scanning.</span>
+                        </div>
+                    </div>
 
                     <!-- Row 2: Flagship 1-Click Complete Production Print Pack (.ZIP) -->
                     <button onclick="secureExport(downloadProductionPrintPack)" class="col-span-6 bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 hover:from-blue-800 hover:to-purple-900 text-white font-extrabold py-2 px-3 rounded-xl transition shadow-md text-xs flex items-center justify-between group">
@@ -5550,6 +5576,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const select = document.getElementById('aamva-jurisdiction');
             if (!select) return;
 
+            const currentVal = select.value;
+
             if (window.STATE_HIERARCHY) {
                 let usHtml = '';
                 let caHtml = '';
@@ -5558,7 +5586,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     for (const rev of group.revisions) {
                         const verifiedBadge = rev.verified ? ' ✔' : '';
                         const newBadge = rev.is_new ? ' [NEW]' : '';
-                        const cleanLabel = (rev.label || stateName).replace('Kentucy', 'Kentucky');
+                        const rawLabel = (rev.label || stateName).replace('Kentucy', 'Kentucky');
+                        const cleanLabel = rawLabel.replace(/\s*\[NEW\]\s*/gi, '');
                         const optionHtml = `<option value="${rev.slug}">${cleanLabel}${newBadge}${verifiedBadge}</option>`;
                         if (group.is_canada) {
                             caHtml += optionHtml;
@@ -5575,18 +5604,19 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
                 select.innerHTML = optionsHtml;
             }
+
+            if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+                select.value = currentVal;
+            }
         }
 
-        // Populate state dropdown immediately upon definition
+        // Populate state dropdown immediately upon definition and re-sync on DOMContentLoaded
         populateStateDropdown();
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof preloadCardTemplates === 'function') {
                 preloadCardTemplates();
             }
-            const select = document.getElementById('aamva-jurisdiction');
-            if (select && select.options.length === 0) {
-                populateStateDropdown();
-            }
+            populateStateDropdown();
         });
 
         function autoSyncExpiryDate() {
@@ -9531,6 +9561,35 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (agencyTag) agencyTag.classList.add('hidden');
             }
 
+            // Dynamic 1D Barcode omission indicators for jurisdictions that omit 1D Code 128 on card back
+            const isNo1D = (barcodePos === 'none');
+            const revLabel = (revInfo && revInfo.label) ? revInfo.label : (meta && meta.name ? `${meta.name} (${meta.rev || 'Current'})` : stateCode);
+
+            const formNotice = document.getElementById('form-no-code128-notice');
+            const formNoticeText = document.getElementById('form-no-code128-text');
+            if (formNotice) {
+                formNotice.classList.toggle('hidden', !isNo1D);
+                if (isNo1D && formNoticeText) {
+                    formNoticeText.textContent = `Official physical cards for ${revLabel} do not print a 1D Code 128 barcode on the card back (only the 2D AAMVA PDF417 barcode is used). This companion 1D barcode is provided for auxiliary testing & lab verification.`;
+                }
+            }
+
+            const stageNotice = document.getElementById('card-inspection-spec-notice');
+            const stageNoticeText = document.getElementById('card-inspection-spec-text');
+            if (stageNotice) {
+                stageNotice.classList.toggle('hidden', !isNo1D);
+                if (isNo1D && stageNoticeText) {
+                    stageNoticeText.textContent = `Official physical cards for ${revLabel} do not print a 1D Code 128 barcode on the card back (2D AAMVA PDF417 only per official state design).`;
+                }
+            }
+
+            const exportNotice = document.getElementById('export-no-code128-notice');
+            if (exportNotice) {
+                exportNotice.classList.toggle('hidden', !isNo1D);
+                const revSpan = exportNotice.querySelector('.no-code128-rev-name');
+                if (revSpan) revSpan.textContent = revLabel;
+            }
+
             // 4. Sequence / Audit / Document Discriminator number
             const seqEl = document.getElementById('studio-seq-num');
             if (seqEl) {
@@ -13243,9 +13302,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         // PNG Multi-DPI Export (300 DPI / 600 DPI)
+        function checkAndNotifyCode128Omission() {
+            try {
+                const curJur = (document.getElementById('aamva-jurisdiction')?.value || '').trim();
+                const curMeta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(curJur) : null;
+                if (curMeta && curMeta.barcode_1d_pos === 'none') {
+                    const rInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(curJur) : null;
+                    const rLbl = rInfo ? (rInfo.label || rInfo.slug) : curJur;
+                    showToast(`Note: Official physical cards for ${rLbl} do not print a 1D Code 128 barcode on the card back (2D PDF417 only per official state design). Exporting companion 1D barcode for auxiliary/lab verification.`, 'info');
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+
         function downloadPNG(targetDpi = 300) {
             const multiplier = targetDpi === 600 ? 4 : 2;
             if (currentTab === 'code128') {
+                checkAndNotifyCode128Omission();
                 const svg = document.getElementById('output-code128');
                 const xml = new XMLSerializer().serializeToString(svg);
                 const svg64 = btoa(unescape(encodeURIComponent(xml)));
@@ -13326,6 +13400,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // JPEG Export
         function downloadJPEG() {
             if (currentTab === 'code128') {
+                checkAndNotifyCode128Omission();
                 const srcCanvas = document.getElementById('hidden-code128-canvas');
                 const exportCanvas = document.createElement('canvas');
                 exportCanvas.width = srcCanvas.width;
@@ -13400,6 +13475,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // Vector SVG Export
         function downloadSVG() {
             if (currentTab === 'code128') {
+                checkAndNotifyCode128Omission();
                 const svg = document.getElementById('output-code128');
                 const xml = new XMLSerializer().serializeToString(svg);
                 const blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
@@ -13471,6 +13547,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const doc = new jsPDF({ orientation: 'landscape', unit: 'in', format: [4, 2] });
 
             if (currentTab === 'code128') {
+                checkAndNotifyCode128Omission();
                 const svg = document.getElementById('output-code128');
                 const xml = new XMLSerializer().serializeToString(svg);
                 const img = new Image();
@@ -13999,6 +14076,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // Download 2-in-1 Dual Barcode High-Resolution Vector & 600 DPI ZIP Bundle
         async function downloadDualBarcodeBundle() {
+            try {
+                const curJur = (document.getElementById('aamva-jurisdiction')?.value || '').trim();
+                const curMeta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(curJur) : null;
+                if (curMeta && curMeta.barcode_1d_pos === 'none') {
+                    const rInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(curJur) : null;
+                    const rLbl = rInfo ? (rInfo.label || rInfo.slug) : curJur;
+                    showToast(`Note: Official physical cards for ${rLbl} do not print a 1D Code 128 barcode on the card back (2D PDF417 only). Companion Code 128 is included in your bundle for auxiliary/lab verification.`, 'info');
+                }
+            } catch (e) {}
             const hasTokens = currentUser && (currentUser.tokens > 0 || currentUser.role === 'admin' || currentUser.role === 'pro_user');
             if (!hasTokens) {
                 showToast('Export requires active Barcode Sets. Please purchase sets to download.', 'warning');
@@ -14888,6 +14974,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
 
         async function downloadProductionPrintPack() {
             showToast('Compiling 1-Click Complete Production Print Pack (ZIP)...', 'info');
+            checkAndNotifyCode128Omission();
             if (!window.JSZip) {
                 showToast('JSZip library loading, please retry in 1 second', 'warning');
                 return;
@@ -14990,6 +15077,9 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 zip.file(`${prefix}_09_Decoded_Scanner_Payload.xml`, scannerXml);
 
                 // 10. 10_Production_Inspection_Manifest.json
+                const jurCode = (document.getElementById('aamva-jurisdiction')?.value || '').trim();
+                const jurMeta = (typeof getCardBackMetadata === 'function') ? getCardBackMetadata(jurCode) : null;
+                const isNo1D = jurMeta && jurMeta.barcode_1d_pos === 'none';
                 const manifest = {
                     title: "Barcode Studio Pro 1-Click Complete Production Print Pack",
                     generated_at: new Date().toISOString(),
@@ -15017,6 +15107,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                         print_technology: "Direct-to-Card (DTC) or High-Definition Re-transfer (600 DPI)",
                         bleed: "0.125 inches (3.17 mm) over-the-edge bleed",
                         quiet_zone: "Preserve >= 4X module clearance on all four borders of PDF417 ribbon"
+                    },
+                    jurisdiction_physical_card_specification: isNo1D ? {
+                        official_1d_barcode_on_card_back: false,
+                        standard: "2D AAMVA PDF417 Only",
+                        notes: "Official physical credential designs for this revision do not print a 1D Code 128 barcode on the card back. Companion 1D assets (03 & 05) are included in this package for auxiliary scanner testing."
+                    } : {
+                        official_1d_barcode_on_card_back: true,
+                        barcode_1d_symbology: "Code 128",
+                        barcode_1d_position: jurMeta?.barcode_1d_pos || "top"
                     }
                 };
                 zip.file(`${prefix}_10_Production_Inspection_Manifest.json`, JSON.stringify(manifest, null, 2));
