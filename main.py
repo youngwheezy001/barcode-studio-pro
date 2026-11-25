@@ -74,9 +74,10 @@ def create_robust_engine():
             pg_engine = create_engine(
                 db_url,
                 pool_pre_ping=True,
-                pool_recycle=300,
-                pool_size=10,
-                max_overflow=20,
+                pool_recycle=180,
+                pool_size=20,
+                max_overflow=30,
+                pool_timeout=15,
                 connect_args={
                     "connect_timeout": 4,
                     "sslmode": "prefer"
@@ -2424,6 +2425,7 @@ async def background_payment_poller():
     await asyncio.sleep(4)
     while True:
         try:
+            order_ids = []
             db = SessionLocal()
             try:
                 # 0. Auto-purge stale unpaid pending/submitted orders older than 2 hours
@@ -2439,29 +2441,44 @@ async def background_payment_poller():
                     CryptoPayment.status.in_(["pending", "submitted"]),
                     CryptoPayment.created_at >= cutoff
                 ).order_by(CryptoPayment.id.desc()).all()
-
-                if pending_orders:
-                    # 1. Check blockchain nodes
-                    for order in pending_orders:
-                        try:
-                            confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, db)
-                            if confirmed:
-                                print(f"[AUTONOMOUS CONFIRMATION] Order #{order.id} ({order.user_email}) confirmed: {msg}")
-                        except Exception as o_err:
-                            pass
-
-                    # 2. Check official Binance API if credentials set in environment
-                    b_key = (os.getenv("BINANCE_API_KEY") or "").strip()
-                    b_sec = (os.getenv("BINANCE_API_SECRET") or "").strip()
-                    if b_key and b_sec:
-                        await poll_binance_api_deposits(pending_orders, db, b_key, b_sec)
-
+                order_ids = [o.id for o in pending_orders]
             finally:
                 db.close()
+
+            if order_ids:
+                # 1. Check blockchain nodes with individual scoped sessions per order
+                for oid in order_ids:
+                    try:
+                        poll_db = SessionLocal()
+                        try:
+                            order = poll_db.query(CryptoPayment).filter(CryptoPayment.id == oid).first()
+                            if order and order.status in ["pending", "submitted"]:
+                                confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, poll_db)
+                                if confirmed:
+                                    print(f"[AUTONOMOUS CONFIRMATION] Order #{order.id} ({order.user_email}) confirmed: {msg}")
+                        finally:
+                            poll_db.close()
+                    except Exception as o_err:
+                        pass
+
+                # 2. Check official Binance API if credentials set in environment
+                b_key = (os.getenv("BINANCE_API_KEY") or "").strip()
+                b_sec = (os.getenv("BINANCE_API_SECRET") or "").strip()
+                if b_key and b_sec:
+                    binance_db = SessionLocal()
+                    try:
+                        active_orders = binance_db.query(CryptoPayment).filter(
+                            CryptoPayment.id.in_(order_ids),
+                            CryptoPayment.status.in_(["pending", "submitted"])
+                        ).all()
+                        if active_orders:
+                            await poll_binance_api_deposits(active_orders, binance_db, b_key, b_sec)
+                    finally:
+                        binance_db.close()
         except Exception as e:
             print(f"[PAYMENT POLLER WORKER] Cycle note: {e}")
 
-        await asyncio.sleep(20)
+        await asyncio.sleep(25)
 
 @app.post("/api/webhooks/binance-deposit", summary="Autonomous Binance deposit confirmation webhook")
 @app.post("/api/webhooks/binance-email", summary="Autonomous Binance email confirmation ingestion")

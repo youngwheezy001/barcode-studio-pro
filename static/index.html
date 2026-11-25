@@ -11007,7 +11007,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 } catch (e) {
                     // Ignore transient network hiccups
                 }
-            }, 3500);
+            }, 6000);
         }
 
         async function openReceiptModal(orderId) {
@@ -12462,12 +12462,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         function startLiveSync() {
             if (_liveSyncTimer) clearInterval(_liveSyncTimer);
-            // Poll every 2500ms when active for near-instant reflection
+            // Poll every 10s when active to prevent database connection saturation while keeping balances synced
             _liveSyncTimer = setInterval(() => {
                 if (document.visibilityState !== 'hidden') {
                     liveSyncUserSession();
                 }
-            }, 2500);
+            }, 10000);
         }
 
         // Trigger immediate sync on window focus or visibility change
