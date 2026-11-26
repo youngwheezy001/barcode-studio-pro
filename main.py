@@ -3975,6 +3975,21 @@ def get_gmail_smtp_credentials():
 
     return host, port, user, password
 
+def get_resend_from_address() -> str:
+    """Returns a valid from address for Resend HTTPS API.
+    Resend strictly blocks sending from public webmail domains like @gmail.com or @yahoo.com.
+    If RESEND_FROM or EMAIL_FROM is a verified custom domain, it uses that.
+    Otherwise, it defaults to the official Resend test address 'Barcode Studio Pro <onboarding@resend.dev>'."""
+    resend_from = (os.getenv("RESEND_FROM") or "").strip().strip("'\"")
+    if resend_from and not any(webmail in resend_from.lower() for webmail in ["@gmail.com", "@yahoo.", "@hotmail.", "@outlook."]):
+        return resend_from
+
+    email_from = (os.getenv("EMAIL_FROM") or "").strip().strip("'\"")
+    if email_from and not any(webmail in email_from.lower() for webmail in ["@gmail.com", "@yahoo.", "@hotmail.", "@outlook."]):
+        return email_from
+
+    return "Barcode Studio Pro <onboarding@resend.dev>"
+
 def dispatch_password_reset_email(to_email: str, code: str) -> dict:
     """Dispatches password reset verification email via Google HTTPS Relay or Gmail SMTP with safe fallback."""
     try:
@@ -4013,7 +4028,7 @@ def dispatch_password_reset_email(to_email: str, code: str) -> dict:
         if resend_key:
             try:
                 print(f"[RESEND] Dispatching reset email to '{to_email}' via Resend HTTPS API...")
-                from_addr = os.getenv("EMAIL_FROM") or os.getenv("RESEND_FROM") or "Barcode Studio Pro <onboarding@resend.dev>"
+                from_addr = get_resend_from_address()
                 resend_payload = json.dumps({
                     "from": from_addr,
                     "to": [to_email],
@@ -4311,7 +4326,7 @@ def dispatch_sets_transferred_email(to_email: str, from_email: str, tokens: int,
         resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip().strip("'\"")
         if resend_key:
             try:
-                from_addr = os.getenv("EMAIL_FROM") or os.getenv("RESEND_FROM") or "Barcode Studio Pro <onboarding@resend.dev>"
+                from_addr = get_resend_from_address()
                 resend_payload = json.dumps({
                     "from": from_addr,
                     "to": [to_email],
@@ -4433,26 +4448,42 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
         err_reasons = []
 
         # METHOD 0: RESEND HTTPS API (Port 443 - Recommended for Render)
-        resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip()
+        resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip().strip("'\"")
         if resend_key:
-            try:
-                from_addr = os.getenv("EMAIL_FROM") or os.getenv("RESEND_FROM") or "Barcode Studio Pro <onboarding@resend.dev>"
-                resend_payload = json.dumps({
-                    "from": from_addr,
-                    "to": [to_email],
-                    "subject": subject,
-                    "html": html_content
-                }).encode("utf-8")
-                resend_req = urllib.request.Request(
-                    "https://api.resend.com/emails",
-                    data=resend_payload,
-                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/2.0"}
-                )
-                with urllib.request.urlopen(resend_req, timeout=10) as r_resp:
-                    return {"delivered": True, "provider": "resend"}
-            except Exception as e:
-                err_reasons.append(f"Resend error: {e}")
-                print(f"[REMINDER RESEND NOTE] {e}")
+            resend_candidates = [get_resend_from_address()]
+            if "onboarding@resend.dev" not in resend_candidates[0]:
+                resend_candidates.append("Barcode Studio Pro <onboarding@resend.dev>")
+
+            for cand_from in resend_candidates:
+                try:
+                    resend_payload = json.dumps({
+                        "from": cand_from,
+                        "to": [to_email],
+                        "subject": subject,
+                        "html": html_content
+                    }).encode("utf-8")
+                    resend_req = urllib.request.Request(
+                        "https://api.resend.com/emails",
+                        data=resend_payload,
+                        headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/2.0"}
+                    )
+                    with urllib.request.urlopen(resend_req, timeout=10) as r_resp:
+                        return {"delivered": True, "provider": "resend", "from": cand_from}
+                except urllib.error.HTTPError as he:
+                    err_msg = str(he)
+                    try:
+                        err_body = he.read().decode("utf-8", errors="ignore")
+                        err_json = json.loads(err_body)
+                        err_msg = err_json.get("message") or err_json.get("detail") or err_body
+                    except Exception:
+                        pass
+                    print(f"[REMINDER RESEND ATTEMPT] {cand_from} returned: {err_msg}")
+                    if cand_from == resend_candidates[-1]:
+                        err_reasons.append(f"Resend error: {err_msg}")
+                except Exception as e:
+                    print(f"[REMINDER RESEND NOTE] {e}")
+                    if cand_from == resend_candidates[-1]:
+                        err_reasons.append(f"Resend error: {e}")
 
         # METHOD 1: SENDGRID HTTPS API (Port 443)
         sendgrid_key = (os.getenv("SENDGRID_API_KEY") or os.getenv("SENDGRID_KEY") or "").strip()
