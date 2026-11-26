@@ -442,14 +442,14 @@
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg shadow-sm">
-                        📚
+                        🎨
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Digital Books &amp; Engineering Market</h2>
+                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">PSD &amp; Template Market</h2>
                             <span class="text-[10px] bg-purple-100 text-purple-700 font-extrabold px-2 py-0.5 rounded-full border border-purple-200">Cloudflare R2 Direct</span>
                         </div>
-                        <p class="text-xs text-slate-500">Official technical handbooks, AAMVA specifications, print engineering manuals &amp; vector security assets</p>
+                        <p class="text-xs text-slate-500">300 DPI layered PSD templates with editable smart objects, barcode zones &amp; typography via Cloudflare R2</p>
                     </div>
                 </div>
                 <button type="button" onclick="closePsdMarketModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-base transition cursor-pointer">
@@ -471,58 +471,34 @@
             <!-- Categories & Search -->
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 pt-1">
                 <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
-                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Digital Goods</button>
-                    <button type="button" onclick="filterPsdCategory('books')" id="psd-filter-books" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📚 E-Books &amp; Manuals</button>
-                    <button type="button" onclick="filterPsdCategory('guides')" id="psd-filter-guides" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📖 Technical Guides</button>
-                    <button type="button" onclick="filterPsdCategory('design')" id="psd-filter-design" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Vector Assets</button>
+                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All PSDs</button>
+                    <button type="button" onclick="filterPsdCategory('certs')" id="psd-filter-certs" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🏆 Certificates</button>
+                    <button type="button" onclick="filterPsdCategory('packaging')" id="psd-filter-packaging" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Packaging &amp; Labels</button>
+                    <button type="button" onclick="filterPsdCategory('tickets')" id="psd-filter-tickets" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎫 Tickets &amp; Passes</button>
+                    <button type="button" onclick="filterPsdCategory('security')" id="psd-filter-security" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Security &amp; Patterns</button>
                 </div>
                 <div class="relative min-w-[200px]">
-                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search books &amp; guides..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
+                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search PSD templates..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
                     <span class="absolute left-2.5 top-1.5 text-xs text-slate-400">🔍</span>
                 </div>
             </div>
 
             <!-- Templates Catalog Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1" id="psd-templates-grid">
-                <!-- Product 1: AAMVA Standards Handbook -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="books" data-title="AAMVA PDF417 & Code 128 Standards Handbook">
+                <!-- Product 1: Certificate of Achievement & Completion PSD -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="certs" data-title="Certificate of Achievement & Completion PSD">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200">Official Handbook</span>
-                            <span class="text-[10px] font-bold text-slate-500">PDF E-Book</span>
+                            <span class="text-[10px] font-bold uppercase bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200">Certificate PSD</span>
+                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">AAMVA PDF417 &amp; Code 128 Standards Handbook</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">Comprehensive 140-page engineering guide covering all AAMVA jurisdictional specifications, subfile headers, truncations, and compliance rules.</p>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Certificate of Achievement &amp; Completion PSD</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Prestigious ornamental gold guilloche border, customizable seal emblem placeholder, editable typography smart objects, and CMYK print-ready color separation.</p>
                         <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">AAMVA 2025</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">PDF417</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">140 Pages</span>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
-                        <div>
-                            <span class="text-base font-extrabold text-slate-900">$15.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 1,950)</span>
-                        </div>
-                        <button type="button" onclick="buyPsdTemplate('book_aamva_standards', 'AAMVA Standards Handbook', 15.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Purchase Book</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product 2: Print Production Manual -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="books" data-title="Modern Vector Graphics & Print Production Manual">
-                    <div class="flex flex-col gap-2">
-                        <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">Technical Guide</span>
-                            <span class="text-[10px] font-bold text-slate-500">PDF E-Book</span>
-                        </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Modern Vector Graphics &amp; Print Production Manual</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">Essential handbook for graphic designers, commercial print operators, color profiles (CMYK/RGB), 300+ DPI prepress, and vector rasterization standards.</p>
-                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">300 DPI Prepress</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">CMYK Workflows</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">95 Pages</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">300 DPI</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Layered PSD</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Gold Foil</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Certificate</span>
                         </div>
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
@@ -530,25 +506,26 @@
                             <span class="text-base font-extrabold text-slate-900">$18.00</span>
                             <span class="text-[10px] text-slate-500 block">(~ KES 2,340)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('book_digital_print_production', 'Vector & Print Production Manual', 18.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Purchase Book</span>
+                        <button type="button" onclick="buyPsdTemplate('psd_cert_achievement', 'Certificate of Achievement PSD', 18.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Download / Buy PSD</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Product 3: ICAO 9303 Travel Specs Guide -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="books" data-title="ICAO Doc 9303 Travel Documents Specification Manual">
+                <!-- Product 2: Retail Product & Packaging Box Mockup PSD -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="packaging" data-title="Retail Product & Packaging Box Mockup PSD">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200">Specification</span>
-                            <span class="text-[10px] font-bold text-slate-500">PDF E-Book</span>
+                            <span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">Packaging &amp; Box</span>
+                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">ICAO Doc 9303 Travel Documents Specification</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">Deep-dive technical manual detailing MRZ Type 1, Type 2, Type 3 formats, checksum algorithms (mod-10 weight 7-3-1), and optical character standards.</p>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Retail Product &amp; Packaging Box Mockup PSD</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Professional 3D box packaging mockup with dedicated GS1 barcode placement zones, nutritional facts grid, realistic paper texture, and customizable foil accents.</p>
                         <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">ICAO 9303</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">MRZ Checksums</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">120 Pages</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Packaging</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Barcode Zone</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Smart Objects</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">300 DPI</span>
                         </div>
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
@@ -556,60 +533,89 @@
                             <span class="text-base font-extrabold text-slate-900">$20.00</span>
                             <span class="text-[10px] text-slate-500 block">(~ KES 2,600)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('book_mrz_icao_standards', 'ICAO 9303 Travel Specification', 20.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Purchase Book</span>
+                        <button type="button" onclick="buyPsdTemplate('psd_packaging_label', 'Retail Packaging Box Mockup PSD', 20.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Download / Buy PSD</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Product 4: Industrial Barcode Scanning Guide -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="guides" data-title="Industrial Optical Barcode Scanning & Verification Manual">
+                <!-- Product 3: Event Ticket & Conference Pass Template PSD -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="tickets" data-title="Event Ticket & Conference Pass Template PSD">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded border border-indigo-200">Field Manual</span>
-                            <span class="text-[10px] font-bold text-slate-500">PDF + Checklist</span>
+                            <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200">Tickets &amp; Passes</span>
+                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Industrial Barcode Scanning &amp; Verification Manual</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">Industry best practices for imager setup, quiet zones, illumination angles, high-speed conveyor sorting, and verification grading (ISO/IEC 15415).</p>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Event Ticket &amp; Conference Pass Template PSD</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Commercial event ticket template with tear-off stub, sequential numbering zone, QR &amp; Code 128 barcode placement fields, and double-sided lanyard pass layout.</p>
                         <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">ISO 15415</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Scanner Setup</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Checklist</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Event Ticket</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Barcode Stub</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Perforation</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Layered</span>
                         </div>
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
                         <div>
-                            <span class="text-base font-extrabold text-slate-900">$12.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 1,560)</span>
+                            <span class="text-base font-extrabold text-slate-900">$15.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 1,950)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('guide_barcode_automation', 'Industrial Scanning Manual', 12.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Purchase Guide</span>
+                        <button type="button" onclick="buyPsdTemplate('psd_event_ticket_pass', 'Event Ticket & Pass PSD', 15.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Download / Buy PSD</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Product 5: Guilloche Vector Asset Pack -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="design" data-title="High-Precision Guilloche Vector & Geometric Wave Asset Pack">
+                <!-- Product 4: Commercial Logistics & Shipping Label Master PSD -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="packaging" data-title="Commercial Logistics & Shipping Label Master PSD">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-pink-100 text-pink-800 px-2 py-0.5 rounded border border-pink-200">Design Assets</span>
-                            <span class="text-[10px] font-bold text-slate-500">Vector Pack</span>
+                            <span class="text-[10px] font-bold uppercase bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded border border-indigo-200">Shipping &amp; Logistics</span>
+                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Guilloche Vector &amp; Geometric Wave Asset Pack</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">50+ mathematical spirograph curves, rosette patterns, certificate borders, and micro-line vector backgrounds for security printing and certificate design.</p>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Commercial Logistics &amp; Shipping Label Master PSD</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Standard 4x6 inch logistics shipping label template with automated Code 128 routing barcode placeholders, AAMVA/GS1 block zones, and thermal printer optimization.</p>
                         <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">50+ Vectors</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">SVG + EPS</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Full Commercial</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Shipping Label</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">4x6 Inch</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Code 128</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Logistics</span>
                         </div>
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
                         <div>
-                            <span class="text-base font-extrabold text-slate-900">$25.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 3,250)</span>
+                            <span class="text-base font-extrabold text-slate-900">$16.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 2,080)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('asset_guilloche_vectors', 'Guilloche Vector Asset Pack', 25.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Purchase Pack</span>
+                        <button type="button" onclick="buyPsdTemplate('psd_shipping_logistics', 'Shipping Label Master PSD', 16.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Download / Buy PSD</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 5: Guilloche Security Backgrounds & Rosettes PSD -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="security" data-title="Guilloche Security Backgrounds & Rosettes PSD">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold uppercase bg-pink-100 text-pink-800 px-2 py-0.5 rounded border border-pink-200">Security Vectors</span>
+                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Guilloche Security Backgrounds &amp; Rosettes PSD</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Complex mathematical security wave lines, anti-copy micro-patterns, ornamental rosettes, and multi-tone guilloche background plates for high-value print documents.</p>
+                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Guilloche</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Anti-Copy</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Security Print</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Rosettes</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-base font-extrabold text-slate-900">$22.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 2,860)</span>
+                        </div>
+                        <button type="button" onclick="buyPsdTemplate('psd_security_guilloche', 'Guilloche Security Backgrounds PSD', 22.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Download / Buy PSD</span>
                         </button>
                     </div>
                 </div>
@@ -2221,8 +2227,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <span>🪪 AAMVA Barcode</span>
                 </button>
                 <button type="button" id="workspace-tab-psd" onclick="openPsdMarketModal()" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-1.5 transition">
-                    <span>📚 Digital Market</span>
-                    <span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">Books &amp; Assets</span>
+                    <span>🎨 PSD Market</span>
+                    <span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">Templates</span>
                 </button>
                 <button type="button" id="workspace-tab-mrz" onclick="switchWorkspace('mrz')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
                     <span>🛂 MRZ Passport</span>
@@ -2258,10 +2264,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>Purchase Tokens &amp; Packages</span>
                     </button>
 
-                    <!-- Digital Books & Assets Market Button in dropdown -->
+                    <!-- PSD Market Button in dropdown -->
                     <button type="button" onclick="openPsdMarketModal(); closeUserMenu();" class="w-full text-left text-xs font-semibold text-purple-300 hover:text-purple-200 hover:bg-purple-500/20 px-3 py-2 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                        <span class="text-sm">📚</span>
-                        <span>Digital Books &amp; Engineering Market</span>
+                        <span class="text-sm">🎨</span>
+                        <span>PSD &amp; Template Market</span>
                     </button>
 
                     <!-- Share Barcode Sets Button -->

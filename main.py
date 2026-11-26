@@ -4799,69 +4799,69 @@ KNOWN_STATE_SLUGS = {
 }
 
 # =========================================================================
-# CLOUDFLARE R2 & DIGITAL BOOKS / ASSETS MARKETPLACE
+# CLOUDFLARE R2 & PSD / TEMPLATES MARKETPLACE
 # =========================================================================
 
 MARKET_PRODUCTS = [
     {
-        "id": "book_aamva_standards",
-        "title": "AAMVA PDF417 & Code 128 Standards Handbook (2025 Edition)",
-        "category": "books",
-        "category_label": "Official Handbook",
-        "format": "PDF E-Book (140 Pages)",
-        "price_usd": 15.00,
-        "price_kes": 1950,
-        "description": "Comprehensive engineering reference guide covering all AAMVA jurisdictional specifications, subfile structures, truncations, and compliance rules.",
-        "tags": ["AAMVA Spec", "PDF417", "Code 128", "PDF E-Book"],
-        "r2_key": "books/aamva_standards_handbook_2025.pdf"
-    },
-    {
-        "id": "book_digital_print_production",
-        "title": "Modern Vector Graphics & Print Production Manual",
-        "category": "books",
-        "category_label": "Technical Guide",
-        "format": "PDF E-Book (95 Pages)",
+        "id": "psd_cert_achievement",
+        "title": "Certificate of Achievement & Completion PSD",
+        "category": "certs",
+        "category_label": "Certificate PSD",
+        "format": "300 DPI Layered PSD (A4 / Letter)",
         "price_usd": 18.00,
         "price_kes": 2340,
-        "description": "Essential handbook for graphic designers, commercial print operators, color profiles (CMYK/RGB), 300+ DPI prepress, and vector rasterization standards.",
-        "tags": ["Prepress", "300 DPI", "Vector Art", "Print Guide"],
-        "r2_key": "books/vector_print_production_manual.pdf"
+        "description": "Prestigious ornamental gold guilloche border, customizable seal emblem placeholder, editable typography smart objects, and CMYK print-ready color separation.",
+        "tags": ["300 DPI", "Layered PSD", "Gold Foil", "Certificate"],
+        "r2_key": "templates/certificate_achievement_template.psd"
     },
     {
-        "id": "book_mrz_icao_standards",
-        "title": "ICAO Doc 9303 Machine Readable Travel Documents Specification",
-        "category": "books",
-        "category_label": "Specifications",
-        "format": "PDF E-Book (120 Pages)",
+        "id": "psd_packaging_label",
+        "title": "Retail Product & Packaging Box Mockup PSD",
+        "category": "packaging",
+        "category_label": "Packaging & Box",
+        "format": "300 DPI Layered PSD with Smart Objects",
         "price_usd": 20.00,
         "price_kes": 2600,
-        "description": "Deep-dive technical manual detailing MRZ Type 1, Type 2, Type 3 formats, checksum algorithms (mod-10 weight 7-3-1), and optical character standards.",
-        "tags": ["ICAO 9303", "MRZ Specs", "OCR-B", "Checksums"],
-        "r2_key": "books/icao_9303_mrz_standards_manual.pdf"
+        "description": "Professional 3D box packaging mockup with dedicated GS1 barcode placement zones, nutritional facts grid, realistic paper texture, and customizable foil accents.",
+        "tags": ["Packaging", "Barcode Zone", "Smart Objects", "300 DPI"],
+        "r2_key": "templates/retail_packaging_box_mockup.psd"
     },
     {
-        "id": "guide_barcode_automation",
-        "title": "Industrial Optical Barcode Scanning & Verification Manual",
-        "category": "guides",
-        "category_label": "Field Manual",
-        "format": "PDF Manual + Checklist",
-        "price_usd": 12.00,
-        "price_kes": 1560,
-        "description": "Industry best practices for imager setup, quiet zones, illumination angles, high-speed sorting, and verification grading (ISO/IEC 15415).",
-        "tags": ["ISO 15415", "Scanning", "Industrial", "Field Guide"],
-        "r2_key": "guides/barcode_scanning_verification_guide.pdf"
+        "id": "psd_event_ticket_pass",
+        "title": "Event Ticket & Conference Pass Template PSD",
+        "category": "tickets",
+        "category_label": "Tickets & Passes",
+        "format": "300 DPI Layered PSD with Perforated Stub",
+        "price_usd": 15.00,
+        "price_kes": 1950,
+        "description": "Commercial event ticket template with tear-off stub, sequential numbering zone, QR & Code 128 barcode placement fields, and double-sided lanyard pass layout.",
+        "tags": ["Event Ticket", "Barcode Stub", "Perforation", "Layered"],
+        "r2_key": "templates/event_ticket_conference_pass.psd"
     },
     {
-        "id": "asset_guilloche_vectors",
-        "title": "High-Precision Guilloche Vector & Geometric Wave Asset Pack",
-        "category": "design",
-        "category_label": "Design Assets",
-        "format": "Vector Pack (SVG + EPS)",
-        "price_usd": 25.00,
-        "price_kes": 3250,
-        "description": "50+ mathematical spirograph curves, rosette patterns, certificate borders, and micro-line vector backgrounds for security printing and certificate design.",
-        "tags": ["Guilloche", "Vector SVG", "Certificate Border", "Prepress"],
-        "r2_key": "design/guilloche_vector_asset_pack.zip"
+        "id": "psd_shipping_logistics",
+        "title": "Commercial Logistics & Shipping Label Master PSD",
+        "category": "packaging",
+        "category_label": "Shipping & Logistics",
+        "format": "300 DPI Vector PSD (4\" x 6\")",
+        "price_usd": 16.00,
+        "price_kes": 2080,
+        "description": "Standard 4x6 inch logistics shipping label template with automated Code 128 routing barcode placeholders, AAMVA/GS1 block zones, and thermal printer optimization.",
+        "tags": ["Shipping Label", "4x6 Inch", "Code 128", "Logistics"],
+        "r2_key": "templates/commercial_shipping_label_master.psd"
+    },
+    {
+        "id": "psd_security_guilloche",
+        "title": "Guilloche Security Backgrounds & Rosettes PSD",
+        "category": "security",
+        "category_label": "Security Vectors",
+        "format": "300 DPI Layered PSD + Vector Smart Objects",
+        "price_usd": 22.00,
+        "price_kes": 2860,
+        "description": "Complex mathematical security wave lines, anti-copy micro-patterns, ornamental rosettes, and multi-tone guilloche background plates for high-value print documents.",
+        "tags": ["Guilloche", "Anti-Copy", "Security Print", "Rosettes"],
+        "r2_key": "templates/guilloche_security_backgrounds.psd"
     }
 ]
 
@@ -4887,7 +4887,7 @@ def get_r2_client():
         print(f"[R2 CLIENT ERROR] {e}")
         return None
 
-@app.get("/api/market/products", summary="List digital books and design assets available for purchase")
+@app.get("/api/market/products", summary="List PSD templates and design assets available for purchase")
 def list_market_products():
     return {
         "status": "success",
@@ -4895,7 +4895,7 @@ def list_market_products():
         "r2_storage_connected": bool(os.getenv("R2_ACCESS_KEY_ID") and os.getenv("R2_BUCKET_NAME"))
     }
 
-@app.get("/api/market/download/{product_id}", summary="Download digital book or resource via Cloudflare R2")
+@app.get("/api/market/download/{product_id}", summary="Download PSD template or resource via Cloudflare R2")
 def download_market_product(product_id: str, current_user: User = Depends(get_current_user)):
     prod = next((p for p in MARKET_PRODUCTS if p["id"] == product_id), None)
     if not prod:
