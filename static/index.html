@@ -12683,7 +12683,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const grid = document.getElementById('psd-templates-grid');
             if (!grid) return;
 
-            grid.innerHTML = products.map(p => {
+            // Alphabetical arrangement by title
+            const sorted = [...(products || [])].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+
+            grid.innerHTML = sorted.map(p => {
                 const sizeStr = p.file_size_formatted || 'Standard';
                 const priceUsd = Number(p.price_usd || 5.0).toFixed(2);
                 const priceKes = p.price_kes ? `(~ KES ${Number(p.price_kes).toLocaleString()})` : '';

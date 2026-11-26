@@ -5001,6 +5001,9 @@ FALLBACK_MARKET_PRODUCTS = [
     }
 ]
 
+# Alphabetical default sorting
+FALLBACK_MARKET_PRODUCTS.sort(key=lambda p: p["title"].lower())
+
 # Thread-safe in-memory cache for autonomous R2 bucket objects
 _R2_CACHE_LOCK = threading.Lock()
 _R2_PRODUCTS_CACHE = {
@@ -5314,6 +5317,9 @@ def get_autonomous_market_products(force_refresh: bool = False):
             }
             dynamic_products.append(product_obj)
             by_id[prod_id] = product_obj
+
+        # Arrange alphabetically by product title
+        dynamic_products.sort(key=lambda p: p["title"].lower())
 
         with _R2_CACHE_LOCK:
             _R2_PRODUCTS_CACHE["timestamp"] = now
