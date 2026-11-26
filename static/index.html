@@ -476,8 +476,8 @@
                     <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Items</button>
                     <button type="button" onclick="filterPsdCategory('templates')" id="psd-filter-templates" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Templates &amp; PSDs</button>
                     <button type="button" onclick="filterPsdCategory('bundles')" id="psd-filter-bundles" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Bundles &amp; Archives</button>
-                    <button type="button" onclick="filterPsdCategory('section1')" id="psd-filter-section1" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📁 [SECTION 1 NAME]</button>
-                    <button type="button" onclick="filterPsdCategory('section2')" id="psd-filter-section2" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📁 [SECTION 2 NAME]</button>
+                    <button type="button" onclick="filterPsdCategory('section1')" id="psd-filter-section1" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">💳 [SECTION 1 NAME]</button>
+                    <button type="button" onclick="filterPsdCategory('section2')" id="psd-filter-section2" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🧾 [SECTION 2 NAME]</button>
                     <button type="button" onclick="loadAutonomousMarketProducts(true)" title="Force Refresh from Cloudflare R2" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">🔄 Sync</button>
                 </div>
                 <div class="relative min-w-[200px]">
@@ -644,13 +644,30 @@
                         📦
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900">Purchase Barcode Packages</h3>
+                        <h3 id="token-modal-title" class="text-base font-bold text-slate-900">Purchase Barcode Packages</h3>
                         <p class="text-xs text-slate-500">Every package includes <strong>2-in-1 Companion Sets</strong> (1x AAMVA 2D PDF417 + 1x 1D Code 128).</p>
                     </div>
                 </div>
                 <button onclick="closeTokenModal()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&times;</button>
             </div>
 
+            <!-- Market Item Direct Checkout Banner (Shown when purchasing an object) -->
+            <div id="market-item-checkout-banner" class="hidden bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 border border-purple-200/90 rounded-xl p-3.5 flex items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📦</span>
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-0.5 rounded inline-block mb-1">Direct Market Purchase</div>
+                        <h4 id="market-checkout-item-name" class="font-black text-slate-900 text-sm">Asset Download</h4>
+                        <p class="text-slate-600 text-[11px]">Instant automated download link unlocked immediately upon payment confirmation via Crypto or M-Pesa.</p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span id="market-checkout-item-price" class="text-lg font-black text-purple-950 block">$5.00</span>
+                    <span id="market-checkout-item-kes" class="text-[10px] text-slate-500 font-bold block">(~ KES 650)</span>
+                </div>
+            </div>
+
+            <div id="barcode-packages-selection-section">
             <!-- Value Comparison Banner -->
             <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl p-3 flex items-center gap-3 text-xs text-blue-900">
                 <span class="text-2xl">⚡</span>
@@ -781,6 +798,7 @@
                 <button type="button" onclick="document.getElementById('pay-view-crypto')?.scrollIntoView({behavior:'smooth', block:'start'})" class="text-xs font-bold text-accent bg-blue-50 hover:bg-blue-100 border border-blue-200 py-1.5 px-4 rounded-xl flex items-center gap-1.5 transition shadow-sm cursor-pointer">
                     <span>Proceed to Crypto Checkout &amp; Wallet &darr;</span>
                 </button>
+            </div>
             </div>
 
             <!-- Payment Methods / Checkout Views -->
@@ -11020,6 +11038,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function selectPackage(packageId, tokens, price) {
+            resetTokenModalToPackages();
             selectedPackage = {
                 id: packageId,
                 tokens: tokens,
@@ -12581,8 +12600,18 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
+        function resetTokenModalToPackages() {
+            const barcodeSection = document.getElementById('barcode-packages-selection-section');
+            const marketBanner = document.getElementById('market-item-checkout-banner');
+            const modalTitle = document.getElementById('token-modal-title');
+            if (barcodeSection) barcodeSection.classList.remove('hidden');
+            if (marketBanner) marketBanner.classList.add('hidden');
+            if (modalTitle) modalTitle.textContent = 'Purchase Barcode Packages';
+        }
+
         function closeTokenModal() {
             stopCryptoPolling();
+            resetTokenModalToPackages();
             const modal = document.getElementById('token-modal');
             if (modal) modal.classList.add('hidden');
         }
@@ -12762,6 +12791,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             const numPrice = Number(price) || 5.0;
+            const amtKes = Math.round(numPrice * 130);
             selectedPackage = {
                 id: productId,
                 name: name,
@@ -12772,6 +12802,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             };
             selectedPackageId = productId;
 
+            const barcodeSection = document.getElementById('barcode-packages-selection-section');
+            const marketBanner = document.getElementById('market-item-checkout-banner');
+            const marketItemName = document.getElementById('market-checkout-item-name');
+            const marketItemPrice = document.getElementById('market-checkout-item-price');
+            const marketItemKes = document.getElementById('market-checkout-item-kes');
+            const modalTitle = document.getElementById('token-modal-title');
+
+            if (barcodeSection) barcodeSection.classList.add('hidden');
+            if (marketBanner) marketBanner.classList.remove('hidden');
+            if (marketItemName) marketItemName.textContent = name;
+            if (marketItemPrice) marketItemPrice.textContent = `$${numPrice.toFixed(2)}`;
+            if (marketItemKes) marketItemKes.textContent = `(~ KES ${amtKes.toLocaleString()})`;
+            if (modalTitle) modalTitle.textContent = `Checkout: ${name}`;
+
             const summaryEl = document.getElementById('checkout-summary-text');
             if (summaryEl) {
                 summaryEl.textContent = `${name} for $${numPrice.toFixed(2)}`;
@@ -12780,12 +12824,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             updatePaystackUI();
             updateCryptoUI();
 
-            showToast(`Opening checkout for ${name} ($${numPrice.toFixed(2)}) - Pay via Crypto or M-Pesa`, 'info');
-            openTokenModal();
+            closePsdMarketModal();
+            const modal = document.getElementById('token-modal');
+            if (modal) modal.classList.remove('hidden');
             switchPayTab('crypto');
             if (currentUser) {
                 initOrRefreshCryptoOrder();
             }
+            showToast(`Complete payment of $${numPrice.toFixed(2)} via Crypto or M-Pesa to download ${name}`, 'info');
         }
 
         async function checkoutStripeSelected() {
@@ -18112,8 +18158,8 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                             const cleanUrl = window.location.pathname;
                             window.history.replaceState({}, document.title, cleanUrl);
                             const parts = paystackRef.split('_');
-                            const pkgId = parts[4] || '';
-                            if (pkgId.startsWith('r2_') || pkgId.startsWith('psd_')) {
+                            const pkgId = parts.slice(4).join('_') || '';
+                            if (pkgId && !pkgId.match(/^(xxs|xs|s|m|l|xl|xxl|mega)/i)) {
                                 buyPsdTemplate(pkgId, 'Purchased Asset', 0);
                             }
                         } else {

@@ -1897,17 +1897,26 @@ async def paystack_verify(reference: str, current_user: User = Depends(get_curre
         }
 
     if not PAYSTACK_SECRET_KEY:
-        parts = reference.split("_")
+        parts = reference.split("_", 4)
         pkg_id = parts[4] if len(parts) >= 5 else "xxs_1"
-        pkg = TOKEN_PACKAGES.get(pkg_id, TOKEN_PACKAGES["xxs_1"])
+        prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(pkg_id) or next((p for p in FALLBACK_MARKET_PRODUCTS if p["id"] == pkg_id), None)
+        if prod:
+            tokens = 0
+            amt_usd = float(prod["price_usd"])
+            success_msg = f"Payment verified for {prod.get('title') or prod.get('name', 'Market Asset')}! You may now download it."
+        else:
+            pkg = TOKEN_PACKAGES.get(pkg_id, TOKEN_PACKAGES["xxs_1"])
+            tokens = pkg["tokens"]
+            amt_usd = pkg["amount_usd"]
+            success_msg = f"Successfully credited {pkg['tokens']} Barcode Sets to your account!"
         order, credited = credit_paystack_successful_order(
             db, reference=reference, user_id=current_user.id,
-            package_id=pkg_id, tokens=pkg["tokens"],
-            amount_usd=pkg["amount_usd"], channel="test_mode"
+            package_id=pkg_id, tokens=tokens,
+            amount_usd=amt_usd, channel="test_mode"
         )
         return {
             "status": "success",
-            "message": f"Successfully credited {pkg['tokens']} Barcode Sets to your account!",
+            "message": success_msg,
             "tokens": current_user.tokens,
             "order_id": order.id if order else None
         }
@@ -1994,6 +2003,7 @@ def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current
     prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(req.package_id) or next((p for p in FALLBACK_MARKET_PRODUCTS if p["id"] == req.package_id), None)
     if prod:
         pkg = {
+            "name": prod.get("title") or prod.get("name", "Market Asset"),
             "tokens": 0,
             "amount_usd": float(prod["price_usd"])
         }
@@ -5135,19 +5145,15 @@ def download_market_product(product_id: str, current_user: User = Depends(get_cu
     if not prod:
         raise HTTPException(status_code=404, detail="Resource not found")
 
-    # Payment / Permission verification:
-    is_admin = (current_user.role in ["admin", "pro_user"]) or (current_user.email.lower() in ADMIN_EMAILS)
-    has_paid = False
-    if not is_admin:
-        confirmed = db.query(CryptoPayment).filter(
-            CryptoPayment.user_id == current_user.id,
-            CryptoPayment.package_id == product_id,
-            CryptoPayment.status == "confirmed"
-        ).first()
-        if confirmed:
-            has_paid = True
+    # Strict Payment Verification:
+    # An item can ONLY be downloaded if a confirmed payment exists in the database for this user and product
+    confirmed = db.query(CryptoPayment).filter(
+        CryptoPayment.user_id == current_user.id,
+        CryptoPayment.package_id == product_id,
+        CryptoPayment.status == "confirmed"
+    ).first()
 
-    if not (is_admin or has_paid):
+    if not confirmed:
         return {
             "status": "payment_required",
             "product_id": prod["id"],
