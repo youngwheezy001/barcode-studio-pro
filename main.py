@@ -4802,12 +4802,21 @@ KNOWN_STATE_SLUGS = {
 # CLOUDFLARE R2 & AUTONOMOUS S3 MARKETPLACE
 # =========================================================================
 
+# [EDIT HERE: CHANGE YOUR SECTION & CATEGORY NAMES AT ANY TIME]
+SECTION_LABELS = {
+    "templates": "Templates & PSDs",
+    "bundles": "Bundles & Archives",
+    "section1": "[SECTION 1 NAME]",  # <-- EDIT THIS: Type whatever name you want for Section 1
+    "section2": "[SECTION 2 NAME]",  # <-- EDIT THIS: Type whatever name you want for Section 2
+    "resources": "General Assets"
+}
+
 FALLBACK_MARKET_PRODUCTS = [
     {
         "id": "psd_cert_achievement",
         "title": "Certificate of Achievement & Completion",
-        "category": "certs",
-        "category_label": "Certificate PSD",
+        "category": "templates",
+        "category_label": "Templates & PSDs",
         "format": "300 DPI Layered PSD (A4 / Letter)",
         "file_size": 15728640,
         "file_size_formatted": "15.0 MB",
@@ -4820,8 +4829,8 @@ FALLBACK_MARKET_PRODUCTS = [
     {
         "id": "psd_packaging_label",
         "title": "Retail Product & Packaging Box Mockup",
-        "category": "packaging",
-        "category_label": "Packaging & Box",
+        "category": "templates",
+        "category_label": "Templates & PSDs",
         "format": "300 DPI Layered PSD with Smart Objects",
         "file_size": 26214400,
         "file_size_formatted": "25.0 MB",
@@ -4834,8 +4843,8 @@ FALLBACK_MARKET_PRODUCTS = [
     {
         "id": "psd_event_ticket_pass",
         "title": "Event Ticket & Conference Pass Template",
-        "category": "tickets",
-        "category_label": "Tickets & Passes",
+        "category": "templates",
+        "category_label": "Templates & PSDs",
         "format": "300 DPI Layered PSD with Perforated Stub",
         "file_size": 8388608,
         "file_size_formatted": "8.0 MB",
@@ -4848,8 +4857,8 @@ FALLBACK_MARKET_PRODUCTS = [
     {
         "id": "psd_shipping_logistics",
         "title": "Commercial Logistics & Shipping Label Master",
-        "category": "packaging",
-        "category_label": "Shipping & Logistics",
+        "category": "templates",
+        "category_label": "Templates & PSDs",
         "format": "300 DPI Vector PSD (4\" x 6\")",
         "file_size": 5242880,
         "file_size_formatted": "5.0 MB",
@@ -4862,8 +4871,8 @@ FALLBACK_MARKET_PRODUCTS = [
     {
         "id": "psd_security_guilloche",
         "title": "Guilloche Security Backgrounds & Rosettes",
-        "category": "security",
-        "category_label": "Security Vectors",
+        "category": "bundles",
+        "category_label": "Bundles & Archives",
         "format": "300 DPI Layered PSD + Vector Smart Objects",
         "file_size": 41943040,
         "file_size_formatted": "40.0 MB",
@@ -5031,20 +5040,20 @@ def get_autonomous_market_products(force_refresh: bool = False):
             if not clean_title:
                 clean_title = filename
 
-            # Determine category dynamically
+            # Determine category / section dynamically
             lower_name = file_key.lower()
-            if ext_clean in ("PDF", "EPUB", "MOBI") or any(k in lower_name for k in ("book", "study", "engineering", "manual", "guide", "textbook", "notes", "paper", "calc")):
-                category = "books"
-                category_label = "Studies & Books"
-            elif ext_clean in ("PSD", "AI", "EPS", "SVG") or "template" in lower_name or "mockup" in lower_name:
+            if ext_clean in ("PSD", "AI", "EPS", "SVG") or "template" in lower_name or "mockup" in lower_name:
                 category = "templates"
-                category_label = "Design & PSDs"
+                category_label = SECTION_LABELS.get("templates", "Templates & PSDs")
             elif ext_clean in ("ZIP", "RAR", "7Z", "TAR", "GZ") or "bundle" in lower_name or "archive" in lower_name:
                 category = "bundles"
-                category_label = "Bundles & Archives"
+                category_label = SECTION_LABELS.get("bundles", "Bundles & Archives")
+            elif ext_clean in ("PDF", "DOC", "DOCX", "EPUB", "TXT") or "doc" in lower_name or "guide" in lower_name:
+                category = "section1"
+                category_label = SECTION_LABELS.get("section1", "[SECTION 1 NAME]")
             else:
-                category = "resources"
-                category_label = f"{ext_clean} Files"
+                category = "section2"
+                category_label = SECTION_LABELS.get("section2", "[SECTION 2 NAME]")
 
             price_usd, price_kes = calculate_price_by_heaviness(file_size)
             size_formatted = format_file_size(file_size)

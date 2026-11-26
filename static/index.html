@@ -445,11 +445,12 @@
                         🎨
                     </div>
                     <div>
+                        <!-- [LINE TO EDIT: CHANGE STORE HEADING TITLE & SUBTITLE BELOW] -->
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Studies, PSD &amp; Digital Store</h2>
+                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight" id="psd-market-main-title">Digital Store &amp; Marketplace</h2>
                             <span id="psd-market-status-badge" class="text-[10px] bg-purple-100 text-purple-700 font-extrabold px-2 py-0.5 rounded-full border border-purple-200">Cloudflare R2 Direct</span>
                         </div>
-                        <p class="text-xs text-slate-500">Autonomous Cloudflare R2 repository &amp; marketplace: mechanical engineering studies, books &amp; design assets</p>
+                        <p class="text-xs text-slate-500" id="psd-market-subtitle">Cloudflare R2 autonomous repository with verified high-speed signed direct downloads</p>
                     </div>
                 </div>
                 <button type="button" onclick="closePsdMarketModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-base transition cursor-pointer">
@@ -463,22 +464,24 @@
                     <span class="text-base">⚡</span>
                     <div>
                         <span class="font-bold text-purple-900">Instant Cloudflare R2 Delivery:</span>
-                        <span id="psd-market-banner-text" class="text-slate-600"> Powered by Cloudflare R2 object storage. Files added to your bucket appear autonomously here with secure, signed high-speed direct downloads.</span>
+                        <span id="psd-market-banner-text" class="text-slate-600"> Powered by Cloudflare R2 object storage. Files in your bucket appear autonomously here with secure, signed high-speed direct downloads.</span>
                     </div>
                 </div>
             </div>
 
             <!-- Categories & Search -->
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 pt-1">
+                <!-- [LINES TO EDIT: CHANGE SECTION / CATEGORY FILTER BUTTONS BELOW] -->
                 <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
-                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Files</button>
-                    <button type="button" onclick="filterPsdCategory('books')" id="psd-filter-books" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📚 Studies &amp; Books</button>
+                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Items</button>
                     <button type="button" onclick="filterPsdCategory('templates')" id="psd-filter-templates" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Templates &amp; PSDs</button>
                     <button type="button" onclick="filterPsdCategory('bundles')" id="psd-filter-bundles" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Bundles &amp; Archives</button>
+                    <button type="button" onclick="filterPsdCategory('section1')" id="psd-filter-section1" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📁 [SECTION 1 NAME]</button>
+                    <button type="button" onclick="filterPsdCategory('section2')" id="psd-filter-section2" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📁 [SECTION 2 NAME]</button>
                     <button type="button" onclick="loadAutonomousMarketProducts(true)" title="Force Refresh from Cloudflare R2" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">🔄 Sync</button>
                 </div>
                 <div class="relative min-w-[200px]">
-                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search books, studies, templates..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
+                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search store items..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
                     <span class="absolute left-2.5 top-1.5 text-xs text-slate-400">🔍</span>
                 </div>
             </div>
@@ -12670,9 +12673,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const tags = Array.isArray(p.tags) ? p.tags : ['Digital Resource'];
 
                 let badgeColor = "bg-purple-100 text-purple-800 border-purple-200";
-                if (category === 'books') badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
-                else if (category === 'templates') badgeColor = "bg-indigo-100 text-indigo-800 border-indigo-200";
+                if (category === 'templates') badgeColor = "bg-indigo-100 text-indigo-800 border-indigo-200";
                 else if (category === 'bundles') badgeColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                else if (category === 'section1') badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
+                else if (category === 'section2') badgeColor = "bg-amber-100 text-amber-800 border-amber-200";
 
                 const safeTitle = safeMarketText(p.title);
                 const safeDesc = safeMarketText(p.description || '');
