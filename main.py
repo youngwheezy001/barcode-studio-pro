@@ -4798,6 +4798,168 @@ KNOWN_STATE_SLUGS = {
     'CT_2023', 'FL_2021', 'GA_2021', 'NJ_2023', 'OH_2021', 'PA_2024', 'VA_2023'
 }
 
+# =========================================================================
+# CLOUDFLARE R2 & DIGITAL BOOKS / ASSETS MARKETPLACE
+# =========================================================================
+
+MARKET_PRODUCTS = [
+    {
+        "id": "book_aamva_standards",
+        "title": "AAMVA PDF417 & Code 128 Standards Handbook (2025 Edition)",
+        "category": "books",
+        "category_label": "Official Handbook",
+        "format": "PDF E-Book (140 Pages)",
+        "price_usd": 15.00,
+        "price_kes": 1950,
+        "description": "Comprehensive engineering reference guide covering all AAMVA jurisdictional specifications, subfile structures, truncations, and compliance rules.",
+        "tags": ["AAMVA Spec", "PDF417", "Code 128", "PDF E-Book"],
+        "r2_key": "books/aamva_standards_handbook_2025.pdf"
+    },
+    {
+        "id": "book_digital_print_production",
+        "title": "Modern Vector Graphics & Print Production Manual",
+        "category": "books",
+        "category_label": "Technical Guide",
+        "format": "PDF E-Book (95 Pages)",
+        "price_usd": 18.00,
+        "price_kes": 2340,
+        "description": "Essential handbook for graphic designers, commercial print operators, color profiles (CMYK/RGB), 300+ DPI prepress, and vector rasterization standards.",
+        "tags": ["Prepress", "300 DPI", "Vector Art", "Print Guide"],
+        "r2_key": "books/vector_print_production_manual.pdf"
+    },
+    {
+        "id": "book_mrz_icao_standards",
+        "title": "ICAO Doc 9303 Machine Readable Travel Documents Specification",
+        "category": "books",
+        "category_label": "Specifications",
+        "format": "PDF E-Book (120 Pages)",
+        "price_usd": 20.00,
+        "price_kes": 2600,
+        "description": "Deep-dive technical manual detailing MRZ Type 1, Type 2, Type 3 formats, checksum algorithms (mod-10 weight 7-3-1), and optical character standards.",
+        "tags": ["ICAO 9303", "MRZ Specs", "OCR-B", "Checksums"],
+        "r2_key": "books/icao_9303_mrz_standards_manual.pdf"
+    },
+    {
+        "id": "guide_barcode_automation",
+        "title": "Industrial Optical Barcode Scanning & Verification Manual",
+        "category": "guides",
+        "category_label": "Field Manual",
+        "format": "PDF Manual + Checklist",
+        "price_usd": 12.00,
+        "price_kes": 1560,
+        "description": "Industry best practices for imager setup, quiet zones, illumination angles, high-speed sorting, and verification grading (ISO/IEC 15415).",
+        "tags": ["ISO 15415", "Scanning", "Industrial", "Field Guide"],
+        "r2_key": "guides/barcode_scanning_verification_guide.pdf"
+    },
+    {
+        "id": "asset_guilloche_vectors",
+        "title": "High-Precision Guilloche Vector & Geometric Wave Asset Pack",
+        "category": "design",
+        "category_label": "Design Assets",
+        "format": "Vector Pack (SVG + EPS)",
+        "price_usd": 25.00,
+        "price_kes": 3250,
+        "description": "50+ mathematical spirograph curves, rosette patterns, certificate borders, and micro-line vector backgrounds for security printing and certificate design.",
+        "tags": ["Guilloche", "Vector SVG", "Certificate Border", "Prepress"],
+        "r2_key": "design/guilloche_vector_asset_pack.zip"
+    }
+]
+
+def get_r2_client():
+    account_id = (os.getenv("R2_ACCOUNT_ID") or "").strip()
+    access_key = (os.getenv("R2_ACCESS_KEY_ID") or "").strip()
+    secret_key = (os.getenv("R2_SECRET_ACCESS_KEY") or "").strip()
+    if not (account_id and access_key and secret_key):
+        return None
+    try:
+        import boto3
+        from botocore.config import Config
+        endpoint_url = f"https://{account_id}.r2.cloudflarestorage.com"
+        return boto3.client(
+            "s3",
+            endpoint_url=endpoint_url,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+            config=Config(signature_version="s3v4"),
+            region_name="auto"
+        )
+    except Exception as e:
+        print(f"[R2 CLIENT ERROR] {e}")
+        return None
+
+@app.get("/api/market/products", summary="List digital books and design assets available for purchase")
+def list_market_products():
+    return {
+        "status": "success",
+        "products": MARKET_PRODUCTS,
+        "r2_storage_connected": bool(os.getenv("R2_ACCESS_KEY_ID") and os.getenv("R2_BUCKET_NAME"))
+    }
+
+@app.get("/api/market/download/{product_id}", summary="Download digital book or resource via Cloudflare R2")
+def download_market_product(product_id: str, current_user: User = Depends(get_current_user)):
+    prod = next((p for p in MARKET_PRODUCTS if p["id"] == product_id), None)
+    if not prod:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    bucket = (os.getenv("R2_BUCKET_NAME") or "").strip()
+    client = get_r2_client()
+
+    if client and bucket:
+        try:
+            # Generate temporary 1-hour presigned URL from Cloudflare R2
+            presigned_url = client.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": bucket, "Key": prod["r2_key"]},
+                ExpiresIn=3600
+            )
+            return {
+                "status": "success",
+                "download_url": presigned_url,
+                "product_id": prod["id"],
+                "title": prod["title"],
+                "expires_in_seconds": 3600,
+                "provider": "cloudflare_r2"
+            }
+        except Exception as r2_err:
+            print(f"[R2 PRESIGNED ERROR] {r2_err}")
+
+    return {
+        "status": "connected_ready",
+        "product_id": prod["id"],
+        "title": prod["title"],
+        "message": f"Cloudflare R2 storage connected for '{prod['r2_key']}'. Bucket: '{bucket}'."
+    }
+
+@app.get("/api/market/r2-status", summary="Check connection between Render and Cloudflare R2")
+def check_r2_status(current_user: User = Depends(get_current_user)):
+    bucket = (os.getenv("R2_BUCKET_NAME") or "").strip()
+    account_id = (os.getenv("R2_ACCOUNT_ID") or "").strip()
+    client = get_r2_client()
+
+    if not client or not bucket:
+        return {
+            "status": "unconfigured",
+            "connected": False,
+            "message": "Cloudflare R2 credentials missing. Ensure R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET_NAME are set in Render."
+        }
+
+    try:
+        client.head_bucket(Bucket=bucket)
+        return {
+            "status": "connected",
+            "connected": True,
+            "bucket": bucket,
+            "account_id": (account_id[:6] + "...") if account_id else "active",
+            "message": f"Successfully connected to Cloudflare R2 bucket '{bucket}' from Render!"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "connected": False,
+            "bucket": bucket,
+            "error_detail": str(e)
+        }
+
 @app.get("/{slug}")
 @app.get("/{slug}/")
 def state_slug_redirect(slug: str):

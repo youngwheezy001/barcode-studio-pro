@@ -442,14 +442,14 @@
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg shadow-sm">
-                        🎨
+                        📚
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">PSD &amp; Template Market</h2>
+                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Digital Books &amp; Engineering Market</h2>
                             <span class="text-[10px] bg-purple-100 text-purple-700 font-extrabold px-2 py-0.5 rounded-full border border-purple-200">Cloudflare R2 Direct</span>
                         </div>
-                        <p class="text-xs text-slate-500">300 DPI layered PSD templates with editable smart objects &amp; typography</p>
+                        <p class="text-xs text-slate-500">Official technical handbooks, AAMVA specifications, print engineering manuals &amp; vector security assets</p>
                     </div>
                 </div>
                 <button type="button" onclick="closePsdMarketModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-base transition cursor-pointer">
@@ -462,8 +462,8 @@
                 <div class="flex items-center gap-2">
                     <span class="text-base">⚡</span>
                     <div>
-                        <span class="font-bold text-purple-900">Instant Automated Delivery:</span>
-                        <span class="text-slate-600"> Upon payment (M-Pesa, Airtel, Cards, or Crypto), a temporary signed Cloudflare R2 download link is generated specifically for that individual template.</span>
+                        <span class="font-bold text-purple-900">Instant Cloudflare R2 Delivery:</span>
+                        <span class="text-slate-600"> Powered by Cloudflare R2 object storage. Secure, signed high-speed direct downloads generated immediately upon checkout.</span>
                     </div>
                 </div>
             </div>
@@ -471,84 +471,58 @@
             <!-- Categories & Search -->
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 pt-1">
                 <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
-                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Templates</button>
-                    <button type="button" onclick="filterPsdCategory('identity')" id="psd-filter-identity" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🪪 Identity &amp; Badges</button>
-                    <button type="button" onclick="filterPsdCategory('utility')" id="psd-filter-utility" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📄 Utility &amp; Bills</button>
-                    <button type="button" onclick="filterPsdCategory('certs')" id="psd-filter-certs" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🏆 Certificates</button>
+                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Digital Goods</button>
+                    <button type="button" onclick="filterPsdCategory('books')" id="psd-filter-books" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📚 E-Books &amp; Manuals</button>
+                    <button type="button" onclick="filterPsdCategory('guides')" id="psd-filter-guides" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📖 Technical Guides</button>
+                    <button type="button" onclick="filterPsdCategory('design')" id="psd-filter-design" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Vector Assets</button>
                 </div>
                 <div class="relative min-w-[200px]">
-                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search templates..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
+                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search books &amp; guides..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
                     <span class="absolute left-2.5 top-1.5 text-xs text-slate-400">🔍</span>
                 </div>
             </div>
 
             <!-- Templates Catalog Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1" id="psd-templates-grid">
-                <!-- Card 1: ID Card Template -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="identity" data-title="Professional Employee & Member ID Badge PSD">
+                <!-- Product 1: AAMVA Standards Handbook -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="books" data-title="AAMVA PDF417 & Code 128 Standards Handbook">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200">ID &amp; Badge</span>
-                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
+                            <span class="text-[10px] font-bold uppercase bg-blue-100 text-blue-800 px-2 py-0.5 rounded border border-blue-200">Official Handbook</span>
+                            <span class="text-[10px] font-bold text-slate-500">PDF E-Book</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Employee &amp; Member ID Badge Template</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">High-precision vector template with CR80 dimensions (3.375" x 2.125"), layered photo smart objects, security guilloche micro-lines, and barcode overlay zones.</p>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">AAMVA PDF417 &amp; Code 128 Standards Handbook</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Comprehensive 140-page engineering guide covering all AAMVA jurisdictional specifications, subfile headers, truncations, and compliance rules.</p>
                         <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Layered</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Smart Objects</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Free Fonts</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">AAMVA 2025</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">PDF417</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">140 Pages</span>
                         </div>
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
                         <div>
-                            <span class="text-base font-extrabold text-slate-900">$20.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 2,600)</span>
+                            <span class="text-base font-extrabold text-slate-900">$15.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 1,950)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('template_id_cr80', 'Employee & Member ID Badge', 20.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Buy PSD</span>
+                        <button type="button" onclick="buyPsdTemplate('book_aamva_standards', 'AAMVA Standards Handbook', 15.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Purchase Book</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Card 2: Utility Bill Template -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="utility" data-title="Standard Electric & Water Utility Statement PSD">
+                <!-- Product 2: Print Production Manual -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="books" data-title="Modern Vector Graphics & Print Production Manual">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">Utility Bill</span>
-                            <span class="text-[10px] font-bold text-slate-500">Vector PSD</span>
+                            <span class="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">Technical Guide</span>
+                            <span class="text-[10px] font-bold text-slate-500">PDF E-Book</span>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Utility Statement &amp; Proof of Residence</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">Clean modern corporate layout with editable meter tables, billing breakdown, address fields, and realistic print paper texture background.</p>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Modern Vector Graphics &amp; Print Production Manual</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Essential handbook for graphic designers, commercial print operators, color profiles (CMYK/RGB), 300+ DPI prepress, and vector rasterization standards.</p>
                         <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">8.5" x 11"</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Print Ready</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Fully Editable</span>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
-                        <div>
-                            <span class="text-base font-extrabold text-slate-900">$25.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 3,250)</span>
-                        </div>
-                        <button type="button" onclick="buyPsdTemplate('template_util_electric', 'Utility Statement Template', 25.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Buy PSD</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Card 3: Certificate Template -->
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="certs" data-title="Certificate of Achievement & Award PSD">
-                    <div class="flex flex-col gap-2">
-                        <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200">Certificate</span>
-                            <span class="text-[10px] font-bold text-slate-500">300 DPI PSD</span>
-                        </div>
-                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Certificate of Achievement &amp; Completion</h3>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">Prestigious ornamental gold guilloche border, custom seal emblem placeholder, and customizable recipient &amp; accreditation text.</p>
-                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">A4 / Letter</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Gold Foil Effect</span>
-                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">CMYK Colors</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">300 DPI Prepress</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">CMYK Workflows</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">95 Pages</span>
                         </div>
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
@@ -556,8 +530,86 @@
                             <span class="text-base font-extrabold text-slate-900">$18.00</span>
                             <span class="text-[10px] text-slate-500 block">(~ KES 2,340)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('template_cert_achievement', 'Certificate Template', 18.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
-                            <span>⚡ Buy PSD</span>
+                        <button type="button" onclick="buyPsdTemplate('book_digital_print_production', 'Vector & Print Production Manual', 18.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Purchase Book</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 3: ICAO 9303 Travel Specs Guide -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="books" data-title="ICAO Doc 9303 Travel Documents Specification Manual">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200">Specification</span>
+                            <span class="text-[10px] font-bold text-slate-500">PDF E-Book</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">ICAO Doc 9303 Travel Documents Specification</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Deep-dive technical manual detailing MRZ Type 1, Type 2, Type 3 formats, checksum algorithms (mod-10 weight 7-3-1), and optical character standards.</p>
+                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">ICAO 9303</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">MRZ Checksums</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">120 Pages</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-base font-extrabold text-slate-900">$20.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 2,600)</span>
+                        </div>
+                        <button type="button" onclick="buyPsdTemplate('book_mrz_icao_standards', 'ICAO 9303 Travel Specification', 20.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Purchase Book</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 4: Industrial Barcode Scanning Guide -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="guides" data-title="Industrial Optical Barcode Scanning & Verification Manual">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold uppercase bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded border border-indigo-200">Field Manual</span>
+                            <span class="text-[10px] font-bold text-slate-500">PDF + Checklist</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Industrial Barcode Scanning &amp; Verification Manual</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">Industry best practices for imager setup, quiet zones, illumination angles, high-speed conveyor sorting, and verification grading (ISO/IEC 15415).</p>
+                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">ISO 15415</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Scanner Setup</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Checklist</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-base font-extrabold text-slate-900">$12.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 1,560)</span>
+                        </div>
+                        <button type="button" onclick="buyPsdTemplate('guide_barcode_automation', 'Industrial Scanning Manual', 12.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Purchase Guide</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 5: Guilloche Vector Asset Pack -->
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="design" data-title="High-Precision Guilloche Vector & Geometric Wave Asset Pack">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold uppercase bg-pink-100 text-pink-800 px-2 py-0.5 rounded border border-pink-200">Design Assets</span>
+                            <span class="text-[10px] font-bold text-slate-500">Vector Pack</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">Guilloche Vector &amp; Geometric Wave Asset Pack</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">50+ mathematical spirograph curves, rosette patterns, certificate borders, and micro-line vector backgrounds for security printing and certificate design.</p>
+                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500">
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">50+ Vectors</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">SVG + EPS</span>
+                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">Full Commercial</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-base font-extrabold text-slate-900">$25.00</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 3,250)</span>
+                        </div>
+                        <button type="button" onclick="buyPsdTemplate('asset_guilloche_vectors', 'Guilloche Vector Asset Pack', 25.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Purchase Pack</span>
                         </button>
                     </div>
                 </div>
@@ -2169,8 +2221,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <span>🪪 AAMVA Barcode</span>
                 </button>
                 <button type="button" id="workspace-tab-psd" onclick="openPsdMarketModal()" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-1.5 transition">
-                    <span>🎨 PSD Market</span>
-                    <span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">Store</span>
+                    <span>📚 Digital Market</span>
+                    <span class="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-1.5 py-0.2 rounded uppercase font-extrabold">Books &amp; Assets</span>
                 </button>
                 <button type="button" id="workspace-tab-mrz" onclick="switchWorkspace('mrz')" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white flex items-center gap-1.5 transition">
                     <span>🛂 MRZ Passport</span>
@@ -2206,10 +2258,10 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                         <span>Purchase Tokens &amp; Packages</span>
                     </button>
 
-                    <!-- PSD Market Button in dropdown -->
+                    <!-- Digital Books & Assets Market Button in dropdown -->
                     <button type="button" onclick="openPsdMarketModal(); closeUserMenu();" class="w-full text-left text-xs font-semibold text-purple-300 hover:text-purple-200 hover:bg-purple-500/20 px-3 py-2 rounded-lg transition flex items-center gap-2 cursor-pointer">
-                        <span class="text-sm">🎨</span>
-                        <span>PSD &amp; Template Market</span>
+                        <span class="text-sm">📚</span>
+                        <span>Digital Books &amp; Engineering Market</span>
                     </button>
 
                     <!-- Share Barcode Sets Button -->
@@ -10943,7 +10995,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         // --- BARCODE PACKAGE STORE & CHECKOUT ENGINE ---
-        let userHasExplicitlySelectedPackage = false;
         let selectedPackage = {
             id: 's_10',
             tokens: 10,
@@ -10975,7 +11026,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function selectPackage(packageId, tokens, price) {
-            userHasExplicitlySelectedPackage = true;
             selectedPackage = {
                 id: packageId,
                 tokens: tokens,
@@ -11219,7 +11269,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             // Instantaneous local UI update in 0ms!
             updateCryptoUI();
-            if (currentUser && userHasExplicitlySelectedPackage) {
+            if (currentUser) {
                 initOrRefreshCryptoOrder();
             }
 
@@ -12524,10 +12574,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 modal.classList.remove('hidden');
                 loadCryptoConfig();
                 switchPayTab('crypto');
-                updateCryptoUI();
-                if (userHasExplicitlySelectedPackage && currentCryptoOrder) {
-                    initOrRefreshCryptoOrder();
-                }
+                startCryptoCountdown(1800);
+                initOrRefreshCryptoOrder();
             }
         }
 
@@ -12581,11 +12629,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             });
         }
 
-        async function buyPsdTemplate(templateId, name, price) {
+        async function buyPsdTemplate(productId, name, price) {
             if (!currentUser) {
-                showToast('Please sign in or register before purchasing.', 'info');
+                showToast('Please sign in or register before downloading or purchasing.', 'info');
                 openAuthModal();
                 return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/api/market/download/${productId}`, {
+                    headers: { ...getAuthHeader() }
+                });
+                const data = await res.json();
+                if (data.status === 'success' && data.download_url) {
+                    showToast(`Starting high-speed download for ${name} via Cloudflare R2...`, 'success');
+                    window.open(data.download_url, '_blank');
+                    return;
+                }
+            } catch (e) {
+                // proceed to checkout
             }
             showToast(`Opening checkout for ${name} ($${price.toFixed(2)})`, 'info');
             openTokenModal();
