@@ -359,13 +359,18 @@ def ensure_db_schema():
                             pass
                 if 'reminder_sent' not in cpcols:
                     try:
-                        conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN reminder_sent BOOLEAN DEFAULT 0"))
+                        conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE"))
                         conn.commit()
                     except Exception as e:
                         try:
                             conn.rollback()
+                            conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN reminder_sent BOOLEAN DEFAULT 0"))
+                            conn.commit()
                         except Exception:
-                            pass
+                            try:
+                                conn.rollback()
+                            except Exception:
+                                pass
             if "affiliate_commissions" in inspector.get_table_names():
                 acols = [c['name'] for c in inspector.get_columns('affiliate_commissions')]
                 if 'order_id' not in acols:
@@ -3226,6 +3231,14 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
+    try:
+        ensure_db_schema()
+    except Exception as sch_err:
+        print(f"[SCHEMA NOTICE] {sch_err}")
+
+    # 2-Hour filter: only show confirmed orders OR fresh pending/submitted orders (< 2 hours old)
+    stale_cutoff = datetime.utcnow() - timedelta(hours=2)
+
     mock_emails = [
         "wozepeh36122931@gmail.com", "comrad4byte@gmail.com"
     ]
@@ -3238,6 +3251,15 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
         CryptoPayment.status != "voided_by_admin"
     )
 
+    # Put back 2-hour cutoff filter on pending orders
+    query = query.filter(
+        (CryptoPayment.status.in_(["confirmed", "approved"])) |
+        (
+            CryptoPayment.status.in_(["pending", "submitted"]) &
+            (CryptoPayment.created_at >= stale_cutoff)
+        )
+    )
+
     if q and q.strip():
         term = f"%{q.strip().lower()}%"
         query = query.filter(
@@ -3247,7 +3269,15 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
             func.lower(CryptoPayment.package_id).like(term) |
             func.lower(CryptoPayment.crypto_currency).like(term)
         )
-    orders = query.order_by(CryptoPayment.id.desc()).limit(150).all()
+
+    try:
+        orders = query.order_by(CryptoPayment.id.desc()).limit(150).all()
+    except Exception as q_err:
+        print(f"[QUERY NOTICE] Retrying after rollback: {q_err}")
+        db.rollback()
+        ensure_db_schema()
+        orders = query.order_by(CryptoPayment.id.desc()).limit(150).all()
+
     return {
         "orders": [
             {
