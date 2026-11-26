@@ -10943,6 +10943,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         // --- BARCODE PACKAGE STORE & CHECKOUT ENGINE ---
+        let userHasExplicitlySelectedPackage = false;
         let selectedPackage = {
             id: 's_10',
             tokens: 10,
@@ -10974,6 +10975,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function selectPackage(packageId, tokens, price) {
+            userHasExplicitlySelectedPackage = true;
             selectedPackage = {
                 id: packageId,
                 tokens: tokens,
@@ -11217,7 +11219,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
             // Instantaneous local UI update in 0ms!
             updateCryptoUI();
-            if (currentUser) {
+            if (currentUser && userHasExplicitlySelectedPackage) {
                 initOrRefreshCryptoOrder();
             }
 
@@ -12522,7 +12524,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 modal.classList.remove('hidden');
                 loadCryptoConfig();
                 switchPayTab('crypto');
-                initOrRefreshCryptoOrder();
+                updateCryptoUI();
+                if (userHasExplicitlySelectedPackage && currentCryptoOrder) {
+                    initOrRefreshCryptoOrder();
+                }
             }
         }
 

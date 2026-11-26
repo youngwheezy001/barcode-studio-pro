@@ -1997,26 +1997,27 @@ def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current
 
     # Calculate micro-cent identifier tag within 30-minute window
     recent_cutoff = datetime.utcnow() - timedelta(minutes=30)
+    # Check for any active pending order for this user (not submitted to blockchain yet)
     existing_order = db.query(CryptoPayment).filter(
         CryptoPayment.user_id == current_user.id,
-        CryptoPayment.package_id == req.package_id,
         CryptoPayment.status == "pending",
+        CryptoPayment.tx_hash == None,
         CryptoPayment.created_at >= recent_cutoff
     ).order_by(CryptoPayment.created_at.desc()).first()
 
     if existing_order:
+        # Re-use and update the active pending order in-place to avoid ghost orders
+        existing_order.package_id = req.package_id
+        existing_order.tokens = pkg["tokens"]
         existing_order.crypto_currency = req.crypto_currency
         existing_order.network = cfg["network"]
         existing_order.wallet_address = cfg["wallet"]
+        cent_offset = 0.01
+        existing_order.amount_usd = round(pkg["amount_usd"] + cent_offset, 2)
+        existing_order.created_at = datetime.utcnow()
         db.commit()
         db.refresh(existing_order)
         order = existing_order
-        cent_offset = round(order.amount_usd - pkg["amount_usd"], 2)
-        if cent_offset <= 0:
-            cent_offset = 0.01
-            order.amount_usd = round(pkg["amount_usd"] + cent_offset, 2)
-            db.commit()
-            db.refresh(order)
         final_amount = order.amount_usd
     else:
         pending_count = db.query(CryptoPayment).filter(
@@ -2046,6 +2047,22 @@ def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current
         db.commit()
         db.refresh(order)
         sync_orders_to_backup(db)
+
+    # Automatically void any older abandoned pending orders without tx_hash for this user
+    try:
+        older_abandoned = db.query(CryptoPayment).filter(
+            CryptoPayment.user_id == current_user.id,
+            CryptoPayment.status == "pending",
+            CryptoPayment.tx_hash == None,
+            CryptoPayment.id != order.id
+        ).all()
+        if older_abandoned:
+            for ab_o in older_abandoned:
+                ab_o.status = "voided_by_admin"
+            db.commit()
+    except Exception as void_err:
+        print(f"[ORDER VOID NOTICE] {void_err}")
+        db.rollback()
 
     return {
         "status": "success",
@@ -3278,6 +3295,17 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
         ensure_db_schema()
         orders = query.order_by(CryptoPayment.id.desc()).limit(150).all()
 
+    # Deduplicate pending uncompleted orders: for each client, only display the latest pending order they chose.
+    # Older uncompleted pending orders (without tx_hash) were superseded when changing package.
+    seen_pending_users = set()
+    display_orders = []
+    for o in orders:
+        if o.status == "pending" and not o.tx_hash:
+            if o.user_id in seen_pending_users:
+                continue
+            seen_pending_users.add(o.user_id)
+        display_orders.append(o)
+
     return {
         "orders": [
             {
@@ -3297,7 +3325,7 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
                 "created_at": (o.created_at.isoformat() + "Z") if o.created_at else None,
                 "confirmed_at": (o.confirmed_at.isoformat() + "Z") if o.confirmed_at else None
             }
-            for o in orders
+            for o in display_orders
         ]
     }
 
