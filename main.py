@@ -4445,6 +4445,26 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
 </body>
 </html>'''
 
+        plain_text = f"""Barcode Studio Pro - Order Completion Notice
+
+Hello, you initiated an order for {tokens} Barcode Sets on Barcode Studio Pro. We have reserved your order, but have not yet detected your blockchain confirmation.
+
+Order Details:
+- Invoice Number: {invoice_number}
+- Package: {tokens} Barcode Sets ({tokens * 2} Barcodes)
+- Amount: ${amount_usd:.2f} USD
+- Payment Method: {crypto_currency} ({network})
+- Destination Wallet Address: {wallet_address}
+
+Complete your order at: https://barcode-studio-pro.onrender.com
+
+If you already submitted the transfer, please allow a few network blocks for automated node verification. You can also paste your Transaction Hash (TXID) in the app or reply directly to this email.
+
+---
+Barcode Studio Pro • Automated AAMVA PDF417 & Code 128 Platform
+If you did not make this request or have already completed it, you can safely ignore this reminder.
+"""
+
         err_reasons = []
 
         # METHOD 0: RESEND HTTPS API (Port 443 - Recommended for Render)
@@ -4454,14 +4474,24 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
             if "onboarding@resend.dev" not in resend_candidates[0]:
                 resend_candidates.append("Barcode Studio Pro <onboarding@resend.dev>")
 
+            reply_to_addr = (os.getenv("EMAIL_FROM") or "barcodestudiopro@gmail.com").strip().strip("'\"")
+
             for cand_from in resend_candidates:
                 try:
-                    resend_payload = json.dumps({
+                    payload_dict = {
                         "from": cand_from,
                         "to": [to_email],
                         "subject": subject,
-                        "html": html_content
-                    }).encode("utf-8")
+                        "html": html_content,
+                        "text": plain_text,
+                        "headers": {
+                            "X-Entity-Ref-ID": invoice_number
+                        }
+                    }
+                    if reply_to_addr:
+                        payload_dict["reply_to"] = reply_to_addr
+
+                    resend_payload = json.dumps(payload_dict).encode("utf-8")
                     resend_req = urllib.request.Request(
                         "https://api.resend.com/emails",
                         data=resend_payload,
