@@ -446,10 +446,10 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">PSD &amp; Template Market</h2>
-                            <span class="text-[10px] bg-purple-100 text-purple-700 font-extrabold px-2 py-0.5 rounded-full border border-purple-200">Cloudflare R2 Direct</span>
+                            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Studies, PSD &amp; Digital Store</h2>
+                            <span id="psd-market-status-badge" class="text-[10px] bg-purple-100 text-purple-700 font-extrabold px-2 py-0.5 rounded-full border border-purple-200">Cloudflare R2 Direct</span>
                         </div>
-                        <p class="text-xs text-slate-500">300 DPI layered PSD templates with editable smart objects, barcode zones &amp; typography via Cloudflare R2</p>
+                        <p class="text-xs text-slate-500">Autonomous Cloudflare R2 repository &amp; marketplace: mechanical engineering studies, books &amp; design assets</p>
                     </div>
                 </div>
                 <button type="button" onclick="closePsdMarketModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center font-bold text-base transition cursor-pointer">
@@ -463,7 +463,7 @@
                     <span class="text-base">⚡</span>
                     <div>
                         <span class="font-bold text-purple-900">Instant Cloudflare R2 Delivery:</span>
-                        <span class="text-slate-600"> Powered by Cloudflare R2 object storage. Secure, signed high-speed direct downloads generated immediately upon checkout.</span>
+                        <span id="psd-market-banner-text" class="text-slate-600"> Powered by Cloudflare R2 object storage. Files added to your bucket appear autonomously here with secure, signed high-speed direct downloads.</span>
                     </div>
                 </div>
             </div>
@@ -471,14 +471,14 @@
             <!-- Categories & Search -->
             <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 pt-1">
                 <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
-                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All PSDs</button>
-                    <button type="button" onclick="filterPsdCategory('certs')" id="psd-filter-certs" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🏆 Certificates</button>
-                    <button type="button" onclick="filterPsdCategory('packaging')" id="psd-filter-packaging" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Packaging &amp; Labels</button>
-                    <button type="button" onclick="filterPsdCategory('tickets')" id="psd-filter-tickets" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎫 Tickets &amp; Passes</button>
-                    <button type="button" onclick="filterPsdCategory('security')" id="psd-filter-security" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Security &amp; Patterns</button>
+                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Files</button>
+                    <button type="button" onclick="filterPsdCategory('books')" id="psd-filter-books" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📚 Studies &amp; Books</button>
+                    <button type="button" onclick="filterPsdCategory('templates')" id="psd-filter-templates" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Templates &amp; PSDs</button>
+                    <button type="button" onclick="filterPsdCategory('bundles')" id="psd-filter-bundles" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Bundles &amp; Archives</button>
+                    <button type="button" onclick="loadAutonomousMarketProducts(true)" title="Force Refresh from Cloudflare R2" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">🔄 Sync</button>
                 </div>
                 <div class="relative min-w-[200px]">
-                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search PSD templates..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
+                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search books, studies, templates..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
                     <span class="absolute left-2.5 top-1.5 text-xs text-slate-400">🔍</span>
                 </div>
             </div>
@@ -12591,10 +12591,24 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (modal) modal.classList.add('hidden');
         }
 
-        // --- PSD & TEMPLATE MARKET MODAL HANDLERS ---
-        function openPsdMarketModal() {
+        // --- PSD, STUDIES & TEMPLATE MARKET MODAL HANDLERS ---
+        let activePsdCategory = 'all';
+        let cachedMarketProducts = null;
+
+        function safeMarketText(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function openPsdMarketModal() {
             const modal = document.getElementById('psd-market-modal');
             if (modal) modal.classList.remove('hidden');
+            loadAutonomousMarketProducts(false);
         }
 
         function closePsdMarketModal() {
@@ -12602,7 +12616,102 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (modal) modal.classList.add('hidden');
         }
 
+        async function loadAutonomousMarketProducts(forceRefresh = false) {
+            const grid = document.getElementById('psd-templates-grid');
+            const badge = document.getElementById('psd-market-status-badge');
+            const banner = document.getElementById('psd-market-banner-text');
+
+            if (forceRefresh) {
+                showToast('Synchronizing with Cloudflare R2 bucket...', 'info');
+            }
+
+            try {
+                const url = forceRefresh ? `${API_BASE}/api/market/products?refresh=true` : `${API_BASE}/api/market/products`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data && data.products && data.products.length > 0) {
+                    cachedMarketProducts = data.products;
+
+                    if (badge) {
+                        if (data.r2_storage_connected) {
+                            badge.className = "text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1";
+                            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloudflare R2 Live (${data.count} items)`;
+                        } else {
+                            badge.className = "text-[10px] bg-purple-100 text-purple-700 font-extrabold px-2 py-0.5 rounded-full border border-purple-200";
+                            badge.innerText = "Cloudflare R2 Ready";
+                        }
+                    }
+
+                    if (banner && data.r2_storage_connected) {
+                        banner.innerHTML = `<strong>Autonomous Cloudflare R2 Connected:</strong> ${data.count} item(s) synchronized live from bucket <code>${data.bucket || 'R2'}</code>. Direct signed downloads generated on demand.`;
+                    }
+
+                    renderMarketProductsGrid(data.products);
+                    if (forceRefresh) {
+                        showToast(`Successfully synced ${data.count} items from Cloudflare R2!`, 'success');
+                    }
+                }
+            } catch (err) {
+                console.warn('[MARKET LOAD NOTICE]', err);
+            }
+        }
+
+        function renderMarketProductsGrid(products) {
+            const grid = document.getElementById('psd-templates-grid');
+            if (!grid) return;
+
+            grid.innerHTML = products.map(p => {
+                const sizeStr = p.file_size_formatted || 'Standard';
+                const priceUsd = Number(p.price_usd || 5.0).toFixed(2);
+                const priceKes = p.price_kes ? `(~ KES ${Number(p.price_kes).toLocaleString()})` : '';
+                const category = p.category || 'general';
+                const catLabel = p.category_label || 'Asset';
+                const tags = Array.isArray(p.tags) ? p.tags : ['Digital Resource'];
+
+                let badgeColor = "bg-purple-100 text-purple-800 border-purple-200";
+                if (category === 'books') badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
+                else if (category === 'templates') badgeColor = "bg-indigo-100 text-indigo-800 border-indigo-200";
+                else if (category === 'bundles') badgeColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
+
+                const safeTitle = safeMarketText(p.title);
+                const safeDesc = safeMarketText(p.description || '');
+                const safeCatLabel = safeMarketText(catLabel);
+                const safeSize = safeMarketText(sizeStr);
+
+                return `
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="${category}" data-title="${safeTitle}">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeColor}">${safeCatLabel}</span>
+                            <span class="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">${safeSize}</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 leading-snug">${safeTitle}</h3>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">${safeDesc}</p>
+                        <div class="flex flex-wrap gap-1 text-[10px] text-slate-500 mt-1">
+                            ${tags.map(t => `<span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">${safeMarketText(t)}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-base font-extrabold text-slate-900">$${priceUsd}</span>
+                            <span class="text-[10px] text-slate-500 block">${priceKes}</span>
+                        </div>
+                        <button type="button" onclick="buyPsdTemplate('${p.id}', '${safeTitle.replace(/'/g, "\\'")}', ${priceUsd})" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                            <span>⚡ Download / Buy</span>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            if (activePsdCategory && activePsdCategory !== 'all') {
+                filterPsdCategory(activePsdCategory);
+            }
+        }
+
         function filterPsdCategory(cat) {
+            activePsdCategory = cat || 'all';
             const btns = document.querySelectorAll('.psd-filter-btn');
             btns.forEach(b => {
                 b.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition';

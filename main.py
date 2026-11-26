@@ -4799,82 +4799,156 @@ KNOWN_STATE_SLUGS = {
 }
 
 # =========================================================================
-# CLOUDFLARE R2 & PSD / TEMPLATES MARKETPLACE
+# CLOUDFLARE R2 & AUTONOMOUS S3 MARKETPLACE
 # =========================================================================
 
-MARKET_PRODUCTS = [
+FALLBACK_MARKET_PRODUCTS = [
     {
         "id": "psd_cert_achievement",
-        "title": "Certificate of Achievement & Completion PSD",
+        "title": "Certificate of Achievement & Completion",
         "category": "certs",
         "category_label": "Certificate PSD",
         "format": "300 DPI Layered PSD (A4 / Letter)",
-        "price_usd": 18.00,
-        "price_kes": 2340,
+        "file_size": 15728640,
+        "file_size_formatted": "15.0 MB",
+        "price_usd": 6.50,
+        "price_kes": 845,
         "description": "Prestigious ornamental gold guilloche border, customizable seal emblem placeholder, editable typography smart objects, and CMYK print-ready color separation.",
         "tags": ["300 DPI", "Layered PSD", "Gold Foil", "Certificate"],
         "r2_key": "templates/certificate_achievement_template.psd"
     },
     {
         "id": "psd_packaging_label",
-        "title": "Retail Product & Packaging Box Mockup PSD",
+        "title": "Retail Product & Packaging Box Mockup",
         "category": "packaging",
         "category_label": "Packaging & Box",
         "format": "300 DPI Layered PSD with Smart Objects",
-        "price_usd": 20.00,
-        "price_kes": 2600,
+        "file_size": 26214400,
+        "file_size_formatted": "25.0 MB",
+        "price_usd": 7.50,
+        "price_kes": 975,
         "description": "Professional 3D box packaging mockup with dedicated GS1 barcode placement zones, nutritional facts grid, realistic paper texture, and customizable foil accents.",
         "tags": ["Packaging", "Barcode Zone", "Smart Objects", "300 DPI"],
         "r2_key": "templates/retail_packaging_box_mockup.psd"
     },
     {
         "id": "psd_event_ticket_pass",
-        "title": "Event Ticket & Conference Pass Template PSD",
+        "title": "Event Ticket & Conference Pass Template",
         "category": "tickets",
         "category_label": "Tickets & Passes",
         "format": "300 DPI Layered PSD with Perforated Stub",
-        "price_usd": 15.00,
-        "price_kes": 1950,
+        "file_size": 8388608,
+        "file_size_formatted": "8.0 MB",
+        "price_usd": 5.50,
+        "price_kes": 715,
         "description": "Commercial event ticket template with tear-off stub, sequential numbering zone, QR & Code 128 barcode placement fields, and double-sided lanyard pass layout.",
         "tags": ["Event Ticket", "Barcode Stub", "Perforation", "Layered"],
         "r2_key": "templates/event_ticket_conference_pass.psd"
     },
     {
         "id": "psd_shipping_logistics",
-        "title": "Commercial Logistics & Shipping Label Master PSD",
+        "title": "Commercial Logistics & Shipping Label Master",
         "category": "packaging",
         "category_label": "Shipping & Logistics",
         "format": "300 DPI Vector PSD (4\" x 6\")",
-        "price_usd": 16.00,
-        "price_kes": 2080,
+        "file_size": 5242880,
+        "file_size_formatted": "5.0 MB",
+        "price_usd": 5.00,
+        "price_kes": 650,
         "description": "Standard 4x6 inch logistics shipping label template with automated Code 128 routing barcode placeholders, AAMVA/GS1 block zones, and thermal printer optimization.",
         "tags": ["Shipping Label", "4x6 Inch", "Code 128", "Logistics"],
         "r2_key": "templates/commercial_shipping_label_master.psd"
     },
     {
         "id": "psd_security_guilloche",
-        "title": "Guilloche Security Backgrounds & Rosettes PSD",
+        "title": "Guilloche Security Backgrounds & Rosettes",
         "category": "security",
         "category_label": "Security Vectors",
         "format": "300 DPI Layered PSD + Vector Smart Objects",
-        "price_usd": 22.00,
-        "price_kes": 2860,
+        "file_size": 41943040,
+        "file_size_formatted": "40.0 MB",
+        "price_usd": 9.00,
+        "price_kes": 1170,
         "description": "Complex mathematical security wave lines, anti-copy micro-patterns, ornamental rosettes, and multi-tone guilloche background plates for high-value print documents.",
         "tags": ["Guilloche", "Anti-Copy", "Security Print", "Rosettes"],
         "r2_key": "templates/guilloche_security_backgrounds.psd"
     }
 ]
 
+# Thread-safe in-memory cache for autonomous R2 bucket objects
+_R2_CACHE_LOCK = threading.Lock()
+_R2_PRODUCTS_CACHE = {
+    "timestamp": 0.0,
+    "products": FALLBACK_MARKET_PRODUCTS,
+    "by_id": {p["id"]: p for p in FALLBACK_MARKET_PRODUCTS},
+    "is_live_r2": False,
+    "error": None
+}
+
+def format_file_size(size_bytes: int) -> str:
+    """Format byte integer to human-friendly string (KB, MB, GB)."""
+    try:
+        size = float(size_bytes)
+        if size < 1024:
+            return f"{int(size)} B"
+        elif size < 1024 * 1024:
+            return f"{size / 1024:.1f} KB"
+        elif size < 1024 * 1024 * 1024:
+            return f"{size / (1024 * 1024):.1f} MB"
+        else:
+            return f"{size / (1024 * 1024 * 1024):.2f} GB"
+    except Exception:
+        return "Unknown size"
+
+def calculate_price_by_heaviness(size_bytes: int):
+    """
+    Dynamically prices files from $5.00 to $10.00 depending on structure & heaviness.
+    - Files <= 5 MB: $5.00
+    - Files >= 50 MB: $10.00
+    - Files between 5 MB and 50 MB: scaled smoothly ($5.50, $6.00, $7.00, etc.)
+    Returns (price_usd: float, price_kes: int).
+    """
+    try:
+        mb = float(size_bytes) / (1024.0 * 1024.0)
+        if mb <= 5.0:
+            price = 5.00
+        elif mb >= 50.0:
+            price = 10.00
+        else:
+            price = 5.00 + ((mb - 5.0) / 45.0) * 5.00
+            price = round(price * 2.0) / 2.0  # Round to nearest 50 cents
+            price = max(5.00, min(10.00, price))
+    except Exception:
+        price = 7.50
+    price_kes = int(price * 130)
+    return float(price), price_kes
+
 def get_r2_client():
-    account_id = (os.getenv("R2_ACCOUNT_ID") or "").strip()
-    access_key = (os.getenv("R2_ACCESS_KEY_ID") or "").strip()
-    secret_key = (os.getenv("R2_SECRET_ACCESS_KEY") or "").strip()
-    if not (account_id and access_key and secret_key):
+    """
+    Creates an S3-compatible client for Cloudflare R2.
+    Reads environment variables set in Render:
+      - R2_ACCOUNT_ID (or CLOUDFLARE_ACCOUNT_ID)
+      - R2_ACCESS_KEY_ID (or AWS_ACCESS_KEY_ID)
+      - R2_SECRET_ACCESS_KEY (or AWS_SECRET_ACCESS_KEY)
+      - R2_ENDPOINT_URL (optional custom endpoint override)
+    """
+    account_id = (os.getenv("R2_ACCOUNT_ID") or os.getenv("CLOUDFLARE_ACCOUNT_ID") or "").strip()
+    access_key = (os.getenv("R2_ACCESS_KEY_ID") or os.getenv("AWS_ACCESS_KEY_ID") or "").strip()
+    secret_key = (os.getenv("R2_SECRET_ACCESS_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY") or "").strip()
+    custom_endpoint = (os.getenv("R2_ENDPOINT_URL") or os.getenv("AWS_ENDPOINT_URL") or "").strip()
+
+    if not (access_key and secret_key and (account_id or custom_endpoint)):
         return None
+
     try:
         import boto3
         from botocore.config import Config
-        endpoint_url = f"https://{account_id}.r2.cloudflarestorage.com"
+
+        if custom_endpoint:
+            endpoint_url = custom_endpoint
+        else:
+            endpoint_url = f"https://{account_id}.r2.cloudflarestorage.com"
+
         return boto3.client(
             "s3",
             endpoint_url=endpoint_url,
@@ -4884,32 +4958,176 @@ def get_r2_client():
             region_name="auto"
         )
     except Exception as e:
-        print(f"[R2 CLIENT ERROR] {e}")
+        print(f"[R2 CLIENT INIT ERROR] {e}")
         return None
 
-@app.get("/api/market/products", summary="List PSD templates and design assets available for purchase")
-def list_market_products():
+def get_autonomous_market_products(force_refresh: bool = False):
+    """
+    Autonomously pulls all files from Cloudflare R2 bucket using S3-compatible list_objects_v2.
+    Categorizes items, formats human titles, file sizes, and applies heaviness-based pricing ($5 - $10).
+    Caches for 60s in memory for fast page loads while immediately picking up new uploads.
+    """
+    global _R2_PRODUCTS_CACHE
+    now = time.time()
+
+    with _R2_CACHE_LOCK:
+        if not force_refresh and (now - _R2_PRODUCTS_CACHE["timestamp"] < 60.0) and _R2_PRODUCTS_CACHE["products"]:
+            return _R2_PRODUCTS_CACHE["products"], _R2_PRODUCTS_CACHE["is_live_r2"], _R2_PRODUCTS_CACHE["error"]
+
+    bucket = (os.getenv("R2_BUCKET_NAME") or os.getenv("AWS_BUCKET_NAME") or os.getenv("R2_BUCKET") or "").strip()
+    prefix = (os.getenv("R2_PREFIX") or "").strip()
+    client = get_r2_client()
+
+    if not client or not bucket:
+        by_id = {p["id"]: p for p in FALLBACK_MARKET_PRODUCTS}
+        with _R2_CACHE_LOCK:
+            _R2_PRODUCTS_CACHE["timestamp"] = now
+            _R2_PRODUCTS_CACHE["products"] = FALLBACK_MARKET_PRODUCTS
+            _R2_PRODUCTS_CACHE["by_id"] = by_id
+            _R2_PRODUCTS_CACHE["is_live_r2"] = False
+            _R2_PRODUCTS_CACHE["error"] = "R2 credentials not yet configured in environment variables"
+        return FALLBACK_MARKET_PRODUCTS, False, "R2 credentials not yet configured"
+
+    try:
+        list_params = {
+            "Bucket": bucket,
+            "MaxKeys": 1000
+        }
+        if prefix:
+            list_params["Prefix"] = prefix
+
+        response = client.list_objects_v2(**list_params)
+        raw_items = response.get("Contents", [])
+
+        if not raw_items:
+            by_id = {p["id"]: p for p in FALLBACK_MARKET_PRODUCTS}
+            with _R2_CACHE_LOCK:
+                _R2_PRODUCTS_CACHE["timestamp"] = now
+                _R2_PRODUCTS_CACHE["products"] = FALLBACK_MARKET_PRODUCTS
+                _R2_PRODUCTS_CACHE["by_id"] = by_id
+                _R2_PRODUCTS_CACHE["is_live_r2"] = True
+                _R2_PRODUCTS_CACHE["error"] = "Bucket is connected but currently contains no files"
+            return FALLBACK_MARKET_PRODUCTS, True, "Bucket is currently empty"
+
+        dynamic_products = []
+        by_id = {}
+
+        for item in raw_items:
+            file_key = item.get("Key", "")
+            file_size = item.get("Size", 0)
+            last_modified = item.get("LastModified")
+
+            # Skip folder placeholders
+            if not file_key or file_key.endswith("/") or file_size == 0:
+                continue
+
+            filename = os.path.basename(file_key)
+            stem, ext = os.path.splitext(filename)
+            ext_clean = ext.lstrip(".").upper() or "FILE"
+
+            # Clean human title
+            clean_title = stem.replace("_", " ").replace("-", " ").strip()
+            clean_title = re.sub(r"\s+", " ", clean_title).title()
+            if not clean_title:
+                clean_title = filename
+
+            # Determine category dynamically
+            lower_name = file_key.lower()
+            if ext_clean in ("PDF", "EPUB", "MOBI") or any(k in lower_name for k in ("book", "study", "engineering", "manual", "guide", "textbook", "notes", "paper", "calc")):
+                category = "books"
+                category_label = "Studies & Books"
+            elif ext_clean in ("PSD", "AI", "EPS", "SVG") or "template" in lower_name or "mockup" in lower_name:
+                category = "templates"
+                category_label = "Design & PSDs"
+            elif ext_clean in ("ZIP", "RAR", "7Z", "TAR", "GZ") or "bundle" in lower_name or "archive" in lower_name:
+                category = "bundles"
+                category_label = "Bundles & Archives"
+            else:
+                category = "resources"
+                category_label = f"{ext_clean} Files"
+
+            price_usd, price_kes = calculate_price_by_heaviness(file_size)
+            size_formatted = format_file_size(file_size)
+            last_mod_str = last_modified.strftime("%b %d, %Y") if hasattr(last_modified, "strftime") else "Recent"
+
+            # Stable unique ID
+            prod_id = "r2_" + hashlib.md5(file_key.encode("utf-8")).hexdigest()[:12]
+
+            product_obj = {
+                "id": prod_id,
+                "title": clean_title,
+                "filename": filename,
+                "category": category,
+                "category_label": category_label,
+                "format": f"{ext_clean} ({size_formatted})",
+                "file_size": file_size,
+                "file_size_formatted": size_formatted,
+                "price_usd": price_usd,
+                "price_kes": price_kes,
+                "last_modified": last_mod_str,
+                "r2_key": file_key,
+                "tags": [ext_clean, size_formatted, "Cloudflare R2 Direct", category_label],
+                "description": f"Autonomous Cloudflare R2 publication: {clean_title}. High-speed verified delivery, file weight: {size_formatted}."
+            }
+            dynamic_products.append(product_obj)
+            by_id[prod_id] = product_obj
+
+        with _R2_CACHE_LOCK:
+            _R2_PRODUCTS_CACHE["timestamp"] = now
+            _R2_PRODUCTS_CACHE["products"] = dynamic_products
+            _R2_PRODUCTS_CACHE["by_id"] = by_id
+            _R2_PRODUCTS_CACHE["is_live_r2"] = True
+            _R2_PRODUCTS_CACHE["error"] = None
+
+        return dynamic_products, True, None
+
+    except Exception as e:
+        print(f"[R2 AUTONOMOUS LIST ERROR] {e}")
+        by_id = {p["id"]: p for p in FALLBACK_MARKET_PRODUCTS}
+        with _R2_CACHE_LOCK:
+            _R2_PRODUCTS_CACHE["timestamp"] = now
+            _R2_PRODUCTS_CACHE["products"] = FALLBACK_MARKET_PRODUCTS
+            _R2_PRODUCTS_CACHE["by_id"] = by_id
+            _R2_PRODUCTS_CACHE["is_live_r2"] = False
+            _R2_PRODUCTS_CACHE["error"] = str(e)
+        return FALLBACK_MARKET_PRODUCTS, False, str(e)
+
+@app.get("/api/market/products", summary="List templates, studies, and assets autonomously from Cloudflare R2")
+def list_market_products(refresh: bool = False):
+    products, is_live, err = get_autonomous_market_products(force_refresh=refresh)
+    bucket = (os.getenv("R2_BUCKET_NAME") or os.getenv("AWS_BUCKET_NAME") or os.getenv("R2_BUCKET") or "").strip()
     return {
         "status": "success",
-        "products": MARKET_PRODUCTS,
-        "r2_storage_connected": bool(os.getenv("R2_ACCESS_KEY_ID") and os.getenv("R2_BUCKET_NAME"))
+        "products": products,
+        "count": len(products),
+        "r2_storage_connected": is_live,
+        "bucket": bucket or "Not configured",
+        "error": err
     }
 
-@app.get("/api/market/download/{product_id}", summary="Download PSD template or resource via Cloudflare R2")
+@app.get("/api/market/download/{product_id}", summary="Download resource via Cloudflare R2 presigned URL")
 def download_market_product(product_id: str, current_user: User = Depends(get_current_user)):
-    prod = next((p for p in MARKET_PRODUCTS if p["id"] == product_id), None)
+    get_autonomous_market_products(force_refresh=False)
+    prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(product_id)
     if not prod:
-        raise HTTPException(status_code=404, detail="Product not found")
+        prod = next((p for p in FALLBACK_MARKET_PRODUCTS if p["id"] == product_id), None)
+    if not prod:
+        raise HTTPException(status_code=404, detail="Resource not found")
 
-    bucket = (os.getenv("R2_BUCKET_NAME") or "").strip()
+    bucket = (os.getenv("R2_BUCKET_NAME") or os.getenv("AWS_BUCKET_NAME") or os.getenv("R2_BUCKET") or "").strip()
     client = get_r2_client()
 
     if client and bucket:
         try:
-            # Generate temporary 1-hour presigned URL from Cloudflare R2
+            filename = prod.get("filename") or os.path.basename(prod["r2_key"])
+            # Generate 1-hour presigned direct download URL from Cloudflare R2
             presigned_url = client.generate_presigned_url(
                 "get_object",
-                Params={"Bucket": bucket, "Key": prod["r2_key"]},
+                Params={
+                    "Bucket": bucket,
+                    "Key": prod["r2_key"],
+                    "ResponseContentDisposition": f'attachment; filename="{filename}"'
+                },
                 ExpiresIn=3600
             )
             return {
@@ -4917,23 +5135,26 @@ def download_market_product(product_id: str, current_user: User = Depends(get_cu
                 "download_url": presigned_url,
                 "product_id": prod["id"],
                 "title": prod["title"],
+                "filename": filename,
+                "file_size_formatted": prod.get("file_size_formatted", ""),
                 "expires_in_seconds": 3600,
                 "provider": "cloudflare_r2"
             }
         except Exception as r2_err:
             print(f"[R2 PRESIGNED ERROR] {r2_err}")
+            raise HTTPException(status_code=500, detail=f"Failed to generate Cloudflare R2 download link: {r2_err}")
 
     return {
         "status": "connected_ready",
         "product_id": prod["id"],
         "title": prod["title"],
-        "message": f"Cloudflare R2 storage connected for '{prod['r2_key']}'. Bucket: '{bucket}'."
+        "message": f"Cloudflare R2 storage ready for '{prod['r2_key']}'. Bucket: '{bucket}'."
     }
 
 @app.get("/api/market/r2-status", summary="Check connection between Render and Cloudflare R2")
 def check_r2_status(current_user: User = Depends(get_current_user)):
-    bucket = (os.getenv("R2_BUCKET_NAME") or "").strip()
-    account_id = (os.getenv("R2_ACCOUNT_ID") or "").strip()
+    bucket = (os.getenv("R2_BUCKET_NAME") or os.getenv("AWS_BUCKET_NAME") or os.getenv("R2_BUCKET") or "").strip()
+    account_id = (os.getenv("R2_ACCOUNT_ID") or os.getenv("CLOUDFLARE_ACCOUNT_ID") or "").strip()
     client = get_r2_client()
 
     if not client or not bucket:
@@ -4945,12 +5166,14 @@ def check_r2_status(current_user: User = Depends(get_current_user)):
 
     try:
         client.head_bucket(Bucket=bucket)
+        products, is_live, err = get_autonomous_market_products(force_refresh=True)
         return {
             "status": "connected",
             "connected": True,
             "bucket": bucket,
             "account_id": (account_id[:6] + "...") if account_id else "active",
-            "message": f"Successfully connected to Cloudflare R2 bucket '{bucket}' from Render!"
+            "autonomous_files_count": len(products) if is_live else 0,
+            "message": f"Successfully connected to Cloudflare R2 bucket '{bucket}'! Autonomously synced {len(products)} file(s)."
         }
     except Exception as e:
         return {
