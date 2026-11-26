@@ -731,30 +731,46 @@
 
                 <!-- Payment Method Tabs: Mobile Money / Cards (Paystack) vs Crypto -->
                 <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
-                    <button type="button" id="tab-btn-paystack" onclick="switchPayTab('paystack')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-900 bg-white shadow-sm border border-slate-200">
-                        <span>📱</span>
-                        <span>M-Pesa / Airtel / Cards</span>
-                    </button>
-                    <button type="button" id="tab-btn-crypto" onclick="switchPayTab('crypto')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-600 hover:text-slate-800">
+                    <button type="button" id="tab-btn-crypto" onclick="switchPayTab('crypto')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-900 bg-white shadow-sm border border-slate-200">
                         <span>🪙</span>
-                        <span>Cryptocurrency</span>
+                        <span>Cryptocurrency (Active)</span>
+                    </button>
+                    <button type="button" id="tab-btn-paystack" onclick="switchPayTab('paystack')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-500 hover:text-slate-700">
+                        <span>📱</span>
+                        <span>M-Pesa / Cards</span>
+                        <span class="text-[9px] bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded font-extrabold ml-1">Coming Soon</span>
                     </button>
                 </div>
 
                 <!-- View 1: Paystack (M-Pesa, Airtel Money, International Cards) -->
-                <div id="pay-view-paystack" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-3">
-                    <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold">
+                <div id="pay-view-paystack" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-3 hidden">
+                    <div class="flex items-center justify-between bg-amber-50 border border-amber-200 text-amber-900 px-3 py-2 rounded-xl text-xs font-bold">
                         <span class="flex items-center gap-1.5">
-                            <span>⚡ Instant Checkout (M-Pesa, Airtel &amp; Cards)</span>
+                            <span>⏳ M-Pesa &amp; Card Gateway (Coming Soon)</span>
                         </span>
-                        <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-extrabold">Instant Automated Credit</span>
+                        <span class="text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider">Awaiting Final Approval</span>
                     </div>
 
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col gap-2.5">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-xl p-3.5 text-xs text-amber-950 flex flex-col gap-2.5">
+                        <div class="flex items-start gap-2.5">
+                            <span class="text-xl">⚠️</span>
+                            <div class="flex flex-col gap-1">
+                                <div class="font-extrabold text-amber-950 text-xs sm:text-sm">Direct M-Pesa &amp; Card checkout is currently in final compliance review.</div>
+                                <div class="text-[11px] text-amber-900 leading-relaxed">
+                                    To protect accounts from test-mode generation and guarantee genuine, permanent barcode set credits, please use our <b>Cryptocurrency</b> payment gateway for now.
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="switchPayTab('crypto')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                            <span>🪙 Pay with Cryptocurrency (Instant Automated Credit) &rarr;</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col gap-2.5 opacity-90">
                         <div class="text-xs text-slate-700 leading-relaxed">
                             <div class="flex items-center gap-2 mb-1.5 font-bold text-slate-900">
                                 <span class="text-base">📱</span>
-                                <span>Supported Instant Payment Methods:</span>
+                                <span>Supported Methods (Available Once Active):</span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
                                 <div class="flex items-center gap-1.5 bg-slate-50 p-2 rounded border border-slate-100">
@@ -782,12 +798,12 @@
                                 <span id="paystack-price-usd" class="font-extrabold text-slate-900 text-sm">$18.00</span>
                                 <span id="paystack-price-kes" class="text-slate-500 text-[11px] font-semibold">(~ KES 2,340)</span>
                             </div>
-                            <button type="button" id="paystack-checkout-btn" onclick="initiatePaystackCheckout()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer">
-                                <span>⚡ Pay with M-Pesa / Card &rarr;</span>
+                            <button type="button" id="paystack-checkout-btn" onclick="handlePaystackComingSoon()" class="w-full sm:w-auto bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                                <span>⏳ M-Pesa / Card Coming Soon</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-[10px] text-slate-400 text-center">Secured by Paystack &amp; Central Bank licensed encryption. Your barcode sets are credited to your account automatically upon PIN entry.</p>
+                    <p class="text-[10px] text-slate-400 text-center">Secured by Paystack &amp; Central Bank licensed encryption. Live processing will open immediately upon compliance approval.</p>
                 </div>
 
                 <!-- View 1: Crypto Wallet Payment (Direct) -->
@@ -10935,7 +10951,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             amount_cents: 1800
         };
 
-        let currentPayTab = 'paystack';
+        let currentPayTab = 'crypto';
         let currentCryptoCoin = 'USDT_TRC20';
         let currentCryptoOrder = null;
         let cryptoConfigs = {
@@ -11003,7 +11019,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function switchPayTab(tab) {
-            currentPayTab = tab || 'paystack';
+            currentPayTab = tab || 'crypto';
             const viewPaystack = document.getElementById('pay-view-paystack');
             const viewCrypto = document.getElementById('pay-view-crypto');
             const btnPaystack = document.getElementById('tab-btn-paystack');
@@ -11046,7 +11062,17 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (elKes) elKes.textContent = `(~ KES ${amtKes.toLocaleString()})`;
         }
 
+        function handlePaystackComingSoon() {
+            showToast('M-Pesa & Card payments are undergoing final compliance review. Please use the Cryptocurrency tab to pay instantly.', 'info');
+            switchPayTab('crypto');
+        }
+
         async function initiatePaystackCheckout() {
+            handlePaystackComingSoon();
+            return;
+        }
+
+        async function performLivePaystackCheckout() {
             if (!currentUser) {
                 showToast('Please sign in or register before checking out.', 'info');
                 openAuthModal();
@@ -12471,7 +12497,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (modal) {
                 modal.classList.remove('hidden');
                 loadCryptoConfig();
-                switchPayTab('paystack');
+                switchPayTab('crypto');
                 initOrRefreshCryptoOrder();
             }
         }
@@ -12534,7 +12560,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
             showToast(`Opening checkout for ${name} ($${price.toFixed(2)})`, 'info');
             openTokenModal();
-            switchPayTab('paystack');
+            switchPayTab('crypto');
         }
 
         async function checkoutStripeSelected() {
