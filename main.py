@@ -4878,8 +4878,8 @@ FALLBACK_MARKET_PRODUCTS = [
         "format": "300 DPI Layered PSD (Front & Back)",
         "file_size": 20971520,
         "file_size_formatted": "20.0 MB",
-        "price_usd": 7.00,
-        "price_kes": 910,
+        "price_usd": 6.00,
+        "price_kes": 780,
         "description": "Front & back layered Photoshop PSD template with smart objects, accurate font guidelines, 2D barcode and magnetic stripe alignment zones, and fine-line security backgrounds.",
         "tags": ["Driver License", "ID Card", "Layered PSD", "Front & Back"],
         "r2_key": "cards/state_driver_license_master.psd"
@@ -5049,6 +5049,97 @@ def calculate_price_by_heaviness(size_bytes: int):
     price_kes = int(price * 130)
     return float(price), price_kes
 
+STATE_NAMES_MAP = {
+    'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+    'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+    'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+    'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+    'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+    'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+    'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+    'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+    'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+    'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+    'DC': 'District of Columbia'
+}
+
+def generate_autonomous_file_description(file_key: str, filename: str, ext_clean: str, category: str, size_formatted: str) -> tuple[str, list[str]]:
+    """
+    Autonomously analyzes the file name, directory path, extension, and category to generate
+    an informative, professional brief description and contextual tags for the marketplace card.
+    """
+    lower = (file_key + " " + filename).lower()
+
+    # 1. Section 1: Driver Licenses & ID Cards
+    if category == "section1":
+        state_match = None
+        for code, name in STATE_NAMES_MAP.items():
+            if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or name.lower() in lower:
+                state_match = name
+                break
+
+        if state_match:
+            desc = f"Master dual-sided {state_match} driver license and identification template in high-resolution layered {ext_clean} format. Fully layered with smart objects for portrait & signature, calibrated typography guidelines, UV watermark overlay guides, and 2D AAMVA PDF417 barcode placement blocks ({size_formatted})."
+            tags = [f"{state_match} DL", "Front & Back", "Smart Objects", f"300 DPI {ext_clean}"]
+        elif "badge" in lower or "credential" in lower:
+            desc = f"Commercial identification badge and corporate security credential template in layered {ext_clean} format. Includes photo smart object placeholders, guilloche microprint borders, magnetic stripe back layout, and barcode zone ({size_formatted})."
+            tags = ["ID Badge", "Security Credential", "Smart Objects", f"Layered {ext_clean}"]
+        elif "passport" in lower:
+            desc = f"Official-style passport biographical data page template in layered {ext_clean} format. Configured with ICAO Doc 9303 machine-readable zone (MRZ) guides, fine-line security backgrounds, and ghost portrait alignment."
+            tags = ["Passport Template", "ICAO MRZ Zone", "300 DPI", f"Layered {ext_clean}"]
+        else:
+            desc = f"High-precision identification card and driver license master template in layered {ext_clean} format ({size_formatted}). Features front & back artboards, editable vector shapes, calibrated font grids, and barcode alignment guides."
+            tags = ["Driver License", "ID Card", "Front & Back", f"300 DPI {ext_clean}"]
+        return desc, tags
+
+    # 2. Section 2: Utility Bills & Bank Statements (PDF & Word Documents)
+    elif category == "section2":
+        if any(w in lower for w in ["bank", "statement", "financial", "ledger", "account"]):
+            desc = f"Authentic commercial bank account statement and financial proof document in clean editable {ext_clean} format ({size_formatted}). Features itemized monthly transaction ledger, running balances, account summary tables, and customizable institution branding."
+            tags = ["Bank Statement", "Financial Proof", "Editable Tables", f"{ext_clean} Document"]
+        elif any(w in lower for w in ["utility", "electric", "water", "gas", "power", "bill", "energy"]):
+            desc = f"Fully editable proof-of-address utility statement document provided in structured {ext_clean} format ({size_formatted}). Includes meter reading consumption charts, billing periods, barcode, and tear-off payment remittance slip."
+            tags = ["Utility Bill", "Proof of Address", "Meter Readings", f"{ext_clean} Document"]
+        elif any(w in lower for w in ["invoice", "receipt", "billing", "order"]):
+            desc = f"Detailed commercial invoice and payment receipt document in clean {ext_clean} format. Formatted with customizable line items, subtotal & tax calculation tables, payment terms, and vendor remittance stubs."
+            tags = ["Commercial Invoice", "Payment Receipt", "Itemized Table", f"{ext_clean} Document"]
+        elif any(w in lower for w in ["paystub", "payroll", "salary", "wage"]):
+            desc = f"Detailed payroll earnings statement and paystub document in fillable {ext_clean} format. Includes gross-to-net salary tables, deductions, YTD totals, and employer header blocks."
+            tags = ["Paystub", "Earnings Statement", "Payroll", f"{ext_clean} Document"]
+        else:
+            desc = f"Professional editable business document and verification proof in clean {ext_clean} format ({size_formatted}). Features structured text layouts, fillable table sections, and official letterhead guidelines."
+            tags = ["Official Document", "Verification Proof", "Editable", f"{ext_clean} Format"]
+        return desc, tags
+
+    # 3. Bundles & Archives
+    elif category == "bundles":
+        if "guilloche" in lower:
+            desc = f"Premium security guilloche background plates and ornamental rosette vector bundle in {ext_clean} format ({size_formatted}). Includes multi-tone anti-copy mathematical wave curves, micro-patterns, and security border frames."
+            tags = ["Guilloche", "Anti-Copy", "Security Print", "Rosettes"]
+        else:
+            desc = f"Comprehensive multi-asset archive package ({ext_clean} format, {size_formatted}) containing complete layered design files, vector assets, and master documentation pre-bundled for high-speed download."
+            tags = ["Archive Bundle", "Full Pack", ext_clean, size_formatted]
+        return desc, tags
+
+    # 4. Templates & General PSDs
+    else:
+        if "cert" in lower:
+            desc = f"Prestigious ornamental certificate of achievement and completion template in layered {ext_clean} format ({size_formatted}). Features customizable gold seal emblem, editable typography smart objects, and CMYK print-ready separation."
+            tags = ["Certificate", "Gold Foil", "Smart Objects", f"300 DPI {ext_clean}"]
+        elif "packaging" in lower or "box" in lower:
+            desc = f"Commercial 3D retail packaging box mockup in layered {ext_clean} format ({size_formatted}) with dedicated GS1 barcode zones, nutritional facts grid, realistic paper texture, and customizable foil accents."
+            tags = ["Packaging", "Barcode Zone", "300 DPI", f"Layered {ext_clean}"]
+        elif "ticket" in lower or "pass" in lower:
+            desc = f"Event ticket and conference lanyard pass template in layered {ext_clean} format ({size_formatted}) with perforated tear-off stub, sequential serial numbering fields, and QR / Code 128 barcode zones."
+            tags = ["Event Ticket", "Lanyard Pass", "Perforation", f"Layered {ext_clean}"]
+        elif "shipping" in lower or "label" in lower:
+            desc = f"Standard 4x6 inch logistics shipping label template in {ext_clean} format ({size_formatted}) with automated Code 128 routing barcode placeholders, AAMVA/GS1 block zones, and thermal printer optimization."
+            tags = ["Shipping Label", "4x6 Inch", "Code 128", "Logistics"]
+        else:
+            desc = f"Professional print-ready design master template in layered {ext_clean} format ({size_formatted}). Fully organized with smart object layers, precise alignment grids, and calibrated typography."
+            tags = ["Master Template", "300 DPI", "Smart Objects", f"Layered {ext_clean}"]
+        return desc, tags
+
 def get_r2_client():
     """
     Creates an S3-compatible client for Cloudflare R2.
@@ -5186,9 +5277,21 @@ def get_autonomous_market_products(force_refresh: bool = False):
                 category_label = SECTION_LABELS.get("templates", "🎨 Templates & PSDs")
                 format_str = f"300 DPI Layered {ext_clean}"
 
-            price_usd, price_kes = calculate_price_by_heaviness(file_size)
             size_formatted = format_file_size(file_size)
             last_mod_str = last_modified.strftime("%b %d, %Y") if hasattr(last_modified, "strftime") else "Recent"
+
+            # Section-specific flat pricing: Section 1 ~$6, Section 2 ~$5, rest heaviness-based ($5-$10)
+            if category == "section1":
+                price_usd = 6.00
+                price_kes = 780
+            elif category == "section2":
+                price_usd = 5.00
+                price_kes = 650
+            else:
+                price_usd, price_kes = calculate_price_by_heaviness(file_size)
+
+            # Autonomous contextual description and tags generated from file metadata
+            auto_desc, auto_tags = generate_autonomous_file_description(file_key, filename, ext_clean, category, size_formatted)
 
             # Stable unique ID
             prod_id = "r2_" + hashlib.md5(file_key.encode("utf-8")).hexdigest()[:12]
@@ -5206,8 +5309,8 @@ def get_autonomous_market_products(force_refresh: bool = False):
                 "price_kes": price_kes,
                 "last_modified": last_mod_str,
                 "r2_key": file_key,
-                "tags": [ext_clean, size_formatted, "Cloudflare R2 Direct", category_label],
-                "description": f"Autonomous Cloudflare R2 publication: {clean_title}. High-speed verified delivery, file weight: {size_formatted}."
+                "tags": auto_tags,
+                "description": auto_desc
             }
             dynamic_products.append(product_obj)
             by_id[prod_id] = product_obj
