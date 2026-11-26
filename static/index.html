@@ -11713,7 +11713,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>CONFIRMED</span>'
                         : (o.status === 'submitted'
                             ? '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>SUBMITTED (TXID)</span>'
-                            : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDING</span>');
+                            : (o.reminder_sent
+                                ? '<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1" title="2-Hour email reminder dispatched to client">PENDING ✉️</span>'
+                                : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PENDING</span>'));
 
                     let explorerUrl = '';
                     const currency = (o.crypto_currency || '').toUpperCase();
@@ -11744,15 +11746,20 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                            </div>`
                         : `<div class="flex items-center justify-end gap-1.5">
                             <button onclick="approveAdminCryptoOrder(${o.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] px-2.5 py-1 rounded shadow transition">Approve & Credit</button>
+                            <button onclick="remindAdminCryptoOrder(${o.id})" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold text-[10px] px-2 py-1 rounded transition flex items-center gap-1 shadow-xs" title="Send Completion Reminder Email to Client">✉️ Remind</button>
                             <button onclick="openReceiptModal(${o.id})" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded text-[10px] font-bold flex items-center gap-1" title="1-Click View Tax Invoice">📄 Invoice</button>
                            </div>`;
 
                     let dateDisplay = 'Recent';
                     if (o.created_at) {
                         try {
-                            const d = new Date(o.created_at);
-                            dateDisplay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                        } catch(e) {}
+                            const rawIso = (o.created_at.endsWith('Z') || o.created_at.includes('+')) ? o.created_at : (o.created_at + 'Z');
+                            const d = new Date(rawIso);
+                            dateDisplay = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + 
+                                          d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        } catch(e) {
+                            dateDisplay = o.created_at;
+                        }
                     }
 
                     return `
@@ -11792,6 +11799,23 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 await loadAdminCryptoOrders(false);
             } catch (err) {
                 showToast('Failed to approve order: ' + err.message, 'error');
+            }
+        }
+
+        async function remindAdminCryptoOrder(orderId) {
+            try {
+                showToast('Sending order completion reminder email...', 'info');
+                const res = await fetch(`${API_BASE}/api/admin/crypto/remind/${orderId}`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeader(), 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Failed to send reminder email');
+
+                showToast(data.message || 'Reminder email successfully dispatched to client!', 'success');
+                await loadAdminCryptoOrders(false);
+            } catch (err) {
+                showToast('Failed to send reminder: ' + err.message, 'error');
             }
         }
 

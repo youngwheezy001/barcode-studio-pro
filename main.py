@@ -295,6 +295,7 @@ class CryptoPayment(Base):
     tx_hash = Column(String, nullable=True, index=True)
     status = Column(String, default="pending", index=True)  # pending, submitted, confirmed, rejected
     invoice_number = Column(String, unique=True, index=True, nullable=True)
+    reminder_sent = Column(Boolean, default=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     confirmed_at = Column(DateTime, nullable=True)
 
@@ -350,6 +351,15 @@ def ensure_db_schema():
                 if 'invoice_number' not in cpcols:
                     try:
                         conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN invoice_number VARCHAR"))
+                        conn.commit()
+                    except Exception as e:
+                        try:
+                            conn.rollback()
+                        except Exception:
+                            pass
+                if 'reminder_sent' not in cpcols:
+                    try:
+                        conn.execute(text("ALTER TABLE crypto_payments ADD COLUMN reminder_sent BOOLEAN DEFAULT 0"))
                         conn.commit()
                     except Exception as e:
                         try:
@@ -463,8 +473,9 @@ def _do_sync_orders():
                 "wallet_address": o.wallet_address,
                 "tx_hash": o.tx_hash,
                 "status": o.status,
-                "created_at": o.created_at.isoformat() if o.created_at else None,
-                "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None
+                "reminder_sent": bool(getattr(o, "reminder_sent", False)),
+                "created_at": (o.created_at.isoformat() + "Z") if o.created_at else None,
+                "confirmed_at": (o.confirmed_at.isoformat() + "Z") if o.confirmed_at else None
             })
         _atomic_json_write(ORDERS_BACKUP_FILE, data)
         return len(data)
@@ -509,7 +520,7 @@ def restore_orders_from_backup(db: Session):
                 cf_at = datetime.fromisoformat(item["confirmed_at"]) if item.get("confirmed_at") else None
                 # Do not restore stale pending orders older than 2 hours
                 if item.get("status") in ("pending", "submitted"):
-                    if c_at < datetime.utcnow() - timedelta(hours=2):
+                    if c_at < datetime.utcnow() - timedelta(days=14):
                         continue
                 o = CryptoPayment(
                     id=item["id"],
@@ -2811,18 +2822,45 @@ async def background_payment_poller():
             order_ids = []
             db = SessionLocal()
             try:
-                # 0. Auto-purge stale unpaid pending/submitted orders older than 2 hours
-                stale_cutoff = datetime.utcnow() - timedelta(hours=2)
+                # 0a. Check pending orders older than 2 hours that have not received completion reminder
+                two_hours_ago = datetime.utcnow() - timedelta(hours=2)
+                unreminded = db.query(CryptoPayment).filter(
+                    CryptoPayment.status.in_(["pending", "submitted"]),
+                    CryptoPayment.created_at <= two_hours_ago,
+                    CryptoPayment.reminder_sent == False
+                ).limit(10).all()
+
+                for rem_order in unreminded:
+                    try:
+                        rem_order.reminder_sent = True
+                        db.commit()
+                        asyncio.create_task(asyncio.to_thread(
+                            dispatch_order_reminder_email,
+                            to_email=rem_order.user_email,
+                            invoice_number=rem_order.invoice_number or f"INV-2026-{rem_order.id:05d}",
+                            tokens=rem_order.tokens,
+                            amount_usd=rem_order.amount_usd,
+                            crypto_currency=rem_order.crypto_currency,
+                            network=rem_order.network,
+                            wallet_address=rem_order.wallet_address
+                        ))
+                        print(f"[ORDER REMINDER] Automatically dispatched 2-hour reminder email to {rem_order.user_email} for order #{rem_order.id}")
+                    except Exception as rem_err:
+                        print(f"[ORDER REMINDER ERROR] Order #{rem_order.id}: {rem_err}")
+
+                # 0b. Auto-purge truly abandoned unpaid pending orders older than 14 days (not 2 hours)
+                purge_cutoff = datetime.utcnow() - timedelta(days=14)
                 db.query(CryptoPayment).filter(
                     CryptoPayment.status.in_(["pending", "submitted"]),
-                    CryptoPayment.created_at < stale_cutoff
+                    CryptoPayment.created_at < purge_cutoff
                 ).delete(synchronize_session=False)
                 db.commit()
 
-                cutoff = datetime.utcnow() - timedelta(hours=2)
+                # Scan active pending orders created within last 24 hours
+                scan_cutoff = datetime.utcnow() - timedelta(hours=24)
                 pending_orders = db.query(CryptoPayment).filter(
                     CryptoPayment.status.in_(["pending", "submitted"]),
-                    CryptoPayment.created_at >= cutoff
+                    CryptoPayment.created_at >= scan_cutoff
                 ).order_by(CryptoPayment.id.desc()).all()
                 order_ids = [o.id for o in pending_orders]
             finally:
@@ -3188,14 +3226,6 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
-    # Auto-purge stale unpaid pending/submitted orders older than 2 hours to avoid data accumulation
-    stale_cutoff = datetime.utcnow() - timedelta(hours=2)
-    db.query(CryptoPayment).filter(
-        CryptoPayment.status.in_(["pending", "submitted"]),
-        CryptoPayment.created_at < stale_cutoff
-    ).delete(synchronize_session=False)
-    db.commit()
-
     mock_emails = [
         "wozepeh36122931@gmail.com", "comrad4byte@gmail.com"
     ]
@@ -3208,14 +3238,6 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
         CryptoPayment.status != "voided_by_admin"
     )
 
-    # Only show confirmed/approved orders OR fresh pending orders (< 2 hours old)
-    query = query.filter(
-        (CryptoPayment.status.in_(["confirmed", "approved"])) |
-        (
-            CryptoPayment.status.in_(["pending", "submitted"]) &
-            (CryptoPayment.created_at >= stale_cutoff)
-        )
-    )
     if q and q.strip():
         term = f"%{q.strip().lower()}%"
         query = query.filter(
@@ -3241,8 +3263,9 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
                 "wallet_address": o.wallet_address,
                 "tx_hash": o.tx_hash,
                 "status": o.status,
-                "created_at": o.created_at.isoformat() if o.created_at else None,
-                "confirmed_at": o.confirmed_at.isoformat() if o.confirmed_at else None
+                "reminder_sent": bool(getattr(o, "reminder_sent", False)),
+                "created_at": (o.created_at.isoformat() + "Z") if o.created_at else None,
+                "confirmed_at": (o.confirmed_at.isoformat() + "Z") if o.confirmed_at else None
             }
             for o in orders
         ]
@@ -3282,6 +3305,37 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
         "order_id": order.id,
         "purchaser_email": purchaser.email if purchaser else None,
         "purchaser_tokens": purchaser.tokens if purchaser else None
+    }
+
+@app.post("/api/admin/crypto/remind/{order_id}", summary="Admin manually send order completion reminder email")
+def remind_crypto_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin authorization required")
+
+    order = db.query(CryptoPayment).filter(CryptoPayment.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status == "confirmed":
+        return {"status": "info", "message": f"Order #{order_id} is already confirmed."}
+
+    order.reminder_sent = True
+    db.commit()
+
+    asyncio.create_task(asyncio.to_thread(
+        dispatch_order_reminder_email,
+        to_email=order.user_email,
+        invoice_number=order.invoice_number or f"INV-2026-{order.id:05d}",
+        tokens=order.tokens,
+        amount_usd=order.amount_usd,
+        crypto_currency=order.crypto_currency,
+        network=order.network,
+        wallet_address=order.wallet_address
+    ))
+
+    return {
+        "status": "success",
+        "message": f"Reminder email successfully dispatched to {order.user_email} for Invoice {order.invoice_number or order.id}."
     }
 
 # --- ADMIN CLIENTS DATABASE & TOKEN MANAGEMENT API ---
@@ -4252,6 +4306,129 @@ def dispatch_sets_transferred_email(to_email: str, from_email: str, tokens: int,
         return {"delivered": False}
     except Exception as e:
         print(f"[TRANSFER EMAIL NOTE] {e}")
+        return {"delivered": False}
+
+
+def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: int, amount_usd: float, crypto_currency: str, network: str, wallet_address: str) -> dict:
+    '''Dispatches a polite, high-converting reminder email to complete a pending crypto order.'''
+    try:
+        subject = f"Reminder: Complete Your Order for {tokens} Barcode Sets ({invoice_number}) - Barcode Studio Pro"
+        html_content = f'''<!DOCTYPE html>
+<html>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; margin: 0;">
+  <div style="max-width: 540px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
+    <div style="margin-bottom: 24px;">
+      <h2 style="color: #38bdf8; margin: 0 0 6px 0; font-size: 20px;">Barcode Studio Pro</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin: 0;">Order Completion Notice</p>
+    </div>
+    <p style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 16px;">
+      Hello, you initiated an order for <strong>{tokens} Barcode Sets</strong> on Barcode Studio Pro. We have reserved your order, but have not yet detected your blockchain confirmation.
+    </p>
+    
+    <div style="background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 20px; margin: 20px 0;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <tr>
+          <td style="color: #94a3b8; padding: 6px 0;">Invoice Number:</td>
+          <td style="color: #f8fafc; font-family: monospace; font-weight: bold; text-align: right; padding: 6px 0;">{invoice_number}</td>
+        </tr>
+        <tr>
+          <td style="color: #94a3b8; padding: 6px 0;">Package:</td>
+          <td style="color: #38bdf8; font-weight: bold; text-align: right; padding: 6px 0;">{tokens} Barcode Sets ({tokens * 2} Barcodes)</td>
+        </tr>
+        <tr>
+          <td style="color: #94a3b8; padding: 6px 0;">Amount:</td>
+          <td style="color: #10b981; font-weight: 900; font-size: 15px; text-align: right; padding: 6px 0;">${amount_usd:.2f} USD</td>
+        </tr>
+        <tr>
+          <td style="color: #94a3b8; padding: 6px 0;">Payment Method:</td>
+          <td style="color: #e2e8f0; font-weight: bold; text-align: right; padding: 6px 0;">{crypto_currency} ({network})</td>
+        </tr>
+      </table>
+      <div style="border-top: 1px dashed #334155; margin-top: 12px; padding-top: 12px;">
+        <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; display: block; margin-bottom: 6px; font-weight: bold;">Destination Wallet Address:</span>
+        <span style="color: #38bdf8; font-family: monospace; font-size: 12px; word-break: break-all; background: #1e293b; padding: 8px 12px; border-radius: 6px; display: block; border: 1px solid #334155;">{wallet_address}</span>
+      </div>
+    </div>
+
+    <p style="font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 24px;">
+      If you already submitted the transfer, please allow a few network blocks for automated node verification. You can also paste your Transaction Hash (TXID) in the app or contact support to expedite crediting.
+    </p>
+
+    <div style="text-align: center; margin: 28px 0;">
+      <a href="https://barcode-studio-pro.onrender.com" style="background: #0284c7; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 13px; padding: 12px 28px; border-radius: 8px; display: inline-block;">Complete Your Order &rarr;</a>
+    </div>
+
+    <div style="border-top: 1px solid #334155; margin-top: 28px; padding-top: 16px; font-size: 11px; color: #64748b; text-align: center;">
+      Barcode Studio Pro &bull; Automated AAMVA PDF417 &amp; Code 128 Platform<br>
+      If you did not make this request or have already completed it, you can safely ignore this reminder.
+    </div>
+  </div>
+</body>
+</html>'''
+
+        resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip()
+        if resend_key:
+            try:
+                from_addr = os.getenv("EMAIL_FROM") or os.getenv("RESEND_FROM") or "Barcode Studio Pro <onboarding@resend.dev>"
+                resend_payload = json.dumps({
+                    "from": from_addr,
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": html_content
+                }).encode("utf-8")
+                resend_req = urllib.request.Request(
+                    "https://api.resend.com/emails",
+                    data=resend_payload,
+                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/2.0"}
+                )
+                with urllib.request.urlopen(resend_req, timeout=10) as r_resp:
+                    return {"delivered": True, "provider": "resend"}
+            except Exception as e:
+                print(f"[REMINDER RESEND NOTE] {e}")
+
+        sendgrid_key = (os.getenv("SENDGRID_API_KEY") or os.getenv("SENDGRID_KEY") or "").strip()
+        if sendgrid_key:
+            try:
+                sg_from = os.getenv("EMAIL_FROM") or "support@barcode-studio-pro.com"
+                sg_payload = json.dumps({
+                    "personalizations": [{"to": [{"email": to_email}]}],
+                    "from": {"email": sg_from, "name": "Barcode Studio Pro"},
+                    "subject": subject,
+                    "content": [{"type": "text/html", "value": html_content}]
+                }).encode("utf-8")
+                sg_req = urllib.request.Request(
+                    "https://api.sendgrid.com/v3/mail/send",
+                    data=sg_payload,
+                    headers={"Authorization": f"Bearer {sendgrid_key}", "Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/2.0"}
+                )
+                with urllib.request.urlopen(sg_req, timeout=10) as sg_resp:
+                    return {"delivered": True, "provider": "sendgrid"}
+            except Exception as e:
+                print(f"[REMINDER SENDGRID NOTE] {e}")
+
+        smtp_host, smtp_port, smtp_user, smtp_pass = get_gmail_smtp_credentials()
+        if smtp_user and smtp_pass:
+            try:
+                msg = MIMEMultipart("alternative")
+                msg["Subject"] = subject
+                msg["From"] = f"Barcode Studio Pro <{smtp_user}>"
+                msg["To"] = to_email
+                msg.attach(MIMEText(html_content, "html"))
+                if smtp_port == 465:
+                    server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
+                else:
+                    server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
+                    server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.sendmail(smtp_user, to_email, msg.as_string())
+                server.quit()
+                return {"delivered": True, "provider": "smtp"}
+            except Exception as e:
+                print(f"[REMINDER SMTP NOTE] {e}")
+
+        return {"delivered": False}
+    except Exception as e:
+        print(f"[ORDER REMINDER EMAIL ERROR] {e}")
         return {"delivered": False}
 
 async def send_transfer_notification(sender_email: str, recipient_email: str, tokens: int, note: str = ""):
