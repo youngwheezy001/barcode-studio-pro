@@ -4467,7 +4467,24 @@ If you did not make this request or have already completed it, you can safely ig
 
         err_reasons = []
 
-        # METHOD 0: RESEND HTTPS API (Port 443 - Recommended for Render)
+        # METHOD 0: GOOGLE APPS SCRIPT WEBHOOK / RELAY (Natively from Gmail with 100% Google SPF/DKIM)
+        gmail_relay_url = (os.getenv("GMAIL_RELAY_URL") or os.getenv("GOOGLE_WEBHOOK_URL") or "").strip().strip("'\"")
+        if gmail_relay_url:
+            try:
+                import requests
+                r = requests.post(gmail_relay_url, json={
+                    "to": to_email,
+                    "subject": subject,
+                    "html": html_content,
+                    "text": plain_text
+                }, timeout=12)
+                if r.status_code in [200, 302]:
+                    return {"delivered": True, "provider": "gmail_relay"}
+            except Exception as ge:
+                err_reasons.append(f"Gmail relay error: {ge}")
+                print(f"[REMINDER GMAIL RELAY NOTE] {ge}")
+
+        # METHOD 1: RESEND HTTPS API (Port 443 - Recommended for Render)
         resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip().strip("'\"")
         if resend_key:
             resend_candidates = [get_resend_from_address()]
