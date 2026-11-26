@@ -20,6 +20,7 @@ Usage:
 import os
 import sys
 import re
+import time
 import argparse
 from pathlib import Path
 from dotenv import load_dotenv
@@ -30,6 +31,7 @@ load_dotenv()
 try:
     import boto3
     from botocore.config import Config
+    from boto3.s3.transfer import TransferConfig
 except ImportError:
     print("[ERROR] boto3 is not installed in current environment.")
     sys.exit(1)
@@ -145,7 +147,12 @@ def get_r2_client(account_id=None, access_key=None, secret_key=None, endpoint=No
         endpoint_url=endpoint_url,
         aws_access_key_id=access_key,
         aws_secret_access_key=secret_key,
-        config=Config(signature_version="s3v4"),
+        config=Config(
+            signature_version="s3v4",
+            connect_timeout=60,
+            read_timeout=120,
+            retries={"max_attempts": 5, "mode": "standard"}
+        ),
         region_name="auto"
     )
 
@@ -250,28 +257,52 @@ def analyze_and_upload(source_dir: str, bucket_name: str = None, us_only: bool =
     print(f"\nPushing {len(uncopied)} US State files to Cloudflare R2...")
     uploaded = 0
     failed = 0
+    transfer_config = TransferConfig(
+        multipart_threshold=8 * 1024 * 1024,
+        max_concurrency=4,
+        multipart_chunksize=8 * 1024 * 1024,
+        use_threads=True
+    )
+
     for idx, (filepath, r2_key, cat, size, region) in enumerate(uncopied, start=1):
         ext = filepath.suffix.lower()
         content_type = CONTENT_TYPES.get(ext, "application/octet-stream")
-        print(f"[{idx}/{len(uncopied)}] Uploading [{region}] {filepath.name} -> {r2_key}...", end=" ", flush=True)
-        try:
-            with open(filepath, "rb") as f:
-                client.put_object(
+        safe_ascii_name = re.sub(r'[^\x00-\x7F]+', '', filepath.name).strip() or "document"
+        safe_region = re.sub(r'[^\x00-\x7F]+', '', region).strip() or "US"
+
+        print(f"[{idx}/{len(uncopied)}] Uploading [{region}] {filepath.name} ({size / (1024*1024):.1f} MB)...", end=" ", flush=True)
+        success = False
+
+        for attempt in range(1, 4):
+            try:
+                if attempt > 1:
+                    time.sleep(2 * attempt)
+                    client = get_r2_client()
+
+                client.upload_file(
+                    Filename=str(filepath),
                     Bucket=bucket,
                     Key=r2_key,
-                    Body=f,
-                    ContentType=content_type,
-                    Metadata={
-                        "original_filename": filepath.name,
-                        "category": cat,
-                        "region": region
+                    Config=transfer_config,
+                    ExtraArgs={
+                        "ContentType": content_type,
+                        "Metadata": {
+                            "original_filename": safe_ascii_name,
+                            "category": cat,
+                            "region": safe_region
+                        }
                     }
                 )
-            print("OK")
-            uploaded += 1
-        except Exception as e:
-            print(f"ERROR: {e}")
-            failed += 1
+                print("OK")
+                uploaded += 1
+                success = True
+                break
+            except Exception as e:
+                if attempt < 3:
+                    print(f"Retry {attempt} ({e})...", end=" ", flush=True)
+                else:
+                    print(f"ERROR: {e}")
+                    failed += 1
 
     print(f"\nFinished! Uploaded: {uploaded}, Failed: {failed}.")
 
