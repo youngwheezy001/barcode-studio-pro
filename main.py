@@ -1771,12 +1771,16 @@ def get_paystack_config():
 @app.post("/api/paystack/initialize", summary="Initialize Paystack Checkout for Barcode Sets")
 @limiter.limit("20/minute")
 async def paystack_initialize(request: Request, payload: PaystackInitRequest, current_user: User = Depends(get_current_user)):
-    if payload.package_id not in TOKEN_PACKAGES:
-        raise HTTPException(status_code=400, detail="Invalid token package selected")
-
-    pkg = TOKEN_PACKAGES[payload.package_id]
-    amount_usd = float(pkg["amount_usd"])
-    tokens = int(pkg["tokens"])
+    prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(payload.package_id) or next((p for p in FALLBACK_MARKET_PRODUCTS if p["id"] == payload.package_id), None)
+    if prod:
+        amount_usd = float(prod["price_usd"])
+        tokens = 0
+    elif payload.package_id in TOKEN_PACKAGES:
+        pkg = TOKEN_PACKAGES[payload.package_id]
+        amount_usd = float(pkg["amount_usd"])
+        tokens = int(pkg["tokens"])
+    else:
+        raise HTTPException(status_code=400, detail="Invalid token package or market item selected")
 
     currency = (payload.currency or "KES").upper()
     if currency == "KES":
@@ -1987,12 +1991,20 @@ def get_crypto_rates():
 @app.post("/api/crypto/create-order", summary="Create pending crypto payment order with auto-detection tag")
 @limiter.limit("15/minute")
 def create_crypto_order(request: Request, req: CreateCryptoOrderRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if req.package_id not in TOKEN_PACKAGES:
-        raise HTTPException(status_code=400, detail="Invalid token package selected")
+    prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(req.package_id) or next((p for p in FALLBACK_MARKET_PRODUCTS if p["id"] == req.package_id), None)
+    if prod:
+        pkg = {
+            "tokens": 0,
+            "amount_usd": float(prod["price_usd"])
+        }
+    elif req.package_id in TOKEN_PACKAGES:
+        pkg = TOKEN_PACKAGES[req.package_id]
+    else:
+        raise HTTPException(status_code=400, detail="Invalid token package or market item selected")
+
     if req.crypto_currency not in CRYPTO_CONFIGS:
         raise HTTPException(status_code=400, detail="Invalid cryptocurrency selected")
 
-    pkg = TOKEN_PACKAGES[req.package_id]
     cfg = CRYPTO_CONFIGS[req.crypto_currency]
 
     # Calculate micro-cent identifier tag within 30-minute window
@@ -5115,13 +5127,35 @@ def list_market_products(refresh: bool = False):
     }
 
 @app.get("/api/market/download/{product_id}", summary="Download resource via Cloudflare R2 presigned URL")
-def download_market_product(product_id: str, current_user: User = Depends(get_current_user)):
+def download_market_product(product_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     get_autonomous_market_products(force_refresh=False)
     prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(product_id)
     if not prod:
         prod = next((p for p in FALLBACK_MARKET_PRODUCTS if p["id"] == product_id), None)
     if not prod:
         raise HTTPException(status_code=404, detail="Resource not found")
+
+    # Payment / Permission verification:
+    is_admin = (current_user.role in ["admin", "pro_user"]) or (current_user.email.lower() in ADMIN_EMAILS)
+    has_paid = False
+    if not is_admin:
+        confirmed = db.query(CryptoPayment).filter(
+            CryptoPayment.user_id == current_user.id,
+            CryptoPayment.package_id == product_id,
+            CryptoPayment.status == "confirmed"
+        ).first()
+        if confirmed:
+            has_paid = True
+
+    if not (is_admin or has_paid):
+        return {
+            "status": "payment_required",
+            "product_id": prod["id"],
+            "title": prod["title"],
+            "price_usd": prod["price_usd"],
+            "price_kes": prod["price_kes"],
+            "message": f"Payment required to download {prod['title']}."
+        }
 
     bucket = (os.getenv("R2_BUCKET_NAME") or os.getenv("AWS_BUCKET_NAME") or os.getenv("R2_BUCKET") or "").strip()
     client = get_r2_client()

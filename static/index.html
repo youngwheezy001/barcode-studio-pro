@@ -799,39 +799,24 @@
                     <button type="button" id="tab-btn-paystack" onclick="switchPayTab('paystack')" class="py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition text-slate-500 hover:text-slate-700">
                         <span>📱</span>
                         <span>M-Pesa / Cards</span>
-                        <span class="text-[9px] bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded font-extrabold ml-1">Coming Soon</span>
+                        <span class="text-[9px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 rounded font-extrabold ml-1">Instant</span>
                     </button>
                 </div>
 
                 <!-- View 1: Paystack (M-Pesa, Airtel Money, International Cards) -->
                 <div id="pay-view-paystack" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-3 hidden">
-                    <div class="flex items-center justify-between bg-amber-50 border border-amber-200 text-amber-900 px-3 py-2 rounded-xl text-xs font-bold">
+                    <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold">
                         <span class="flex items-center gap-1.5">
-                            <span>⏳ M-Pesa &amp; Card Gateway (Coming Soon)</span>
+                            <span>⚡ Instant Checkout (M-Pesa, Airtel &amp; Cards)</span>
                         </span>
-                        <span class="text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wider">Awaiting Final Approval</span>
+                        <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-extrabold">Instant Automated Credit</span>
                     </div>
 
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-xl p-3.5 text-xs text-amber-950 flex flex-col gap-2.5">
-                        <div class="flex items-start gap-2.5">
-                            <span class="text-xl">⚠️</span>
-                            <div class="flex flex-col gap-1">
-                                <div class="font-extrabold text-amber-950 text-xs sm:text-sm">Direct M-Pesa &amp; Card checkout is currently in final compliance review.</div>
-                                <div class="text-[11px] text-amber-900 leading-relaxed">
-                                    To protect accounts from test-mode generation and guarantee genuine, permanent barcode set credits, please use our <b>Cryptocurrency</b> payment gateway for now.
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" onclick="switchPayTab('crypto')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                            <span>🪙 Pay with Cryptocurrency (Instant Automated Credit) &rarr;</span>
-                        </button>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col gap-2.5 opacity-90">
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col gap-2.5">
                         <div class="text-xs text-slate-700 leading-relaxed">
                             <div class="flex items-center gap-2 mb-1.5 font-bold text-slate-900">
                                 <span class="text-base">📱</span>
-                                <span>Supported Methods (Available Once Active):</span>
+                                <span>Supported Instant Payment Methods:</span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600">
                                 <div class="flex items-center gap-1.5 bg-slate-50 p-2 rounded border border-slate-100">
@@ -859,12 +844,12 @@
                                 <span id="paystack-price-usd" class="font-extrabold text-slate-900 text-sm">$18.00</span>
                                 <span id="paystack-price-kes" class="text-slate-500 text-[11px] font-semibold">(~ KES 2,340)</span>
                             </div>
-                            <button type="button" id="paystack-checkout-btn" onclick="handlePaystackComingSoon()" class="w-full sm:w-auto bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
-                                <span>⏳ M-Pesa / Card Coming Soon</span>
+                            <button type="button" id="paystack-checkout-btn" onclick="performLivePaystackCheckout()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                                <span>⚡ Pay with M-Pesa / Card &rarr;</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-[10px] text-slate-400 text-center">Secured by Paystack &amp; Central Bank licensed encryption. Live processing will open immediately upon compliance approval.</p>
+                    <p class="text-[10px] text-slate-400 text-center">Secured by Paystack &amp; Central Bank licensed encryption. Your items are credited or unlocked automatically upon PIN entry.</p>
                 </div>
 
                 <!-- View 1: Crypto Wallet Payment (Direct) -->
@@ -11129,8 +11114,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         async function initiatePaystackCheckout() {
-            handlePaystackComingSoon();
-            return;
+            performLivePaystackCheckout();
         }
 
         async function performLivePaystackCheckout() {
@@ -11376,9 +11360,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             currentUser.tokens += (data.tokens_added || selectedPackage.tokens);
                         }
                         updateAuthUI();
-                        showToast(`🎉 Payment detected on-chain! Added ${data.tokens_added || selectedPackage.tokens} Barcode Sets to your balance.`, 'success');
-                        closeTokenModal();
-                        openReceiptModal(orderId);
+                        if (selectedPackage && selectedPackage.is_market) {
+                            showToast(`🎉 Payment detected on-chain! Starting download for ${selectedPackage.name}...`, 'success');
+                            closeTokenModal();
+                            buyPsdTemplate(selectedPackage.id, selectedPackage.name, selectedPackage.price);
+                        } else {
+                            showToast(`🎉 Payment detected on-chain! Added ${data.tokens_added || selectedPackage.tokens} Barcode Sets to your balance.`, 'success');
+                            closeTokenModal();
+                            openReceiptModal(orderId);
+                        }
                     } else if (data.status === 'expired') {
                         stopCryptoPolling();
                         if (radarLabel) radarLabel.textContent = 'Order window expired. Please reselect package.';
@@ -11696,7 +11686,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     closeTokenModal();
                     if (statusBox) statusBox.classList.add('hidden');
                     if (txInput) txInput.value = '';
-                }, 2200);
+                    if (selectedPackage && selectedPackage.is_market) {
+                        buyPsdTemplate(selectedPackage.id, selectedPackage.name, selectedPackage.price);
+                    }
+                }, 1800);
 
             } catch (err) {
                 if (statusBox) {
@@ -12767,9 +12760,32 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             } catch (e) {
                 // proceed to checkout
             }
-            showToast(`Opening checkout for ${name} ($${price.toFixed(2)})`, 'info');
+
+            const numPrice = Number(price) || 5.0;
+            selectedPackage = {
+                id: productId,
+                name: name,
+                tokens: 0,
+                price: numPrice,
+                amount_cents: Math.round(numPrice * 100),
+                is_market: true
+            };
+            selectedPackageId = productId;
+
+            const summaryEl = document.getElementById('checkout-summary-text');
+            if (summaryEl) {
+                summaryEl.textContent = `${name} for $${numPrice.toFixed(2)}`;
+            }
+
+            updatePaystackUI();
+            updateCryptoUI();
+
+            showToast(`Opening checkout for ${name} ($${numPrice.toFixed(2)}) - Pay via Crypto or M-Pesa`, 'info');
             openTokenModal();
             switchPayTab('crypto');
+            if (currentUser) {
+                initOrRefreshCryptoOrder();
+            }
         }
 
         async function checkoutStripeSelected() {
@@ -18091,10 +18107,15 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     .then(r => r.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            showToast(data.message || 'Payment confirmed! Barcode Sets added to your account.', 'success');
+                            showToast(data.message || 'Payment confirmed!', 'success');
                             if (typeof fetchCurrentUser === 'function') fetchCurrentUser();
                             const cleanUrl = window.location.pathname;
                             window.history.replaceState({}, document.title, cleanUrl);
+                            const parts = paystackRef.split('_');
+                            const pkgId = parts[4] || '';
+                            if (pkgId.startsWith('r2_') || pkgId.startsWith('psd_')) {
+                                buyPsdTemplate(pkgId, 'Purchased Asset', 0);
+                            }
                         } else {
                             showToast(data.message || 'Payment processing...', 'info');
                         }
