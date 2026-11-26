@@ -3338,7 +3338,7 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
     }
 
 @app.post("/api/admin/crypto/remind/{order_id}", summary="Admin manually send order completion reminder email")
-def remind_crypto_order(order_id: int, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def remind_crypto_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
@@ -3349,11 +3349,8 @@ def remind_crypto_order(order_id: int, background_tasks: BackgroundTasks, curren
     if order.status == "confirmed":
         return {"status": "info", "message": f"Order #{order_id} is already confirmed."}
 
-    order.reminder_sent = True
-    db.commit()
-
-    background_tasks.add_task(
-        dispatch_order_reminder_email,
+    # Dispatch email directly and verify real delivery status
+    delivery_res = dispatch_order_reminder_email(
         to_email=order.user_email,
         invoice_number=order.invoice_number or f"INV-2026-{order.id:05d}",
         tokens=order.tokens,
@@ -3363,10 +3360,19 @@ def remind_crypto_order(order_id: int, background_tasks: BackgroundTasks, curren
         wallet_address=order.wallet_address
     )
 
-    return {
-        "status": "success",
-        "message": f"Reminder email successfully queued for {order.user_email}."
-    }
+    if delivery_res.get("delivered"):
+        order.reminder_sent = True
+        db.commit()
+        return {
+            "status": "success",
+            "message": f"Reminder email delivered to {order.user_email} via {delivery_res.get('provider', 'email service')}!"
+        }
+    else:
+        err = delivery_res.get("error_detail") or "Failed to deliver email."
+        raise HTTPException(
+            status_code=400,
+            detail=f"Email delivery failed: {err}"
+        )
 
 # --- ADMIN CLIENTS DATABASE & TOKEN MANAGEMENT API ---
 
@@ -4396,6 +4402,9 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
 </body>
 </html>'''
 
+        err_reasons = []
+
+        # METHOD 0: RESEND HTTPS API (Port 443 - Recommended for Render)
         resend_key = (os.getenv("RESEND_API_KEY") or os.getenv("RESEND_KEY") or "").strip()
         if resend_key:
             try:
@@ -4414,8 +4423,10 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
                 with urllib.request.urlopen(resend_req, timeout=10) as r_resp:
                     return {"delivered": True, "provider": "resend"}
             except Exception as e:
+                err_reasons.append(f"Resend error: {e}")
                 print(f"[REMINDER RESEND NOTE] {e}")
 
+        # METHOD 1: SENDGRID HTTPS API (Port 443)
         sendgrid_key = (os.getenv("SENDGRID_API_KEY") or os.getenv("SENDGRID_KEY") or "").strip()
         if sendgrid_key:
             try:
@@ -4434,8 +4445,30 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
                 with urllib.request.urlopen(sg_req, timeout=10) as sg_resp:
                     return {"delivered": True, "provider": "sendgrid"}
             except Exception as e:
+                err_reasons.append(f"SendGrid error: {e}")
                 print(f"[REMINDER SENDGRID NOTE] {e}")
 
+        # METHOD 2: GOOGLE WEBHOOK / RELAY
+        gmail_relay_url = (os.getenv("GMAIL_RELAY_URL") or os.getenv("GOOGLE_WEBHOOK_URL") or "").strip()
+        if gmail_relay_url:
+            try:
+                payload = json.dumps({
+                    "to": to_email,
+                    "subject": subject,
+                    "html": html_content
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    gmail_relay_url,
+                    data=payload,
+                    headers={"Content-Type": "application/json", "User-Agent": "BarcodeStudioPro/1.0"}
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    return {"delivered": True, "provider": "gmail_relay"}
+            except Exception as e:
+                err_reasons.append(f"Gmail relay error: {e}")
+                print(f"[REMINDER GMAIL RELAY NOTE] {e}")
+
+        # METHOD 3: SMTP / GMAIL
         smtp_host, smtp_port, smtp_user, smtp_pass = get_gmail_smtp_credentials()
         if smtp_user and smtp_pass:
             try:
@@ -4454,12 +4487,15 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
                 server.quit()
                 return {"delivered": True, "provider": "smtp"}
             except Exception as e:
+                err_reasons.append(f"SMTP error ({smtp_user}@{smtp_host}:{smtp_port}): {e}")
                 print(f"[REMINDER SMTP NOTE] {e}")
+        else:
+            err_reasons.append("No email credentials configured. Please set RESEND_API_KEY or SMTP_USER & SMTP_PASS in Render Environment.")
 
-        return {"delivered": False}
+        return {"delivered": False, "error_detail": "; ".join(err_reasons)}
     except Exception as e:
         print(f"[ORDER REMINDER EMAIL ERROR] {e}")
-        return {"delivered": False}
+        return {"delivered": False, "error_detail": str(e)}
 
 async def send_transfer_notification(sender_email: str, recipient_email: str, tokens: int, note: str = ""):
     """Dispatches instant Telegram alert to admin for peer-to-peer transfers."""
