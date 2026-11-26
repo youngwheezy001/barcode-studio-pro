@@ -3338,7 +3338,7 @@ def approve_crypto_order(order_id: int, current_user: User = Depends(get_current
     }
 
 @app.post("/api/admin/crypto/remind/{order_id}", summary="Admin manually send order completion reminder email")
-def remind_crypto_order(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def remind_crypto_order(order_id: int, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.role not in ["admin", "pro_user"] and current_user.email.lower() not in ADMIN_EMAILS:
         raise HTTPException(status_code=403, detail="Admin authorization required")
 
@@ -3352,7 +3352,7 @@ def remind_crypto_order(order_id: int, current_user: User = Depends(get_current_
     order.reminder_sent = True
     db.commit()
 
-    asyncio.create_task(asyncio.to_thread(
+    background_tasks.add_task(
         dispatch_order_reminder_email,
         to_email=order.user_email,
         invoice_number=order.invoice_number or f"INV-2026-{order.id:05d}",
@@ -3361,11 +3361,11 @@ def remind_crypto_order(order_id: int, current_user: User = Depends(get_current_
         crypto_currency=order.crypto_currency,
         network=order.network,
         wallet_address=order.wallet_address
-    ))
+    )
 
     return {
         "status": "success",
-        "message": f"Reminder email successfully dispatched to {order.user_email} for Invoice {order.invoice_number or order.id}."
+        "message": f"Reminder email successfully queued for {order.user_email}."
     }
 
 # --- ADMIN CLIENTS DATABASE & TOKEN MANAGEMENT API ---
