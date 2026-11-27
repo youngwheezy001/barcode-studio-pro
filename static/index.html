@@ -116,6 +116,13 @@
             image-rendering: pixelated;
         }
 
+        /* Prevent unauthorized mobile long-press image downloading / save to photos */
+        #studio-cr80-card, #barcode-preview-container, .barcode-canvas-container, canvas, svg {
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+        }
+
         /* Interactive Tooltip */
         .tooltip-box {
             display: none;
@@ -14047,6 +14054,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         }
 
         function downloadPNG(targetDpi = 300) {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to export.', 'warning');
+                openAuthModal();
+                return;
+            }
             const multiplier = targetDpi === 600 ? 4 : 2;
             if (currentTab === 'code128') {
                 checkAndNotifyCode128Omission();
@@ -14129,6 +14141,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // JPEG Export
         function downloadJPEG() {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to export.', 'warning');
+                openAuthModal();
+                return;
+            }
             if (currentTab === 'code128') {
                 checkAndNotifyCode128Omission();
                 const srcCanvas = document.getElementById('hidden-code128-canvas');
@@ -14204,6 +14221,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // Vector SVG Export
         function downloadSVG() {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to export.', 'warning');
+                openAuthModal();
+                return;
+            }
             if (currentTab === 'code128') {
                 checkAndNotifyCode128Omission();
                 const svg = document.getElementById('output-code128');
@@ -14273,6 +14295,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // Printable PDF Label
         function downloadPDF() {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to export.', 'warning');
+                openAuthModal();
+                return;
+            }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'landscape', unit: 'in', format: [4, 2] });
 
@@ -14778,6 +14805,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // Standard CR-80 ID Card Export (3.375" x 2.125" at 300 DPI)
         async function downloadFullCardBack() {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to export.', 'warning');
+                openAuthModal();
+                return;
+            }
             const btn = document.getElementById('btn-full-card');
             const originalHtml = btn ? btn.innerHTML : '';
             if (btn) {
@@ -15524,6 +15556,11 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         function downloadCertificatePdfDirect() {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to download certificates.', 'warning');
+                openAuthModal();
+                return;
+            }
             secureExport(async () => {
                 await generateComplianceCertificatePdf(window._activeCertMode || 'aamva', true);
             });
@@ -15784,6 +15821,11 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         }
 
         async function downloadProductionPrintPack() {
+            if (!currentUser) {
+                showToast('Please sign in or create an account to export.', 'warning');
+                openAuthModal();
+                return;
+            }
             showToast('Compiling 1-Click Complete Production Print Pack (ZIP)...', 'info');
             checkAndNotifyCode128Omission();
             if (!window.JSZip) {
@@ -18152,7 +18194,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             // Ctrl+S or Cmd+S: Download complete 2-in-1 companion barcode bundle
             if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
                 e.preventDefault();
-                downloadDualBarcodeBundle();
+                secureExport(downloadDualBarcodeBundle);
                 return;
             }
 
