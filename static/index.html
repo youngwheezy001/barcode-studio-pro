@@ -19522,11 +19522,23 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
         (function initAntiScreenshotProtection() {
             // Admin users bypass the screenshot shield completely
             function isAdminUser() {
-                const u = window.currentUser;
-                if (!u) return false;
-                if (u.role === 'admin' || u.role === 'pro_user') return true;
-                const email = (u.email || '').toLowerCase().trim();
-                if (email === 'mwangilewis205@gmail.com') return true;
+                const u = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : window.currentUser;
+                if (u) {
+                    if (u.role === 'admin' || u.role === 'pro_user') return true;
+                    const email = (u.email || '').toLowerCase().trim();
+                    if (email.includes('mwangilewis205') || email.includes('admin') || email === 'youngwheezy001@gmail.com') return true;
+                }
+                try {
+                    const cached = localStorage.getItem('bsp_cached_user');
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        if (parsed.role === 'admin' || parsed.role === 'pro_user') return true;
+                        const em = (parsed.email || '').toLowerCase().trim();
+                        if (em.includes('mwangilewis205') || em.includes('admin')) return true;
+                    }
+                } catch(e) {}
+                const adminBtn = document.getElementById('admin-ledger-btn');
+                if (adminBtn && !adminBtn.classList.contains('hidden')) return true;
                 return false;
             }
 
