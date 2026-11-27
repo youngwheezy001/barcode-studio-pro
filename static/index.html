@@ -2478,7 +2478,20 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                     <div class="flex flex-col gap-2 w-full">
                         <div class="w-full">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase">Jurisdiction Profile &amp; Revision</label>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <label class="block text-[10px] font-bold text-slate-600 uppercase">Jurisdiction Profile &amp; Revision</label>
+                                    <span class="text-slate-300 hidden sm:inline">|</span>
+                                    <!-- Side-by-Side US & UK Country Buttons -->
+                                    <div class="inline-flex items-center gap-1 p-0.5 bg-slate-100 rounded-md border border-slate-200 text-[10px]">
+                                        <button type="button" onclick="loadQuickStatePreset('TX')" class="px-1.5 py-0.5 rounded font-bold text-[10px] bg-white text-slate-700 hover:text-blue-700 hover:bg-blue-50 transition shadow-2xs cursor-pointer flex items-center gap-1" title="Select United States (Default Texas)">
+                                            <span>🇺🇸 USA</span>
+                                        </button>
+                                        <span class="text-slate-300">|</span>
+                                        <button type="button" onclick="loadQuickStatePreset('UK_ENG')" class="px-1.5 py-0.5 rounded font-bold text-[10px] bg-purple-100 text-purple-800 hover:bg-purple-200 transition shadow-2xs cursor-pointer flex items-center gap-1" title="Select United Kingdom (DVLA Great Britain)">
+                                            <span>🇬🇧 UK (DVLA)</span>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="flex items-center gap-1 text-[10px] font-semibold text-slate-500 overflow-x-auto pb-0.5 no-scrollbar">
                                     <span class="text-[9px] uppercase font-bold text-slate-400 shrink-0">Quick Test:</span>
                                     <button type="button" onclick="loadQuickStatePreset('CT')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">CT</button>
@@ -2486,6 +2499,8 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <button type="button" onclick="loadQuickStatePreset('TX')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">TX</button>
                                     <button type="button" onclick="loadQuickStatePreset('FL')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">FL</button>
                                     <button type="button" onclick="loadQuickStatePreset('NY')" class="px-2 py-0.5 rounded bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 font-bold text-[10px] transition cursor-pointer">NY</button>
+                                    <span class="text-slate-300 font-bold">|</span>
+                                    <button type="button" onclick="loadQuickStatePreset('UK_ENG')" class="px-2 py-0.5 rounded bg-purple-50 hover:bg-purple-100 border border-purple-300 hover:border-purple-500 text-purple-700 font-bold text-[10px] transition cursor-pointer flex items-center gap-1 shadow-2xs" title="1-Click Load UK (England DVLA)">🇬🇧 UK</button>
                                 </div>
                             </div>
                             <select id="aamva-jurisdiction" onchange="applyStatePreset()" class="w-full bg-white border border-slate-300 text-slate-800 rounded-lg font-semibold text-xs py-1.5 px-2 outline-none focus:ring-2 focus:ring-accent cursor-pointer"></select>
@@ -5901,8 +5916,10 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         const newBadge = rev.is_new ? ' [NEW]' : '';
                         const rawLabel = (rev.label || stateName).replace('Kentucy', 'Kentucky');
                         const cleanLabel = rawLabel.replace(/\s*\[NEW\]\s*/gi, '');
-                        const optionHtml = `<option value="${rev.slug}">${cleanLabel}${newBadge}${verifiedBadge}</option>`;
-                        if (group.is_uk || group.country === 'UK' || rev.slug.startsWith('UK_')) {
+                        const isUk = (group.is_uk || group.country === 'UK' || rev.slug.startsWith('UK_'));
+                        const optPrefix = isUk ? '🇬🇧 ' : '';
+                        const optionHtml = `<option value="${rev.slug}">${optPrefix}${cleanLabel}${newBadge}${verifiedBadge}</option>`;
+                        if (isUk) {
                             ukHtml += optionHtml;
                         } else if (group.is_canada) {
                             caHtml += optionHtml;
@@ -5911,13 +5928,22 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         }
                     }
                 }
-                select.innerHTML = `<optgroup label="🇺🇸 United States">${usHtml}</optgroup><optgroup label="🇨🇦 Canada">${caHtml}</optgroup><optgroup label="🇬🇧 United Kingdom">${ukHtml}</optgroup>`;
+                select.innerHTML = `
+                    <optgroup label="🇬🇧 UNITED KINGDOM (DVLA / DVA)">${ukHtml}</optgroup>
+                    <optgroup label="──────────────── 🇺🇸 UNITED STATES ────────────────">${usHtml}</optgroup>
+                    <optgroup label="──────────────── 🇨🇦 CANADA ────────────────">${caHtml}</optgroup>
+                `;
             } else {
-                let optionsHtml = '';
+                let ukOpts = '';
+                let usOpts = '';
                 for (const [key, data] of Object.entries(STATE_PROFILES)) {
-                    optionsHtml += `<option value="${key}">${data.name} (${data.iin})</option>`;
+                    if (key.startsWith('UK_')) {
+                        ukOpts += `<option value="${key}">🇬🇧 ${data.name} (${data.iin})</option>`;
+                    } else {
+                        usOpts += `<option value="${key}">${data.name} (${data.iin})</option>`;
+                    }
                 }
-                select.innerHTML = optionsHtml;
+                select.innerHTML = `<optgroup label="🇬🇧 UNITED KINGDOM">${ukOpts}</optgroup><optgroup label="──────────────── 🇺🇸 UNITED STATES ────────────────">${usOpts}</optgroup>`;
             }
 
             if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
@@ -7753,7 +7779,40 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             showToast('Loaded New York (NY) compliance preset!', 'success');
         }
 
-        // --- QUICK TEST STATES DISPATCHER (CT | CA | TX | FL | NY) ---
+        // --- UNITED KINGDOM DVLA PRESET ---
+        function loadUkDvlaPreset() {
+            setJurisdictionSelect('UK_ENG');
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); } };
+            setVal('aamva-first', 'Oliver');
+            setVal('aamva-mid', 'James');
+            setVal('aamva-last', 'Smith');
+            setVal('aamva-street', '10 Downing Street');
+            setVal('aamva-city', 'London');
+            setVal('aamva-state', 'UK_ENG');
+            setVal('aamva-zip', 'SW1A 2AA');
+            setVal('aamva-sex', '1');
+            setVal('aamva-class', 'B');
+            setVal('aamva-dob', '05251985');
+            setVal('aamva-issued', '03152022');
+            setVal('aamva-exp', '03152032');
+            setVal('aamva-id', calculateUkDvlaNumber({
+                first: 'Oliver',
+                mid: 'James',
+                last: 'Smith',
+                dob: '05251985',
+                sex: '1'
+            }));
+            applyStatePreset();
+            if (typeof updateStateDynamicLabels === 'function') updateStateDynamicLabels();
+            if (typeof updateHeightMetric === 'function') updateHeightMetric();
+            if (typeof updateWeightMetric === 'function') updateWeightMetric();
+            if (typeof validateDlNumber === 'function') validateDlNumber();
+            if (typeof compileAAMVA === 'function') compileAAMVA();
+            if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+            showToast('Loaded 🇬🇧 United Kingdom (England DVLA) specification & demographics!', 'success');
+        }
+
+        // --- QUICK TEST STATES DISPATCHER (CT | CA | TX | FL | NY | UK) ---
         function loadQuickStatePreset(code) {
             const cleanCode = (code || '').trim().toUpperCase();
             if (cleanCode === 'CT') {
@@ -7766,6 +7825,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 loadFloridaPreset();
             } else if (cleanCode === 'NY') {
                 loadNewYorkPreset();
+            } else if (cleanCode === 'UK' || cleanCode === 'UK_ENG') {
+                loadUkDvlaPreset();
             } else {
                 setJurisdictionSelect(cleanCode);
                 generateRandomAAMVA();
