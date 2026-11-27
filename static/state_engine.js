@@ -12974,6 +12974,96 @@ function QC_calculate_ICN() {
         "bg_color": "#ffffff",
         "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7fbfd 50%, #edf5fa 100%)",
         "security_tint": "#cae0ee"
+    },
+    "UK": {
+        "name": "Great Britain (DVLA)",
+        "agency": "Driver and Vehicle Licensing Agency (DVLA)",
+        "url": "www.gov.uk/dvla",
+        "class_label": "CATEGORIES: A B C D BE CE DE",
+        "disclaimer": "Issued by Driver and Vehicle Licensing Agency (DVLA), Swansea. Driving entitlement is subject to conditions endorsed on this photocard licence. Property of UK Crown.",
+        "donor": "NHS ORGAN DONOR",
+        "layout": "standard",
+        "watermark": "GREAT BRITAIN",
+        "rev": "DVLA SWANSEA",
+        "archetype": "standard",
+        "has_magstripe": false,
+        "watermark_style": "official_sans",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7f9fa 50%, #edf2f7 100%)",
+        "security_tint": "#1e3a8a"
+    },
+    "UK_ENG": {
+        "name": "England (DVLA)",
+        "agency": "Driver and Vehicle Licensing Agency (DVLA)",
+        "url": "www.gov.uk/dvla",
+        "class_label": "CATEGORIES: A B C D BE CE DE",
+        "disclaimer": "Issued by Driver and Vehicle Licensing Agency (DVLA), Swansea. Driving entitlement is subject to conditions endorsed on this photocard licence. Property of UK Crown.",
+        "donor": "NHS ORGAN DONOR",
+        "layout": "standard",
+        "watermark": "GREAT BRITAIN",
+        "rev": "DVLA SWANSEA",
+        "archetype": "standard",
+        "has_magstripe": false,
+        "watermark_style": "official_sans",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7f9fa 50%, #edf2f7 100%)",
+        "security_tint": "#1e3a8a"
+    },
+    "UK_SCO": {
+        "name": "Scotland (DVLA)",
+        "agency": "Driver and Vehicle Licensing Agency (DVLA)",
+        "url": "www.gov.uk/dvla",
+        "class_label": "CATEGORIES: A B C D BE CE DE",
+        "disclaimer": "Issued by Driver and Vehicle Licensing Agency (DVLA), Swansea. Driving entitlement is subject to conditions endorsed on this photocard licence. Property of UK Crown.",
+        "donor": "NHS ORGAN DONOR",
+        "layout": "standard",
+        "watermark": "GREAT BRITAIN",
+        "rev": "DVLA SWANSEA",
+        "archetype": "standard",
+        "has_magstripe": false,
+        "watermark_style": "official_sans",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7f9fa 50%, #edf2f7 100%)",
+        "security_tint": "#1e3a8a"
+    },
+    "UK_WAL": {
+        "name": "Wales / Cymru (DVLA)",
+        "agency": "Driver and Vehicle Licensing Agency (DVLA)",
+        "url": "www.gov.uk/dvla",
+        "class_label": "CATEGORIES / CATEGORIAU: A B C D",
+        "disclaimer": "Issued by Driver and Vehicle Licensing Agency (DVLA), Swansea. Driving entitlement is subject to conditions endorsed on this photocard licence. Property of UK Crown.",
+        "donor": "NHS ORGAN DONOR",
+        "layout": "standard",
+        "watermark": "GREAT BRITAIN / CYMRU",
+        "rev": "DVLA SWANSEA",
+        "archetype": "standard",
+        "has_magstripe": false,
+        "watermark_style": "official_sans",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7f9fa 50%, #edf2f7 100%)",
+        "security_tint": "#1e3a8a"
+    },
+    "UK_NIR": {
+        "name": "Northern Ireland (DVA)",
+        "agency": "Driver & Vehicle Agency (DVA) Coleraine",
+        "url": "www.nidirect.gov.uk/dva",
+        "class_label": "CATEGORIES: A B C D BE CE DE",
+        "disclaimer": "Issued by Driver & Vehicle Agency (DVA), County Hall, Coleraine. Driving entitlement subject to conditions on this licence. Property of UK Crown.",
+        "donor": "NHS ORGAN DONOR",
+        "layout": "standard",
+        "watermark": "NORTHERN IRELAND",
+        "rev": "DVA COLERAINE",
+        "archetype": "standard",
+        "has_magstripe": false,
+        "watermark_style": "official_sans",
+        "barcode_1d_pos": "top",
+        "bg_color": "#ffffff",
+        "bg_gradient": "linear-gradient(180deg, #ffffff 0%, #f7f9fa 50%, #edf2f7 100%)",
+        "security_tint": "#1e3a8a"
     }
 };
 
@@ -12981,7 +13071,7 @@ function QC_calculate_ICN() {
         if (!slugOrCode) return STATE_CARDBACK_METADATA["LA"];
         const s = slugOrCode.toUpperCase().trim();
         const base = s.split('_')[0];
-        const baseMeta = STATE_CARDBACK_METADATA[s] || STATE_CARDBACK_METADATA[base] || STATE_CARDBACK_METADATA["LA"];
+        const baseMeta = STATE_CARDBACK_METADATA[s] || STATE_CARDBACK_METADATA[base] || (s.startsWith('UK') ? STATE_CARDBACK_METADATA["UK"] : STATE_CARDBACK_METADATA["LA"]);
         const meta = { ...baseMeta };
 
         // Dynamically resolve authentic revision date from STATE_HIERARCHY if not explicitly customized
@@ -13157,7 +13247,7 @@ function QC_calculate_ICN() {
             'wa': 'washington', 'wv': 'west_virginia', 'wi': 'wisconsin', 'wy': 'wyoming',
             'ab': 'alberta', 'bc': 'british_columbia', 'mb': 'manitoba', 'nb': 'new_brunswick',
             'ns': 'nova_scotia', 'nt': 'northwest_territories', 'on': 'ontario', 'qc': 'quebec',
-            'sk': 'saskatchewan'
+            'sk': 'saskatchewan', 'uk': 'uk', 'uk_eng': 'uk', 'uk_sco': 'uk', 'uk_wal': 'uk', 'uk_nir': 'uk'
         };
         const slug = CODE_TO_SLUG[s] || CODE_TO_SLUG[base] || s;
         return STATE_CARD_LAYOUTS[slug] || STATE_CARD_LAYOUTS[base] || null;

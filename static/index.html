@@ -8798,12 +8798,16 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 if (demoBox) demoBox.className = 'space-y-0.5 text-[8.5px] font-bold text-slate-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]';
             } else {
                 const prof = (typeof STATE_PROFILES !== 'undefined' && STATE_PROFILES[jurKey]) ? STATE_PROFILES[jurKey] : null;
-                const stName = prof ? prof.name.toUpperCase() : stateCode;
+                const isUk = (stateCode === 'UK' || (jurKey && jurKey.startsWith('UK')));
+                const stName = prof ? prof.name.toUpperCase() : (isUk ? 'GREAT BRITAIN' : stateCode);
                 if (frontTitle) {
-                    frontTitle.textContent = `${stName} DRIVER LICENSE`;
+                    frontTitle.textContent = isUk ? `${stName} DRIVING LICENCE` : `${stName} DRIVER LICENSE`;
                     frontTitle.classList.remove('hidden');
                 }
-                if (starEl) starEl.classList.remove('opacity-0');
+                if (starEl) {
+                    if (isUk) starEl.classList.add('opacity-0');
+                    else starEl.classList.remove('opacity-0');
+                }
                 if (headerBox) headerBox.className = 'space-y-0.5 bg-white/80 backdrop-blur-xs px-2.5 py-1 rounded shadow-2xs border border-white/60';
                 if (demoBox) demoBox.className = 'space-y-0.5 text-[8.5px] font-bold text-slate-900 bg-white/80 backdrop-blur-xs px-2.5 py-1.5 rounded shadow-2xs border border-white/60';
             }
@@ -10172,7 +10176,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'AB': 'Alberta', 'BC': 'British Columbia', 'MB': 'Manitoba', 'NB': 'New Brunswick',
                 'NL': 'Newfoundland and Labrador', 'NS': 'Nova Scotia', 'NT': 'Northwest Territories',
                 'NU': 'Nunavut', 'ON': 'Ontario', 'PE': 'Prince Edward Island', 'QC': 'Québec',
-                'SK': 'Saskatchewan', 'YT': 'Yukon'
+                'SK': 'Saskatchewan', 'YT': 'Yukon',
+                'UK': 'Great Britain (DVLA)', 'UK_ENG': 'England (DVLA)', 'UK_SCO': 'Scotland (DVLA)',
+                'UK_WAL': 'Wales / Cymru (DVLA)', 'UK_NIR': 'Northern Ireland (DVA)'
             };
             const STATE_URLS = {
                 'AL': 'www.alea.gov', 'AK': 'doa.alaska.gov/dmv', 'AZ': 'azdot.gov/mvd', 'AR': 'mydmv.arkansas.gov',
@@ -10190,7 +10196,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'WV': 'transportation.wv.gov/dmv', 'WI': 'wisconsindot.gov', 'WY': 'dot.state.wy.us',
                 'AB': 'www.alberta.ca', 'BC': 'www.icbc.com', 'MB': 'www.mpi.mb.ca', 'NB': 'www.snb.ca',
                 'NL': 'www.gov.nl.ca', 'NS': 'novascotia.ca/sns/access', 'ON': 'www.ontario.ca/page/drivers-licence',
-                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca'
+                'QC': 'saaq.gouv.qc.ca', 'SK': 'www.sgi.sk.ca',
+                'UK': 'www.gov.uk/dvla', 'UK_ENG': 'www.gov.uk/dvla', 'UK_SCO': 'www.gov.uk/dvla',
+                'UK_WAL': 'www.gov.uk/dvla', 'UK_NIR': 'www.nidirect.gov.uk/dva'
             };
 
             const stateWatermark = document.getElementById('studio-state-watermark');
@@ -10262,23 +10270,27 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             // 8. Dynamic State Revision & Expiration Stamp
             const revStamp = document.getElementById('studio-rev-stamp');
             if (revStamp) {
-                const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jurKey) : null;
-                let revDateStr = getCardRevisionDateString(jurKey, meta, revInfo, stateCode);
-                const dobVal = (document.getElementById('aamva-dob')?.value || (defs && defs.dob ? defs.dob : '1990-10-02')).trim();
-                const parts = dobVal.includes('-') ? dobVal.split('-') : [];
-                let dobFmt = '10-02-1990';
-                if (parts.length === 3) {
-                    dobFmt = `${parts[1]}-${parts[2]}-${parts[0]}`;
-                } else if (dobVal.length === 8) {
-                    if (parseInt(dobVal.substring(0, 4), 10) > 1900) {
-                        dobFmt = `${dobVal.substring(4,6)}-${dobVal.substring(6,8)}-${dobVal.substring(0,4)}`;
-                    } else {
-                        dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
+                if (stateCode === 'UK' || (jurKey && jurKey.startsWith('UK'))) {
+                    revStamp.textContent = (jurKey === 'UK_NIR') ? 'DVA COLERAINE   NORTHERN IRELAND' : 'DVLA SWANSEA   GREAT BRITAIN';
+                } else {
+                    const defs = (typeof getStateDemographicDefaults === 'function') ? getStateDemographicDefaults(jurKey) : null;
+                    let revDateStr = getCardRevisionDateString(jurKey, meta, revInfo, stateCode);
+                    const dobVal = (document.getElementById('aamva-dob')?.value || (defs && defs.dob ? defs.dob : '1990-10-02')).trim();
+                    const parts = dobVal.includes('-') ? dobVal.split('-') : [];
+                    let dobFmt = '10-02-1990';
+                    if (parts.length === 3) {
+                        dobFmt = `${parts[1]}-${parts[2]}-${parts[0]}`;
+                    } else if (dobVal.length === 8) {
+                        if (parseInt(dobVal.substring(0, 4), 10) > 1900) {
+                            dobFmt = `${dobVal.substring(4,6)}-${dobVal.substring(6,8)}-${dobVal.substring(0,4)}`;
+                        } else {
+                            dobFmt = `${dobVal.substring(0,2)}-${dobVal.substring(2,4)}-${dobVal.substring(4,8)}`;
+                        }
                     }
+                    let revClean = revDateStr.toUpperCase().replace(/^REV\.\s*/i, 'REV ').trim();
+                    if (!revClean.startsWith('REV')) revClean = `REV ${revClean}`;
+                    revStamp.textContent = `${revClean}   ${dobFmt}`;
                 }
-                let revClean = revDateStr.toUpperCase().replace(/^REV\.\s*/i, 'REV ').trim();
-                if (!revClean.startsWith('REV')) revClean = `REV ${revClean}`;
-                revStamp.textContent = `${revClean}   ${dobFmt}`;
             }
 
             renderCardBackCompanionBarcode();
@@ -10346,6 +10358,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         ? (dckVal || auditVal || (idVal ? idVal.padStart(10, '0') : '') || '0041289560')
                         : (stateCode === 'LA')
                         ? (dckVal || auditVal || (idVal ? idVal.padStart(9, '0') : '') || '007005197')
+                        : (stateCode === 'UK')
+                        ? (dckVal || auditVal || (idVal ? idVal.replace(/\s/g, '').substring(0, 14) : '') || 'DVLA982341001')
                         : (stateCode === 'WI')
                         ? (dckVal || auditVal || (idVal ? idVal.replace(/[^0-9]/g, '').padEnd(14, '0') : '') || '40018590483902')
                         : (stateCode === 'SC' || stateCode === 'VT' || stateCode === 'WA' || stateCode === 'DC')
