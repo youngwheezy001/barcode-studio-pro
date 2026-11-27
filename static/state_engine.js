@@ -2685,6 +2685,118 @@ const STATE_HIERARCHY = {
         "is_new": false
       }
     ]
+  },
+  "England": {
+    "is_canada": false,
+    "is_uk": true,
+    "country": "UK",
+    "parent_name": "England",
+    "base_code": "UK_ENG",
+    "revisions": [
+      {
+        "slug": "UK_ENG",
+        "label": "England (DVLA Great Britain)",
+        "rev_header": "UK DVLA Great Britain",
+        "scanners": ["Scandit", "Veriscan", "FIDScan"],
+        "verified": true,
+        "term_years": 10,
+        "has_icn": false,
+        "has_dd": false,
+        "has_audit": false,
+        "has_suffix": false,
+        "has_weight": false,
+        "has_weight_range": false,
+        "default_dd": "",
+        "has_real_id": false,
+        "has_address2": true,
+        "has_race": false,
+        "is_new": true
+      }
+    ]
+  },
+  "Scotland": {
+    "is_canada": false,
+    "is_uk": true,
+    "country": "UK",
+    "parent_name": "Scotland",
+    "base_code": "UK_SCO",
+    "revisions": [
+      {
+        "slug": "UK_SCO",
+        "label": "Scotland (DVLA Great Britain)",
+        "rev_header": "UK DVLA Great Britain",
+        "scanners": ["Scandit", "Veriscan", "FIDScan"],
+        "verified": true,
+        "term_years": 10,
+        "has_icn": false,
+        "has_dd": false,
+        "has_audit": false,
+        "has_suffix": false,
+        "has_weight": false,
+        "has_weight_range": false,
+        "default_dd": "",
+        "has_real_id": false,
+        "has_address2": true,
+        "has_race": false,
+        "is_new": true
+      }
+    ]
+  },
+  "Wales": {
+    "is_canada": false,
+    "is_uk": true,
+    "country": "UK",
+    "parent_name": "Wales",
+    "base_code": "UK_WAL",
+    "revisions": [
+      {
+        "slug": "UK_WAL",
+        "label": "Wales / Cymru (DVLA Great Britain)",
+        "rev_header": "UK DVLA Great Britain",
+        "scanners": ["Scandit", "Veriscan", "FIDScan"],
+        "verified": true,
+        "term_years": 10,
+        "has_icn": false,
+        "has_dd": false,
+        "has_audit": false,
+        "has_suffix": false,
+        "has_weight": false,
+        "has_weight_range": false,
+        "default_dd": "",
+        "has_real_id": false,
+        "has_address2": true,
+        "has_race": false,
+        "is_new": true
+      }
+    ]
+  },
+  "Northern Ireland": {
+    "is_canada": false,
+    "is_uk": true,
+    "country": "UK",
+    "parent_name": "Northern Ireland",
+    "base_code": "UK_NIR",
+    "revisions": [
+      {
+        "slug": "UK_NIR",
+        "label": "Northern Ireland (DVA)",
+        "rev_header": "UK DVA Northern Ireland",
+        "scanners": ["Scandit", "Veriscan"],
+        "verified": true,
+        "term_years": 10,
+        "has_icn": false,
+        "has_dd": false,
+        "has_audit": false,
+        "has_suffix": false,
+        "has_weight": false,
+        "has_weight_range": false,
+        "default_dd": "",
+        "has_real_id": false,
+        "has_address2": true,
+        "has_race": false,
+        "is_new": true
+      }
+    ]
   }
 };
 
@@ -5720,6 +5832,65 @@ function NV_calculate_DD() {
     if (ddEl) {
         ddEl.value = "000" + getRandomNumericString(18);
     }
+}
+
+function UK_calculate_documentNumber() {
+    var lastEl = getTargetElement('inputLastName');
+    var firstEl = getTargetElement('inputFirstName');
+    var midEl = getTargetElement('inputMiddleName');
+    var dobEl = getTargetElement('inputBrithDate');
+    var sexEl = getTargetElement('selectSex');
+
+    var last = ((lastEl && lastEl.value) || 'SMITH').trim().toUpperCase().replace(/[^A-Z]/g, '');
+    var first = ((firstEl && firstEl.value) || 'JOHN').trim().toUpperCase().replace(/[^A-Z]/g, '');
+    var mid = ((midEl && midEl.value) || '').trim().toUpperCase().replace(/[^A-Z]/g, '');
+    var dob = ((dobEl && dobEl.value) || '05251985').trim().replace(/[^0-9]/g, '');
+    var sex = (sexEl && sexEl.value) || '1';
+
+    var s5 = (last + '99999').substring(0, 5);
+
+    var month = 5, day = 25, year = 1985;
+    if (dob.length === 8) {
+        month = parseInt(dob.substring(0, 2), 10) || 1;
+        day = parseInt(dob.substring(2, 4), 10) || 1;
+        year = parseInt(dob.substring(4, 8), 10) || 1985;
+    }
+
+    var yearStr = String(year).padStart(4, '0');
+    var char6 = yearStr.charAt(2);
+
+    var mStr = String(month).padStart(2, '0');
+    if (sex === '2' || sex === 'F') {
+        mStr = String(parseInt(mStr.charAt(0), 10) + 5) + mStr.charAt(1);
+    }
+
+    var dStr = String(day).padStart(2, '0');
+    var char11 = yearStr.charAt(3);
+
+    var init1 = first.charAt(0) || '9';
+    var init2 = mid.charAt(0) || '9';
+    var initials = init1 + init2;
+
+    var char14 = '9';
+    var letters = 'ABCDEFGHJKLMNPRSTUVWXYZ';
+    var char15 = String(Math.floor(Math.random() * 9) + 1);
+    var char16 = letters.charAt(Math.floor(Math.random() * letters.length));
+    var char17_18 = '01';
+
+    var ukDl = s5 + char6 + mStr + dStr + char11 + initials + char14 + char15 + char16 + char17_18;
+    var target = getTargetElement('inputDocumentNumber');
+    if (target) target.value = ukDl;
+    return ukDl;
+}
+
+function UK_ENG_calculate_documentNumber() { return UK_calculate_documentNumber(); }
+function UK_SCO_calculate_documentNumber() { return UK_calculate_documentNumber(); }
+function UK_WAL_calculate_documentNumber() { return UK_calculate_documentNumber(); }
+function UK_NIR_calculate_documentNumber() {
+    var target = getTargetElement('inputDocumentNumber');
+    var val = getRandomNumericString(8);
+    if (target) target.value = val;
+    return val;
 }
 
 
@@ -11270,6 +11441,90 @@ function runStateCalculation(field, stateSlug) {
     "has_icn": false,
     "has_dd": true,
     "has_audit": false
+  },
+  "UK_ENG": {
+    "street": "10 DOWNING STREET",
+    "city": "London",
+    "zip": "SW1A 2AA",
+    "class": "B",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "178",
+    "weight": "165",
+    "sex": "M",
+    "eyes": "BLU",
+    "hair": "BRO",
+    "realid": "F",
+    "sample_dl": "SMITH805255JR91A01",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
+  },
+  "UK_SCO": {
+    "street": "1 HIGH STREET",
+    "city": "Edinburgh",
+    "zip": "EH1 1YZ",
+    "class": "B",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "178",
+    "weight": "165",
+    "sex": "M",
+    "eyes": "BLU",
+    "hair": "BRO",
+    "realid": "F",
+    "sample_dl": "CAMPB805255JA91A01",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
+  },
+  "UK_WAL": {
+    "street": "1 QUEEN STREET",
+    "city": "Cardiff",
+    "zip": "CF10 2AQ",
+    "class": "B",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "178",
+    "weight": "165",
+    "sex": "M",
+    "eyes": "BRO",
+    "hair": "BRO",
+    "realid": "F",
+    "sample_dl": "JONES805255DR91A01",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
+  },
+  "UK_NIR": {
+    "street": "1 CHICHESTER STREET",
+    "city": "Belfast",
+    "zip": "BT1 4JH",
+    "class": "B",
+    "restrictions": "NONE",
+    "endorsements": "NONE",
+    "height": "178",
+    "weight": "165",
+    "sex": "M",
+    "eyes": "BLU",
+    "hair": "BRO",
+    "realid": "F",
+    "sample_dl": "48192044",
+    "sample_icn": "",
+    "sample_dd": "",
+    "sample_audit": "",
+    "has_icn": false,
+    "has_dd": false,
+    "has_audit": false
   }
 };
 
@@ -12950,6 +13205,11 @@ function QC_calculate_ICN() {
     window.STATE_HIERARCHY = STATE_HIERARCHY;
     window.runStateCalculation = runStateCalculation;
     window.getTargetElement = getTargetElement;
+    window.UK_calculate_documentNumber = UK_calculate_documentNumber;
+    window.UK_ENG_calculate_documentNumber = UK_ENG_calculate_documentNumber;
+    window.UK_SCO_calculate_documentNumber = UK_SCO_calculate_documentNumber;
+    window.UK_WAL_calculate_documentNumber = UK_WAL_calculate_documentNumber;
+    window.UK_NIR_calculate_documentNumber = UK_NIR_calculate_documentNumber;
 
 })(window);
 
