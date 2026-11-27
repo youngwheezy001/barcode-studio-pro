@@ -5066,6 +5066,33 @@ STATE_NAMES_MAP = {
     'DC': 'District of Columbia'
 }
 
+POPULAR_COUNTRIES_MAP = {
+    'United Kingdom': [r'\buk\b', r'united[\s_]?kingdom', r'england', r'british', r'london', r'dvla', r'hmrc', r'hsbc', r'barclays'],
+    'Canada': [r'canada', r'canadian', r'ontario', r'quebec', r'alberta', r'british[\s_]?columbia', r'td[\s_]?bank', r'rbc', r'scotiabank'],
+    'Australia': [r'australia', r'australian', r'nsw', r'victoria', r'queensland', r'commonwealth[\s_]?bank', r'westpac'],
+    'Germany': [r'germany', r'german', r'deutschland', r'ausweis', r'fuhrerschein', r'sparkasse'],
+    'France': [r'france', r'french', r'permis', r'carte[\s_]?identite'],
+    'Spain': [r'spain', r'spanish', r'espana', r'dni', r'santander', r'bbva'],
+    'Italy': [r'italy', r'italian', r'italia'],
+    'Sweden': [r'sweden', r'swedish', r'sverige'],
+    'Belgium': [r'belgium', r'belgique'],
+    'Poland': [r'poland', r'polish', r'polska'],
+    'Austria': [r'austria', r'osterreich'],
+    'Ireland': [r'ireland', r'irish'],
+    'Switzerland': [r'switzerland', r'swiss', r'suisse', r'schweiz'],
+    'Netherlands': [r'netherlands', r'dutch', r'holland', r'ing[\s_]?bank', r'abn'],
+    'Norway': [r'norway', r'norwegian', r'norge'],
+    'Portugal': [r'portugal', r'portuguese'],
+    'Japan': [r'japan', r'japanese'],
+    'Singapore': [r'singapore'],
+    'UAE': [r'uae', r'dubai', r'emirates'],
+    'India': [r'india', r'indian', r'aadhaar', r'pan[\s_]?card'],
+    'Brazil': [r'brazil', r'brasil'],
+    'Mexico': [r'mexico', r'mexican'],
+    'New Zealand': [r'new[\s_]?zealand', r'\bnz\b'],
+    'South Africa': [r'south[\s_]?africa', r'\brsa\b']
+}
+
 def generate_autonomous_file_description(file_key: str, filename: str, ext_clean: str, category: str, size_formatted: str) -> tuple[str, list[str]]:
     """
     Autonomously analyzes the file name, directory path, extension, and category to generate
@@ -5075,15 +5102,21 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
 
     # 1. Section 1: Driver Licenses & ID Cards
     if category == "section1":
-        state_match = None
+        region_match = None
         for code, name in STATE_NAMES_MAP.items():
             if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or name.lower() in lower:
-                state_match = name
+                region_match = name
                 break
 
-        if state_match:
-            desc = f"Master dual-sided {state_match} driver license and identification template in high-resolution layered {ext_clean} format. Fully layered with smart objects for portrait & signature, calibrated typography guidelines, UV watermark overlay guides, and 2D AAMVA PDF417 barcode placement blocks ({size_formatted})."
-            tags = [f"{state_match} DL", "Front & Back", "Smart Objects", f"300 DPI {ext_clean}"]
+        if not region_match:
+            for country, patterns in POPULAR_COUNTRIES_MAP.items():
+                if any(re.search(pat, lower) for pat in patterns):
+                    region_match = country
+                    break
+
+        if region_match:
+            desc = f"Master dual-sided {region_match} driver license and identification template in high-resolution layered {ext_clean} format. Fully layered with smart objects for portrait & signature, calibrated typography guidelines, UV watermark overlay guides, and 2D barcode placement blocks ({size_formatted})."
+            tags = [f"{region_match} ID", "Front & Back", "Smart Objects", f"300 DPI {ext_clean}"]
         elif "badge" in lower or "credential" in lower:
             desc = f"Commercial identification badge and corporate security credential template in layered {ext_clean} format. Includes photo smart object placeholders, guilloche microprint borders, magnetic stripe back layout, and barcode zone ({size_formatted})."
             tags = ["ID Badge", "Security Credential", "Smart Objects", f"Layered {ext_clean}"]
@@ -5097,21 +5130,34 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
 
     # 2. Section 2: Utility Bills & Bank Statements (PDF & Word Documents)
     elif category == "section2":
+        region_match = None
+        for code, name in STATE_NAMES_MAP.items():
+            if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or name.lower() in lower:
+                region_match = name
+                break
+        if not region_match:
+            for country, patterns in POPULAR_COUNTRIES_MAP.items():
+                if any(re.search(pat, lower) for pat in patterns):
+                    region_match = country
+                    break
+
+        prefix_tag = f"{region_match} " if region_match else ""
+
         if any(w in lower for w in ["bank", "statement", "financial", "ledger", "account"]):
-            desc = f"Authentic commercial bank account statement and financial proof document in clean editable {ext_clean} format ({size_formatted}). Features itemized monthly transaction ledger, running balances, account summary tables, and customizable institution branding."
-            tags = ["Bank Statement", "Financial Proof", "Editable Tables", f"{ext_clean} Document"]
+            desc = f"Authentic commercial bank account statement and financial proof document ({region_match or 'Commercial'}) in clean editable {ext_clean} format ({size_formatted}). Features itemized monthly transaction ledger, running balances, account summary tables, and customizable institution branding."
+            tags = [f"{prefix_tag}Bank Statement", "Financial Proof", "Editable Tables", f"{ext_clean} Document"]
         elif any(w in lower for w in ["utility", "electric", "water", "gas", "power", "bill", "energy"]):
-            desc = f"Fully editable proof-of-address utility statement document provided in structured {ext_clean} format ({size_formatted}). Includes meter reading consumption charts, billing periods, barcode, and tear-off payment remittance slip."
-            tags = ["Utility Bill", "Proof of Address", "Meter Readings", f"{ext_clean} Document"]
+            desc = f"Fully editable proof-of-address utility statement document ({region_match or 'Residential/Commercial'}) provided in structured {ext_clean} format ({size_formatted}). Includes meter reading consumption charts, billing periods, barcode, and tear-off payment remittance slip."
+            tags = [f"{prefix_tag}Utility Bill", "Proof of Address", "Meter Readings", f"{ext_clean} Document"]
         elif any(w in lower for w in ["invoice", "receipt", "billing", "order"]):
             desc = f"Detailed commercial invoice and payment receipt document in clean {ext_clean} format. Formatted with customizable line items, subtotal & tax calculation tables, payment terms, and vendor remittance stubs."
-            tags = ["Commercial Invoice", "Payment Receipt", "Itemized Table", f"{ext_clean} Document"]
+            tags = [f"{prefix_tag}Commercial Invoice", "Payment Receipt", "Itemized Table", f"{ext_clean} Document"]
         elif any(w in lower for w in ["paystub", "payroll", "salary", "wage"]):
             desc = f"Detailed payroll earnings statement and paystub document in fillable {ext_clean} format. Includes gross-to-net salary tables, deductions, YTD totals, and employer header blocks."
-            tags = ["Paystub", "Earnings Statement", "Payroll", f"{ext_clean} Document"]
+            tags = [f"{prefix_tag}Paystub", "Earnings Statement", "Payroll", f"{ext_clean} Document"]
         else:
-            desc = f"Professional editable business document and verification proof in clean {ext_clean} format ({size_formatted}). Features structured text layouts, fillable table sections, and official letterhead guidelines."
-            tags = ["Official Document", "Verification Proof", "Editable", f"{ext_clean} Format"]
+            desc = f"Professional editable business document and verification proof ({region_match or 'Verified'}) in clean {ext_clean} format ({size_formatted}). Features structured text layouts, fillable table sections, and official letterhead guidelines."
+            tags = [f"{prefix_tag}Official Document", "Verification Proof", "Editable", f"{ext_clean} Format"]
         return desc, tags
 
     # 3. Bundles & Archives
