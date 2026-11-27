@@ -478,6 +478,7 @@
                     <button type="button" onclick="filterPsdCategory('bundles')" id="psd-filter-bundles" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Bundles &amp; Archives</button>
                     <button type="button" onclick="filterPsdCategory('section1')" id="psd-filter-section1" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">💳 DL</button>
                     <button type="button" onclick="filterPsdCategory('section2')" id="psd-filter-section2" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🧾 Utility Bills & Bank Statements</button>
+                    <button type="button" onclick="filterPsdCategory('ai_training')" id="psd-filter-ai_training" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🧠 AI Training Answers</button>
                     <button type="button" onclick="loadAutonomousMarketProducts(true)" title="Force Refresh from Cloudflare R2" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">🔄 Sync</button>
                 </div>
                 <div class="relative min-w-[200px]">
@@ -2347,6 +2348,16 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                             <span class="text-[9px] text-slate-400">How to use Barcode Studio Pro</span>
                         </div>
                     </button>
+                    <button type="button" onclick="openPsdMarketModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer border-b border-slate-800/60 pb-2 mb-0.5">
+                        <span class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs">🎨</span>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-white flex items-center gap-1.5">
+                                PSD &amp; Templates Market
+                                <span class="text-[8px] bg-purple-500/30 text-purple-300 border border-purple-500/40 px-1 py-0.2 rounded font-black tracking-wider uppercase">Store</span>
+                            </span>
+                            <span class="text-[9px] text-purple-300">300 DPI Layered PSD Assets</span>
+                        </div>
+                    </button>
                     <button type="button" onclick="openBarcodeScannerModal(); closeHeaderToolsMenu();" class="w-full text-left text-xs font-medium text-slate-200 hover:text-white hover:bg-slate-800 px-2.5 py-2 rounded-lg transition flex items-center gap-2.5 cursor-pointer">
                         <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs">📷</span>
                         <div class="flex flex-col">
@@ -2413,15 +2424,19 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
     </header>
 
     <!-- Mobile/Tablet Workspace Mode Switcher (Visible on screens < lg) -->
-    <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-1 overflow-x-auto shrink-0 z-30">
-        <button type="button" onclick="switchWorkspace('aamva')" id="mobile-tab-aamva" class="flex-1 py-1.5 px-2 rounded-lg bg-accent text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap shadow-xs">
+    <div class="lg:hidden bg-slate-900 border-b border-slate-800 px-2 sm:px-3 py-2 flex items-center justify-between gap-1 overflow-x-auto shrink-0 z-30">
+        <button type="button" onclick="switchWorkspace('aamva')" id="mobile-tab-aamva" class="flex-1 py-1.5 px-1.5 sm:px-2 rounded-lg bg-accent text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap shadow-xs">
             <span>🪪 AAMVA</span>
         </button>
-        <button type="button" onclick="switchWorkspace('states')" id="mobile-tab-states" class="flex-1 py-1.5 px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap">
+        <button type="button" onclick="openPsdMarketModal()" id="mobile-tab-psd" class="flex-1 py-1.5 px-1.5 sm:px-2 rounded-lg text-purple-300 hover:text-white hover:bg-purple-900/30 font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap border border-purple-500/30 bg-purple-500/10 transition">
+            <span>🎨 PSDs</span>
+            <span class="text-[8px] bg-purple-500/30 text-purple-200 border border-purple-500/40 px-1 rounded uppercase font-extrabold">Store</span>
+        </button>
+        <button type="button" onclick="switchWorkspace('states')" id="mobile-tab-states" class="flex-1 py-1.5 px-1.5 sm:px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap">
             <span>🗺️ States</span>
             <span class="text-[8px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-1 rounded uppercase">50+CA</span>
         </button>
-        <button type="button" onclick="switchWorkspace('mrz')" id="mobile-tab-mrz" class="flex-1 py-1.5 px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap">
+        <button type="button" onclick="switchWorkspace('mrz')" id="mobile-tab-mrz" class="flex-1 py-1.5 px-1.5 sm:px-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1 whitespace-nowrap">
             <span>🛂 Passport</span>
             <span class="text-[8px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1 rounded uppercase">MRZ</span>
         </button>
@@ -12699,6 +12714,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 else if (category === 'bundles') badgeColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
                 else if (category === 'section1') badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
                 else if (category === 'section2') badgeColor = "bg-amber-100 text-amber-800 border-amber-200";
+                else if (category === 'ai_training') badgeColor = "bg-rose-100 text-rose-800 border-rose-200";
 
                 const safeTitle = safeMarketText(p.title);
                 const safeDesc = safeMarketText(p.description || '');
@@ -14838,7 +14854,76 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
                 const prefix = `${lastName}_${firstName}_${stateCode}`;
 
-                // 2. 600 DPI High-Resolution 2D PDF417 PNG Rendering
+                // --- 1. DIRECT 300 DPI CR80 DROP-IN PDF417 PNG (1:1 Photoshop Scale ~795x216 px, tight quiet zone, zero manual cropping) ---
+                const pdf300Canvas = document.createElement('canvas');
+                let pdf300Rendered = false;
+                if (typeof bwipjs !== 'undefined' && payload) {
+                    try {
+                        const jurEl = document.getElementById('aamva-jurisdiction');
+                        const jurKey = jurEl ? jurEl.value : (stateCode || 'CT');
+                        const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jurKey) : null;
+                        const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
+                        const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
+                        const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
+
+                        // scale: 2 produces ~795 x 216 px with certified tight quiet zone: snaps directly into CR80 card backs!
+                        bwipjs.toCanvas(pdf300Canvas, {
+                            bcid: 'pdf417',
+                            text: payload,
+                            scale: 2,
+                            columns: cols,
+                            eclevel: ecc,
+                            rowheight: ratio,
+                            rowmult: ratio,
+                            paddingwidth: 4,
+                            paddingheight: 2,
+                            backgroundcolor: 'ffffff'
+                        });
+                        pdf300Rendered = true;
+                    } catch(e) {
+                        console.error("300 DPI Drop-In PDF417 render error:", e);
+                    }
+                }
+                if (!pdf300Rendered) {
+                    const srcPdf = document.getElementById('output-pdf417');
+                    if (srcPdf && srcPdf.width > 0) {
+                        pdf300Canvas.width = srcPdf.width;
+                        pdf300Canvas.height = srcPdf.height;
+                        const pctx = pdf300Canvas.getContext('2d');
+                        pctx.drawImage(srcPdf, 0, 0);
+                    }
+                }
+                const pdf300Blob = await new Promise(resolve => pdf300Canvas.toBlob(resolve, 'image/png'));
+                if (pdf300Blob) {
+                    zip.file(`${prefix}_01_CR80_300DPI_DropIn_PDF417.png`, pdf300Blob);
+                }
+
+                // --- 2. DIRECT 300 DPI CR80 DROP-IN CODE 128 PNG (~555x96 px, pre-trimmed) ---
+                const c128Canvas300 = document.createElement('canvas');
+                let c128_300Rendered = false;
+                if (typeof bwipjs !== 'undefined' && code128Val) {
+                    try {
+                        bwipjs.toCanvas(c128Canvas300, {
+                            bcid: 'code128',
+                            text: code128Val,
+                            scale: 2,
+                            height: 18,
+                            includetext: false,
+                            paddingwidth: 6,
+                            paddingheight: 2,
+                            backgroundcolor: 'ffffff'
+                        });
+                        c128_300Rendered = true;
+                    } catch(e) {
+                        console.error("300 DPI Drop-In Code 128 render error:", e);
+                    }
+                }
+                const c128_300Blob = await new Promise(resolve => c128Canvas300.toBlob(resolve, 'image/png'));
+                if (c128_300Blob) {
+                    zip.file(`${prefix}_02_CR80_300DPI_DropIn_Code128.png`, c128_300Blob);
+                }
+
+                // --- 3. 600 DPI High-Resolution 2D PDF417 Master Print PNG (For Industrial Printers) ---
                 const pdf600Canvas = document.createElement('canvas');
                 let pdfRendered = false;
                 if (typeof bwipjs !== 'undefined' && payload) {
@@ -14849,7 +14934,6 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         const cols = (revInfo && revInfo.cols) ? revInfo.cols : 12;
                         const ecc = (revInfo && revInfo.ecc) ? revInfo.ecc : 5;
                         const ratio = (revInfo && revInfo.ratio) ? revInfo.ratio : 3;
-                        // Scale 4 provides true certified 600 DPI density (direct-to-card & retransfer standard)
                         bwipjs.toCanvas(pdf600Canvas, {
                             bcid: 'pdf417',
                             text: payload,
@@ -14858,8 +14942,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             eclevel: ecc,
                             rowheight: ratio,
                             rowmult: ratio,
-                            paddingwidth: 16,
-                            paddingheight: 12,
+                            paddingwidth: 8,
+                            paddingheight: 4,
                             backgroundcolor: 'ffffff'
                         });
                         pdfRendered = true;
@@ -14867,36 +14951,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                         console.error("600 DPI PDF417 render error:", e);
                     }
                 }
-                if (!pdfRendered) {
-                    const srcPdf = document.getElementById('output-pdf417');
-                    if (srcPdf && srcPdf.width > 0) {
-                        pdf600Canvas.width = srcPdf.width * 2;
-                        pdf600Canvas.height = srcPdf.height * 2;
-                        const pctx = pdf600Canvas.getContext('2d');
-                        pctx.imageSmoothingEnabled = false;
-                        pctx.fillStyle = '#FFFFFF';
-                        pctx.fillRect(0, 0, pdf600Canvas.width, pdf600Canvas.height);
-                        pctx.drawImage(srcPdf, 0, 0, pdf600Canvas.width, pdf600Canvas.height);
-                    }
-                }
-
                 const pdf600Blob = await new Promise(resolve => pdf600Canvas.toBlob(resolve, 'image/png'));
                 if (pdf600Blob) {
-                    zip.file(`${prefix}_01_2D_PDF417_HighRes_600DPI.png`, pdf600Blob);
+                    zip.file(`${prefix}_03_Master_600DPI_PDF417.png`, pdf600Blob);
                 }
 
-                // 3. 2D PDF417 Scalable Vector SVG
-                const pdfDataUrl = pdf600Canvas.toDataURL('image/png');
-                const pdfSvgContent = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${pdf600Canvas.width || 800}" height="${pdf600Canvas.height || 260}" viewBox="0 0 ${pdf600Canvas.width || 800} ${pdf600Canvas.height || 260}">
-  <!-- Barcode Studio Pro - Certified AAMVA 2D PDF417 Vector Container -->
-  <!-- Target physical dimensions: 68.0 mm x 18.5 mm (CR80 standard) -->
-  <rect width="100%" height="100%" fill="#FFFFFF"/>
-  <image href="${pdfDataUrl}" width="100%" height="100%"/>
-</svg>`;
-                zip.file(`${prefix}_02_2D_PDF417_Scalable_Vector.svg`, pdfSvgContent);
-
-                // 4. 600 DPI High-Resolution 1D Code 128 Companion PNG Rendering
+                // --- 4. 600 DPI High-Resolution 1D Code 128 Companion PNG ---
                 const c128Canvas600 = document.createElement('canvas');
                 let c128Rendered = false;
                 if (typeof bwipjs !== 'undefined' && code128Val) {
@@ -14907,8 +14967,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             scale: 4,
                             height: 24,
                             includetext: false,
-                            paddingwidth: 24,
-                            paddingheight: 8,
+                            paddingwidth: 12,
+                            paddingheight: 4,
                             backgroundcolor: 'ffffff'
                         });
                         c128Rendered = true;
@@ -14918,8 +14978,39 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 }
                 const c128Blob = await new Promise(resolve => c128Canvas600.toBlob(resolve, 'image/png'));
                 if (c128Blob) {
-                    zip.file(`${prefix}_03_1D_Code128_Companion_HighRes_600DPI.png`, c128Blob);
+                    zip.file(`${prefix}_04_Master_600DPI_Code128.png`, c128Blob);
                 }
+
+                // --- 5. 2D PDF417 Scalable Vector SVG ---
+                const pdfDataUrl = pdf300Canvas.toDataURL('image/png');
+                const pdfSvgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${pdf300Canvas.width || 795}" height="${pdf300Canvas.height || 216}" viewBox="0 0 ${pdf300Canvas.width || 795} ${pdf300Canvas.height || 216}">
+  <!-- Barcode Studio Pro - Certified AAMVA 2D PDF417 1:1 CR80 Vector Container -->
+  <rect width="100%" height="100%" fill="#FFFFFF"/>
+  <image href="${pdfDataUrl}" width="100%" height="100%"/>
+</svg>`;
+                zip.file(`${prefix}_05_2D_PDF417_Vector.svg`, pdfSvgContent);
+
+                // --- 6. 1-Click Placement Specifications & Usage Readme ---
+                const dropInGuide = `========================================================================
+BARCODE STUDIO PRO - 1-CLICK CR80 CARD DROP-IN PLACEMENT GUIDE
+========================================================================
+1. DIRECT 300 DPI DROP-IN FILES (For 95% of Photoshop / Illustrator Templates):
+   - ${prefix}_01_CR80_300DPI_DropIn_PDF417.png (Native size ~795 x 216 px)
+   - ${prefix}_02_CR80_300DPI_DropIn_Code128.png (Native size ~555 x 96 px)
+
+   * USAGE: Drag and drop directly into your CR80 template (1013 x 638 px).
+   * NO MANUAL CROPPING: Pre-trimmed with tight certified quiet zones.
+   * NO DISTORTION: Lands at 1:1 true physical card dimensions without Ctrl+T.
+
+2. INDUSTRIAL 600 DPI MASTER PRINT FILES (For Zebra / Fargo / Evolis Printers):
+   - ${prefix}_03_Master_600DPI_PDF417.png
+   - ${prefix}_04_Master_600DPI_Code128.png
+
+3. SCALABLE VECTOR CONTAINERS (For Infinite Resizing / Smart Objects):
+   - ${prefix}_05_2D_PDF417_Vector.svg
+========================================================================`;
+                zip.file(`00_CR80_DROP_IN_PLACEMENT_GUIDE.txt`, dropInGuide);
 
                 // 5. 1D Code 128 Scalable Vector SVG
                 let c128SvgText = '';
