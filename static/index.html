@@ -11437,11 +11437,15 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 document.getElementById('rcpt-customer-email').textContent = d.customer_email;
                 document.getElementById('rcpt-date').textContent = d.confirmed_date || d.invoice_date;
                 document.getElementById('rcpt-package-name').textContent = d.package_name;
-                const sets = d.barcode_sets || d.tokens || 1;
-                const bcs = d.total_barcodes || (sets * 2);
+                const sets = (typeof d.barcode_sets === 'number') ? d.barcode_sets : (d.tokens || 0);
                 const rcptTokens = document.getElementById('rcpt-tokens');
                 if (rcptTokens) {
-                    rcptTokens.textContent = `${sets} Set${sets > 1 ? 's' : ''} (${bcs} Barcodes)`;
+                    if (sets > 0) {
+                        const bcs = d.total_barcodes || (sets * 2);
+                        rcptTokens.textContent = `${sets} Set${sets > 1 ? 's' : ''} (${bcs} Barcodes)`;
+                    } else {
+                        rcptTokens.textContent = '1 PSD Template / Digital Asset';
+                    }
                 }
                 const amt = (typeof d.amount_usd === 'number') ? d.amount_usd : parseFloat(d.amount_usd || 0);
                 document.getElementById('rcpt-subtotal').textContent = `$${amt.toFixed(2)}`;
@@ -11862,7 +11866,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                                 <span class="text-slate-800 font-semibold block">${o.user_email}</span>
                                 <span class="text-[10px] text-slate-400 block">${dateDisplay}</span>
                             </td>
-                            <td class="p-2.5 font-bold text-slate-800">${o.tokens} Sets</td>
+                            <td class="p-2.5">
+                                ${(o.tokens && o.tokens > 0)
+                                    ? `<span class="font-bold text-slate-800">${o.tokens} Sets</span>`
+                                    : `<span class="inline-flex items-center gap-1 text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded text-[10px] font-bold" title="${o.package_id || ''}"><svg class="w-3 h-3 text-purple-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>${o.package_name || (o.package_id ? o.package_id.replace(/^psd_|^r2_/, '').replace(/_/g, ' ').toUpperCase() : 'PSD Asset')}</span>`
+                                }
+                            </td>
                             <td class="p-2.5 font-mono text-emerald-600 font-bold">$${(o.amount_usd || 0).toFixed(2)}</td>
                             <td class="p-2.5 text-slate-600">${o.crypto_currency} (${o.network})</td>
                             <td class="p-2.5">${txDisplay}</td>
@@ -12171,8 +12180,13 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     return `
                         <tr class="hover:bg-slate-50 transition">
                             <td class="p-2.5 font-bold text-slate-900">#${o.id}</td>
-                            <td class="p-2.5 font-semibold text-slate-700">${pkgName}</td>
-                            <td class="p-2.5 font-bold text-emerald-700">${o.tokens} Sets <span class="text-[10px] font-normal text-slate-400">(${o.tokens * 2} barcodes)</span></td>
+                            <td class="p-2.5 font-semibold text-slate-700">${o.package_name || pkgName}</td>
+                            <td class="p-2.5">
+                                ${(o.tokens && o.tokens > 0)
+                                    ? `<span class="font-bold text-emerald-700">${o.tokens} Sets <span class="text-[10px] font-normal text-slate-400">(${o.tokens * 2} barcodes)</span></span>`
+                                    : `<span class="inline-flex items-center gap-1 text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded text-[10px] font-bold">1 PSD Digital Asset</span>`
+                                }
+                            </td>
                             <td class="p-2.5 font-mono text-slate-900 font-bold">$${o.amount_usd.toFixed(2)}</td>
                             <td class="p-2.5 text-slate-600">${o.crypto_currency} <span class="text-[10px] text-slate-400">(${o.network})</span></td>
                             <td class="p-2.5">

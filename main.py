@@ -471,6 +471,7 @@ def _do_sync_orders():
                 "user_id": o.user_id,
                 "user_email": o.user_email,
                 "package_id": o.package_id,
+                "package_name": _resolve_order_package_name(o.package_id, o.tokens),
                 "tokens": o.tokens,
                 "amount_usd": o.amount_usd,
                 "crypto_currency": o.crypto_currency,
@@ -2731,6 +2732,23 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
         "expired": time_remaining_sec == 0
     }
 
+def _resolve_order_package_name(package_id: Optional[str], tokens: int = 0) -> str:
+    """Helper to cleanly label packages on invoices, receipts, and admin ledger."""
+    if tokens and tokens > 0:
+        return f"{tokens} Barcode Sets"
+    if not package_id:
+        return "Digital Asset"
+    if package_id in TOKEN_PACKAGES:
+        return TOKEN_PACKAGES[package_id].get("name", f"{tokens} Sets")
+    # Resolve against Cloudflare R2 / Fallback market catalog
+    r2_cache = globals().get("_R2_PRODUCTS_CACHE", {})
+    by_id = r2_cache.get("by_id", {})
+    prod = by_id.get(package_id) or next((p for p in globals().get("FALLBACK_MARKET_PRODUCTS", []) if p.get("id") == package_id), None)
+    if prod:
+        return prod.get("title") or prod.get("name", "PSD Asset")
+    clean = package_id.replace("psd_", "").replace("r2_", "").replace("_", " ").title()
+    return f"PSD: {clean}"
+
 @app.get("/api/crypto/order/{order_id}/receipt", summary="Get official payment receipt data for an order")
 @app.get("/api/user/order/{order_id}/invoice", summary="Get official invoice data for an order")
 def get_order_receipt(order_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -2762,7 +2780,7 @@ def get_order_receipt(order_id: int, current_user: User = Depends(get_current_us
         "invoice_date": order.created_at.strftime("%B %d, %Y %H:%M:%S UTC") if order.created_at else "",
         "confirmed_date": order.confirmed_at.strftime("%B %d, %Y %H:%M:%S UTC") if order.confirmed_at else "Pending",
         "customer_email": order.user_email,
-        "package_name": pkg.get("name", f"{order.tokens} Barcode Sets"),
+        "package_name": _resolve_order_package_name(order.package_id, order.tokens),
         "barcode_sets": order.tokens,
         "total_barcodes": order.tokens * 2,
         "amount_usd": order.amount_usd,
@@ -3372,6 +3390,7 @@ def list_crypto_orders(q: Optional[str] = None, current_user: User = Depends(get
                 "user_id": o.user_id,
                 "user_email": o.user_email,
                 "package_id": o.package_id,
+                "package_name": _resolve_order_package_name(o.package_id, o.tokens),
                 "tokens": o.tokens,
                 "amount_usd": o.amount_usd,
                 "crypto_currency": o.crypto_currency,
