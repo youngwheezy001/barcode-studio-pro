@@ -4009,6 +4009,54 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
 
                             </div>
 
+                            <!-- United Kingdom Custom Card Back View (Authentic Entitlement Substrate Replica) -->
+                            <div id="card-back-uk-view" class="hidden w-full h-full relative overflow-hidden select-none z-10" style="background: #ffffff url('card_templates/uk_back.webp') no-repeat center / cover;">
+                                
+                                <!-- Column 10: Valid From Dates -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 10.9%; left: 44.5%;">
+                                    <span id="uk-valid-from-am" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">30.12.17</span>
+                                </div>
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 33.6%; left: 44.5%;">
+                                    <span id="uk-valid-from-b" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">30.12.17</span>
+                                </div>
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 78.9%; left: 44.5%;">
+                                    <span id="uk-valid-from-fkq" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">30.12.17</span>
+                                </div>
+
+                                <!-- Column 11: Valid To Dates -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 10.9%; left: 56.5%;">
+                                    <span id="uk-valid-to-am" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">29.12.27</span>
+                                </div>
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 33.6%; left: 56.5%;">
+                                    <span id="uk-valid-to-b" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">29.12.27</span>
+                                </div>
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 78.9%; left: 56.5%;">
+                                    <span id="uk-valid-to-fkq" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">29.12.27</span>
+                                </div>
+
+                                <!-- Column 12: Codes / Endorsements -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 10.9%; left: 67.5%;">
+                                    <span id="uk-codes-am" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">122</span>
+                                </div>
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 33.6%; left: 67.5%;">
+                                    <span id="uk-codes-b" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">01</span>
+                                </div>
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 78.9%; left: 67.5%;">
+                                    <span id="uk-codes-fkq" class="font-sans text-[7px] sm:text-[7.5px] font-bold text-slate-900 leading-none">122</span>
+                                </div>
+
+                                <!-- Ghost Portrait CLI Expiry Window (Bottom Left) -->
+                                <div class="absolute select-none z-20 pointer-events-none flex items-center justify-center" style="top: 68.5%; left: 16.0%; width: 14.5%;">
+                                    <span id="uk-cli-exp" class="font-mono text-[9px] sm:text-[10px] font-black text-slate-950 tracking-widest drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">DEC27</span>
+                                </div>
+
+                                <!-- Bottom Right Production / Serial Number in White Box -->
+                                <div class="absolute select-none z-20 pointer-events-none flex items-center justify-end" style="bottom: 2.2%; right: 4.5%; width: 28.5%;">
+                                    <span id="uk-serial-val" class="font-mono text-[8.5px] sm:text-[9.5px] font-black text-slate-950 tracking-wider">WQ467214967</span>
+                                </div>
+
+                            </div>
+
                             <!-- AAMVA Engineering Test-Card & Diagnostics View (High-Precision Diagnostic Fixture for Hawaii & Downward Jurisdictions) -->
                             <div id="card-back-engineering-view" class="hidden w-full h-full relative overflow-hidden select-none z-10 flex flex-col justify-between p-2.5"
                                  style="background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);">
@@ -8846,7 +8894,8 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'card-back-standard-view', 'card-back-alaska-view', 'card-back-arkansas-view', 
                 'card-back-arizona-view', 'card-back-alabama-view', 'card-back-california-view', 
                 'card-back-colorado-view', 'card-back-florida-view', 'card-back-georgia-view', 
-                'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view'
+                'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view',
+                'card-back-uk-view'
             ];
             allBackViews.forEach(v => document.getElementById(v)?.classList.add('hidden'));
 
@@ -9825,6 +9874,97 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 } catch (e) {
                     console.error("Kansas 1D barcode error:", e);
                 }
+
+            } else if (stateCode === 'UK' || (jurKey && jurKey.startsWith('UK'))) {
+                if (standardView) standardView.classList.add('hidden');
+                if (alaskaView) alaskaView.classList.add('hidden');
+                if (arkansasView) arkansasView.classList.add('hidden');
+                if (arizonaView) arizonaView.classList.add('hidden');
+                if (alabamaView) alabamaView.classList.add('hidden');
+                if (californiaView) californiaView.classList.add('hidden');
+                if (coloradoView) coloradoView.classList.add('hidden');
+                if (floridaView) floridaView.classList.add('hidden');
+                if (georgiaView) georgiaView.classList.add('hidden');
+                if (idahoView) idahoView.classList.add('hidden');
+                if (kansasView) kansasView.classList.add('hidden');
+                if (engView) engView.classList.add('hidden');
+                const ukView = document.getElementById('card-back-uk-view');
+                if (ukView) ukView.classList.remove('hidden');
+                if (cardEl) {
+                    cardEl.style.background = '#ffffff url("card_templates/uk_back.webp") no-repeat center / cover';
+                }
+
+                // Format UK Dates (DD.MM.YY)
+                const rawIss = (document.getElementById('aamva-issued')?.value || '2024-01-15').trim();
+                const rawExp = (document.getElementById('aamva-exp')?.value || '2034-01-14').trim();
+                const formatUkDate = (dStr) => {
+                    if (!dStr) return '01.01.24';
+                    const parts = dStr.includes('-') ? dStr.split('-') : (dStr.includes('/') ? dStr.split('/') : []);
+                    if (parts.length === 3) {
+                        let y = parts[0].length === 4 ? parts[0] : parts[2];
+                        let m = parts[1].padStart(2, '0');
+                        let d = (parts[0].length === 4 ? parts[2] : parts[0]).padStart(2, '0');
+                        return `${d}.${m}.${y.slice(-2)}`;
+                    }
+                    return dStr;
+                };
+
+                const ukIssFmt = formatUkDate(rawIss);
+                const ukExpFmt = formatUkDate(rawExp);
+
+                // Update Column 10 (Valid From) & Column 11 (Valid To)
+                const ukFromB = document.getElementById('uk-valid-from-b');
+                const ukToB = document.getElementById('uk-valid-to-b');
+                if (ukFromB) ukFromB.textContent = ukIssFmt;
+                if (ukToB) ukToB.textContent = ukExpFmt;
+
+                const ukFromAm = document.getElementById('uk-valid-from-am');
+                const ukToAm = document.getElementById('uk-valid-to-am');
+                if (ukFromAm) ukFromAm.textContent = ukIssFmt;
+                if (ukToAm) ukToAm.textContent = ukExpFmt;
+
+                const ukFromFkq = document.getElementById('uk-valid-from-fkq');
+                const ukToFkq = document.getElementById('uk-valid-to-fkq');
+                if (ukFromFkq) ukFromFkq.textContent = ukIssFmt;
+                if (ukToFkq) ukToFkq.textContent = ukExpFmt;
+
+                // Column 12 (Codes / Endorsements / Restrictions)
+                const rawRest = (document.getElementById('aamva-restrictions')?.value || '').trim();
+                const rawEnd = (document.getElementById('aamva-endorsements')?.value || '').trim();
+                const ukCodesB = document.getElementById('uk-codes-b');
+                if (ukCodesB) {
+                    const cVal = (rawRest && rawRest !== 'NONE') ? rawRest : ((rawEnd && rawEnd !== 'NONE') ? rawEnd : '01');
+                    ukCodesB.textContent = cVal;
+                }
+
+                // Ghost CLI Text (e.g. DEC27, JAN34)
+                const ukCli = document.getElementById('uk-cli-exp');
+                if (ukCli) {
+                    let cliText = 'DEC27';
+                    if (rawExp.includes('-')) {
+                        const p = rawExp.split('-');
+                        if (p.length === 3) {
+                            const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                            const mIdx = parseInt(p[1], 10) - 1;
+                            const mStr = (mIdx >= 0 && mIdx < 12) ? monthNames[mIdx] : 'DEC';
+                            const yr2 = p[0].slice(-2);
+                            cliText = `${mStr}${yr2}`;
+                        }
+                    }
+                    ukCli.textContent = cliText;
+                }
+
+                // Serial Number (Field 13/Bottom-right)
+                const auditVal = (document.getElementById('aamva-audit')?.value || '').trim();
+                const dckVal = (document.getElementById('aamva-dck')?.value || '').trim();
+                const idVal = (document.getElementById('aamva-id')?.value || '').trim();
+                const ukSerialEl = document.getElementById('uk-serial-val');
+                if (ukSerialEl) {
+                    const sVal = auditVal || dckVal || (idVal ? `WQ${idVal.replace(/[^0-9]/g, '').slice(-7)}` : '') || 'WQ467214967';
+                    ukSerialEl.textContent = sVal.toUpperCase();
+                }
+
+                return;
 
             } else if (stateCode === 'HI') {
                 if (standardView) standardView.classList.remove('hidden');

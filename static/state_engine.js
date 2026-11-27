@@ -13193,6 +13193,11 @@ function QC_calculate_ICN() {
         "QC": "card_templates/quebec_back.webp",
         "SK": "card_templates/saskatchewan_back.webp",
         "YT": "card_templates/yukon_back.webp",
+        "UK": "card_templates/uk_back.webp",
+        "UK_ENG": "card_templates/uk_back.webp",
+        "UK_SCO": "card_templates/uk_back.webp",
+        "UK_WAL": "card_templates/uk_back.webp",
+        "UK_NIR": "card_templates/uk_back.webp",
         // Passports / MRZ
         "PASSPORT_CARD": "mrz_templates/us_passport_card_back.webp",
         "US_PASSPORT": "mrz_templates/us_passport_card_back.webp",
