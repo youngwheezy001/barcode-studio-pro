@@ -2921,7 +2921,8 @@ async def background_payment_poller():
                             amount_usd=rem_order.amount_usd,
                             crypto_currency=rem_order.crypto_currency,
                             network=rem_order.network,
-                            wallet_address=rem_order.wallet_address
+                            wallet_address=rem_order.wallet_address,
+                            package_id=rem_order.package_id
                         ))
                         print(f"[ORDER REMINDER] Automatically dispatched 2-hour reminder email to {rem_order.user_email} for order #{rem_order.id}")
                     except Exception as rem_err:
@@ -3442,7 +3443,8 @@ def remind_crypto_order(order_id: int, current_user: User = Depends(get_current_
         amount_usd=order.amount_usd,
         crypto_currency=order.crypto_currency,
         network=order.network,
-        wallet_address=order.wallet_address
+        wallet_address=order.wallet_address,
+        package_id=order.package_id
     )
 
     if delivery_res.get("delivered"):
@@ -4445,10 +4447,32 @@ def dispatch_sets_transferred_email(to_email: str, from_email: str, tokens: int,
         return {"delivered": False}
 
 
-def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: int, amount_usd: float, crypto_currency: str, network: str, wallet_address: str) -> dict:
+def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: int, amount_usd: float, crypto_currency: str, network: str, wallet_address: str, package_id: str = "") -> dict:
     '''Dispatches a polite, high-converting reminder email to complete a pending crypto order.'''
     try:
-        subject = f"Reminder: Complete Your Order for {tokens} Barcode Sets ({invoice_number}) - Barcode Studio Pro"
+        # Determine human-friendly item name & packaging details
+        if tokens and tokens > 0:
+            item_short = f"{tokens} Barcode Sets"
+            item_full = f"{tokens} Barcode Sets ({tokens * 2} Barcodes)"
+            item_field_label = "Package"
+        else:
+            item_field_label = "Product / Asset"
+            market_prod = _R2_PRODUCTS_CACHE.get("by_id", {}).get(package_id) or next(
+                (p for p in FALLBACK_MARKET_PRODUCTS if p.get("id") == package_id), None
+            )
+            if market_prod:
+                item_short = market_prod.get("title") or market_prod.get("name") or "Marketplace Digital Asset"
+            elif package_id:
+                clean_name = package_id.replace("-", " ").replace("_", " ").title()
+                parts = clean_name.split()
+                if len(parts) > 1 and len(parts[-1]) in [6, 7] and parts[-1].isalnum():
+                    parts.pop()
+                item_short = " ".join(parts)
+            else:
+                item_short = "Marketplace Digital Asset"
+            item_full = f"{item_short} (Instant Digital Download)"
+
+        subject = f"Reminder: Complete Your Order for {item_short} ({invoice_number}) - Barcode Studio Pro"
         html_content = f'''<!DOCTYPE html>
 <html>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; margin: 0;">
@@ -4458,7 +4482,7 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
       <p style="color: #94a3b8; font-size: 13px; margin: 0;">Order Completion Notice</p>
     </div>
     <p style="font-size: 14px; line-height: 1.6; color: #e2e8f0; margin-bottom: 16px;">
-      Hello, you initiated an order for <strong>{tokens} Barcode Sets</strong> on Barcode Studio Pro. We have reserved your order, but have not yet detected your blockchain confirmation.
+      Hello, you initiated an order for <strong>{item_short}</strong> on Barcode Studio Pro. We have reserved your order, but have not yet detected your blockchain confirmation.
     </p>
     
     <div style="background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -4468,8 +4492,8 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
           <td style="color: #f8fafc; font-family: monospace; font-weight: bold; text-align: right; padding: 6px 0;">{invoice_number}</td>
         </tr>
         <tr>
-          <td style="color: #94a3b8; padding: 6px 0;">Package:</td>
-          <td style="color: #38bdf8; font-weight: bold; text-align: right; padding: 6px 0;">{tokens} Barcode Sets ({tokens * 2} Barcodes)</td>
+          <td style="color: #94a3b8; padding: 6px 0;">{item_field_label}:</td>
+          <td style="color: #38bdf8; font-weight: bold; text-align: right; padding: 6px 0;">{item_full}</td>
         </tr>
         <tr>
           <td style="color: #94a3b8; padding: 6px 0;">Amount:</td>
@@ -4495,7 +4519,7 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
     </div>
 
     <div style="border-top: 1px solid #334155; margin-top: 28px; padding-top: 16px; font-size: 11px; color: #64748b; text-align: center;">
-      Barcode Studio Pro &bull; Automated AAMVA PDF417 &amp; Code 128 Platform<br>
+      Barcode Studio Pro &bull; Automated Digital Platform<br>
       If you did not make this request or have already completed it, you can safely ignore this reminder.
     </div>
   </div>
@@ -4504,11 +4528,11 @@ def dispatch_order_reminder_email(to_email: str, invoice_number: str, tokens: in
 
         plain_text = f"""Barcode Studio Pro - Order Completion Notice
 
-Hello, you initiated an order for {tokens} Barcode Sets on Barcode Studio Pro. We have reserved your order, but have not yet detected your blockchain confirmation.
+Hello, you initiated an order for {item_short} on Barcode Studio Pro. We have reserved your order, but have not yet detected your blockchain confirmation.
 
 Order Details:
 - Invoice Number: {invoice_number}
-- Package: {tokens} Barcode Sets ({tokens * 2} Barcodes)
+- {item_field_label}: {item_full}
 - Amount: ${amount_usd:.2f} USD
 - Payment Method: {crypto_currency} ({network})
 - Destination Wallet Address: {wallet_address}
@@ -4518,7 +4542,7 @@ Complete your order at: https://barcode-studio-pro.onrender.com
 If you already submitted the transfer, please allow a few network blocks for automated node verification. You can also paste your Transaction Hash (TXID) in the app or reply directly to this email.
 
 ---
-Barcode Studio Pro • Automated AAMVA PDF417 & Code 128 Platform
+Barcode Studio Pro • Automated Digital Platform
 If you did not make this request or have already completed it, you can safely ignore this reminder.
 """
 
@@ -4865,6 +4889,7 @@ SECTION_LABELS = {
     "bundles": "📦 Bundles & Archives",
     "section1": "💳 DL",
     "section2": "🧾 Utility Bills & Bank Statements",
+    "ai_training": "🧠 AI Training Answers",
     "resources": "General Assets"
 }
 
@@ -5160,7 +5185,13 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
             tags = [f"{prefix_tag}Official Document", "Verification Proof", "Editable", f"{ext_clean} Format"]
         return desc, tags
 
-    # 3. Bundles & Archives
+    # 3. AI Training Answers & Assessment Guides
+    elif category == "ai_training":
+        desc = f"Verified qualification assessment answer key and evaluation guide for AI data annotation screening in complete {ext_clean} format ({size_formatted}). Includes verified prompt justifications, benchmark criteria, and step-by-step scoring guidance."
+        tags = ["AI Training", "Assessment Answers", "Exam Guide", f"{ext_clean} Format"]
+        return desc, tags
+
+    # 4. Bundles & Archives
     elif category == "bundles":
         if "guilloche" in lower:
             desc = f"Premium security guilloche background plates and ornamental rosette vector bundle in {ext_clean} format ({size_formatted}). Includes multi-tone anti-copy mathematical wave curves, micro-patterns, and security border frames."
@@ -5304,7 +5335,11 @@ def get_autonomous_market_products(force_refresh: bool = False):
 
             # Determine category / section dynamically
             lower_name = file_key.lower()
-            if ext_clean in ("DOC", "DOCX", "PDF") or any(k in lower_name for k in ["bill", "statement", "utility", "bank", "invoice", "receipt", "paystub", "tax", "lease", "proof", "doc", "financial"]):
+            if "ai_training" in lower_name or "jobs and answers" in lower_name or any(k in lower_name for k in ["assessment", "screening", "evals_assessment", "qualification_guide"]):
+                category = "ai_training"
+                category_label = SECTION_LABELS.get("ai_training", "🧠 AI Training Answers")
+                format_str = f"Evaluation Document ({ext_clean})"
+            elif ext_clean in ("DOC", "DOCX", "PDF") or any(k in lower_name for k in ["bill", "statement", "utility", "bank", "invoice", "receipt", "paystub", "tax", "lease", "proof", "doc", "financial"]):
                 category = "section2"
                 category_label = SECTION_LABELS.get("section2", "🧾 Utility Bills & Bank Statements")
                 if ext_clean in ("DOC", "DOCX"):
@@ -5329,8 +5364,11 @@ def get_autonomous_market_products(force_refresh: bool = False):
             size_formatted = format_file_size(file_size)
             last_mod_str = last_modified.strftime("%b %d, %Y") if hasattr(last_modified, "strftime") else "Recent"
 
-            # Section-specific flat pricing: Section 1 ~$6, Section 2 ~$5, rest heaviness-based ($5-$10)
-            if category == "section1":
+            # Section-specific flat pricing: Section 1 ~$6, Section 2 ~$5, AI Training ~$2, rest heaviness-based ($5-$10)
+            if category == "ai_training":
+                price_usd = 2.00
+                price_kes = 260
+            elif category == "section1":
                 price_usd = 6.00
                 price_kes = 780
             elif category == "section2":
