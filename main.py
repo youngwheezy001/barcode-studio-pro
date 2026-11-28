@@ -4952,8 +4952,8 @@ FALLBACK_MARKET_PRODUCTS = [
         "format": "Editable PDF & Word Document (.DOCX)",
         "file_size": 3145728,
         "file_size_formatted": "3.0 MB",
-        "price_usd": 5.00,
-        "price_kes": 650,
+        "price_usd": 3.50,
+        "price_kes": 455,
         "description": "Fully editable proof-of-residence utility statement document provided in clean fillable PDF and Microsoft Word DOCX formats with meter readings, barcode, and tear-off remittance slip.",
         "tags": ["Utility Bill", "Proof of Address", "PDF Document", "Word DOCX"],
         "r2_key": "documents/utility_bill_proof_of_address.pdf"
@@ -4966,8 +4966,8 @@ FALLBACK_MARKET_PRODUCTS = [
         "format": "Editable PDF & Word Document (.DOCX)",
         "file_size": 4194304,
         "file_size_formatted": "4.0 MB",
-        "price_usd": 5.00,
-        "price_kes": 650,
+        "price_usd": 3.50,
+        "price_kes": 455,
         "description": "Multi-page commercial bank account statement document in fillable vector PDF and Word formats with itemized transaction ledger, summary tables, and account header.",
         "tags": ["Bank Statement", "Financial Proof", "Fillable PDF", "Word DOCX"],
         "r2_key": "documents/bank_statement_financial_proof.docx"
@@ -5470,8 +5470,21 @@ def get_autonomous_market_products(force_refresh: bool = False):
                 price_usd = 6.00
                 price_kes = 780
             elif category == "section2":
-                price_usd = 5.00
-                price_kes = 650
+                # Utility Bills & Bank Statements: $3.00 to $4.00 depending on agency or demand
+                lower_name = filename.lower()
+                high_demand_agencies = [
+                    "chase", "wells", "bofa", "america", "barclays", "hsbc", "citi", 
+                    "capital", "pnc", "td", "santander", "coned", "duke", "pge", "british_gas", "edf"
+                ]
+                if any(k in lower_name for k in high_demand_agencies) or file_size > 2 * 1024 * 1024:
+                    price_usd = 4.00
+                    price_kes = 520
+                elif any(k in lower_name for k in ["statement", "bank", "financial", "ledger", "account"]):
+                    price_usd = 3.50
+                    price_kes = 455
+                else:
+                    price_usd = 3.00
+                    price_kes = 390
             else:
                 price_usd, price_kes = calculate_price_by_heaviness(file_size)
 

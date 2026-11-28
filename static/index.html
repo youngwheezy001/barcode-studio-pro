@@ -46,12 +46,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <!-- Preload core card background templates for instant switching -->
-    <link rel="preload" as="image" href="card_templates/washington_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/california_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/texas_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/new_york_back.webp" type="image/webp">
-    <link rel="preload" as="image" href="card_templates/florida_back.webp" type="image/webp">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- JsBarcode for 1D barcodes (Code 128) -->
@@ -596,10 +590,10 @@
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
                         <div>
-                            <span class="text-base font-extrabold text-slate-900">$5.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 650)</span>
+                            <span class="text-base font-extrabold text-slate-900">$3.50</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 455)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('doc_utility_bill_template', 'Proof of Address & Utility Bill Document', 5.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                        <button type="button" onclick="buyPsdTemplate('doc_utility_bill_template', 'Proof of Address & Utility Bill Document', 3.50)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
                             <span>⚡ Download / Buy</span>
                         </button>
                     </div>
@@ -623,10 +617,10 @@
                     </div>
                     <div class="border-t border-slate-200/80 pt-3 mt-3 flex items-center justify-between">
                         <div>
-                            <span class="text-base font-extrabold text-slate-900">$5.00</span>
-                            <span class="text-[10px] text-slate-500 block">(~ KES 650)</span>
+                            <span class="text-base font-extrabold text-slate-900">$3.50</span>
+                            <span class="text-[10px] text-slate-500 block">(~ KES 455)</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('doc_bank_statement_template', 'Commercial Bank Statement Document', 5.00)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                        <button type="button" onclick="buyPsdTemplate('doc_bank_statement_template', 'Commercial Bank Statement Document', 3.50)" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
                             <span>⚡ Download / Buy</span>
                         </button>
                     </div>
@@ -20103,26 +20097,6 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                 headers: getAuthHeader()
             }).catch(() => {});
         }
-
-        // Pre-warm card template images in background after page load for faster state switching
-        (function preWarmCardTemplates() {
-            const templates = [
-                'alaska_back','arkansas_back','arizona_back','alabama_back','california_back',
-                'colorado_back','florida_back','georgia_back','idaho_back','kansas_back',
-                'hawaii_back','iowa_back','illinois_back','indiana_back','louisiana_back',
-                'maryland_back','michigan_back','minnesota_back','mississippi_back','missouri_back',
-                'nebraska_back','nevada_back','new_jersey_back','new_mexico_back',
-                'north_carolina_back','north_dakota_back','ohio_back','oklahoma_back',
-                'oregon_back','pennsylvania_back','rhode_island_back','south_carolina_back',
-                'south_dakota_back','tennessee_back','texas_back','utah_back','vermont_back',
-                'virginia_back','washington_back','west_virginia_back','wisconsin_back',
-                'wyoming_back','connecticut_back','delaware_back','kentucky_back','maine_back',
-                'massachusetts_back','montana_back','new_hampshire_back','new_york_back'
-            ];
-            const warm = () => { templates.forEach(name => { const img = new Image(); img.src = `card_templates/${name}.webp`; }); };
-            if ('requestIdleCallback' in window) { requestIdleCallback(warm, { timeout: 3000 }); }
-            else { setTimeout(warm, 1500); }
-        })();
 
         // =========================================================================
         // --- STRICT ANTI-SCREENSHOT & ANTI-SCRAPING SECURITY SHIELD ---
