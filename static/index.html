@@ -14023,14 +14023,12 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                     currentUser = null;
                     updateAuthUI();
                 } else {
-                    // Server is restarting (500, 502, 503) - NEVER LOG OUT! Keep session and retry quietly in background
+                    // Server is restarting or temporarily busy (500, 502, 503) - Keep local session, update UI without hammering backend
                     updateAuthUI();
-                    setTimeout(checkAuth, 3500);
                 }
             } catch (e) {
-                // Network glitch or server down temporarily during restart - NEVER LOG OUT!
+                // Network glitch or offline - Keep local session, update UI
                 updateAuthUI();
-                setTimeout(checkAuth, 3500);
             }
         }
 

@@ -75,10 +75,10 @@ def create_robust_engine():
             pg_engine = create_engine(
                 db_url,
                 pool_pre_ping=True,
-                pool_recycle=180,
-                pool_size=20,
-                max_overflow=30,
-                pool_timeout=15,
+                pool_recycle=60,
+                pool_size=10,
+                max_overflow=20,
+                pool_timeout=5,
                 connect_args={
                     "connect_timeout": 4,
                     "sslmode": "prefer"
@@ -1019,7 +1019,7 @@ def get_db():
     finally:
         db.close()
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -2473,7 +2473,40 @@ async def send_sale_notification(order: CryptoPayment):
     except Exception as e:
         print(f"[SALE NOTIFIER] Dispatch note: {e}")
 
-async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> tuple[bool, str, str]:
+def _confirm_crypto_order_atomic(order_id: int, tx_id: str, note_prefix: str) -> tuple[bool, str, str]:
+    """Atomically records and confirms a payment in an isolated, short-lived database transaction to prevent pool saturation."""
+    with SessionLocal() as s:
+        try:
+            target_order = s.query(CryptoPayment).filter(CryptoPayment.id == order_id).first()
+            if not target_order:
+                return False, "", "Order not found"
+            if target_order.status == "confirmed":
+                return True, target_order.tx_hash or "", "Order is already confirmed."
+            exists = s.query(CryptoPayment).filter(
+                CryptoPayment.tx_hash == tx_id,
+                CryptoPayment.status == "confirmed",
+                CryptoPayment.id != order_id
+            ).first()
+            if exists:
+                return False, "", "Transaction ID already credited"
+            target_order.tx_hash = tx_id
+            target_order.status = "confirmed"
+            target_order.confirmed_at = datetime.utcnow()
+            purchaser = s.query(User).filter(User.id == target_order.user_id).first()
+            if purchaser:
+                purchaser.tokens += target_order.tokens
+                process_referral_commission(s, purchaser, order_type="crypto", amount_usd=float(target_order.amount_usd))
+            s.commit()
+            sync_users_to_backup(s)
+            sync_orders_to_backup(s)
+            asyncio.create_task(send_sale_notification(target_order))
+            return True, tx_id, f"{note_prefix} ({tx_id[:12]}...) on-chain! Added {target_order.tokens} tokens."
+        except Exception as e:
+            s.rollback()
+            print(f"[CRYPTO CONFIRM ERROR] {e}")
+            return False, "", str(e)
+
+async def auto_detect_blockchain_payment(order: CryptoPayment, db: Optional[Session] = None) -> tuple[bool, str, str]:
     """
     Scans public blockchain explorer/RPC nodes for incoming transfers to order.wallet_address
     matching order.amount_usd within the 30-minute order window.
@@ -2514,25 +2547,9 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
 
                         if is_usdt and to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
                             if abs(amt - expected_usd) <= 0.01:
-                                exists = db.query(CryptoPayment).filter(
-                                    CryptoPayment.tx_hash == tx_id,
-                                    CryptoPayment.status == "confirmed",
-                                    CryptoPayment.id != order.id
-                                ).first()
-                                if not exists:
-                                    order.tx_hash = tx_id
-                                    order.status = "confirmed"
-                                    order.confirmed_at = datetime.utcnow()
-                                    purchaser = db.query(User).filter(User.id == order.user_id).first()
-                                    if purchaser:
-                                        purchaser.tokens += order.tokens
-                                        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
-                                    db.commit()
-                                    db.refresh(order)
-                                    sync_users_to_backup(db)
-                                    sync_orders_to_backup(db)
-                                    asyncio.create_task(send_sale_notification(order))
-                                    return True, tx_id, f"Auto-detected TRON USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
+                                res_ok, res_tx, res_msg = _confirm_crypto_order_atomic(order.id, tx_id, "Auto-detected TRON USDT payment")
+                                if res_ok:
+                                    return True, res_tx, res_msg
         except Exception as e:
             print(f"Tronscan auto-detect polling note: {e}")
 
@@ -2559,25 +2576,9 @@ async def auto_detect_blockchain_payment(order: CryptoPayment, db: Session) -> t
 
                         if is_usdt and to_addr == active_wallet.lower() and block_ts >= order_ts_ms:
                             if abs(amt - expected_usd) <= 0.01:
-                                exists = db.query(CryptoPayment).filter(
-                                    CryptoPayment.tx_hash == tx_id,
-                                    CryptoPayment.status == "confirmed",
-                                    CryptoPayment.id != order.id
-                                ).first()
-                                if not exists:
-                                    order.tx_hash = tx_id
-                                    order.status = "confirmed"
-                                    order.confirmed_at = datetime.utcnow()
-                                    purchaser = db.query(User).filter(User.id == order.user_id).first()
-                                    if purchaser:
-                                        purchaser.tokens += order.tokens
-                                        process_referral_commission(db, purchaser, order_type="crypto", amount_usd=float(order.amount_usd))
-                                    db.commit()
-                                    db.refresh(order)
-                                    sync_users_to_backup(db)
-                                    sync_orders_to_backup(db)
-                                    asyncio.create_task(send_sale_notification(order))
-                                    return True, tx_id, f"Auto-detected TRC-20 USDT payment ({tx_id[:12]}...) on-chain! Added {order.tokens} tokens."
+                                res_ok, res_tx, res_msg = _confirm_crypto_order_atomic(order.id, tx_id, "Auto-detected TRC-20 USDT payment")
+                                if res_ok:
+                                    return True, res_tx, res_msg
         except Exception as e:
             print(f"TronGrid auto-detect polling note: {e}")
 
@@ -2686,7 +2687,7 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
         }
 
     # 1. Attempt automatic blockchain detection
-    confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, db)
+    confirmed, tx_id, msg = await auto_detect_blockchain_payment(order)
     if confirmed:
         db.refresh(current_user)
         return {
@@ -2703,7 +2704,7 @@ async def poll_crypto_order(order_id: int, current_user: User = Depends(get_curr
     b_key = (os.getenv("BINANCE_API_KEY") or "").strip()
     b_sec = (os.getenv("BINANCE_API_SECRET") or "").strip()
     if b_key and b_sec and order.status in ["pending", "submitted"]:
-        await poll_binance_api_deposits([order], db, b_key, b_sec)
+        await poll_binance_api_deposits([order], b_key, b_sec)
         db.refresh(order)
         if order.status == "confirmed":
             db.refresh(current_user)
@@ -2836,7 +2837,7 @@ def extract_amount_from_text(text: str) -> Optional[float]:
                 continue
     return None
 
-async def poll_binance_api_deposits(pending_orders: list, db: Session, api_key: str, api_secret: str):
+async def poll_binance_api_deposits(pending_orders: list, api_key: str, api_secret: str, db: Optional[Session] = None):
     """
     Checks official Binance Spot Deposit History API for recent successful incoming deposits.
     Matches incoming deposits (on-chain and internal) against pending customer orders autonomously.
@@ -2965,18 +2966,16 @@ async def background_payment_poller():
                 db.close()
 
             if order_ids:
-                # 1. Check blockchain nodes with individual scoped sessions per order
+                # 1. Check blockchain nodes with lightweight single-order checks
                 for oid in order_ids:
                     try:
-                        poll_db = SessionLocal()
-                        try:
-                            order = poll_db.query(CryptoPayment).filter(CryptoPayment.id == oid).first()
-                            if order and order.status in ["pending", "submitted"]:
-                                confirmed, tx_id, msg = await auto_detect_blockchain_payment(order, poll_db)
-                                if confirmed:
-                                    print(f"[AUTONOMOUS CONFIRMATION] Order #{order.id} ({order.user_email}) confirmed: {msg}")
-                        finally:
-                            poll_db.close()
+                        order_obj = None
+                        with SessionLocal() as s:
+                            order_obj = s.query(CryptoPayment).filter(CryptoPayment.id == oid).first()
+                        if order_obj and order_obj.status in ["pending", "submitted"]:
+                            confirmed, tx_id, msg = await auto_detect_blockchain_payment(order_obj)
+                            if confirmed:
+                                print(f"[AUTONOMOUS CONFIRMATION] Order #{order_obj.id} ({order_obj.user_email}) confirmed: {msg}")
                     except Exception as o_err:
                         pass
 
@@ -2984,16 +2983,17 @@ async def background_payment_poller():
                 b_key = (os.getenv("BINANCE_API_KEY") or "").strip()
                 b_sec = (os.getenv("BINANCE_API_SECRET") or "").strip()
                 if b_key and b_sec:
-                    binance_db = SessionLocal()
                     try:
-                        active_orders = binance_db.query(CryptoPayment).filter(
-                            CryptoPayment.id.in_(order_ids),
-                            CryptoPayment.status.in_(["pending", "submitted"])
-                        ).all()
+                        active_orders = []
+                        with SessionLocal() as s:
+                            active_orders = s.query(CryptoPayment).filter(
+                                CryptoPayment.id.in_(order_ids),
+                                CryptoPayment.status.in_(["pending", "submitted"])
+                            ).all()
                         if active_orders:
-                            await poll_binance_api_deposits(active_orders, binance_db, b_key, b_sec)
-                    finally:
-                        binance_db.close()
+                            await poll_binance_api_deposits(active_orders, b_key, b_sec)
+                    except Exception as b_err:
+                        pass
         except Exception as e:
             print(f"[PAYMENT POLLER WORKER] Cycle note: {e}")
 
