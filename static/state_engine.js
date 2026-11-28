@@ -5893,8 +5893,28 @@ function UK_NIR_calculate_documentNumber() {
     return val;
 }
 
+function UK_calculate_ICN() {
+    var target = getTargetElement('inputInventoryControlNumber') || document.getElementById('aamva-dck');
+    var prefixes = ['FB', 'WQ', 'PA', 'KL', 'NW', 'TR', 'MB', 'GD', 'HR', 'VK'];
+    var pfx = prefixes[Math.floor(Math.random() * prefixes.length)];
+    var num = getRandomNumericString(8);
+    var val = pfx + num;
+    if (target) target.value = val;
+    return val;
+}
+function UK_ENG_calculate_ICN() { return UK_calculate_ICN(); }
+function UK_SCO_calculate_ICN() { return UK_calculate_ICN(); }
+function UK_WAL_calculate_ICN() { return UK_calculate_ICN(); }
+function UK_NIR_calculate_ICN() { return UK_calculate_ICN(); }
+
+
 
     // Expose all functions to window
+    try { if (typeof UK_calculate_ICN === 'function') window.UK_calculate_ICN = UK_calculate_ICN; } catch(e) {}
+    try { if (typeof UK_ENG_calculate_ICN === 'function') window.UK_ENG_calculate_ICN = UK_ENG_calculate_ICN; } catch(e) {}
+    try { if (typeof UK_SCO_calculate_ICN === 'function') window.UK_SCO_calculate_ICN = UK_SCO_calculate_ICN; } catch(e) {}
+    try { if (typeof UK_WAL_calculate_ICN === 'function') window.UK_WAL_calculate_ICN = UK_WAL_calculate_ICN; } catch(e) {}
+    try { if (typeof UK_NIR_calculate_ICN === 'function') window.UK_NIR_calculate_ICN = UK_NIR_calculate_ICN; } catch(e) {}
     try { if (typeof AB_calculate_DD === 'function') window.AB_calculate_DD = AB_calculate_DD; } catch(e) {}
     try { if (typeof AB_calculate_documentNumber === 'function') window.AB_calculate_documentNumber = AB_calculate_documentNumber; } catch(e) {}
     try { if (typeof AK_calculate_DD === 'function') window.AK_calculate_DD = AK_calculate_DD; } catch(e) {}
