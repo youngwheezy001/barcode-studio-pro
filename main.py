@@ -17,6 +17,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.datastructures import MutableHeaders
 from pydantic import BaseModel, EmailStr
 import io
 import zipfile
@@ -1083,22 +1084,37 @@ app.add_middleware(
 )
 # GZipMiddleware removed: Cloudflare edge handles compression automatically; internal GZipMiddleware causes stream hang with BaseHTTPMiddleware on large HTML
 
-@app.middleware("http")
-async def add_security_headers(request: Request, call_next):
-    response = await call_next(request)
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Permissions-Policy"] = "camera=(self), microphone=()"
-    if request.url.path == "/" or request.url.path.endswith(".html") or request.url.path.startswith("/api/"):
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
-    elif any(request.url.path.endswith(ext) for ext in [".js", ".css", ".png", ".svg", ".jpg", ".ico", ".woff2"]):
-        if "Cache-Control" not in response.headers:
-            response.headers["Cache-Control"] = "public, max-age=86400"
-    return response
+class SecurityHeadersMiddleware:
+    """Pure ASGI middleware: adds security and caching headers without buffering or chunking response bodies."""
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        async def send_wrapper(message):
+            if message["type"] == "http.response.start":
+                headers = MutableHeaders(scope=message)
+                headers["X-Frame-Options"] = "DENY"
+                headers["X-Content-Type-Options"] = "nosniff"
+                headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+                headers["X-XSS-Protection"] = "1; mode=block"
+                headers["Permissions-Policy"] = "camera=(self), microphone=()"
+                path = scope.get("path", "")
+                if path == "/" or path.endswith(".html") or path.startswith("/api/"):
+                    headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                    headers["Pragma"] = "no-cache"
+                    headers["Expires"] = "0"
+                elif any(path.endswith(ext) for ext in [".js", ".css", ".png", ".svg", ".jpg", ".ico", ".woff2"]):
+                    if "cache-control" not in headers:
+                        headers["Cache-Control"] = "public, max-age=86400"
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 @app.on_event("startup")
 async def on_app_startup():
