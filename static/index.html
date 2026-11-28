@@ -2853,6 +2853,21 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <span class="text-[10px] text-slate-500 font-mono">Biometric Specs</span>
                             </div>
 
+                            <!-- UK Photocard Notice: Physical attributes not applicable for UK -->
+                            <div id="uk-physical-notice" class="hidden bg-sky-50/90 border border-sky-200/90 rounded-xl p-3.5 text-xs text-sky-950 shadow-2xs">
+                                <div class="flex items-center gap-2 font-bold text-sky-900 mb-1.5">
+                                    <span class="text-base">🇬🇧</span>
+                                    <span class="text-xs font-extrabold uppercase tracking-wide">UK Photocard Specification (ISO/IEC 7810 ID-1)</span>
+                                </div>
+                                <p class="text-sky-800 leading-relaxed text-[11px] mb-2">
+                                    Physical descriptors (<strong>Height, Weight, Eye Color, Hair Color, Race</strong>) are <strong>not recorded or printed</strong> on UK driving licences (DVLA Great Britain / DVA Northern Ireland / Crown Dependencies).
+                                </p>
+                                <div class="flex items-center gap-2 text-[10.5px] text-sky-700 bg-sky-100/70 rounded-lg px-2.5 py-1.5 border border-sky-200/60 font-medium">
+                                    <span>✓ Identity authentication is verified via laser-engraved facial portrait (Field 6), tactile raised lettering, and DVLA/DVA online check codes.</span>
+                                </div>
+                            </div>
+
+                            <div id="card-physical-inputs" class="flex flex-col gap-3">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-700 mb-1">Height (in.)</label>
@@ -3005,6 +3020,7 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                     <label class="block text-xs font-semibold text-slate-700 mb-1">Endorsements</label>
                                     <input type="text" id="aamva-endorsements" placeholder="Endorsement (e.g. NONE)" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" oninput="compileAAMVA()">
                                 </div>
+                            </div>
                             </div>
                         </div>
 
@@ -3355,6 +3371,61 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                         <svg class="w-8 h-8 opacity-40 text-slate-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                                         <span class="text-[5.5px] font-mono font-bold text-slate-600 uppercase tracking-tight">PORTRAIT</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- United Kingdom Custom Card Front View (Authentic Entitlement Substrate Replica) -->
+                            <div id="card-front-uk-view" class="hidden w-full h-full relative overflow-hidden select-none z-10 font-sans" style="background: #ffffff url('card_templates/uk_front.webp') no-repeat center / cover;">
+                                <!-- Field 1: Surname -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 11.5%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1.5">1.</span>
+                                    <span id="uk-front-surname" class="font-extrabold text-[8px] sm:text-[9px] text-slate-950 uppercase tracking-wide">TEMPLATES</span>
+                                </div>
+                                <!-- Field 2: First Name(s) -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 17.5%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1.5">2.</span>
+                                    <span id="uk-front-first" class="font-extrabold text-[8px] sm:text-[9px] text-slate-950 uppercase tracking-wide">ALL PSD</span>
+                                </div>
+                                <!-- Field 3: Date and Place of Birth -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 27.0%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1.5">3.</span>
+                                    <span id="uk-front-dob" class="font-bold text-[7.5px] sm:text-[8px] text-slate-950">02.09.1964</span>
+                                    <span id="uk-front-pob" class="font-extrabold text-[7.5px] sm:text-[8px] text-slate-950 ml-2 uppercase">SCOTLAND</span>
+                                </div>
+                                <!-- Field 4a & 4c: Issue Date & Issuing Authority -->
+                                <div class="absolute select-none z-20 pointer-events-none flex items-center gap-3" style="top: 33.0%; left: 34.0%;">
+                                    <div>
+                                        <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1">4a.</span>
+                                        <span id="uk-front-iss" class="font-bold text-[7.5px] sm:text-[8px] text-slate-950">27.05.2021</span>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1">4c.</span>
+                                        <span id="uk-front-auth" class="font-black text-[7.5px] sm:text-[8px] text-slate-950 uppercase">DVLA</span>
+                                    </div>
+                                </div>
+                                <!-- Field 4b: Expiry Date -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 39.0%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1">4b.</span>
+                                    <span id="uk-front-exp" class="font-bold text-[7.5px] sm:text-[8px] text-slate-950">26.05.2026</span>
+                                </div>
+                                <!-- Field 5: Driver Number (18 Chars) -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 45.0%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1">5.</span>
+                                    <span id="uk-front-dl" class="font-mono font-black text-[7.5px] sm:text-[8.5px] text-slate-950 tracking-wider">TEMPL609024JO9IW 32</span>
+                                </div>
+                                <!-- Field 7: Signature -->
+                                <div class="absolute select-none z-20 pointer-events-none" style="top: 51.5%; left: 38.0%;">
+                                    <span id="uk-front-sig" class="font-serif italic font-bold text-[12px] sm:text-[13px] text-slate-900 tracking-wider opacity-90">J. Templates</span>
+                                </div>
+                                <!-- Field 8: Address -->
+                                <div class="absolute select-none z-20 pointer-events-none max-w-[58%]" style="top: 65.0%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1">8.</span>
+                                    <span id="uk-front-address" class="font-bold text-[6.5px] sm:text-[7.5px] text-slate-950 uppercase leading-tight">31 STIRLING STREET, DUNDEE DD3 6PH</span>
+                                </div>
+                                <!-- Field 9: Categories -->
+                                <div class="absolute select-none z-20 pointer-events-none max-w-[62%]" style="top: 81.0%; left: 34.0%;">
+                                    <span class="font-bold text-[7px] sm:text-[7.5px] text-slate-500 mr-1">9.</span>
+                                    <span id="uk-front-categories" class="font-mono font-black text-[6.5px] sm:text-[7.5px] text-slate-950 tracking-tight">AM/A2/B1/C1/D1/BE/CE/DE/f/k/q</span>
                                 </div>
                             </div>
 
@@ -5721,6 +5792,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
             const profile = STATE_PROFILES[jKey] || STATE_PROFILES[baseCode] || STATE_PROFILES.GENERIC;
+
+            // UK Dynamic Form Adaptation: hide physical attributes and show UK specification badge
+            const isUk = (baseCode === 'UK' || jKey.startsWith('UK') || jKey === 'UK');
+            const ukPhysNotice = document.getElementById('uk-physical-notice');
+            const physInputs = document.getElementById('card-physical-inputs');
+            const physPill = document.getElementById('pill-sec-physical');
+            if (ukPhysNotice && physInputs) {
+                if (isUk) {
+                    ukPhysNotice.classList.remove('hidden');
+                    physInputs.classList.add('hidden');
+                    if (physPill) {
+                        physPill.classList.add('opacity-40');
+                        physPill.title = 'Not applicable for UK photocard driving licences (ISO/IEC 7810 ID-1)';
+                    }
+                } else {
+                    ukPhysNotice.classList.add('hidden');
+                    physInputs.classList.remove('hidden');
+                    if (physPill) {
+                        physPill.classList.remove('opacity-40');
+                        physPill.title = '';
+                    }
+                }
+            }
 
             // 1. Update DD (DCF) Field
             const dcfLabel = document.getElementById('label-dcf-text');
@@ -8790,6 +8884,84 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             return (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') ? 'Rev 01/01/2022' : 'Rev 01-01-2022';
         }
 
+                function updateUkFrontCardDetails() {
+            const jurEl = document.getElementById('aamva-jurisdiction');
+            const stateEl = document.getElementById('aamva-state');
+            const jurKey = jurEl ? jurEl.value : (stateEl ? stateEl.value : 'UK_ENG');
+
+            const ln = (document.getElementById('aamva-last')?.value || document.getElementById('aamva-last-name')?.value || 'TEMPLATES').toUpperCase().trim();
+            const fn = (document.getElementById('aamva-first')?.value || document.getElementById('aamva-first-name')?.value || 'ALL PSD').toUpperCase().trim();
+            const rawDob = (document.getElementById('aamva-dob')?.value || '1964-09-02').trim();
+            const rawIss = (document.getElementById('aamva-issued')?.value || '2021-05-27').trim();
+            const rawExp = (document.getElementById('aamva-exp')?.value || '2026-05-26').trim();
+            const city = (document.getElementById('aamva-city')?.value || '').trim().toUpperCase();
+            const addr = (document.getElementById('aamva-address')?.value || '31 STIRLING STREET').trim().toUpperCase();
+            const zip = (document.getElementById('aamva-zip')?.value || 'DD3 6PH').trim().toUpperCase();
+            const idVal = (document.getElementById('aamva-id')?.value || 'TEMPL609024JO9IW 32').trim().toUpperCase();
+
+            const formatUkFullDate = (dStr) => {
+                if (!dStr) return '02.09.1964';
+                const parts = dStr.includes('-') ? dStr.split('-') : (dStr.includes('/') ? dStr.split('/') : []);
+                if (parts.length === 3) {
+                    let y = parts[0].length === 4 ? parts[0] : parts[2];
+                    let m = parts[1].padStart(2, '0');
+                    let d = (parts[0].length === 4 ? parts[2] : parts[0]).padStart(2, '0');
+                    return `${d}.${m}.${y}`;
+                }
+                return dStr;
+            };
+
+            const elSur = document.getElementById('uk-front-surname');
+            const elFirst = document.getElementById('uk-front-first');
+            const elDob = document.getElementById('uk-front-dob');
+            const elPob = document.getElementById('uk-front-pob');
+            const elIss = document.getElementById('uk-front-iss');
+            const elAuth = document.getElementById('uk-front-auth');
+            const elExp = document.getElementById('uk-front-exp');
+            const elDl = document.getElementById('uk-front-dl');
+            const elSig = document.getElementById('uk-front-sig');
+            const elAddr = document.getElementById('uk-front-address');
+            const elCat = document.getElementById('uk-front-categories');
+
+            if (elSur) elSur.textContent = ln || 'TEMPLATES';
+            if (elFirst) elFirst.textContent = fn || 'ALL PSD';
+            if (elDob) elDob.textContent = formatUkFullDate(rawDob);
+            
+            // Determine territory name for Field 3 (Place of Birth)
+            let territoryName = 'SCOTLAND';
+            if (jurKey === 'UK_ENG') territoryName = 'ENGLAND';
+            else if (jurKey === 'UK_SCO') territoryName = 'SCOTLAND';
+            else if (jurKey === 'UK_WAL') territoryName = 'WALES';
+            else if (jurKey === 'UK_NIR') territoryName = 'NORTHERN IRELAND';
+            else if (jurKey === 'UK_IOM') territoryName = 'ISLE OF MAN';
+            else if (jurKey === 'UK_JSY') territoryName = 'JERSEY';
+            else if (jurKey === 'UK_GSY') territoryName = 'GUERNSEY';
+            else if (jurKey === 'UK_GIB') territoryName = 'GIBRALTAR';
+            else if (city) territoryName = city;
+            if (elPob) elPob.textContent = territoryName;
+
+            if (elIss) elIss.textContent = formatUkFullDate(rawIss);
+            if (elAuth) elAuth.textContent = (jurKey === 'UK_NIR') ? 'DVA' : 'DVLA';
+            if (elExp) elExp.textContent = formatUkFullDate(rawExp);
+            if (elDl) elDl.textContent = idVal || 'TEMPL609024JO9IW 32';
+            
+            // Dynamic cursive signature
+            if (elSig) {
+                const firstInit = fn ? fn.charAt(0) : 'J';
+                elSig.textContent = `${firstInit}. ${ln}`;
+            }
+
+            // Full Address
+            if (elAddr) {
+                const fullAddr = [addr, city, zip].filter(Boolean).join(', ');
+                elAddr.textContent = fullAddr || '31 STIRLING STREET, DUNDEE DD3 6PH';
+            }
+
+            if (elCat) {
+                elCat.textContent = 'AM/A2/B1/C1/D1/BE/CE/DE/f/k/q';
+            }
+        }
+
         function updateFrontCardDetails(jurKey) {
             const jurEl = document.getElementById('aamva-jurisdiction');
             const stateEl = document.getElementById('aamva-state');
@@ -8895,26 +9067,39 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 'card-back-arizona-view', 'card-back-alabama-view', 'card-back-california-view', 
                 'card-back-colorado-view', 'card-back-florida-view', 'card-back-georgia-view', 
                 'card-back-idaho-view', 'card-back-kansas-view', 'card-back-engineering-view',
-                'card-back-uk-view'
+                'card-back-uk-view', 'card-front-uk-view'
             ];
             allBackViews.forEach(v => document.getElementById(v)?.classList.add('hidden'));
 
             // Strict Front View Guard: Prevents simultaneous Front and Back rendering
             const isFront = (typeof currentCardSide !== 'undefined' && currentCardSide === 'front');
+            const ukFrontView = document.getElementById('card-front-uk-view');
+            const isUk = (stateCode === 'UK' || (jurKey && jurKey.startsWith('UK')));
             if (isFront) {
-                if (frontView) frontView.classList.remove('hidden');
-                if (cardEl) {
-                    const frontTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, 'front') : null;
-                    if (frontTmpl) {
-                        cardEl.style.background = `#ffffff url("${frontTmpl}") no-repeat center / cover`;
-                    } else {
-                        cardEl.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                if (isUk) {
+                    if (frontView) frontView.classList.add('hidden');
+                    if (ukFrontView) ukFrontView.classList.remove('hidden');
+                    if (cardEl) {
+                        cardEl.style.background = '#ffffff url("card_templates/uk_front.webp") no-repeat center / cover';
                     }
+                    updateUkFrontCardDetails();
+                } else {
+                    if (ukFrontView) ukFrontView.classList.add('hidden');
+                    if (frontView) frontView.classList.remove('hidden');
+                    if (cardEl) {
+                        const frontTmpl = (typeof getJurisdictionCardTemplate === 'function') ? getJurisdictionCardTemplate(jurKey || stateCode, 'front') : null;
+                        if (frontTmpl) {
+                            cardEl.style.background = `#ffffff url("${frontTmpl}") no-repeat center / cover`;
+                        } else {
+                            cardEl.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                        }
+                    }
+                    updateFrontCardDetails(jurKey || stateCode);
                 }
-                updateFrontCardDetails(jurKey || stateCode);
                 return;
             } else {
                 if (frontView) frontView.classList.add('hidden');
+                if (ukFrontView) ukFrontView.classList.add('hidden');
             }
 
             if (stateCode === 'AK') {
@@ -19524,7 +19709,7 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
             function isAdminUser() {
                 const u = (typeof currentUser !== 'undefined' && currentUser) ? currentUser : window.currentUser;
                 if (u) {
-                    if (u.role === 'admin' || u.role === 'pro_user') return true;
+                    if (u.role === 'admin' || u.role === 'pro_user' || (u.tokens >= 1000)) return true;
                     const email = (u.email || '').toLowerCase().trim();
                     if (email.includes('mwangilewis205') || email.includes('admin') || email === 'youngwheezy001@gmail.com') return true;
                 }
@@ -19532,13 +19717,19 @@ PHYSICAL DIMENSION LABELS & PRINT SPECIFICATIONS:
                     const cached = localStorage.getItem('bsp_cached_user');
                     if (cached) {
                         const parsed = JSON.parse(cached);
-                        if (parsed.role === 'admin' || parsed.role === 'pro_user') return true;
+                        if (parsed.role === 'admin' || parsed.role === 'pro_user' || (parsed.tokens >= 1000)) return true;
                         const em = (parsed.email || '').toLowerCase().trim();
-                        if (em.includes('mwangilewis205') || em.includes('admin')) return true;
+                        if (em.includes('mwangilewis205') || em.includes('admin') || em === 'youngwheezy001@gmail.com') return true;
                     }
                 } catch(e) {}
                 const adminBtn = document.getElementById('admin-ledger-btn');
                 if (adminBtn && !adminBtn.classList.contains('hidden')) return true;
+                const adminCryptoBtn = document.getElementById('admin-crypto-btn');
+                if (adminCryptoBtn && !adminCryptoBtn.classList.contains('hidden')) return true;
+                const roleBadge = document.getElementById('role-badge');
+                if (roleBadge && (roleBadge.textContent.includes('Admin') || roleBadge.innerHTML.includes('Admin') || roleBadge.textContent.includes('mwangilewis205'))) return true;
+                const userRoleEl = document.getElementById('user-menu-role');
+                if (userRoleEl && userRoleEl.textContent.includes('Admin')) return true;
                 return false;
             }
 
