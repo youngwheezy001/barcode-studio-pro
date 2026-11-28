@@ -2584,8 +2584,19 @@ Y4509481,SEAN,HARRISON,19700812,20300812,456 MARKET ST,SAN FRANCISCO,CA,94105,08
                                 <!-- DL Class & Sex & Donor -->
                                 <div class="grid grid-cols-3 gap-2">
                                     <div>
-                                        <label id="label-class-text" class="block text-xs font-semibold text-slate-700 mb-1">Class</label>
-                                        <input type="text" id="aamva-class" placeholder="D" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" oninput="compileAAMVA()">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label id="label-class-text" class="text-xs font-semibold text-slate-700">Class</label>
+                                            <button type="button" onclick="calcField('class')" id="btn-calc-class" class="calc-btn text-xs text-slate-400 hover:text-accent font-mono" title="Calculate authentic UK Entitlement Categories">🧮</button>
+                                        </div>
+                                        <input type="text" id="aamva-class" list="uk-category-presets" placeholder="D" class="aamva-field w-full border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-accent bg-white" oninput="compileAAMVA()">
+                                        <datalist id="uk-category-presets">
+                                            <option value="AM / B / fkq">Standard UK Car (AM / B / fkq)</option>
+                                            <option value="AM/A2/B1/C1/D1/BE/CE/DE/f/k/q">Full UK Entitlement</option>
+                                            <option value="AM / A / B / fkq">Car + Motorcycle (AM / A / B / fkq)</option>
+                                            <option value="AM / B / BE / fkq">Car + Trailer (AM / B / BE / fkq)</option>
+                                            <option value="AM / B / C1 / C / fkq">Heavy Goods HGV (AM / B / C1 / C / fkq)</option>
+                                            <option value="AM / B / D1 / D / fkq">Passenger Bus PCV (AM / B / D1 / D / fkq)</option>
+                                        </datalist>
                                     </div>
                                     <div>
                                         <div class="flex items-center justify-between mb-1">
@@ -7368,6 +7379,26 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
         // --- INDIVIDUAL CALCULATORS 🧮 ---
         function calcField(field, isBatch = false) {
             const jKey = document.getElementById('aamva-jurisdiction').value;
+            const revInfoCheck = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
+            const baseCodeCheck = revInfoCheck ? revInfoCheck.base_code : jKey.split('_')[0];
+            const isUkCheck = (baseCodeCheck === 'UK' || jKey.startsWith('UK') || jKey === 'UK');
+
+            if (field === 'class') {
+                const classEl = document.getElementById('aamva-class');
+                if (classEl) {
+                    if (isUkCheck) {
+                        const current = classEl.value.trim();
+                        classEl.value = (typeof resolveUkEntitlementCategories === 'function') ? resolveUkEntitlementCategories(current) : 'AM / B / fkq';
+                        showToast('Calculated UK Entitlement Categories (Field 9): ' + classEl.value, 'success');
+                    } else {
+                        classEl.value = 'D';
+                        showToast('Calculated standard Class D', 'success');
+                    }
+                    compileAAMVA();
+                    if (typeof updateStudioCardDetails === 'function') updateStudioCardDetails();
+                }
+                return;
+            }
             const jurKey = jKey;
             const revInfo = (typeof getRevisionInfo === 'function') ? getRevisionInfo(jKey) : null;
             const baseCode = revInfo ? revInfo.base_code : jKey.split('_')[0];
@@ -8908,7 +8939,66 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             return (stCode === 'CA' || stCode === 'GA' || stCode === 'KS') ? 'Rev 01/01/2022' : 'Rev 01-01-2022';
         }
 
-                function parseUkDateComponents(dStr) {
+                        function resolveUkEntitlementCategories(input) {
+            if (!input) return 'AM / B / fkq';
+            const s = String(input).trim().toUpperCase();
+            
+            // If already complete slash-separated UK format
+            if (s.includes('/') && (s.includes('AM') || s.includes('B'))) {
+                return s;
+            }
+            
+            // Specific UK Standards mappings
+            if (s === 'ALL' || s === 'FULL' || s === 'FULL UK' || s === 'MAX') {
+                return 'AM/A2/B1/C1/D1/BE/CE/DE/f/k/q';
+            }
+            if (s === 'B' || s === 'CAR' || s === 'OPERATOR' || s === 'STANDARD' || s === 'D') {
+                return 'AM / B / fkq';
+            }
+            if (s === 'BE' || s === 'B+E' || s === 'B E' || s === 'TRAILER') {
+                return 'AM / B / BE / fkq';
+            }
+            if (s === 'A' || s === 'MOTO' || s === 'MOTORCYCLE' || s === 'BIKE') {
+                return 'AM / A / B / fkq';
+            }
+            if (s === 'A1' || s === 'A2') {
+                return `AM / ${s} / B / fkq`;
+            }
+            if (s === 'C' || s === 'HGV' || s === 'LORRY' || s === 'TRUCK' || s === 'CDL') {
+                return 'AM / B / C1 / C / fkq';
+            }
+            if (s === 'C1') {
+                return 'AM / B / C1 / fkq';
+            }
+            if (s === 'CE' || s === 'C+E') {
+                return 'AM / B / C1E / CE / fkq';
+            }
+            if (s === 'BUS' || s === 'PCV') {
+                return 'AM / B / D1 / D / fkq';
+            }
+            if (s === 'PROVISIONAL' || s === 'PROV' || s === 'L') {
+                return 'AM / B';
+            }
+            
+            // If comma or space separated tokens (e.g. "B, BE, C1")
+            const tokens = s.replace(/[,;+]/g, ' ').split(/\s+/).filter(Boolean);
+            if (tokens.length > 1) {
+                const set = new Set(tokens);
+                if (set.has('B') || set.has('CAR') || set.has('D')) {
+                    set.delete('CAR');
+                    set.delete('D');
+                    set.add('AM');
+                    set.add('B');
+                    set.add('fkq');
+                }
+                return Array.from(set).join(' / ');
+            }
+            
+            // Fallback: standard UK car wrapper
+            return `AM / ${s} / fkq`;
+        }
+
+        function parseUkDateComponents(dStr) {
             if (!dStr) return null;
             const s = String(dStr).trim();
             if (s.includes('-')) {
@@ -9028,8 +9118,9 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
 
             const rawCat = (document.getElementById('aamva-class')?.value || '').trim();
+            const resolvedCat = (typeof resolveUkEntitlementCategories === 'function') ? resolveUkEntitlementCategories(rawCat) : (rawCat || 'AM / B / fkq');
             if (elCat) {
-                elCat.textContent = (rawCat && rawCat !== 'B') ? rawCat : 'AM/A2/B1/C1/D1/BE/CE/DE/f/k/q';
+                elCat.textContent = resolvedCat;
             }
         }
 
