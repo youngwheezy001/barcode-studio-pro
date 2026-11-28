@@ -477,20 +477,48 @@
             </div>
 
             <!-- Categories & Search -->
-            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 pt-1">
-                <!-- [LINES TO EDIT: CHANGE SECTION / CATEGORY FILTER BUTTONS BELOW] -->
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold">
-                    <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs">All Items</button>
-                    <button type="button" onclick="filterPsdCategory('templates')" id="psd-filter-templates" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🎨 Templates &amp; PSDs</button>
-                    <button type="button" onclick="filterPsdCategory('bundles')" id="psd-filter-bundles" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">📦 Bundles &amp; Archives</button>
-                    <button type="button" onclick="filterPsdCategory('section1')" id="psd-filter-section1" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">💳 DL</button>
-                    <button type="button" onclick="filterPsdCategory('section2')" id="psd-filter-section2" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🧾 Utility Bills & Bank Statements</button>
-                    <button type="button" onclick="filterPsdCategory('ai_training')" id="psd-filter-ai_training" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">🧠 AI Training Answers</button>
-                    <button type="button" onclick="loadAutonomousMarketProducts(true)" title="Force Refresh from Cloudflare R2" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">🔄 Sync</button>
+            <div class="flex flex-col gap-2.5 pt-1">
+                <!-- Row 1: Section Category Tabs & Quick Refresh -->
+                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold no-scrollbar">
+                        <button type="button" onclick="filterPsdCategory('all')" id="psd-filter-all" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs whitespace-nowrap">All Items</button>
+                        <button type="button" onclick="filterPsdCategory('section1')" id="psd-filter-section1" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap">💳 DL &amp; Real ID</button>
+                        <button type="button" onclick="filterPsdCategory('section2')" id="psd-filter-section2" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap">🧾 Utility Bills &amp; Statements</button>
+                        <button type="button" onclick="filterPsdCategory('ai_training')" id="psd-filter-ai_training" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap">🧠 AI Training Answers</button>
+                        <button type="button" onclick="filterPsdCategory('templates')" id="psd-filter-templates" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap">🎨 Templates &amp; PSDs</button>
+                        <button type="button" onclick="filterPsdCategory('bundles')" id="psd-filter-bundles" class="psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap">📦 Bundles &amp; Archives</button>
+                    </div>
+                    <button type="button" onclick="loadAutonomousMarketProducts(true)" title="Force Refresh from Cloudflare R2" class="self-end sm:self-auto px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer text-xs font-medium">🔄 Sync</button>
                 </div>
-                <div class="relative min-w-[200px]">
-                    <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Search store items..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500">
-                    <span class="absolute left-2.5 top-1.5 text-xs text-slate-400">🔍</span>
+
+                <!-- Row 2: Geographic Dropdown Filters & Search Bar (Mobile, Tablet, Desktop Responsive) -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                    <!-- Continent Dropdown -->
+                    <div class="sm:col-span-3 flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
+                        <span class="text-xs">🌍</span>
+                        <select id="psd-continent-filter" onchange="filterPsdContinent(this.value)" class="w-full text-xs bg-transparent border-0 font-semibold text-slate-700 focus:outline-none cursor-pointer">
+                            <option value="all">All Continents</option>
+                            <option value="North America">North America (US &amp; Canada)</option>
+                            <option value="Europe">Europe (UK &amp; EU)</option>
+                            <option value="Oceania">Oceania (Australia &amp; NZ)</option>
+                            <option value="Asia">Asia</option>
+                            <option value="South America">South America</option>
+                        </select>
+                    </div>
+
+                    <!-- State / Country Dropdown -->
+                    <div class="sm:col-span-4 flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
+                        <span class="text-xs">📍</span>
+                        <select id="psd-region-filter" onchange="filterPsdRegion(this.value)" class="w-full text-xs bg-transparent border-0 font-semibold text-slate-700 focus:outline-none cursor-pointer">
+                            <option value="all">All States &amp; Jurisdictions</option>
+                        </select>
+                    </div>
+
+                    <!-- Instant Search Input -->
+                    <div class="sm:col-span-5 relative">
+                        <input type="text" id="psd-search-input" oninput="searchPsdTemplates(this.value)" placeholder="Instant search (e.g. Texas, CA, NY, UK, 1040)..." class="w-full text-xs px-3 py-1.5 pl-8 rounded-lg border border-slate-200 focus:outline-none focus:border-purple-500 shadow-xs">
+                        <span class="absolute left-2.5 top-2 text-xs text-slate-400">🔍</span>
+                    </div>
                 </div>
             </div>
 
@@ -13253,7 +13281,84 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
 
         // --- PSD, STUDIES & TEMPLATE MARKET MODAL HANDLERS ---
         let activePsdCategory = 'all';
+        let activeContinentFilter = 'all';
+        let activeRegionFilter = 'all';
         let cachedMarketProducts = null;
+
+        // Comprehensive alias & keyword dictionary for instantaneous search
+        const GEO_SEARCH_ALIASES = {
+            // 50 US States + DC
+            'al': ['alabama'], 'ak': ['alaska'], 'az': ['arizona'], 'ar': ['arkansas'],
+            'ca': ['california', 'cali'], 'co': ['colorado'], 'ct': ['connecticut'], 'de': ['delaware'],
+            'dc': ['district of columbia', 'washington dc'], 'fl': ['florida'], 'ga': ['georgia'],
+            'hi': ['hawaii'], 'id': ['idaho'], 'il': ['illinois'], 'in': ['indiana'],
+            'ia': ['iowa'], 'ks': ['kansas'], 'ky': ['kentucky'], 'la': ['louisiana'],
+            'me': ['maine'], 'md': ['maryland'], 'ma': ['massachusetts'], 'mi': ['michigan'],
+            'mn': ['minnesota'], 'ms': ['mississippi'], 'mo': ['missouri'], 'mt': ['montana'],
+            'ne': ['nebraska'], 'nv': ['nevada'], 'nh': ['new hampshire'], 'nj': ['new jersey'],
+            'nm': ['new mexico'], 'ny': ['new york', 'nyc'], 'nc': ['north carolina'], 'nd': ['north dakota'],
+            'oh': ['ohio'], 'ok': ['oklahoma'], 'or': ['oregon'], 'pa': ['pennsylvania'],
+            'ri': ['rhode island'], 'sc': ['south carolina'], 'sd': ['south dakota'], 'tn': ['tennessee'],
+            'tx': ['texas'], 'ut': ['utah'], 'vt': ['vermont'], 'va': ['virginia'],
+            'wa': ['washington'], 'wv': ['west virginia'], 'wi': ['wisconsin'], 'wy': ['wyoming'],
+            // Canada (Provinces & Territories)
+            'ab': ['alberta'], 'bc': ['british columbia'], 'mb': ['manitoba'], 'nb': ['new brunswick'],
+            'nl': ['newfoundland', 'labrador'], 'ns': ['nova scotia'], 'nt': ['northwest territories', 'nwt'],
+            'nu': ['nunavut'], 'on': ['ontario'], 'pe': ['prince edward island', 'pei'], 'qc': ['quebec'],
+            'sk': ['saskatchewan'], 'yt': ['yukon'],
+            // UK & Europe
+            'uk': ['united kingdom', 'great britain', 'england', 'scotland', 'wales', 'dvla', 'london'],
+            'gb': ['great britain', 'united kingdom', 'england', 'scotland', 'wales'],
+            'eng': ['england', 'great britain', 'uk'],
+            'sco': ['scotland', 'great britain', 'uk'],
+            'wal': ['wales', 'great britain', 'uk'],
+            'nir': ['northern ireland', 'dva', 'coleraine'],
+            'eu': ['europe', 'european'],
+            'de': ['germany', 'deutschland', 'german'],
+            'fr': ['france', 'french'],
+            'es': ['spain', 'spanish'],
+            'it': ['italy', 'italian'],
+            'au': ['australia', 'australian', 'aussie'],
+            'nz': ['new zealand', 'kiwi'],
+            // Document types & abbreviations
+            'dl': ['driver license', 'drivers license', 'driving licence', 'driver', 'driving'],
+            'id': ['identification', 'identity card', 'id card', 'state id', 'real id'],
+            'util': ['utility bill', 'water', 'electric', 'gas', 'power', 'internet'],
+            'stmt': ['bank statement', 'financial statement', 'statement'],
+            'tax': ['w2', '1040', 'tax return', 'irs'],
+            'cert': ['certificate', 'diploma']
+        };
+
+        const GEO_SEARCH_EXPANSION_MAP = {};
+        for (const [code, names] of Object.entries(GEO_SEARCH_ALIASES)) {
+            const list = [code, ...names];
+            for (const item of list) {
+                const k = item.toLowerCase();
+                if (!GEO_SEARCH_EXPANSION_MAP[k]) GEO_SEARCH_EXPANSION_MAP[k] = new Set();
+                list.forEach(val => GEO_SEARCH_EXPANSION_MAP[k].add(val.toLowerCase()));
+            }
+        }
+
+        function getProductGeoAliases(text) {
+            const lower = (text || '').toLowerCase();
+            const found = new Set();
+            for (const [code, names] of Object.entries(GEO_SEARCH_ALIASES)) {
+                const codeRegex = new RegExp(`(^|[\\s_\\-\\(\\[\\/.,])${code}([\\s_\\-\\)\\]\\/.,]|$)`, 'i');
+                if (codeRegex.test(lower)) {
+                    found.add(code);
+                    names.forEach(n => found.add(n));
+                } else {
+                    for (const n of names) {
+                        if (lower.includes(n)) {
+                            found.add(code);
+                            names.forEach(x => found.add(x));
+                            break;
+                        }
+                    }
+                }
+            }
+            return Array.from(found);
+        }
 
         function safeMarketText(str) {
             if (!str) return '';
@@ -13317,9 +13422,47 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
+        function populateRegionFilterDropdown(products, selectedContinent) {
+            const select = document.getElementById('psd-region-filter');
+            if (!select) return;
+            const currentVal = select.value;
+
+            const regionSet = new Set();
+            (products || []).forEach(p => {
+                const itemCont = (p.continent || 'Global').trim();
+                const contMatch = (!selectedContinent || selectedContinent === 'all' || itemCont.toLowerCase() === selectedContinent.toLowerCase() ||
+                    (selectedContinent.toLowerCase() === 'north america' && (p.country === 'United States' || p.country === 'Canada')));
+
+                if (contMatch) {
+                    if (p.state && p.state.trim()) {
+                        regionSet.add(p.state.trim());
+                    } else if (p.country && p.country.trim() && p.country !== 'United States' && p.country !== 'Global') {
+                        regionSet.add(p.country.trim());
+                    }
+                }
+            });
+
+            const sortedRegions = Array.from(regionSet).sort((a, b) => a.localeCompare(b));
+            let html = '<option value="all">All States &amp; Jurisdictions</option>';
+            sortedRegions.forEach(reg => {
+                html += `<option value="${safeMarketText(reg)}">${safeMarketText(reg)}</option>`;
+            });
+            select.innerHTML = html;
+
+            if (sortedRegions.includes(currentVal)) {
+                select.value = currentVal;
+            } else {
+                select.value = 'all';
+                activeRegionFilter = 'all';
+            }
+        }
+
         function renderMarketProductsGrid(products) {
             const grid = document.getElementById('psd-templates-grid');
             if (!grid) return;
+
+            // Populate region filter selector dynamically
+            populateRegionFilterDropdown(products, activeContinentFilter);
 
             // Alphabetical arrangement by title
             const sorted = [...(products || [])].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
@@ -13343,15 +13486,29 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const safeDesc = safeMarketText(p.description || '');
                 const safeCatLabel = safeMarketText(catLabel);
                 const safeSize = safeMarketText(sizeStr);
-                const geoAliases = getProductGeoAliases(`${p.title} ${p.description || ''} ${tags.join(' ')}`);
-                const searchData = safeMarketText(`${p.title} ${p.description || ''} ${tags.join(' ')} ${geoAliases.join(' ')}`).toLowerCase();
+                const geoState = p.state || '';
+                const geoCountry = p.country || '';
+                const geoContinent = p.continent || '';
+                const geoLocBadge = geoState ? `📍 ${geoState}` : (geoCountry && geoCountry !== 'Global' ? `📍 ${geoCountry}` : '');
+
+                const geoAliases = getProductGeoAliases(`${p.title} ${p.description || ''} ${tags.join(' ')} ${geoState} ${geoCountry}`);
+                const searchData = safeMarketText(`${p.title} ${p.description || ''} ${tags.join(' ')} ${geoState} ${geoCountry} ${geoContinent} ${geoAliases.join(' ')}`).toLowerCase();
 
                 return `
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="${category}" data-title="${safeTitle}" data-search="${searchData}">
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md"
+                     data-category="${category}"
+                     data-title="${safeTitle}"
+                     data-continent="${safeMarketText(geoContinent)}"
+                     data-state="${safeMarketText(geoState)}"
+                     data-country="${safeMarketText(geoCountry)}"
+                     data-search="${searchData}">
                     <div class="flex flex-col gap-2">
-                        <div class="flex justify-between items-start">
-                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeColor}">${safeCatLabel}</span>
-                            <span class="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">${safeSize}</span>
+                        <div class="flex justify-between items-start gap-1 flex-wrap">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeColor}">${safeCatLabel}</span>
+                                ${geoLocBadge ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">${safeMarketText(geoLocBadge)}</span>` : ''}
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 ml-auto">${safeSize}</span>
                         </div>
                         <h3 class="text-sm font-bold text-slate-900 leading-snug">${safeTitle}</h3>
                         <p class="text-[11px] text-slate-600 leading-relaxed">${safeDesc}</p>
@@ -13364,7 +13521,7 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                             <span class="text-base font-extrabold text-slate-900">$${priceUsd}</span>
                             <span class="text-[10px] text-slate-500 block">${priceKes}</span>
                         </div>
-                        <button type="button" onclick="buyPsdTemplate('${p.id}', '${safeTitle.replace(/'/g, "\\'")}', ${priceUsd})" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                        <button type="button" onclick="buyPsdTemplate('${p.id}', '${safeTitle.replace(/'/g, "\'")}', ${priceUsd})" class="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
                             <span>⚡ Download / Buy</span>
                         </button>
                     </div>
@@ -13372,181 +13529,182 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 `;
             }).join('');
 
-            if (activePsdCategory && activePsdCategory !== 'all') {
-                filterPsdCategory(activePsdCategory);
-            }
-        }
-
-        const GEO_SEARCH_ALIASES = {
-            'al': ['alabama'], 'ak': ['alaska'], 'az': ['arizona'], 'ar': ['arkansas'],
-            'ca': ['california'], 'co': ['colorado'], 'ct': ['connecticut'], 'de': ['delaware'],
-            'dc': ['district of columbia', 'washington dc'], 'fl': ['florida'], 'ga': ['georgia'],
-            'hi': ['hawaii'], 'id': ['idaho'], 'il': ['illinois'], 'in': ['indiana'],
-            'ia': ['iowa'], 'ks': ['kansas'], 'ky': ['kentucky'], 'la': ['louisiana'],
-            'me': ['maine'], 'md': ['maryland'], 'ma': ['massachusetts'], 'mi': ['michigan'],
-            'mn': ['minnesota'], 'ms': ['mississippi'], 'mo': ['missouri'], 'mt': ['montana'],
-            'ne': ['nebraska'], 'nv': ['nevada'], 'nh': ['new hampshire'], 'nj': ['new jersey'],
-            'nm': ['new mexico'], 'ny': ['new york'], 'nc': ['north carolina'], 'nd': ['north dakota'],
-            'oh': ['ohio'], 'ok': ['oklahoma'], 'or': ['oregon'], 'pa': ['pennsylvania'],
-            'ri': ['rhode island'], 'sc': ['south carolina'], 'sd': ['south dakota'], 'tn': ['tennessee'],
-            'tx': ['texas'], 'ut': ['utah'], 'vt': ['vermont'], 'va': ['virginia'],
-            'wa': ['washington'], 'wv': ['west virginia'], 'wi': ['wisconsin'], 'wy': ['wyoming'],
-            // Canada
-            'ab': ['alberta'], 'bc': ['british columbia'], 'mb': ['manitoba'], 'nb': ['new brunswick'],
-            'nl': ['newfoundland', 'labrador'], 'ns': ['nova scotia'], 'nt': ['northwest territories'],
-            'nu': ['nunavut'], 'on': ['ontario'], 'pe': ['prince edward island'], 'qc': ['quebec'],
-            'sk': ['saskatchewan'], 'yt': ['yukon'],
-            // UK
-            'uk': ['united kingdom', 'great britain', 'england', 'scotland', 'wales', 'dvla'],
-            'gb': ['great britain', 'united kingdom', 'england', 'scotland', 'wales'],
-            'eng': ['england', 'great britain', 'uk'],
-            'sco': ['scotland', 'great britain', 'uk'],
-            'wal': ['wales', 'great britain', 'uk'],
-            'nir': ['northern ireland', 'dva', 'coleraine'],
-            // Generic abbreviations
-            'dl': ['driver license', 'drivers license', 'driving licence', 'driver'],
-            'id': ['identification', 'identity card', 'id card', 'state id'],
-            'util': ['utility bill', 'water', 'electric', 'gas', 'power'],
-            'stmt': ['bank statement', 'financial statement', 'statement'],
-            'tax': ['w2', '1040', 'tax return']
-        };
-
-        const GEO_SEARCH_EXPANSION_MAP = {};
-        for (const [code, names] of Object.entries(GEO_SEARCH_ALIASES)) {
-            const list = [code, ...names];
-            for (const item of list) {
-                const k = item.toLowerCase();
-                if (!GEO_SEARCH_EXPANSION_MAP[k]) GEO_SEARCH_EXPANSION_MAP[k] = new Set();
-                list.forEach(val => GEO_SEARCH_EXPANSION_MAP[k].add(val.toLowerCase()));
-            }
-        }
-
-        function getProductGeoAliases(text) {
-            const lower = (text || '').toLowerCase();
-            const found = new Set();
-            for (const [code, names] of Object.entries(GEO_SEARCH_ALIASES)) {
-                const codeRegex = new RegExp(`(^|[\\s_\\-\\(\\[\\/.,])${code}([\\s_\\-\\)\\]\\/.,]|$)`, 'i');
-                if (codeRegex.test(lower)) {
-                    found.add(code);
-                    names.forEach(n => found.add(n));
-                } else {
-                    for (const n of names) {
-                        if (lower.includes(n)) {
-                            found.add(code);
-                            names.forEach(x => found.add(x));
-                            break;
-                        }
-                    }
-                }
-            }
-            return Array.from(found);
+            // Apply current filters instantaneously
+            searchPsdTemplates();
         }
 
         function filterPsdCategory(cat) {
             activePsdCategory = cat || 'all';
             const btns = document.querySelectorAll('.psd-filter-btn');
             btns.forEach(b => {
-                b.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition';
+                b.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap';
             });
             const activeBtn = document.getElementById(`psd-filter-${cat}`);
             if (activeBtn) {
-                activeBtn.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs';
+                activeBtn.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs whitespace-nowrap';
             }
-            const input = document.getElementById('psd-search-input');
-            searchPsdTemplates(input ? input.value : '');
+            searchPsdTemplates();
         }
 
-        let psdSearchRaf = null;
-        function searchPsdTemplates(query) {
-            if (psdSearchRaf) cancelAnimationFrame(psdSearchRaf);
-            psdSearchRaf = requestAnimationFrame(() => {
-                const rawQ = (query || '').toLowerCase().trim();
-                const terms = rawQ ? rawQ.split(/\s+/).filter(Boolean) : [];
+        function filterPsdContinent(continent) {
+            activeContinentFilter = continent || 'all';
+            populateRegionFilterDropdown(cachedMarketProducts, activeContinentFilter);
+            searchPsdTemplates();
+        }
 
-                const expandedTermsList = terms.map(term => {
-                    const expanded = new Set([term]);
-                    if (GEO_SEARCH_EXPANSION_MAP[term]) {
-                        GEO_SEARCH_EXPANSION_MAP[term].forEach(alias => expanded.add(alias));
-                    } else {
-                        for (const [k, setVal] of Object.entries(GEO_SEARCH_EXPANSION_MAP)) {
-                            if (k.startsWith(term) || term.startsWith(k)) {
-                                setVal.forEach(alias => expanded.add(alias));
-                            }
+        function filterPsdRegion(region) {
+            activeRegionFilter = region || 'all';
+            searchPsdTemplates();
+        }
+
+        function matchesMarketTerm(card, variant) {
+            if (!variant) return false;
+            if (variant.length <= 2) {
+                // Short tokens (e.g. state abbreviations 'tx', 'ca', 'ny') match exact token boundary
+                return card._searchTokens && card._searchTokens.has(variant);
+            }
+            // Longer words (e.g. 'texas', 'california', 'statement', 'electric') match substring
+            return card._searchText && card._searchText.includes(variant);
+        }
+
+        function searchPsdTemplates(query) {
+            const input = document.getElementById('psd-search-input');
+            const rawQ = ((query !== undefined ? query : (input ? input.value : '')) || '').toLowerCase().trim();
+            const terms = rawQ ? rawQ.split(/\s+/).filter(Boolean) : [];
+
+            // Instantaneously expand each keyword using bi-directional alias map
+            const expandedTermsList = terms.map(term => {
+                const expanded = new Set([term]);
+                if (GEO_SEARCH_EXPANSION_MAP[term]) {
+                    GEO_SEARCH_EXPANSION_MAP[term].forEach(alias => expanded.add(alias));
+                } else {
+                    for (const [k, setVal] of Object.entries(GEO_SEARCH_EXPANSION_MAP)) {
+                        if (k.startsWith(term) || term.startsWith(k)) {
+                            setVal.forEach(alias => expanded.add(alias));
                         }
                     }
-                    return Array.from(expanded);
+                }
+                return Array.from(expanded);
+            });
+
+            const cards = document.querySelectorAll('.psd-item-card');
+            let visibleCount = 0;
+
+            cards.forEach(c => {
+                if (!c._searchText) {
+                    const title = (c.getAttribute('data-title') || '').toLowerCase();
+                    const searchAttr = (c.getAttribute('data-search') || '').toLowerCase();
+                    const cat = (c.getAttribute('data-category') || '').toLowerCase();
+                    const state = (c.getAttribute('data-state') || '').toLowerCase();
+                    const country = (c.getAttribute('data-country') || '').toLowerCase();
+                    const continent = (c.getAttribute('data-continent') || '').toLowerCase();
+                    const content = (c.textContent || '').toLowerCase();
+                    c._searchText = `${title} ${searchAttr} ${cat} ${state} ${country} ${continent} ${content}`;
+                    c._searchTokens = new Set(c._searchText.split(/[\s_\-\(\)\[\],.\/]+/));
+                }
+
+                const cardCat = c.getAttribute('data-category') || '';
+                const cardState = (c.getAttribute('data-state') || '').toLowerCase();
+                const cardCountry = (c.getAttribute('data-country') || '').toLowerCase();
+                const cardContinent = (c.getAttribute('data-continent') || '').toLowerCase();
+
+                // 1. Category check
+                const categoryMatch = (activePsdCategory === 'all' || !activePsdCategory || cardCat === activePsdCategory);
+                if (!categoryMatch) {
+                    c.style.display = 'none';
+                    return;
+                }
+
+                // 2. Continent check
+                let continentMatch = true;
+                if (activeContinentFilter && activeContinentFilter !== 'all') {
+                    const filterCont = activeContinentFilter.toLowerCase();
+                    continentMatch = (cardContinent === filterCont);
+                    if (!continentMatch && filterCont === 'north america' && (cardCountry === 'united states' || cardCountry === 'canada')) {
+                        continentMatch = true;
+                    }
+                }
+                if (!continentMatch) {
+                    c.style.display = 'none';
+                    return;
+                }
+
+                // 3. Region check
+                let regionMatch = true;
+                if (activeRegionFilter && activeRegionFilter !== 'all') {
+                    const filterReg = activeRegionFilter.toLowerCase();
+                    regionMatch = (cardState === filterReg || cardCountry === filterReg || (c._searchTokens && c._searchTokens.has(filterReg)) || c._searchText.includes(filterReg));
+                }
+                if (!regionMatch) {
+                    c.style.display = 'none';
+                    return;
+                }
+
+                // 4. Text query match (instantaneous token & substring matching)
+                if (!rawQ) {
+                    c.style.display = '';
+                    visibleCount++;
+                    return;
+                }
+
+                const matchesAll = expandedTermsList.every(termVariants => {
+                    return termVariants.some(v => matchesMarketTerm(c, v));
                 });
 
-                const cards = document.querySelectorAll('.psd-item-card');
-                let visibleCount = 0;
-
-                cards.forEach(c => {
-                    if (!c._searchText) {
-                        const title = (c.getAttribute('data-title') || '').toLowerCase();
-                        const searchAttr = (c.getAttribute('data-search') || '').toLowerCase();
-                        const cat = (c.getAttribute('data-category') || '').toLowerCase();
-                        const content = (c.textContent || '').toLowerCase();
-                        c._searchText = `${title} ${searchAttr} ${cat} ${content}`;
-                    }
-
-                    const categoryMatch = (activePsdCategory === 'all' || !activePsdCategory || c.getAttribute('data-category') === activePsdCategory);
-
-                    if (!rawQ) {
-                        c.style.display = categoryMatch ? '' : 'none';
-                        if (categoryMatch) visibleCount++;
-                        return;
-                    }
-
-                    if (!categoryMatch) {
-                        c.style.display = 'none';
-                        return;
-                    }
-
-                    const matchesAll = expandedTermsList.every(termVariants => {
-                        return termVariants.some(v => c._searchText.includes(v));
-                    });
-
-                    if (matchesAll) {
-                        c.style.display = '';
-                        visibleCount++;
-                    } else {
-                        c.style.display = 'none';
-                    }
-                });
-
-                let emptyEl = document.getElementById('psd-no-results-msg');
-                if (visibleCount === 0 && rawQ) {
-                    if (!emptyEl) {
-                        emptyEl = document.createElement('div');
-                        emptyEl.id = 'psd-no-results-msg';
-                        emptyEl.className = 'col-span-full py-12 text-center text-slate-500 flex flex-col items-center justify-center gap-2';
-                        const grid = document.getElementById('psd-templates-grid');
-                        if (grid) grid.appendChild(emptyEl);
-                    }
-                    emptyEl.innerHTML = `
-                        <div class="text-3xl">🔍</div>
-                        <p class="text-sm font-semibold text-slate-700">No matching items found for "<span class="text-purple-600 font-bold">${safeMarketText(rawQ)}</span>"</p>
-                        <p class="text-xs text-slate-500">Try searching by state initials (e.g. <code>TX</code>, <code>CA</code>, <code>FL</code>, <code>NY</code>) or full territory name.</p>
-                        <button type="button" onclick="clearMarketSearch()" class="mt-2 text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold transition cursor-pointer">Clear Search</button>
-                    `;
-                    emptyEl.style.display = '';
-                } else if (emptyEl) {
-                    emptyEl.style.display = 'none';
+                if (matchesAll) {
+                    c.style.display = '';
+                    visibleCount++;
+                } else {
+                    c.style.display = 'none';
                 }
             });
+
+            let emptyEl = document.getElementById('psd-no-results-msg');
+            if (visibleCount === 0) {
+                if (!emptyEl) {
+                    emptyEl = document.createElement('div');
+                    emptyEl.id = 'psd-no-results-msg';
+                    emptyEl.className = 'col-span-full py-12 text-center text-slate-500 flex flex-col items-center justify-center gap-2';
+                    const grid = document.getElementById('psd-templates-grid');
+                    if (grid) grid.appendChild(emptyEl);
+                }
+                emptyEl.innerHTML = `
+                    <div class="text-3xl">🔍</div>
+                    <p class="text-sm font-semibold text-slate-700">No matching templates found for current selection or search "<span class="text-purple-600 font-bold">${safeMarketText(rawQ || activeRegionFilter || activeContinentFilter)}</span>"</p>
+                    <p class="text-xs text-slate-500">Try searching by state code (e.g. <code>TX</code>, <code>CA</code>, <code>FL</code>, <code>NY</code>) or clearing your filters.</p>
+                    <button type="button" onclick="clearMarketSearch()" class="mt-2 text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold transition cursor-pointer">Clear Filters &amp; Search</button>
+                `;
+                emptyEl.style.display = '';
+            } else if (emptyEl) {
+                emptyEl.style.display = 'none';
+            }
         }
 
         function clearMarketSearch() {
             const input = document.getElementById('psd-search-input');
-            if (input) {
-                input.value = '';
-                searchPsdTemplates('');
+            if (input) input.value = '';
+            const contSelect = document.getElementById('psd-continent-filter');
+            if (contSelect) contSelect.value = 'all';
+            activeContinentFilter = 'all';
+            populateRegionFilterDropdown(cachedMarketProducts, 'all');
+            const regSelect = document.getElementById('psd-region-filter');
+            if (regSelect) regSelect.value = 'all';
+            activeRegionFilter = 'all';
+            activePsdCategory = 'all';
+            const btns = document.querySelectorAll('.psd-filter-btn');
+            btns.forEach(b => {
+                b.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition whitespace-nowrap';
+            });
+            const activeBtn = document.getElementById('psd-filter-all');
+            if (activeBtn) {
+                activeBtn.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs whitespace-nowrap';
             }
+            searchPsdTemplates('');
         }
 
         function triggerBrowserFileDownload(url, filename) {
             try {
-                // Primary method: Invisible anchor with download attribute
+                // Single clean download trigger (fixed double download issue)
                 const link = document.createElement('a');
                 link.href = url;
                 if (filename) link.setAttribute('download', filename);
@@ -13556,25 +13714,14 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 link.click();
                 setTimeout(() => {
                     if (document.body.contains(link)) document.body.removeChild(link);
-                }, 2500);
-
-                // Secondary method: Hidden iframe to force immediate browser download stream
-                setTimeout(() => {
-                    const frame = document.createElement('iframe');
-                    frame.style.display = 'none';
-                    frame.src = url;
-                    document.body.appendChild(frame);
-                    setTimeout(() => {
-                        if (document.body.contains(frame)) document.body.removeChild(frame);
-                    }, 5000);
-                }, 300);
+                }, 1500);
             } catch (err) {
                 console.warn("[DOWNLOAD TRIGGER NOTICE]", err);
                 window.location.href = url;
             }
         }
 
-        async function buyPsdTemplate(productId, name, price) {
+                        async function buyPsdTemplate(productId, name, price) {
             if (!currentUser) {
                 showToast('Please sign in or register before downloading or purchasing.', 'info');
                 openAuthModal();

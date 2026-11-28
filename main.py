@@ -5110,9 +5110,16 @@ STATE_NAMES_MAP = {
     'DC': 'District of Columbia'
 }
 
+CANADA_PROVINCES_MAP = {
+    'AB': 'Alberta', 'BC': 'British Columbia', 'MB': 'Manitoba', 'NB': 'New Brunswick',
+    'NL': 'Newfoundland and Labrador', 'NS': 'Nova Scotia', 'NT': 'Northwest Territories',
+    'NU': 'Nunavut', 'ON': 'Ontario', 'PE': 'Prince Edward Island', 'QC': 'Quebec',
+    'SK': 'Saskatchewan', 'YT': 'Yukon'
+}
+
 POPULAR_COUNTRIES_MAP = {
     'United Kingdom': [r'\buk\b', r'united[\s_]?kingdom', r'england', r'british', r'london', r'dvla', r'hmrc', r'hsbc', r'barclays'],
-    'Canada': [r'canada', r'canadian', r'ontario', r'quebec', r'alberta', r'british[\s_]?columbia', r'td[\s_]?bank', r'rbc', r'scotiabank'],
+    'Canada': [r'canada', r'canadian', r'ontario', r'quebec', r'alberta', r'british[\s_]?columbia', r'manitoba', r'saskatchewan', r'td[\s_]?bank', r'rbc', r'scotiabank'],
     'Australia': [r'australia', r'australian', r'nsw', r'victoria', r'queensland', r'commonwealth[\s_]?bank', r'westpac'],
     'Germany': [r'germany', r'german', r'deutschland', r'ausweis', r'fuhrerschein', r'sparkasse'],
     'France': [r'france', r'french', r'permis', r'carte[\s_]?identite'],
@@ -5127,6 +5134,27 @@ POPULAR_COUNTRIES_MAP = {
     'Netherlands': [r'netherlands', r'dutch', r'holland', r'ing[\s_]?bank', r'abn'],
     'Norway': [r'norway', r'norwegian', r'norge'],
     'Portugal': [r'portugal', r'portuguese'],
+    'Czechia': [r'czech', r'czechia'],
+    'Finland': [r'finland', r'finnish'],
+    'Greece': [r'greece', r'greek'],
+    'Honduras': [r'honduras'],
+    'Indonesia': [r'indonesia', r'indonesian'],
+    'Armenia': [r'armenia', r'armenian'],
+    'Azerbaijan': [r'azerbaijan'],
+    'Belarus': [r'belarus'],
+    'Bulgaria': [r'bulgaria', r'bulgarian'],
+    'Chile': [r'chile', r'chilean'],
+    'China': [r'china', r'chinese'],
+    'Cyprus': [r'cyprus'],
+    'Dominican Republic': [r'dominican'],
+    'Estonia': [r'estonia', r'estonian'],
+    'Kazakhstan': [r'kazakhstan'],
+    'Kyrgyzstan': [r'kyrgyzstan'],
+    'Lithuania': [r'lithuania', r'lithuanian'],
+    'Moldova': [r'moldova'],
+    'Philippines': [r'philippines', r'filipino'],
+    'Romania': [r'romania', r'romanian'],
+    'Slovakia': [r'slovakia', r'slovak'],
     'Japan': [r'japan', r'japanese'],
     'Singapore': [r'singapore'],
     'UAE': [r'uae', r'dubai', r'emirates'],
@@ -5134,8 +5162,63 @@ POPULAR_COUNTRIES_MAP = {
     'Brazil': [r'brazil', r'brasil'],
     'Mexico': [r'mexico', r'mexican'],
     'New Zealand': [r'new[\s_]?zealand', r'\bnz\b'],
-    'South Africa': [r'south[\s_]?africa', r'\brsa\b']
+    'Argentina': [r'argentina', r'argentine']
 }
+
+CONTINENTS_MAP = {
+    'North America': ['United States', 'Canada', 'Mexico', 'Honduras', 'Dominican Republic'],
+    'Europe': [
+        'United Kingdom', 'Germany', 'France', 'Spain', 'Italy', 'Sweden', 'Belgium', 'Poland',
+        'Austria', 'Ireland', 'Switzerland', 'Netherlands', 'Norway', 'Portugal', 'Czechia',
+        'Finland', 'Greece', 'Armenia', 'Azerbaijan', 'Belarus', 'Bulgaria', 'Cyprus',
+        'Estonia', 'Lithuania', 'Moldova', 'Romania', 'Slovakia'
+    ],
+    'Asia': ['Japan', 'China', 'Singapore', 'India', 'Indonesia', 'Kazakhstan', 'Kyrgyzstan', 'Philippines', 'UAE'],
+    'Oceania': ['Australia', 'New Zealand'],
+    'South America': ['Brazil', 'Argentina', 'Chile']
+}
+
+def detect_geo_metadata(file_key: str, filename: str) -> tuple[str, str, str]:
+    """
+    Returns (state, country, continent)
+    """
+    lower = (file_key + " " + filename).lower()
+    detected_state = ""
+    detected_country = ""
+    detected_continent = "Global"
+
+    # 1. Check US States
+    for code, full in STATE_NAMES_MAP.items():
+        if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or full.lower() in lower:
+            detected_state = full
+            detected_country = "United States"
+            detected_continent = "North America"
+            return detected_state, detected_country, detected_continent
+
+    # 2. Check Canada Provinces
+    for code, full in CANADA_PROVINCES_MAP.items():
+        if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or full.lower() in lower:
+            detected_state = full
+            detected_country = "Canada"
+            detected_continent = "North America"
+            return detected_state, detected_country, detected_continent
+
+    # 3. Check International Countries
+    for country, pats in POPULAR_COUNTRIES_MAP.items():
+        if any(re.search(p, lower) for p in pats):
+            detected_country = country
+            break
+
+    if detected_country:
+        for cont, countries in CONTINENTS_MAP.items():
+            if detected_country in countries:
+                detected_continent = cont
+                break
+    elif any(k in lower for k in ["usps", "1040", "chase", "wells", "citi", "bank of america", "att", "verizon", "spectrum"]):
+        detected_country = "United States"
+        detected_continent = "North America"
+
+    return detected_state, detected_country, detected_continent
 
 def generate_autonomous_file_description(file_key: str, filename: str, ext_clean: str, category: str, size_formatted: str) -> tuple[str, list[str]]:
     """
@@ -5143,65 +5226,51 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
     an informative, professional brief description and contextual tags for the marketplace card.
     """
     lower = (file_key + " " + filename).lower()
+    state, country, continent = detect_geo_metadata(file_key, filename)
+
+    geo_tags = []
+    if state:
+        geo_tags.append(state)
+    if country and country != state:
+        geo_tags.append(country)
+    if continent and continent != "Global":
+        geo_tags.append(continent)
 
     # 1. Section 1: Driver Licenses & ID Cards
     if category == "section1":
-        region_match = None
-        for code, name in STATE_NAMES_MAP.items():
-            if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or name.lower() in lower:
-                region_match = name
-                break
-
-        if not region_match:
-            for country, patterns in POPULAR_COUNTRIES_MAP.items():
-                if any(re.search(pat, lower) for pat in patterns):
-                    region_match = country
-                    break
-
-        if region_match:
-            desc = f"Master dual-sided {region_match} driver license and identification template in high-resolution layered {ext_clean} format. Fully layered with smart objects for portrait & signature, calibrated typography guidelines, UV watermark overlay guides, and 2D barcode placement blocks ({size_formatted})."
-            tags = [f"{region_match} ID", "Front & Back", "Smart Objects", f"300 DPI {ext_clean}"]
+        loc_str = state or country or "Jurisdiction"
+        if "passport" in lower:
+            desc = f"Official-specification {loc_str} passport biographical data page master template in layered {ext_clean} format ({size_formatted}). Fully calibrated with ICAO Doc 9303 machine-readable zone (MRZ) type-3 guidelines, UV watermark overlay layers, fine-line guilloche security backgrounds, and ghost portrait alignment placeholders."
+            tags = geo_tags + ["Passport Template", "ICAO MRZ Zone", "300 DPI", f"Layered {ext_clean}"]
         elif "badge" in lower or "credential" in lower:
-            desc = f"Commercial identification badge and corporate security credential template in layered {ext_clean} format. Includes photo smart object placeholders, guilloche microprint borders, magnetic stripe back layout, and barcode zone ({size_formatted})."
-            tags = ["ID Badge", "Security Credential", "Smart Objects", f"Layered {ext_clean}"]
-        elif "passport" in lower:
-            desc = f"Official-style passport biographical data page template in layered {ext_clean} format. Configured with ICAO Doc 9303 machine-readable zone (MRZ) guides, fine-line security backgrounds, and ghost portrait alignment."
-            tags = ["Passport Template", "ICAO MRZ Zone", "300 DPI", f"Layered {ext_clean}"]
+            desc = f"Commercial-grade {loc_str} identification credential and security access badge template in layered {ext_clean} format ({size_formatted}). Includes smart object portrait placeholders, guilloche microprint borders, magnetic stripe alignment, and 1D/2D barcode positioning zones."
+            tags = geo_tags + ["ID Badge", "Security Credential", "Smart Objects", f"Layered {ext_clean}"]
         else:
-            desc = f"High-precision identification card and driver license master template in layered {ext_clean} format ({size_formatted}). Features front & back artboards, editable vector shapes, calibrated font grids, and barcode alignment guides."
-            tags = ["Driver License", "ID Card", "Front & Back", f"300 DPI {ext_clean}"]
+            desc = f"Master dual-sided {loc_str} driver license and Real ID master template in 300 DPI high-definition layered {ext_clean} format ({size_formatted}). Includes authentic front & back artboards with smart object photo & signature layers, official font alignment guidelines, security microprint borders, and precision 2D PDF417 / magnetic stripe barcode blocks."
+            tags = geo_tags + ["Driver License", "Real ID Compliant", "Front & Back", "Smart Objects", f"300 DPI {ext_clean}"]
         return desc, tags
 
     # 2. Section 2: Utility Bills & Bank Statements (PDF & Word Documents)
     elif category == "section2":
-        region_match = None
-        for code, name in STATE_NAMES_MAP.items():
-            if re.search(r'(?:^|[\W_])' + re.escape(code.lower()) + r'(?:[\W_]|\d|$)', lower) or name.lower() in lower:
-                region_match = name
-                break
-        if not region_match:
-            for country, patterns in POPULAR_COUNTRIES_MAP.items():
-                if any(re.search(pat, lower) for pat in patterns):
-                    region_match = country
-                    break
-
-        prefix_tag = f"{region_match} " if region_match else ""
-
+        loc_str = state or country or "Standard"
         if any(w in lower for w in ["bank", "statement", "financial", "ledger", "account"]):
-            desc = f"Authentic commercial bank account statement and financial proof document ({region_match or 'Commercial'}) in clean editable {ext_clean} format ({size_formatted}). Features itemized monthly transaction ledger, running balances, account summary tables, and customizable institution branding."
-            tags = [f"{prefix_tag}Bank Statement", "Financial Proof", "Editable Tables", f"{ext_clean} Document"]
-        elif any(w in lower for w in ["utility", "electric", "water", "gas", "power", "bill", "energy"]):
-            desc = f"Fully editable proof-of-address utility statement document ({region_match or 'Residential/Commercial'}) provided in structured {ext_clean} format ({size_formatted}). Includes meter reading consumption charts, billing periods, barcode, and tear-off payment remittance slip."
-            tags = [f"{prefix_tag}Utility Bill", "Proof of Address", "Meter Readings", f"{ext_clean} Document"]
+            desc = f"Authentic {loc_str} commercial bank account statement and financial proof document in editable {ext_clean} format ({size_formatted}). Features itemized monthly transaction ledger, running balances, account summary tables, official bank letterhead styling, and customizable institution branding."
+            tags = geo_tags + ["Bank Statement", "Proof of Funds", "Financial Proof", f"{ext_clean} Document"]
+        elif any(w in lower for w in ["utility", "electric", "water", "gas", "power", "bill", "energy", "hydro"]):
+            desc = f"Fully editable proof-of-address {loc_str} utility statement document provided in structured {ext_clean} format ({size_formatted}). Includes meter reading consumption charts, billing periods, account numbers, official service address blocks, and tear-off payment remittance slip."
+            tags = geo_tags + ["Utility Bill", "Proof of Address", "Meter Readings", f"{ext_clean} Document"]
         elif any(w in lower for w in ["invoice", "receipt", "billing", "order"]):
-            desc = f"Detailed commercial invoice and payment receipt document in clean {ext_clean} format. Formatted with customizable line items, subtotal & tax calculation tables, payment terms, and vendor remittance stubs."
-            tags = [f"{prefix_tag}Commercial Invoice", "Payment Receipt", "Itemized Table", f"{ext_clean} Document"]
+            desc = f"Commercial-grade {loc_str} billing invoice and verified payment receipt document in clean {ext_clean} format ({size_formatted}). Formatted with customizable line items, subtotal & tax calculation tables, payment terms, and vendor remittance stubs."
+            tags = geo_tags + ["Commercial Invoice", "Payment Receipt", "Itemized Table", f"{ext_clean} Document"]
         elif any(w in lower for w in ["paystub", "payroll", "salary", "wage"]):
-            desc = f"Detailed payroll earnings statement and paystub document in fillable {ext_clean} format. Includes gross-to-net salary tables, deductions, YTD totals, and employer header blocks."
-            tags = [f"{prefix_tag}Paystub", "Earnings Statement", "Payroll", f"{ext_clean} Document"]
+            desc = f"Detailed {loc_str} payroll earnings statement and paystub document in fillable {ext_clean} format ({size_formatted}). Includes gross-to-net salary tables, statutory tax deductions, YTD totals, and employer header blocks."
+            tags = geo_tags + ["Paystub", "Proof of Income", "Earnings Statement", f"{ext_clean} Document"]
+        elif any(w in lower for w in ["tax", "1040", "w2", "w-2", "schedule"]):
+            desc = f"Official-specification {loc_str} federal and state tax verification document in editable {ext_clean} format ({size_formatted}). Features standard IRS line item fields, calculation tables, and tax preparation summary sections."
+            tags = geo_tags + ["Tax Return", "IRS 1040 / W-2", "Proof of Income", f"{ext_clean} Document"]
         else:
-            desc = f"Professional editable business document and verification proof ({region_match or 'Verified'}) in clean {ext_clean} format ({size_formatted}). Features structured text layouts, fillable table sections, and official letterhead guidelines."
-            tags = [f"{prefix_tag}Official Document", "Verification Proof", "Editable", f"{ext_clean} Format"]
+            desc = f"Professional editable business document and verification proof ({loc_str}) in clean {ext_clean} format ({size_formatted}). Features structured text layouts, fillable table sections, and official letterhead guidelines."
+            tags = geo_tags + ["Official Document", "Verification Proof", "Editable", f"{ext_clean} Format"]
         return desc, tags
 
     # 3. AI Training Answers & Assessment Guides
@@ -5212,7 +5281,10 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
 
     # 4. Bundles & Archives
     elif category == "bundles":
-        if "guilloche" in lower:
+        if "font" in lower:
+            desc = f"Comprehensive master typography and signature font package for security documents ({ext_clean} format, {size_formatted}). Contains authentic machine-readable OCR-A, OCR-B, DIN Mittelschrift, Gothic, and realistic handwritten signature script typefaces."
+            tags = ["Security Fonts", "OCR Fonts", "DL Typography", "Full Pack"]
+        elif "guilloche" in lower:
             desc = f"Premium security guilloche background plates and ornamental rosette vector bundle in {ext_clean} format ({size_formatted}). Includes multi-tone anti-copy mathematical wave curves, micro-patterns, and security border frames."
             tags = ["Guilloche", "Anti-Copy", "Security Print", "Rosettes"]
         else:
@@ -5220,11 +5292,12 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
             tags = ["Archive Bundle", "Full Pack", ext_clean, size_formatted]
         return desc, tags
 
-    # 4. Templates & General PSDs
+    # 5. Templates & General PSDs
     else:
+        loc_str = state or country or "Professional"
         if "cert" in lower:
             desc = f"Prestigious ornamental certificate of achievement and completion template in layered {ext_clean} format ({size_formatted}). Features customizable gold seal emblem, editable typography smart objects, and CMYK print-ready separation."
-            tags = ["Certificate", "Gold Foil", "Smart Objects", f"300 DPI {ext_clean}"]
+            tags = geo_tags + ["Certificate", "Gold Foil", "Smart Objects", f"300 DPI {ext_clean}"]
         elif "packaging" in lower or "box" in lower:
             desc = f"Commercial 3D retail packaging box mockup in layered {ext_clean} format ({size_formatted}) with dedicated GS1 barcode zones, nutritional facts grid, realistic paper texture, and customizable foil accents."
             tags = ["Packaging", "Barcode Zone", "300 DPI", f"Layered {ext_clean}"]
@@ -5235,8 +5308,8 @@ def generate_autonomous_file_description(file_key: str, filename: str, ext_clean
             desc = f"Standard 4x6 inch logistics shipping label template in {ext_clean} format ({size_formatted}) with automated Code 128 routing barcode placeholders, AAMVA/GS1 block zones, and thermal printer optimization."
             tags = ["Shipping Label", "4x6 Inch", "Code 128", "Logistics"]
         else:
-            desc = f"Professional print-ready design master template in layered {ext_clean} format ({size_formatted}). Fully organized with smart object layers, precise alignment grids, and calibrated typography."
-            tags = ["Master Template", "300 DPI", "Smart Objects", f"Layered {ext_clean}"]
+            desc = f"Professional {loc_str} print-ready master template in layered {ext_clean} format ({size_formatted}). Fully organized with smart object layers, precise alignment grids, and calibrated typography."
+            tags = geo_tags + ["Master Template", "300 DPI", "Smart Objects", f"Layered {ext_clean}"]
         return desc, tags
 
 def get_r2_client():
@@ -5347,10 +5420,15 @@ def get_autonomous_market_products(force_refresh: bool = False):
                 continue
 
             # Clean human title
-            clean_title = stem.replace("_", " ").replace("-", " ").strip()
+            clean_stem = stem.lstrip("+-_ ").strip()
+            clean_title = clean_stem.replace("_", " ").replace("-", " ").strip()
+            clean_title = re.sub(r'[\s\-_]+[a-z0-9]{6}$', '', clean_title, flags=re.IGNORECASE).strip()
             clean_title = re.sub(r"\s+", " ", clean_title).title()
             if not clean_title:
                 clean_title = filename
+
+            # Detect geographic metadata
+            state_match, country_match, continent_match = detect_geo_metadata(file_key, filename)
 
             # Determine category / section dynamically
             lower_name = file_key.lower()
@@ -5367,11 +5445,11 @@ def get_autonomous_market_products(force_refresh: bool = False):
                     format_str = "PDF Document"
                 else:
                     format_str = f"Document ({ext_clean})"
-            elif any(k in lower_name for k in ["dl", "license", "card", "id", "driver", "state", "aamva", "passport", "badge", "permit"]):
+            elif state_match or (country_match and not any(k in lower_name for k in ["bill", "statement", "utility", "invoice"])) or any(k in lower_name for k in ["dl", "license", "card", "id", "driver", "state", "aamva", "passport", "badge", "permit"]):
                 category = "section1"
                 category_label = SECTION_LABELS.get("section1", "💳 DL")
                 format_str = f"300 DPI Layered {ext_clean}"
-            elif ext_clean in ("ZIP", "RAR", "7Z", "TAR", "GZ") or any(k in lower_name for k in ["bundle", "archive", "pack"]):
+            elif ext_clean in ("ZIP", "RAR", "7Z", "TAR", "GZ") or any(k in lower_name for k in ["bundle", "archive", "pack", "fonts"]):
                 category = "bundles"
                 category_label = SECTION_LABELS.get("bundles", "📦 Bundles & Archives")
                 format_str = f"Archive Bundle ({ext_clean})"
@@ -5416,7 +5494,10 @@ def get_autonomous_market_products(force_refresh: bool = False):
                 "last_modified": last_mod_str,
                 "r2_key": file_key,
                 "tags": auto_tags,
-                "description": auto_desc
+                "description": auto_desc,
+                "state": state_match,
+                "country": country_match,
+                "continent": continent_match
             }
             dynamic_products.append(product_obj)
             by_id[prod_id] = product_obj
