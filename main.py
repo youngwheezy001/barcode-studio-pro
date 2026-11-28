@@ -1081,7 +1081,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(GZipMiddleware, minimum_size=1000)
+# GZipMiddleware removed: Cloudflare edge handles compression automatically; internal GZipMiddleware causes stream hang with BaseHTTPMiddleware on large HTML
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -1171,6 +1171,7 @@ def get_root(request: Request):
         headers={
             "ETag": etag,
             "Cache-Control": "no-cache",
+            "Content-Length": str(len(content)),
             "Vary": "Accept-Encoding"
         }
     )
