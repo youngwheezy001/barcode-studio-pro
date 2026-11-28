@@ -13343,9 +13343,11 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
                 const safeDesc = safeMarketText(p.description || '');
                 const safeCatLabel = safeMarketText(catLabel);
                 const safeSize = safeMarketText(sizeStr);
+                const geoAliases = getProductGeoAliases(`${p.title} ${p.description || ''} ${tags.join(' ')}`);
+                const searchData = safeMarketText(`${p.title} ${p.description || ''} ${tags.join(' ')} ${geoAliases.join(' ')}`).toLowerCase();
 
                 return `
-                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="${category}" data-title="${safeTitle}">
+                <div class="psd-item-card bg-slate-50 border border-slate-200 hover:border-purple-300 rounded-xl p-3.5 flex flex-col justify-between transition hover:shadow-md" data-category="${category}" data-title="${safeTitle}" data-search="${searchData}">
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-start">
                             <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${badgeColor}">${safeCatLabel}</span>
@@ -13375,6 +13377,71 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             }
         }
 
+        const GEO_SEARCH_ALIASES = {
+            'al': ['alabama'], 'ak': ['alaska'], 'az': ['arizona'], 'ar': ['arkansas'],
+            'ca': ['california'], 'co': ['colorado'], 'ct': ['connecticut'], 'de': ['delaware'],
+            'dc': ['district of columbia', 'washington dc'], 'fl': ['florida'], 'ga': ['georgia'],
+            'hi': ['hawaii'], 'id': ['idaho'], 'il': ['illinois'], 'in': ['indiana'],
+            'ia': ['iowa'], 'ks': ['kansas'], 'ky': ['kentucky'], 'la': ['louisiana'],
+            'me': ['maine'], 'md': ['maryland'], 'ma': ['massachusetts'], 'mi': ['michigan'],
+            'mn': ['minnesota'], 'ms': ['mississippi'], 'mo': ['missouri'], 'mt': ['montana'],
+            'ne': ['nebraska'], 'nv': ['nevada'], 'nh': ['new hampshire'], 'nj': ['new jersey'],
+            'nm': ['new mexico'], 'ny': ['new york'], 'nc': ['north carolina'], 'nd': ['north dakota'],
+            'oh': ['ohio'], 'ok': ['oklahoma'], 'or': ['oregon'], 'pa': ['pennsylvania'],
+            'ri': ['rhode island'], 'sc': ['south carolina'], 'sd': ['south dakota'], 'tn': ['tennessee'],
+            'tx': ['texas'], 'ut': ['utah'], 'vt': ['vermont'], 'va': ['virginia'],
+            'wa': ['washington'], 'wv': ['west virginia'], 'wi': ['wisconsin'], 'wy': ['wyoming'],
+            // Canada
+            'ab': ['alberta'], 'bc': ['british columbia'], 'mb': ['manitoba'], 'nb': ['new brunswick'],
+            'nl': ['newfoundland', 'labrador'], 'ns': ['nova scotia'], 'nt': ['northwest territories'],
+            'nu': ['nunavut'], 'on': ['ontario'], 'pe': ['prince edward island'], 'qc': ['quebec'],
+            'sk': ['saskatchewan'], 'yt': ['yukon'],
+            // UK
+            'uk': ['united kingdom', 'great britain', 'england', 'scotland', 'wales', 'dvla'],
+            'gb': ['great britain', 'united kingdom', 'england', 'scotland', 'wales'],
+            'eng': ['england', 'great britain', 'uk'],
+            'sco': ['scotland', 'great britain', 'uk'],
+            'wal': ['wales', 'great britain', 'uk'],
+            'nir': ['northern ireland', 'dva', 'coleraine'],
+            // Generic abbreviations
+            'dl': ['driver license', 'drivers license', 'driving licence', 'driver'],
+            'id': ['identification', 'identity card', 'id card', 'state id'],
+            'util': ['utility bill', 'water', 'electric', 'gas', 'power'],
+            'stmt': ['bank statement', 'financial statement', 'statement'],
+            'tax': ['w2', '1040', 'tax return']
+        };
+
+        const GEO_SEARCH_EXPANSION_MAP = {};
+        for (const [code, names] of Object.entries(GEO_SEARCH_ALIASES)) {
+            const list = [code, ...names];
+            for (const item of list) {
+                const k = item.toLowerCase();
+                if (!GEO_SEARCH_EXPANSION_MAP[k]) GEO_SEARCH_EXPANSION_MAP[k] = new Set();
+                list.forEach(val => GEO_SEARCH_EXPANSION_MAP[k].add(val.toLowerCase()));
+            }
+        }
+
+        function getProductGeoAliases(text) {
+            const lower = (text || '').toLowerCase();
+            const found = new Set();
+            for (const [code, names] of Object.entries(GEO_SEARCH_ALIASES)) {
+                const codeRegex = new RegExp(`(^|[\\s_\\-\\(\\[\\/.,])${code}([\\s_\\-\\)\\]\\/.,]|$)`, 'i');
+                if (codeRegex.test(lower)) {
+                    found.add(code);
+                    names.forEach(n => found.add(n));
+                } else {
+                    for (const n of names) {
+                        if (lower.includes(n)) {
+                            found.add(code);
+                            names.forEach(x => found.add(x));
+                            break;
+                        }
+                    }
+                }
+            }
+            return Array.from(found);
+        }
+
         function filterPsdCategory(cat) {
             activePsdCategory = cat || 'all';
             const btns = document.querySelectorAll('.psd-filter-btn');
@@ -13385,28 +13452,96 @@ AC183937&lt;8CAN9902288F3106191&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&
             if (activeBtn) {
                 activeBtn.className = 'psd-filter-btn px-3 py-1.5 rounded-lg bg-purple-600 text-white font-bold transition shadow-xs';
             }
-            const cards = document.querySelectorAll('.psd-item-card');
-            cards.forEach(c => {
-                if (cat === 'all' || c.getAttribute('data-category') === cat) {
-                    c.style.display = '';
-                } else {
-                    c.style.display = 'none';
+            const input = document.getElementById('psd-search-input');
+            searchPsdTemplates(input ? input.value : '');
+        }
+
+        let psdSearchRaf = null;
+        function searchPsdTemplates(query) {
+            if (psdSearchRaf) cancelAnimationFrame(psdSearchRaf);
+            psdSearchRaf = requestAnimationFrame(() => {
+                const rawQ = (query || '').toLowerCase().trim();
+                const terms = rawQ ? rawQ.split(/\s+/).filter(Boolean) : [];
+
+                const expandedTermsList = terms.map(term => {
+                    const expanded = new Set([term]);
+                    if (GEO_SEARCH_EXPANSION_MAP[term]) {
+                        GEO_SEARCH_EXPANSION_MAP[term].forEach(alias => expanded.add(alias));
+                    } else {
+                        for (const [k, setVal] of Object.entries(GEO_SEARCH_EXPANSION_MAP)) {
+                            if (k.startsWith(term) || term.startsWith(k)) {
+                                setVal.forEach(alias => expanded.add(alias));
+                            }
+                        }
+                    }
+                    return Array.from(expanded);
+                });
+
+                const cards = document.querySelectorAll('.psd-item-card');
+                let visibleCount = 0;
+
+                cards.forEach(c => {
+                    if (!c._searchText) {
+                        const title = (c.getAttribute('data-title') || '').toLowerCase();
+                        const searchAttr = (c.getAttribute('data-search') || '').toLowerCase();
+                        const cat = (c.getAttribute('data-category') || '').toLowerCase();
+                        const content = (c.textContent || '').toLowerCase();
+                        c._searchText = `${title} ${searchAttr} ${cat} ${content}`;
+                    }
+
+                    const categoryMatch = (activePsdCategory === 'all' || !activePsdCategory || c.getAttribute('data-category') === activePsdCategory);
+
+                    if (!rawQ) {
+                        c.style.display = categoryMatch ? '' : 'none';
+                        if (categoryMatch) visibleCount++;
+                        return;
+                    }
+
+                    if (!categoryMatch) {
+                        c.style.display = 'none';
+                        return;
+                    }
+
+                    const matchesAll = expandedTermsList.every(termVariants => {
+                        return termVariants.some(v => c._searchText.includes(v));
+                    });
+
+                    if (matchesAll) {
+                        c.style.display = '';
+                        visibleCount++;
+                    } else {
+                        c.style.display = 'none';
+                    }
+                });
+
+                let emptyEl = document.getElementById('psd-no-results-msg');
+                if (visibleCount === 0 && rawQ) {
+                    if (!emptyEl) {
+                        emptyEl = document.createElement('div');
+                        emptyEl.id = 'psd-no-results-msg';
+                        emptyEl.className = 'col-span-full py-12 text-center text-slate-500 flex flex-col items-center justify-center gap-2';
+                        const grid = document.getElementById('psd-templates-grid');
+                        if (grid) grid.appendChild(emptyEl);
+                    }
+                    emptyEl.innerHTML = `
+                        <div class="text-3xl">🔍</div>
+                        <p class="text-sm font-semibold text-slate-700">No matching items found for "<span class="text-purple-600 font-bold">${safeMarketText(rawQ)}</span>"</p>
+                        <p class="text-xs text-slate-500">Try searching by state initials (e.g. <code>TX</code>, <code>CA</code>, <code>FL</code>, <code>NY</code>) or full territory name.</p>
+                        <button type="button" onclick="clearMarketSearch()" class="mt-2 text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold transition cursor-pointer">Clear Search</button>
+                    `;
+                    emptyEl.style.display = '';
+                } else if (emptyEl) {
+                    emptyEl.style.display = 'none';
                 }
             });
         }
 
-        function searchPsdTemplates(query) {
-            const q = (query || '').toLowerCase().trim();
-            const cards = document.querySelectorAll('.psd-item-card');
-            cards.forEach(c => {
-                const title = (c.getAttribute('data-title') || '').toLowerCase();
-                const text = c.innerText.toLowerCase();
-                if (!q || title.includes(q) || text.includes(q)) {
-                    c.style.display = '';
-                } else {
-                    c.style.display = 'none';
-                }
-            });
+        function clearMarketSearch() {
+            const input = document.getElementById('psd-search-input');
+            if (input) {
+                input.value = '';
+                searchPsdTemplates('');
+            }
         }
 
         function triggerBrowserFileDownload(url, filename) {

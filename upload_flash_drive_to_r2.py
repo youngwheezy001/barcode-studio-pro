@@ -72,7 +72,7 @@ US_NATIONAL_TERMS = [
     'pseg', '1040', 'w2', 'w-2', 'ssn', 'social security', 'greencard', 'green card', 'usps'
 ]
 
-EXCLUDED_DIRS = {"jobs and answers", ".git", ".idea", "__pycache__"}
+EXCLUDED_DIRS = {".git", ".idea", "__pycache__"}
 
 POPULAR_COUNTRIES = {
     "United Kingdom": [r"\buk\b", r"united[\s_]?kingdom", r"england", r"british", r"london", r"dvla", r"hmrc", r"hsbc", r"barclays"],
@@ -151,7 +151,22 @@ def is_us_asset(filename: str) -> tuple[bool, str]:
 
     return False, ""
 
+AI_EXCLUDED_TERMS = ["fullz", "matched", "resume", "stinson", "kyc", "proxy", "fema", "fafsa", "profit", "income", "leak", "txt"]
+
+def is_ai_training_asset(p: Path) -> bool:
+    if p.suffix.lower() not in (".pdf", ".docx"):
+        return False
+    parent = p.parent.name.lower()
+    if "jobs and answers" in parent:
+        nl = p.name.lower()
+        if any(term in nl for term in AI_EXCLUDED_TERMS):
+            return False
+        return True
+    return False
+
 def classify_asset(filepath: Path) -> tuple[str, str]:
+    if is_ai_training_asset(filepath):
+        return "ai_training", "ai_training"
     name_lower = filepath.name.lower()
     ext = filepath.suffix.lower()
 
@@ -204,7 +219,7 @@ def analyze_and_upload(source_dir: str, bucket_name: str = None, scope: str = "u
     print(f"=======================================================\n")
 
     matched_files = []
-    category_counts = {"section1": 0, "section2": 0, "templates": 0, "bundles": 0}
+    category_counts = {"section1": 0, "section2": 0, "ai_training": 0, "templates": 0, "bundles": 0}
     by_region_count = {}
     total_bytes = 0
 
@@ -214,11 +229,16 @@ def analyze_and_upload(source_dir: str, bucket_name: str = None, scope: str = "u
         if any(part.lower() in EXCLUDED_DIRS for part in p.parts):
             continue
 
+        is_ai = is_ai_training_asset(p)
         is_us, us_region = is_us_asset(p.name)
         is_intl, intl_country = is_popular_intl_asset(p.name)
 
         region = ""
-        if scope == "us-only":
+        if is_ai:
+            if scope not in ("popular-intl", "all", "ai-only"):
+                continue
+            region = "AI Training"
+        elif scope == "us-only":
             if not is_us:
                 continue
             region = us_region
@@ -233,6 +253,10 @@ def analyze_and_upload(source_dir: str, bucket_name: str = None, scope: str = "u
                 region = intl_country
             else:
                 continue
+        elif scope == "ai-only":
+            if not is_ai:
+                continue
+            region = "AI Training"
         else:
             region = us_region or intl_country or "General"
 
@@ -256,6 +280,7 @@ def analyze_and_upload(source_dir: str, bucket_name: str = None, scope: str = "u
     print(f"Filtered {len(matched_files)} Matched Assets ({total_bytes / (1024*1024):.1f} MB / {total_bytes / (1024**3):.2f} GB):")
     print(f"  - 💳 Section 1 (DLs, Passports & ID Cards): {category_counts['section1']} files ($6.00)")
     print(f"  - 🧾 Section 2 (Utility Bills, Statements & Tax): {category_counts['section2']} files ($5.00)")
+    print(f"  - 🧠 AI Training (Answers & Guides): {category_counts['ai_training']} files ($2.00)")
     print(f"  - 🎨 Templates & Mockups: {category_counts['templates']} files")
     print(f"  - 📦 Bundles: {category_counts['bundles']} files\n")
 
@@ -389,15 +414,23 @@ if __name__ == "__main__":
     parser.add_argument("--source", default=r"E:\PSD", help="Source folder on flash drive (default: E:\\PSD)")
     parser.add_argument("--bucket", default=None, help="Cloudflare R2 Bucket name")
     parser.add_argument("--us-only", action="store_true", help="Push ONLY US States and US National assets")
-    parser.add_argument("--popular-intl", action="store_true", help="Push popular international country documents (UK, Canada, Australia, Germany, etc.)")
-    parser.add_argument("--all", action="store_true", help="Push both US and popular international documents")
+    parser.add_argument("--popular-intl", action="store_true", help="Push popular international country documents and AI Training Answers")
+    parser.add_argument("--ai-only", action="store_true", help="Push only AI Training answer files")
+    parser.add_argument("--all", action="store_true", help="Push both US, popular international, and AI training documents")
     parser.add_argument("--state", default=None, help="Push only a specific US state (e.g. CA, TX, FL, NY)")
     parser.add_argument("--country", default=None, help="Push only a specific international country (e.g. UK, Canada, Australia)")
     parser.add_argument("--max-storage-gb", type=float, default=8.5, help="Strict storage ceiling to stay safely below 10GB free tier (default: 8.5 GB)")
     parser.add_argument("--dry-run", action="store_true", help="Inspect and preview matched files without uploading")
     args = parser.parse_args()
 
-    scope = "popular-intl" if args.popular_intl else ("all" if args.all else "us-only")
+    if args.ai_only:
+        scope = "ai-only"
+    elif args.popular_intl:
+        scope = "popular-intl"
+    elif args.all:
+        scope = "all"
+    else:
+        scope = "us-only"
 
     analyze_and_upload(
         source_dir=args.source,
